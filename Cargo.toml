@@ -1,0 +1,44 @@
+[workspace]
+
+[package]
+description = "A safe, fast, flexible code analysis and "
+
+name = "thread"
+version = "0.0.1"
+authors.workspace = true
+repository.workspace = true
+license.workspace = true
+rust-version.workspace = true
+documentation.workspace = true
+edition.workspace = true
+
+[workspace.package]
+
+edition = "2024"
+rust-version = "1.85"
+
+license = "AGPL-3.0-or-later"
+repository = "https://github.com/knitli/thread"
+documentation = "https://thread.knitli.dev"
+authors = [
+  "Knitli Inc <knitli@knit.li>",
+  "Adam Poulemanos for Knitli <adam@knit.li",
+]
+resolver = "3"
+keywords = ["parsing", "code-analysis", "tree-sitter"]
+categories = ["development-tools", "parser-implementations"]
+
+[dependencies]
+# Empty for now
+#
+#
+
+[profile.release]
+lto = true        # Link-time optimization
+codegen-units = 1 # Better optimization
+panic = "abort"   # Smaller binary size
+opt-level = 3     # Maximum optimization
+
+[profile.wasm-release]
+inherits = "release"
+opt-level = "s"      # optimize for size in WASM
