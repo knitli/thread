@@ -1,44 +1,137 @@
-[workspace]
-
 [package]
-description = "A safe, fast, flexible code analysis and "
-
+description = "A safe, fast, flexible code analysis and code parsing library for any language; built in Rust with tree-sitter."
+resolver = "3"
 name = "thread"
 version = "0.0.1"
-authors.workspace = true
-repository.workspace = true
-license.workspace = true
-rust-version.workspace = true
-documentation.workspace = true
-edition.workspace = true
+keywords = [
+  "parsing",
+  "code-analysis",
+  "tree-sitter",
+  "static-analysis",
+  "repository-tools",
+]
+categories = ["development-tools", "parser-implementations", "text-processing"]
+
+[workspace]
+members = [
+  "crates/*/",
+]
 
 [workspace.package]
-
 edition = "2024"
 rust-version = "1.85"
-
 license = "AGPL-3.0-or-later"
 repository = "https://github.com/knitli/thread"
 documentation = "https://thread.knitli.dev"
+homepage = "https://knitli.com"
 authors = [
   "Knitli Inc <knitli@knit.li>",
-  "Adam Poulemanos for Knitli <adam@knit.li",
+  "Adam Poulemanos for Knitli <adam@knit.li>",
 ]
-resolver = "3"
-keywords = ["parsing", "code-analysis", "tree-sitter"]
-categories = ["development-tools", "parser-implementations"]
 
-[dependencies]
-# Empty for now
-#
-#
+[workspace.dependencies]
+anyhow = "1.0.98"
+string-interner = "0.19.0" # for fast string interning
+ast-grep-core = { version = "0.38.6" } # core library for AST manipulation
+ast-grep-dynamic = { version = "0.38.6" } # dynamic language loading at runtime
+ast-grep-language = { version = "0.38.6" } # for language-specific AST manipulation
+dashmap = { version = "6.1.0", features = ["rayon", "inline"] }
+fmmap = { version = "0.4.0", features = ["tokio"] } # memory map for handling large files efficiently
+ignore = { version = "0.4.23", features = ["simd-accel"] } # gitignore
+rapidhash = { version = "1.4.0", features = ["std"] } # fast hashing for content addressing
+rayon = { version = "1.10.0", features = ["std"] }
+ropey = "1.6.1"
+serde = { version = "1.0.219", features = ["derive"] }
+serde_json = "1.0.140"
+
+thiserror = "2.0.12"
+# tokio = { version = "1.46.0", features = ["fs", "io-std", "io-util"], default-features = false}
+# type-sitter = { version = "0.7.4"}
+# tree-sitter = { version = "0.25.6", features = ["std", "wasm"] }
+# zerocopy = { version = "0.8.26", features = ["alloc", "simd"] }
+# zerocopy-derive = "0.8.26" # included in zerocopy but separated for faster compilation
+
+
+[features]
+# default = ["derive", "languages", "parser", "query"]
+[build-dependencies]
+cc = "*"
+
+[profile.dev]
+opt-level = 1
+debug = true
+codegen-units = 256 # More codegen units for faster compilation
 
 [profile.release]
 lto = true        # Link-time optimization
-codegen-units = 1 # Better optimization
+codegen-units = 1
 panic = "abort"   # Smaller binary size
 opt-level = 3     # Maximum optimization
 
+[profile.release-dev]
+inherits = "release"
+lto = false
+debug = true
+debug-assertions = true
+overflow-checks = true
+incremental = true
+codegen-units = 256
+
 [profile.wasm-release]
 inherits = "release"
+lto = true
 opt-level = "s"      # optimize for size in WASM
+
+# Optimize proc-macros even in debug builds
+[profile.dev.package."*"]
+opt-level = 3
+
+[workspace.lints.clippy]
+dbg_macro = "deny"
+todo = "allow"
+pedantic = { level = "warn", priority = -1 }
+nursery = { level = "warn", priority = -1 }
+cargo = { level = "warn", priority = -1 }
+
+# Lints we allow because they either:
+#
+# 1. Contain false positives,
+# 2. Are unnecessary, or
+# 3. Worsen the code
+
+
+branches_sharing_code = "allow"
+cast_lossless = "allow"
+cast_possible_truncation = "allow"
+cast_possible_wrap = "allow"
+cast_precision_loss = "allow"
+cast_sign_loss = "allow"
+checked_conversions = "allow"
+cognitive_complexity = "warn"
+collection_is_never_read = "allow"
+fallible_impl_from = "allow"
+fn_params_excessive_bools = "allow"
+if_not_else = "allow"
+inline_always = "allow"
+items_after_statements = "allow"
+match_wildcard_for_single_variants = "allow"
+missing_errors_doc = "allow"
+missing_panics_doc = "allow"
+module_name_repetitions = "allow"
+multiple_crate_versions = "allow"
+obfuscated_if_else = "allow"
+option_if_let_else = "allow"
+or_fun_call = "allow"
+range_plus_one = "allow"
+redundant_clone = "allow"
+redundant_closure_for_method_calls = "allow"
+ref_option = "allow"
+similar_names = "allow"
+string_lit_as_bytes = "allow"
+struct_excessive_bools = "allow"
+struct_field_names = "allow"
+too_many_lines = "allow"
+transmute_undefined_repr = "allow"
+unnecessary_wraps = "allow"
+unused_self = "allow"
+used_underscore_items = "allow"

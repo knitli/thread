@@ -1,0 +1,35 @@
+[package]
+name = "thread-wasm"
+description = "WASM bindings for Thread"
+version = "0.0.1"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+documentation.workspace = true
+authors.workspace = true
+keywords.workspace = true
+categories.workspace = true
+
+[dependencies]
+dlmalloc = { version = "0.2.9", features = ["global"] }
+rayon = { version = "1.10.0", features = ["std", "web_spin_lock"] }
+js-sys = { version = "0.3.77" }
+wasm-bindgen = { version = "0.2.100" }
+web-sys = { version = "0.3.77" }
+thread-core = { version = "0.0.1", path = "../core" }
+
+[lints]
+workspace = true
+
+[features]
+console_error_panic_hook = []
+
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = ["-O3", "--enable-bulk-memory", "--enable-sign-ext"]
+
+[package.metadata.wasm-pack.profile.release.wasm-bindgen]
+debug-js-glue = false
+demangle-name-section = false
+dwarf-debug-info = false
+split-linked-modules = true

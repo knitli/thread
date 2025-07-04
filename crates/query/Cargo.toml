@@ -1,0 +1,26 @@
+[package]
+name = "thread-query"
+version = "0.0.1"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+documentation.workspace = true
+authors.workspace = true
+keywords.workspace = true
+categories.workspace = true
+
+[workspace.dependencies]
+# thread crates
+thread-core = { path = "./thread-core", version = "0.0.1" }
+thread-parser = { path = "./thread-parser", version = "0.0.1" }
+thread-wasm = { path = "./thread-wasm", version = "0.0.1" }
+thread-derive = { path = "./thread-derive", version = "0.0.1" }
+thread-languages = { path = "./thread-languages", version = "0.0.1" }
+thread-cli = { path = "./thread-cli", version = "0.0.1" }
+thread-query = { path = "./thread-query", version = "0.0.1" }
+thread-vcs = { path = "./thread-vcs", version = "0.0.1" }
+
+# external dependencies
+[lints]
+workspace = true

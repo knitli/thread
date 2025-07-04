@@ -1,0 +1,19 @@
+[package]
+name = "thread-core"
+version = "0.0.1"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+documentation.workspace = true
+authors.workspace = true
+keywords.workspace = true
+categories.workspace = true
+
+[dependencies]
+string-interner.workspace = true
+petgraph.workspace = true
+
+[lints]
+workspace = true
+
