@@ -8,7 +8,7 @@ declare PREFIX TREE_MAIN_URL TREE_GRAMS_URL
 declare -a LANGS GRAMMAR_REPOS REPO_LANGS
 declare -A REPO BRANCH
 
-PREFIX="--prefix=parsers/"
+PREFIX="--prefix=parsers"
 TREE_MAIN_URL="https://github.com/tree-sitter/tree-sitter"
 TREE_GRAMS_URL="https://github.com/tree-sitter-grammars/tree-sitter"
 
@@ -93,6 +93,14 @@ get_cmd() {
     local url="$2"
     local action="$3"
     local branch="$4"
+    local word
+    if [[ "$action" == "pull" ]]; then
+        word="updating"
+    elif [[ "$action" == "add" ]]; then
+        word="adding"
+    else
+        error_exit "Invalid action: $action. Use 'pull' or 'add'."
+    fi
     echo "git subtree --squash $PREFIX/$lang $action $url $branch" 2>/dev/null || {
         error_exit "Failed to construct command for language: $lang"
     }
@@ -105,6 +113,7 @@ main() {
         local repo_url cmd
         repo_url=$(get_main_repo "$lang")
         cmd=$(get_cmd "$lang" "$repo_url" "$ARG" "master")
+        echo "executing command: $cmd"
         eval "$cmd" || {
             error_exit "Failed to process language: $lang"
         }
@@ -114,6 +123,7 @@ main() {
         repo_url=$(get_repo "$lang")
         branch=${BRANCH[$lang]:-main}
         cmd=$(get_cmd "$lang" "$repo_url" "$ARG" "$branch")
+        echo "executing command: $cmd"
         eval "$cmd" || {
             error_exit "Failed to process language: $lang"
         }
@@ -122,6 +132,7 @@ main() {
         IFS=',' read -r lang branch <<<"$grammar"
         repo_url=$(get_grammar_repo "$lang")
         cmd="$(get_cmd "$lang" "$repo_url" "$ARG" "$branch")"
+        echo "executing command: $cmd"
         eval "$cmd" || {
             error_exit "Failed to process grammar: $grammar"
         }
