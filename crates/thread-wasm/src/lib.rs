@@ -6,9 +6,9 @@ use web_sys::console;
 
 mod utils;
 
-// Use wee_alloc for smaller binary size
+// Use dlmalloc for memory management in WASM
 #[global_allocator]
-static ALLOC: std::sync::;
+static ALLOC: std::sync::GlobalDlmalloc = std::sync::GlobalDlmalloc;
 
 #[wasm_bindgen]
 pub struct ThreadWasm {

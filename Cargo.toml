@@ -26,7 +26,7 @@ authors = [
 
 [workspace]
 members = [
-  "crates/thread-cli", "crates/thread-core", "crates/thread-diff", "crates/thread-fs", "crates/thread-parse", "crates/thread-store", "crates/thread-wasm"
+  "crates/thread-cli", "crates/thread-core", "crates/thread-engine", "crates/thread-diff", "crates/thread-fs", "crates/thread-parse", "crates/thread-store", "crates/thread-wasm"
 , "xtask"]
 
 # Note: difftastic's diffing functionality is vendored internally
@@ -125,6 +125,7 @@ unused_self = "allow"
 used_underscore_items = "allow"
 
 [workspace.package]
+version = "0.0.1"
 edition = "2024"
 rust-version = "1.85"
 license = "AGPL-3.0-or-later"
