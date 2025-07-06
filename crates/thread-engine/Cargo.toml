@@ -23,7 +23,7 @@ thiserror.workspace = true
 serde.workspace = true
 
 # Graph processing
-petgraph = "0.6"
+petgraph = "0.8"
 
 # Performance
 rayon = "1.10"
