@@ -1,18 +1,19 @@
 [tools]
 act = "latest"
-bun = "latest"
 cargo-binstall = "latest"
 "cargo:cargo-audit" = "latest"
 "cargo:cargo-deny" = "latest"
 "cargo:cargo-edit" = "latest"
+"cargo:cargo-generate" = "latest"
 "cargo:cargo-nextest" = "latest"
 "cargo:cargo-watch" = "latest"
 "cargo:tree-sitter-cli" = "latest"
-"cargo:type-sitter-cli" = "latest"
 gh = "latest"
 gitsign = "latest"
 hk = "latest"
-"npm:prettier" = "latest"
+node = "24"
+"npm:wasm-opt" = "latest"
+"npm:wasm-pack" = "latest"
 "pipx:reuse" = "latest"
 pkl = "latest"
 ripgrep = "latest"
@@ -20,3 +21,67 @@ rust = "1.88"
 taplo = "latest"
 typos = "latest"
 uv = "latest"
+yamlfmt = "latest"
+
+# environment variables for every environment
+[env]
+CARGO_TARGET_DIR = "target"
+HK_MISE = 1
+
+[settings]
+idiomatic_version_file_enable_tools = []
+
+[hooks]
+# runs when you enter the repo
+enter = "eval \"$(mise activate)\" && mise run install -y --silent && mise run update --silent -y && mise env -qy"
+# deactivate/unhook when you leave
+leave = "eval \"$(mise deactivate)\""
+
+# Tasks are run by using `mise run taskname`, like `mise run build`
+# run tasks run as simple shell commands
+[tasks.update]
+description = "update all dev tools and mise"
+run = "mise upgrade -yq && mise self-update -yq && mise reshim -yq && mise prune -yq"
+
+[tasks.install]
+description = "setup dev tooling and development hooks"
+run = "eval \"$(mise activate)\" && mise trust -yq && mise install && mise reshim && hk install --mise"
+
+[tasks.installhooks]
+description = "only install development hooks"
+run = "hk install --mise"
+
+[tasks.cleancache]
+description = "delete the cache"
+run = "rm -rf .cache && mise prune -yq"
+hide = true                             # hide this task from the list
+
+[tasks.clean]
+depends = ['cleancache']
+description = "Removes caches and build artifacts."
+run = "cargo clean && rm -r crates/thread-wasm/pkg &>/dev/null"
+
+[tasks.build]
+description = 'Build everything'
+run = "cargo build"
+alias = 'b'                      # `mise run b` = build
+
+[tasks.test]
+description = 'Run automated tests'
+# multiple commands are run in series
+run = "hk run test"
+alias = 't'         # `mise run t` = test
+
+[tasks.lint]
+description = 'Full linting of the codebase'
+run = "hk run check"
+alias = "c"                                  # `mise run c` = check
+
+[tasks.fix]
+description = 'fix formatting and apply lint fixes'
+run = "hk fix"
+alias = "f"                                         # `mise run f` = fix
+
+[tasks.ci] # only dependencies to be run
+description = 'Run CI tasks'
+depends = ['build', 'lint', 'test']

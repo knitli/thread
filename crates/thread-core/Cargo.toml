@@ -1,0 +1,19 @@
+[package]
+name = "thread-core"
+version = "0.0.1"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+documentation.workspace = true
+authors.workspace = true
+
+[dependencies]
+# string-interner.workspace = true
+
+ast-grep-core = { version = "0.38.6" } # core library for AST manipulation
+ast-grep-dynamic = { version = "0.38.6" } # dynamic language loading at runtime
+ast-grep-language = { version = "0.38.6" } # for language-specific AST manipulation
+
+[lints]
+workspace = true

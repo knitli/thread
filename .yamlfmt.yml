@@ -1,0 +1,4 @@
+line_ending: lf
+gitignore_excludes: true
+format:
+  trim_trailing_whitespace: true

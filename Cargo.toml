@@ -1,6 +1,9 @@
 [package]
-description = "A safe, fast, flexible code analysis and code parsing library for any language; built in Rust with tree-sitter."
+description = "A safe, fast, flexible code analysis and code parsing library and tool. Built with tree-sitter, ast-grep, and difftastic in Rust."
 resolver = "3"
+edition = "2024"
+rust-version = "1.85"
+license = "AGPL-3.0-or-later"
 name = "thread"
 version = "0.0.1"
 keywords = [
@@ -9,48 +12,30 @@ keywords = [
   "tree-sitter",
   "static-analysis",
   "repository-tools",
+  "context"
 ]
 categories = ["development-tools", "parser-implementations", "text-processing"]
-
-[workspace]
-members = [
-  "crates/*/",
-]
-
-[workspace.package]
-edition = "2024"
-rust-version = "1.85"
-license = "AGPL-3.0-or-later"
 repository = "https://github.com/knitli/thread"
 documentation = "https://thread.knitli.dev"
 homepage = "https://knitli.com"
+readme = "README.md"
 authors = [
   "Knitli Inc <knitli@knit.li>",
   "Adam Poulemanos for Knitli <adam@knit.li>",
 ]
 
+[workspace]
+members = [
+  "crates/thread-cli", "crates/thread-core", "crates/thread-diff", "crates/thread-fs", "crates/thread-parse", "crates/thread-store", "crates/thread-wasm"
+, "xtask"]
+
+# Note: difftastic's diffing functionality is vendored internally
 [workspace.dependencies]
 anyhow = "1.0.98"
-string-interner = "0.19.0" # for fast string interning
-ast-grep-core = { version = "0.38.6" } # core library for AST manipulation
-ast-grep-dynamic = { version = "0.38.6" } # dynamic language loading at runtime
-ast-grep-language = { version = "0.38.6" } # for language-specific AST manipulation
-dashmap = { version = "6.1.0", features = ["rayon", "inline"] }
-fmmap = { version = "0.4.0", features = ["tokio"] } # memory map for handling large files efficiently
-ignore = { version = "0.4.23", features = ["simd-accel"] } # gitignore
-rapidhash = { version = "1.4.0", features = ["std"] } # fast hashing for content addressing
-rayon = { version = "1.10.0", features = ["std"] }
-ropey = "1.6.1"
-serde = { version = "1.0.219", features = ["derive"] }
-serde_json = "1.0.140"
-
 thiserror = "2.0.12"
-# tokio = { version = "1.46.0", features = ["fs", "io-std", "io-util"], default-features = false}
-# type-sitter = { version = "0.7.4"}
-# tree-sitter = { version = "0.25.6", features = ["std", "wasm"] }
-# zerocopy = { version = "0.8.26", features = ["alloc", "simd"] }
-# zerocopy-derive = "0.8.26" # included in zerocopy but separated for faster compilation
 
+string-interner = "0.19.0" # for fast string interning
+serde = { version = "1.0.219", features = ["derive"] } # serialization library
 
 [features]
 # default = ["derive", "languages", "parser", "query"]
@@ -59,7 +44,9 @@ cc = "*"
 
 [profile.dev]
 opt-level = 1
+lto = false
 debug = true
+debug-assertions = true
 codegen-units = 256 # More codegen units for faster compilation
 
 [profile.release]
@@ -80,7 +67,8 @@ codegen-units = 256
 [profile.wasm-release]
 inherits = "release"
 lto = true
-opt-level = "s"      # optimize for size in WASM
+strip = true
+opt-level = "s"   # optimize for size in WASM
 
 # Optimize proc-macros even in debug builds
 [profile.dev.package."*"]
@@ -93,12 +81,12 @@ pedantic = { level = "warn", priority = -1 }
 nursery = { level = "warn", priority = -1 }
 cargo = { level = "warn", priority = -1 }
 
+# Same lints as tree-sitter itself.
 # Lints we allow because they either:
 #
 # 1. Contain false positives,
 # 2. Are unnecessary, or
 # 3. Worsen the code
-
 
 branches_sharing_code = "allow"
 cast_lossless = "allow"
@@ -135,3 +123,15 @@ transmute_undefined_repr = "allow"
 unnecessary_wraps = "allow"
 unused_self = "allow"
 used_underscore_items = "allow"
+
+[workspace.package]
+edition = "2024"
+rust-version = "1.85"
+license = "AGPL-3.0-or-later"
+repository = "https://github.com/knitli/thread"
+documentation = "https://thread.knitli.dev"
+homepage = "https://knitli.com"
+authors = [
+  "Knitli Inc <knitli@knit.li>",
+  "Adam Poulemanos for Knitli <adam@knit.li>",
+]
