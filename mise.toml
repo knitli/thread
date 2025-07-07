@@ -1,5 +1,6 @@
 [tools]
 act = "latest"
+bun = "latest"
 cargo-binstall = "latest"
 "cargo:cargo-audit" = "latest"
 "cargo:cargo-deny" = "latest"
@@ -7,7 +8,6 @@ cargo-binstall = "latest"
 "cargo:cargo-generate" = "latest"
 "cargo:cargo-nextest" = "latest"
 "cargo:cargo-watch" = "latest"
-"cargo:tree-sitter-cli" = "latest"
 gh = "latest"
 gitsign = "latest"
 hk = "latest"
@@ -33,7 +33,7 @@ idiomatic_version_file_enable_tools = []
 
 [hooks]
 # runs when you enter the repo
-enter = "eval \"$(mise activate)\" && mise run install -y --silent && mise run update --silent -y && mise env -qy"
+enter = "eval \"$(mise activate)\" && mise run install -y --silent && mise run update --silent -y && mise env -qy && export WORKSPACE=\"$(pwd)\""
 # deactivate/unhook when you leave
 leave = "eval \"$(mise deactivate)\""
 

@@ -1,0 +1,37 @@
+[package]
+name = "thread-core"
+version = "0.0.1"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+documentation.workspace = true
+authors.workspace = true
+
+[dependencies]
+ast-grep-core = { version="0.38.6", features = ["tree-sitter"], optional = true }
+# We don't want to import any languages here by default; we're only getting the Language and LanguageExt traits.
+ast-grep-language = { version="0.38.6", default-features = false, optional = true }
+
+string-interner = "0.19.0"
+serde = { version = "1.0.219", features = ["derive"] }
+serde_json = "1.0.140"
+thiserror = "2.0.12"
+
+[features]
+default = ["ast-grep", "tree-sitter"]
+# tree-sitter feature is enabled by default
+# Provides expanded and more granular AST manipulation capabilities
+tree-sitter = ["ast-grep-core/tree-sitter"]
+# Enables the use of the `ast-grep-core` crate, which provides core AST manipulation capabilities
+ast-grep = ["ast-grep-core"]
+# Enables the use of the Language and LanguageExt traits, SupportLang Enum (not the languages, just which are supported)
+language = ["ast-grep-language"]
+# Adds Ast-Grep's Matcher types
+matcher = ["ast-grep"]
+# Adds Ast-Grep's Replacer types
+replacer = ["ast-grep"]
+
+
+[lints]
+workspace = true

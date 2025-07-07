@@ -1,8 +1,44 @@
 version: 2
 updates:
 - package-ecosystem: cargo
+  dependency-type: all
+  update-types:
+    - version-update:semver-minor
+    - version-update:semver-patch
+  versioning-strategy: increase
   directory: "/"
   schedule:
     interval: daily
-    time: "08:00"
+    time: "23:00"
   open-pull-requests-limit: 10
+  commit-message:
+    prefix: "deps"
+  assignees:
+    - codegen-sh[bot]
+  reviewers:
+    - codegen-sh[bot]
+  labels:
+    - "dependencies"
+  rebase-strategy: auto
+
+- package-ecosystem: github-actions
+  dependency-type: all
+  update-types:
+    - version-update:semver-major
+    - version-update:semver-minor
+    - version-update:semver-patch
+  versioning-strategy: increase
+  directory: "/.github/workflows"
+  schedule:
+    interval: daily
+    time: "23:00"
+  open-pull-requests-limit: 10
+  commit-message:
+    prefix: "deps"
+  assignees:
+    - codegen-sh[bot]
+  reviewers:
+    - codegen-sh[bot]
+  labels:
+    - "dependencies"
+  rebase-strategy: auto

@@ -1,0 +1,23 @@
+[package]
+name = "thread-parse"
+version = "0.0.1"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+documentation.workspace = true
+authors.workspace = true
+
+[dependencies]
+thread-core = { path = "../core" }
+serde = { version = "1.0.219", features = ["derive"] }
+
+# ast-grep core (WASM-compatible)
+ast-grep-core = { version = "0.38.6" }
+
+# Conditional ast-grep language support
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+ast-grep-language = { version = "0.38.6" }
+
+[lints]
+workspace = true

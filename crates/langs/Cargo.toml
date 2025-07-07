@@ -1,0 +1,100 @@
+# Why vendor it? Ast-Grep's language crate doesn't have public api access to the languages. We also needed per-language feature flags for cloud wasm deployments, and this was the cleanest way to do it.
+[package]
+name = "thread-langs"
+version = "0.0.1"
+description = "A vendored and slightly modified version of Ast-Grep's language support, using Ast-Grep's unified language interface over Tree-sitter parsers. Vendored at 0.3.8."
+authors = [
+    "Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>",
+    "Knitli Inc <knitli@knit.li>",
+    "Adam Poulemanos for Knitli <adam@knit.li>",
+]
+edition = "2021"
+license = "MIT"
+documentation.workspace = true
+repository.workspace = true
+
+rust-version = "1.70"
+readme = "README.md"
+
+[dependencies]
+thread-core = { features = ["language"], path = "../core" }
+tree-sitter = { version = "0.25.6", features = ["parser"] }
+ignore = { version = "0.4.23" }
+serde.workspace = true
+
+tree-sitter-bash = { version = "0.25.0", optional = true }
+tree-sitter-c = { version = "0.24.1", optional = true }
+tree-sitter-cpp = { version = "0.23.4", optional = true }
+tree-sitter-c-sharp = { version = "0.23.1", optional = true }
+tree-sitter-css = { version = "0.23.2", optional = true }
+tree-sitter-elixir = { version = "0.3.4", optional = true }
+tree-sitter-go = { version = "0.23.4", optional = true }
+tree-sitter-haskell = { version = "0.23.1", optional = true }
+tree-sitter-html = { version = "0.23.2", optional = true }
+tree-sitter-java = { version = "0.23.5", optional = true }
+tree-sitter-javascript = { version = "0.23.1", optional = true }
+tree-sitter-json = { version = "0.24.8", optional = true }
+tree-sitter-kotlin = { version = "0.4.0", optional = true, package = "tree-sitter-kotlin-sg" }
+tree-sitter-lua = { version = "0.2.0", optional = true }
+tree-sitter-php = { version = "0.23.11", optional = true }
+tree-sitter-python = { version = "0.23.6", optional = true }
+tree-sitter-ruby = { version = "0.23.1", optional = true }
+tree-sitter-rust = { version = "0.24.0", optional = true }
+tree-sitter-scala = { version = "0.24.0", optional = true }
+tree-sitter-swift = { version = "0.7.1", optional = true }
+tree-sitter-typescript = { version = "0.23.2", optional = true }
+tree-sitter-yaml = { version = "0.7.1", optional = true }
+
+[features]
+bash = ["tree-sitter-bash"]
+c = ["tree-sitter-c"]
+cpp = ["tree-sitter-cpp"]
+c-sharp = ["tree-sitter-c-sharp"]
+css = ["tree-sitter-css"]
+elixir = ["tree-sitter-elixir"]
+go = ["tree-sitter-go"]
+haskell = ["tree-sitter-haskell"]
+html = ["tree-sitter-html"]
+java = ["tree-sitter-java"]
+javascript = ["tree-sitter-javascript"]
+json = ["tree-sitter-json"]
+kotlin = ["tree-sitter-kotlin"]
+lua = ["tree-sitter-lua"]
+php = ["tree-sitter-php"]
+python = ["tree-sitter-python"]
+ruby = ["tree-sitter-ruby"]
+rust = ["tree-sitter-rust"]
+scala = ["tree-sitter-scala"]
+swift = ["tree-sitter-swift"]
+typescript = ["tree-sitter-typescript"]
+yaml = ["tree-sitter-yaml"]
+
+all = [
+    "bash",
+    "c",
+    "cpp",
+    "c-sharp",
+    "css",
+    "elixir",
+    "go",
+    "haskell",
+    "html",
+    "java",
+    "javascript",
+    "json",
+    "kotlin",
+    "lua",
+    "php",
+    "python",
+    "ruby",
+    "rust",
+    "scala",
+    "swift",
+    "typescript",
+    "yaml",
+]
+web-only = ["css", "html", "javascript", "typescript"]
+default = ["all"]
+
+[lints]
+workspace = true

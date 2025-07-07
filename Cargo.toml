@@ -26,8 +26,8 @@ authors = [
 
 [workspace]
 members = [
-  "crates/thread-cli", "crates/thread-core", "crates/thread-engine", "crates/thread-diff", "crates/thread-fs", "crates/thread-parse", "crates/thread-store", "crates/thread-wasm"
-, "xtask"]
+  "crates/cli", "crates/core", "crates/engine", "crates/diff", "crates/fs", "crates/parse", "crates/store", "crates/wasm"
+, "xtask", "crates/langs"]
 
 # Note: difftastic's diffing functionality is vendored internally
 [workspace.dependencies]
@@ -39,6 +39,11 @@ serde = { version = "1.0.219", features = ["derive"] } # serialization library
 
 [features]
 # default = ["derive", "languages", "parser", "query"]
+
+[dependencies]
+thread-core = { path = "crates/core" }
+thread-parse = { path = "crates/parse" }
+
 [build-dependencies]
 cc = "*"
 

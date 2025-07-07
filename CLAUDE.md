@@ -41,6 +41,7 @@ The workspace follows Rust conventions with core types separated from implementa
 ### Design Rationale
 
 This structure follows the pattern used by `serde` (core traits) vs `serde_json` (implementation):
+
 - `thread-core` defines `LanguageParser` trait, `CodeElement` types, `Result` types
 - `thread-engine` implements the actual analysis logic and graph building
 - Other crates can depend on `thread-core` for types without pulling in the full engine
@@ -48,24 +49,28 @@ This structure follows the pattern used by `serde` (core traits) vs `serde_json`
 ## Development Commands
 
 ### Build Commands
+
 - `mise run build` or `mise run b` - Build all crates (except WASM)
 - `mise run build-release` or `mise run br` - Release build
 - `mise run build-wasm` or `mise run bw` - Build WASM for development (single-threaded)
 - `mise run build-wasm-release` or `mise run bwr` - Build WASM for production
 
 ### WASM Build Options
+
 - `cargo run -p xtask build-wasm` - Basic WASM build
 - `cargo run -p xtask build-wasm --multi-threading` - Multi-threaded for browsers
 - `cargo run -p xtask build-wasm --release` - Production optimized
 - `cargo run -p xtask build-wasm --profiling` - With profiling enabled
 
 ### Testing and Quality
+
 - `mise run test` or `mise run t` - Run tests with `cargo nextest`
 - `mise run lint` or `mise run c` - Full linting via `hk run check`
 - `mise run fix` or `mise run f` - Auto-fix formatting and linting
 - `mise run ci` - Run all CI checks (build + lint + test)
 
 ### Development Setup
+
 - `mise run install` - Install dev tools and git hooks
 - `mise run update` - Update all dev tools
 - `mise run clean` - Clean build artifacts and caches
@@ -73,6 +78,7 @@ This structure follows the pattern used by `serde` (core traits) vs `serde_json`
 ## Implementation Plan Context
 
 ### Current Sprint (Week 1)
+
 - **Day 1**: ✅ Project cleanup and setup
 - **Day 2**: 🔄 Basic ast-grep integration (current focus)
 - **Day 3**: Petgraph integration
@@ -82,14 +88,18 @@ This structure follows the pattern used by `serde` (core traits) vs `serde_json`
 - **Day 7**: Week 1 demo and testing
 
 ### Near-term Goals
+
 The immediate target is a working `analyze_rust_file()` function that:
+
 1. Parses Rust code with ast-grep
 2. Extracts functions, calls, and imports
 3. Builds a petgraph representation
 4. Provides basic graph queries
 
 ### MVP Definition
+
 A CLI tool that can analyze Rust files and generate AI-friendly context showing:
+
 - Function definitions with line numbers
 - Call relationships (what calls what)
 - Import dependencies
@@ -98,12 +108,14 @@ A CLI tool that can analyze Rust files and generate AI-friendly context showing:
 ## Key Design Decisions
 
 ### What to Skip for MVP
+
 - ❌ type-sitter (build complexity)
 - ❌ tree-sitter-graph (memory management complexity)
 - ❌ ropey (incremental editing - add later)
 - ❌ Multi-language support initially (Rust first)
 
 ### What to Keep
+
 - ✅ ast-grep (mature parsing with language detection)
 - ✅ petgraph (single source of truth)
 - ✅ Content-addressable storage (essential for deduplication)
@@ -128,6 +140,7 @@ A CLI tool that can analyze Rust files and generate AI-friendly context showing:
 When an AI asks: "How does the `parse` function work in Thread?"
 
 Thread should provide:
+
 1. **Function location**: Exact file and line numbers
 2. **Dependencies**: What functions `parse` calls
 3. **Usage**: What functions call `parse`
