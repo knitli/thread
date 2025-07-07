@@ -1,8 +1,11 @@
+// SPDX-FileCopyrightText: 2025 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+// SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+// SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+//
+// SPDX-License-Identifier: MIT
+
 use super::pre_process_pattern;
-use ast_grep_core::matcher::{Pattern, PatternBuilder, PatternError};
-use ast_grep_core::tree_sitter::{LanguageExt, StrDoc, TSLanguage, TSRange};
-use ast_grep_core::Language;
-use ast_grep_core::{matcher::KindMatcher, Doc, Node};
+use thread_core::{Pattern, PatternBuilder, PatternError, Language, LanguageExt, StrDoc, TSLanguage, TSRange, KindMatcher, Doc, Node};
 use std::collections::HashMap;
 
 // tree-sitter-html uses locale dependent iswalnum for tagName

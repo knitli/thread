@@ -1,38 +1,68 @@
-//! This module defines the supported programming languages for ast-grep.
+// SPDX-FileCopyrightText: 2025 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+// SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+// SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+//
+// SPDX-License-Identifier: MIT
+
+//! This module defines the supported programming languages for Thread.
+//!
+//! This module was originally forked from the `ast-grep-language` crate as of ast-grep 0.3.8.
+//! Ast-grep doesn't publicly export the languages and we wanted to feature gate each language, add languages and have finer control.
+//!
+//! **We have kept the original licensing of the `ast-grep-language` crate, which is licensed under the MIT license.** The rest of Thread is licensed under the AGPL 3.0, but we wanted to stay true to the author's intent. This entire crate is under the MIT license.
 //!
 //! It provides a set of customized languages with expando_char / pre_process_pattern,
 //! and a set of stub languages without preprocessing.
-//! A rule of thumb: if your language does not accept identifiers like `$VAR`.
-//! You need use `impl_lang_expando!` macro and a standalone file for testing.
-//! Otherwise, you can define it as a stub language using `impl_lang!`.
-//! To see the full list of languages, visit `<https://ast-grep.github.io/reference/languages.html>`
+//!
+//! A rule of thumb for adding languages:
+//!   - You need to use `impl_lang_expando!` macro and a standalone file for testing **if your language doesn't accept identifiers like `$VAR`.
+//!
+//! The full list of supported languages is available in the [`SupportLang` enum][`SupportLang`] below.
 
+#[cfg(feature = "bash")]
 mod bash;
+#[cfg(feature = "cpp")]
 mod cpp;
+#[cfg(feature = "c-sharp")]
 mod csharp;
+#[cfg(feature = "css")]
 mod css;
+#[cfg(feature = "elixir")]
 mod elixir;
+#[cfg(feature = "go")]
 mod go;
+#[cfg(feature = "haskell")]
 mod haskell;
+#[cfg(feature = "html")]
 mod html;
+#[cfg(feature = "json")]
 mod json;
+#[cfg(feature = "kotlin")]
 mod kotlin;
+#[cfg(feature = "lua")]
 mod lua;
-mod parsers;
+#[cfg(feature = "php")]
 mod php;
+#[cfg(feature = "python")]
 mod python;
+#[cfg(feature = "ruby")]
 mod ruby;
+#[cfg(feature = "rust")]
 mod rust;
+#[cfg(feature = "scala")]
 mod scala;
+#[cfg(feature = "swift")]
 mod swift;
+#[cfg(feature = "yaml")]
 mod yaml;
 
-use ast_grep_core::matcher::{Pattern, PatternBuilder, PatternError};
+pub mod parsers;
+
+#[cfg(feature = "html")]
 pub use html::Html;
 
-use ast_grep_core::meta_var::MetaVariable;
-use ast_grep_core::tree_sitter::{StrDoc, TSLanguage, TSRange};
-use ast_grep_core::Node;
+use thread_core::{Pattern, PatternBuilder, PatternError, MetaVariable, StrDoc, TSLanguage, TSRange, Node};
+
 use ignore::types::{Types, TypesBuilder};
 use serde::de::Visitor;
 use serde::{de, Deserialize, Deserializer, Serialize};
@@ -44,8 +74,7 @@ use std::iter::repeat;
 use std::path::Path;
 use std::str::FromStr;
 
-pub use ast_grep_core::language::Language;
-pub use ast_grep_core::tree_sitter::LanguageExt;
+pub use thread_core::{Language, LanguageExt};
 
 /// this macro implements bare-bone methods for a language
 macro_rules! impl_lang {
@@ -188,49 +217,71 @@ macro_rules! impl_aliases {
 // https://en.cppreference.com/w/cpp/language/identifiers
 // Due to some issues in the tree-sitter parser, it is not possible to use
 // unicode literals in identifiers for C/C++ parsers
+#[cfg(feature = "c")]
 impl_lang_expando!(C, language_c, '_');
+#[cfg(feature = "cpp")]
 impl_lang_expando!(Cpp, language_cpp, '_');
 // https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/lexical-structure#643-identifiers
 // all letter number is accepted
 // https://www.compart.com/en/unicode/category/Nl
+#[cfg(feature = "c-sharp")]
 impl_lang_expando!(CSharp, language_c_sharp, 'µ');
 // https://www.w3.org/TR/CSS21/grammar.html#scanner
+#[cfg(feature = "css")]
 impl_lang_expando!(Css, language_css, '_');
 // https://github.com/elixir-lang/tree-sitter-elixir/blob/a2861e88a730287a60c11ea9299c033c7d076e30/grammar.js#L245
+#[cfg(feature = "elixir")]
 impl_lang_expando!(Elixir, language_elixir, 'µ');
 // we can use any Unicode code point categorized as "Letter"
 // https://go.dev/ref/spec#letter
+#[cfg(feature = "go")]
 impl_lang_expando!(Go, language_go, 'µ');
 // GHC supports Unicode syntax per
 // https://ghc.gitlab.haskell.org/ghc/doc/users_guide/exts/unicode_syntax.html
 // and the tree-sitter-haskell grammar parses it too.
+#[cfg(feature = "haskell")]
 impl_lang_expando!(Haskell, language_haskell, 'µ');
 // https://github.com/fwcd/tree-sitter-kotlin/pull/93
+#[cfg(feature = "kotlin")]
 impl_lang_expando!(Kotlin, language_kotlin, 'µ');
 // PHP accepts unicode to be used as some name not var name though
+#[cfg(feature = "php")]
 impl_lang_expando!(Php, language_php, 'µ');
 // we can use any char in unicode range [:XID_Start:]
 // https://docs.python.org/3/reference/lexical_analysis.html#identifiers
 // see also [PEP 3131](https://peps.python.org/pep-3131/) for further details.
+#[cfg(feature = "python")]
 impl_lang_expando!(Python, language_python, 'µ');
 // https://github.com/tree-sitter/tree-sitter-ruby/blob/f257f3f57833d584050336921773738a3fd8ca22/grammar.js#L30C26-L30C78
+#[cfg(feature = "ruby")]
 impl_lang_expando!(Ruby, language_ruby, 'µ');
 // we can use any char in unicode range [:XID_Start:]
 // https://doc.rust-lang.org/reference/identifiers.html
+#[cfg(feature = "rust")]
 impl_lang_expando!(Rust, language_rust, 'µ');
 //https://docs.swift.org/swift-book/documentation/the-swift-programming-language/lexicalstructure/#Identifiers
+#[cfg(feature = "swift")]
 impl_lang_expando!(Swift, language_swift, 'µ');
 
 // Stub Language without preprocessing
 // Language Name, tree-sitter-name, alias, extension
+#[cfg(feature = "bash")]
 impl_lang!(Bash, language_bash);
+#[cfg(feature = "java")]
 impl_lang!(Java, language_java);
+#[cfg(feature = "javascript")]
 impl_lang!(JavaScript, language_javascript);
+#[cfg(feature = "json")]
 impl_lang!(Json, language_json);
+#[cfg(feature = "lua")]
 impl_lang!(Lua, language_lua);
+#[cfg(feature = "scala")]
 impl_lang!(Scala, language_scala);
+#[cfg(feature = "tsx")]
 impl_lang!(Tsx, language_tsx);
+#[cfg(feature = "typescript")]
 impl_lang!(TypeScript, language_typescript);
+#[cfg(feature = "yaml")]
 impl_lang!(Yaml, language_yaml);
 // See ripgrep for extensions
 // https://github.com/BurntSushi/ripgrep/blob/master/crates/ignore/src/default_types.rs
@@ -238,28 +289,51 @@ impl_lang!(Yaml, language_yaml);
 /// Represents all built-in languages.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Hash)]
 pub enum SupportLang {
+  #[cfg(feature = "bash")]
   Bash,
+  #[cfg(feature = "c")]
   C,
+  #[cfg(feature = "cpp")]
   Cpp,
+  #[cfg(feature = "c-sharp")]
   CSharp,
+  #[cfg(feature = "css")]
   Css,
-  Go,
+  #[cfg(feature = "elixir")]
   Elixir,
+  #[cfg(feature = "go")]
+  Go,
+  #[cfg(feature = "haskell")]
   Haskell,
+  #[cfg(feature = "html")]
   Html,
+  #[cfg(feature = "java")]
   Java,
+  #[cfg(feature = "javascript")]
   JavaScript,
+  #[cfg(feature = "json")]
   Json,
+  #[cfg(feature = "kotlin")]
   Kotlin,
+  #[cfg(feature = "lua")]
   Lua,
+  #[cfg(feature = "php")]
   Php,
+  #[cfg(feature = "python")]
   Python,
+  #[cfg(feature = "ruby")]
   Ruby,
+  #[cfg(feature = "rust")]
   Rust,
+  #[cfg(feature = "scala")]
   Scala,
+  #[cfg(feature = "swift")]
   Swift,
+  #[cfg(feature = "tsx")]
   Tsx,
+  #[cfg(feature = "typescript")]
   TypeScript,
+  #[cfg(feature = "yaml")]
   Yaml,
 }
 
@@ -267,8 +341,29 @@ impl SupportLang {
   pub const fn all_langs() -> &'static [SupportLang] {
     use SupportLang::*;
     &[
-      Bash, C, Cpp, CSharp, Css, Elixir, Go, Haskell, Html, Java, JavaScript, Json, Kotlin, Lua,
-      Php, Python, Ruby, Rust, Scala, Swift, Tsx, TypeScript, Yaml,
+      #[cfg(feature = "bash")] Bash,
+      #[cfg(feature = "c")] C,
+      #[cfg(feature = "cpp")] Cpp,
+      #[cfg(feature = "c-sharp")] CSharp,
+      #[cfg(feature = "css")] Css,
+      #[cfg(feature = "elixir")] Elixir,
+      #[cfg(feature = "go")] Go,
+      #[cfg(feature = "haskell")] Haskell,
+      #[cfg(feature = "html")] Html,
+      #[cfg(feature = "java")] Java,
+      #[cfg(feature = "javascript")] JavaScript,
+      #[cfg(feature = "json")] Json,
+      #[cfg(feature = "kotlin")] Kotlin,
+      #[cfg(feature = "lua")] Lua,
+      #[cfg(feature = "php")] Php,
+      #[cfg(feature = "python")] Python,
+      #[cfg(feature = "ruby")] Ruby,
+      #[cfg(feature = "rust")] Rust,
+      #[cfg(feature = "scala")] Scala,
+      #[cfg(feature = "swift")] Swift,
+      #[cfg(feature = "tsx")] Tsx,
+      #[cfg(feature = "typescript")] TypeScript,
+      #[cfg(feature = "yaml")] Yaml,
     ]
   }
 
@@ -393,28 +488,51 @@ macro_rules! execute_lang_method {
   ($me: path, $method: ident, $($pname:tt),*) => {
     use SupportLang as S;
     match $me {
+      #[cfg(feature = "bash")]
       S::Bash => Bash.$method($($pname,)*),
+      #[cfg(feature = "c")]
       S::C => C.$method($($pname,)*),
+      #[cfg(feature = "cpp")]
       S::Cpp => Cpp.$method($($pname,)*),
+      #[cfg(feature = "c-sharp")]
       S::CSharp => CSharp.$method($($pname,)*),
+      #[cfg(feature = "css")]
       S::Css => Css.$method($($pname,)*),
+      #[cfg(feature = "elixir")]
       S::Elixir => Elixir.$method($($pname,)*),
+      #[cfg(feature = "go")]
       S::Go => Go.$method($($pname,)*),
+      #[cfg(feature = "haskell")]
       S::Haskell => Haskell.$method($($pname,)*),
+      #[cfg(feature = "html")]
       S::Html => Html.$method($($pname,)*),
+      #[cfg(feature = "java")]
       S::Java => Java.$method($($pname,)*),
+      #[cfg(feature = "javascript")]
       S::JavaScript => JavaScript.$method($($pname,)*),
+      #[cfg(feature = "json")]
       S::Json => Json.$method($($pname,)*),
+      #[cfg(feature = "kotlin")]
       S::Kotlin => Kotlin.$method($($pname,)*),
+      #[cfg(feature = "lua")]
       S::Lua => Lua.$method($($pname,)*),
+      #[cfg(feature = "php")]
       S::Php => Php.$method($($pname,)*),
+      #[cfg(feature = "python")]
       S::Python => Python.$method($($pname,)*),
+      #[cfg(feature = "ruby")]
       S::Ruby => Ruby.$method($($pname,)*),
+      #[cfg(feature = "rust")]
       S::Rust => Rust.$method($($pname,)*),
+      #[cfg(feature = "scala")]
       S::Scala => Scala.$method($($pname,)*),
+      #[cfg(feature = "swift")]
       S::Swift => Swift.$method($($pname,)*),
+      #[cfg(feature = "tsx")]
       S::Tsx => Tsx.$method($($pname,)*),
+      #[cfg(feature = "typescript")]
       S::TypeScript => TypeScript.$method($($pname,)*),
+      #[cfg(feature = "yaml")]
       S::Yaml => Yaml.$method($($pname,)*),
     }
   }
@@ -459,33 +577,64 @@ impl LanguageExt for SupportLang {
 
 fn extensions(lang: SupportLang) -> &'static [&'static str] {
   use SupportLang::*;
+  static BASH: &[&str] = &[
+    "bash", "bats", "cgi", "command", "env", "fcgi", "ksh", "sh", "tmux", "tool", "zsh",
+  ];
+  static C_: &[&str] = &["c", "h"];
+  static CPP: &[&str] = &["cc", "hpp", "cpp", "c++", "hh", "cxx", "cu", "ino"];
+  static CSHARP: &[&str] = &["cs"];
+  static CSS: &[&str] = &["css", "scss"];
+  static ELIXIR: &[&str] = &["ex", "exs"];
+  static GO: &[&str] = &["go"];
+  static HASKELL: &[&str] = &["hs"];
+  static HTML: &[&str] = &["html", "htm", "xhtml"];
+  static JAVA: &[&str] = &["java"];
+  static JAVASCRIPT: &[&str] = &["cjs", "js", "mjs", "jsx"];
+  static JSON: &[&str] = &["json"];
+  static KOTLIN: &[&str] = &["kt", "ktm", "kts"];
+  static LUA: &[&str] = &["lua"];
+  static PHP: &[&str] = &["php"];
+  static PYTHON: &[&str] = &["py", "py3", "pyi", "bzl"];
+  static RUBY: &[&str] = &["rb", "rbw", "gemspec"];
+  static RUST: &[&str] = &["rs"];
+  static SCALA: &[&str] = &["scala", "sc", "sbt"];
+  static SWIFT: &[&str] = &["swift"];
+  static TYPESCRIPT: &[&str] = &["ts", "cts", "mts"];
+  static TSX: &[&str] = &["tsx"];
+  static YAML: &[&str] = &["yaml", "yml"];
   match lang {
-    Bash => &[
-      "bash", "bats", "cgi", "command", "env", "fcgi", "ksh", "sh", "tmux", "tool", "zsh",
-    ],
-    C => &["c", "h"],
-    Cpp => &["cc", "hpp", "cpp", "c++", "hh", "cxx", "cu", "ino"],
-    CSharp => &["cs"],
-    Css => &["css", "scss"],
-    Elixir => &["ex", "exs"],
-    Go => &["go"],
-    Haskell => &["hs"],
-    Html => &["html", "htm", "xhtml"],
-    Java => &["java"],
-    JavaScript => &["cjs", "js", "mjs", "jsx"],
-    Json => &["json"],
-    Kotlin => &["kt", "ktm", "kts"],
-    Lua => &["lua"],
-    Php => &["php"],
-    Python => &["py", "py3", "pyi", "bzl"],
-    Ruby => &["rb", "rbw", "gemspec"],
-    Rust => &["rs"],
-    Scala => &["scala", "sc", "sbt"],
-    Swift => &["swift"],
-    TypeScript => &["ts", "cts", "mts"],
-    Tsx => &["tsx"],
-    Yaml => &["yaml", "yml"],
+    Bash => BASH,
+    C => C_,
+    Cpp => CPP,
+    CSharp => CSHARP,
+    Css => CSS,
+    Elixir => ELIXIR,
+    Go => GO,
+    Haskell => HASKELL,
+    Html => HTML,
+    Java => JAVA,
+    JavaScript => JAVASCRIPT,
+    Json => JSON,
+    Kotlin => KOTLIN,
+    Lua => LUA,
+    Php => PHP,
+    Python => PYTHON,
+    Ruby => RUBY,
+    Rust => RUST,
+    Scala => SCALA,
+    Swift => SWIFT,
+    TypeScript => TYPESCRIPT,
+    Tsx => TSX,
+    Yaml => YAML,
   }
+}
+
+pub fn supported_extensions() -> Vec<&'static str> {
+  SupportLang::all_langs()
+    .iter()
+    .flat_map(|lang| extensions(*lang))
+    .copied()
+    .collect()
 }
 
 /// Guess which programming language a file is written in
@@ -530,7 +679,7 @@ pub fn config_file_type() -> Types {
 #[cfg(test)]
 mod test {
   use super::*;
-  use ast_grep_core::{matcher::MatcherExt, Pattern};
+  use thread_core::{MatcherExt, Pattern};
 
   pub fn test_match_lang(query: &str, source: &str, lang: impl LanguageExt) {
     let cand = lang.ast_grep(source);

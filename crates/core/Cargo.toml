@@ -1,3 +1,8 @@
+# SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+# SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 [package]
 name = "thread-core"
 version = "0.0.1"
@@ -32,6 +37,13 @@ matcher = ["ast-grep"]
 # Adds Ast-Grep's Replacer types
 replacer = ["ast-grep"]
 
+all = [
+    "tree-sitter",
+    "ast-grep",
+    "language",
+    "matcher",
+    "replacer"
+]
 
 [lints]
 workspace = true

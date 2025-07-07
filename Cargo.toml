@@ -1,3 +1,8 @@
+# SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+# SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 [package]
 description = "A safe, fast, flexible code analysis and code parsing library and tool. Built with tree-sitter, ast-grep, and difftastic in Rust."
 resolver = "3"
@@ -32,6 +37,7 @@ members = [
 # Note: difftastic's diffing functionality is vendored internally
 [workspace.dependencies]
 anyhow = "1.0.98"
+ignore = { version = "0.4.23" }
 thiserror = "2.0.12"
 
 string-interner = "0.19.0" # for fast string interning

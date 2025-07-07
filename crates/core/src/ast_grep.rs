@@ -1,9 +1,14 @@
+// SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+// SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 /// Re-export Ast-Grep's core types and traits
 //* ======================  Language  ======================
 #[cfg(feature = "language")]
 pub mod language {
 
-pub use ast_grep_language::language::{Language, LanguageExt, SupportLang, SupportLangErr};
+pub use ast_grep_language::{Language, LanguageExt, SupportLang, SupportLangErr};
 
 }
 
@@ -21,13 +26,13 @@ pub mod tree_sitter {
     /// Ast-Grep's core type for the parsed AST. The 'D' is a Node type that implements the `ast_grep_core::source::Doc` trait.
     pub type Tree<D> = ast_grep_core::AstGrep<D>;
 
-    pub use ast_grep_core::{Node, NodeMatch, Position};
+    pub use ast_grep_core::{Node, Position};
 
     pub use ast_grep_core::source::{Content, Doc, Edit};
 
     //* ======================  Tree-Sitter Transversal  ======================
 
-    pub use ast_grep_core::tree_sitter::{DisplayContext, TSPre, Visitor, TSLanguage, TSPoint, TSRange, StrDoc};
+    pub use ast_grep_core::tree_sitter::{DisplayContext, Visitor, TSLanguage, TSPoint, TSRange, StrDoc};
 }
 
 //* ======================  Matcher Types  ======================
@@ -37,7 +42,7 @@ pub mod matcher {
     /// Ast-Grep's core types and traits for pattern matching and searching in the AST.
 
     pub use ast_grep_core::{MatchStrictness, Matcher, Pattern, PatternError, matcher::{
-        NodeMatch, KindMatcher, KindMatcherError, MetaVarMatcher, PatternMatcher, PatternMatcherError, kind_utils, RegexMatcher, RegexMatcherError, PatternNode, MatchNone, MatchAll
+        NodeMatch, KindMatcher, KindMatcherError, MatcherExt, PatternBuilder, PatternNode, kind_utils, RegexMatcher, RegexMatcherError, MatchNone, MatchAll
     }};
 
     pub use ast_grep_core::ops::{And, All, Any, Or, Not, Op};

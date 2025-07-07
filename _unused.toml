@@ -1,3 +1,8 @@
+# SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+# SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 # dashmap = { version = "6.1.0", features = ["rayon", "inline"] }
 # fmmap = { version = "0.4.0", features = ["tokio"] } # memory map for handling large files efficiently
 # ignore = { version = "0.4.23", features = ["simd-accel"] } # gitignore
