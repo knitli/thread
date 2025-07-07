@@ -30,7 +30,7 @@ readme = "README.md"
 # Other candidates: dockerfile, julia, just, jsdoc, ocaml, cuda, hcl, hlsl, make, meson, nix, nu, r, regex, scss, solidity, sql, svelte, xml, vue, zig
 # TODO: Integrate tree-sitter wasmtime support
 [dependencies]
-thread-core = { features = ["all"], path = "../core" }
+thread-core = { workspace = true, features = ["all-ast-grep", "fastmap"] }
 tree-sitter = { version = "0.25.6", features = ["std"] }
 ignore.workspace = true
 serde.workspace = true
@@ -62,7 +62,10 @@ tree-sitter-yaml = { version = "0.7.1", optional = true }
 cc = "1.2.29"
 
 [features]
-default = ["all"]
+default = ["all", "dashmap"]
+
+dashmap = ["dashmap/serde", "dashmap/rayon"]
+inline = ["dashmap/inline"]
 
 bash = ["tree-sitter-bash"]
 c = ["tree-sitter-c"]

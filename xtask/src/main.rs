@@ -95,9 +95,15 @@ fn build_wasm(mode: BuildMode, multi: bool) {
     wasm_pack.args(&["build", CRATE_PATH, "--target", "web"]);
     if let Some(flag) = mode.as_wasm_pack_flag() {
         wasm_pack.arg(flag);
+        wasm_pack.args(&["--features", "inline"]);
     }
     if multi {
+        // we already have a --features flag if we're releasing
+        if mode == BuildMode::Release {
+            wasm_pack.arg("multi-threading");
+        } else {
         wasm_pack.args(&["--features", "multi-threading"]);
+        }
     }
     run_or_die(wasm_pack, "wasm-pack build");
 

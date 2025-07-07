@@ -40,8 +40,21 @@ anyhow = "1.0.98"
 ignore = { version = "0.4.23" }
 thiserror = "2.0.12"
 
-string-interner = "0.19.0" # for fast string interning
+dashmap = "6.1.0" # for fast hash maps
+ropey = "1.6.1" # for efficient text handling
+string-interner = { version = "0.19.0", features = ["backends", "std"] } # for fast string interning
 serde = { version = "1.0.219", features = ["derive"] } # serialization library
+serde_json = { version = "1.0.140", features = ["preserve_order"] } # JSON serialization
+
+thread-core = { path = "crates/core" }
+thread-parse = { path = "crates/parse" }
+thread-engine = { path = "crates/engine" }
+thread-diff = { path = "crates/diff" }
+thread-fs = { path = "crates/fs" }
+thread-wasm = { path = "crates/wasm" }
+thread-cli = { path = "crates/cli" }
+thread-store = { path = "crates/store" }
+thread-langs = { path = "crates/langs" }
 
 [features]
 # default = ["derive", "languages", "parser", "query"]

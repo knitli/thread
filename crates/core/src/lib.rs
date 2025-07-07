@@ -4,7 +4,12 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 pub mod error;
+pub mod store;
 
+#[cfg(feature = "fastmap")]
+pub mod fastmap;
+
+#[cfg(any(feature = "meta-var", feature = "language", feature = "tree-sitter", feature = "matcher", feature = "replacer"))]
 mod ast_grep;
 
 /// Re-export Ast-Grep's core types and traits
@@ -12,10 +17,9 @@ mod ast_grep;
 pub use crate::ast_grep::language::{Language, LanguageExt, SupportLang, SupportLangErr};
 
 #[cfg(feature = "tree-sitter")]
-pub use crate::ast_grep::tree_sitter::{Tree, Node, Position, Content, Doc, Edit, DisplayContext, Visitor, TSLanguage, TSPoint, TSRange, StrDoc};
+pub use crate::ast_grep::tree_sitter::{AstG, Node, Position, Content, Doc, Edit, DisplayContext, Visitor, TSLanguage, TSPoint, TSRange, StrDoc};
 
 // general ast-grep types with no other dependencies
-#[cfg(feature = "ast-grep")]
 pub use crate::ast_grep::{MetaVarEnv, MetaVariable, MetaVariableID, Underlying};
 
 #[cfg(feature = "matcher")]

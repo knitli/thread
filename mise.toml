@@ -74,12 +74,12 @@ run = "cargo clean && rm -r crates/thread-wasm/pkg &>/dev/null"
 
 [tasks.build]
 description = 'Build everything (except wasm)'
-run = "cargo build"
+run = "cargo build --workspace"
 alias = 'b'                      # `mise run b` = build
 
 [tasks.build-release]
 description = 'Build everything in release mode (except wasm)'
-run = "cargo build --release"
+run = "cargo build --workspace --release --features inline"
 alias = 'br'                   # `mise run br` = build release
 
 [tasks.build-wasm]
