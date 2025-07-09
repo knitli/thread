@@ -10,7 +10,9 @@ use ansi_term::{Color, Style};
 #[cfg(feature = "cli_support")]
 use crossterm::tty::IsTty;
 
-use anyhow::{Error, Result};
+#[cfg(feature = "cli_support")]
+use anyhow::Result;
+use anyhow::Error;
 
 use std::fmt;
 use std::path::PathBuf;
@@ -18,15 +20,15 @@ use std::path::PathBuf;
 const DOC_SITE_HOST: &str = "https://ast-grep.github.io";
 const PATTERN_GUIDE: Option<&str> = Some("/guide/pattern-syntax.html");
 const CONFIG_GUIDE: Option<&str> = Some("/guide/rule-config.html");
-// const CONFIG_REFERENCE: Option<&str> = Some("/reference/sgconfig.html");
+const CONFIG_REFERENCE: Option<&str> = Some("/reference/sgconfig.html");
 const PROJECT_GUIDE: Option<&str> = Some("/guide/scan-project.html");
-// const TOOL_OVERVIEW: Option<&str> = Some("/guide/tooling-overview.html#parse-code-from-stdin");
-// const CLI_USAGE: Option<&str> = Some("/reference/cli.html");
+const TOOL_OVERVIEW: Option<&str> = Some("/guide/tooling-overview.html#parse-code-from-stdin");
+const CLI_USAGE: Option<&str> = Some("/reference/cli.html");
 const TEST_GUIDE: Option<&str> = Some("/guide/test-rule.html");
 const UTIL_GUIDE: Option<&str> = Some("/guide/rule-config/utility-rule.html");
-// const EDITOR_INTEGRATION: Option<&str> = Some("/guide/editor-integration.html");
-// const LANGUAGE_LIST: Option<&str> = Some("/reference/languages.html");
-// const PLAYGROUND: Option<&str> = Some("/playground.html");
+const EDITOR_INTEGRATION: Option<&str> = Some("/guide/editor-integration.html");
+const LANGUAGE_LIST: Option<&str> = Some("/reference/languages.html");
+const PLAYGROUND: Option<&str> = Some("/playground.html");
 const CUSTOM_LANG_GUIDE: Option<&str> = Some("/advanced/custom-language.html");
 const UTILITY_RULE: Option<&str> = Some("/guide/rule-config/utility-rule.html");
 
@@ -289,6 +291,7 @@ impl ErrorMessage {
   }
 }
 
+#[cfg(feature="cli_support")]
 pub fn exit_with_error(error: Error) -> Result<()> {
   if let Some(e) = error.downcast_ref::<clap::Error>() {
     e.exit()
@@ -308,6 +311,7 @@ pub fn exit_with_error(error: Error) -> Result<()> {
 // use raw ansi escape code to render links in terminal. references:
 // https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda
 // https://github.com/zkat/miette/blob/c25676cb1f4266c2607836e6359f15b9cbd8637e/src/handlers/graphical.rs#L186
+#[cfg(feature="cli_support")]
 fn ansi_link(url: String) -> String {
   format!(
     "\u{1b}]8;;{}\u{1b}\\{}\u{1b}]8;;\u{1b}\\",
@@ -322,6 +326,7 @@ struct ErrorFormat<'a> {
 }
 
 #[derive(Default)]
+#[cfg(feature="cli_support")]
 struct ErrorStyle {
   message: Style,
   error: Style,
@@ -330,7 +335,9 @@ struct ErrorStyle {
   reference: Style,
 }
 
+#[cfg(feature="cli_support")]
 impl ErrorStyle {
+  #[cfg(feature="cli_support")]
   fn colored() -> Self {
     Self {
       message: Style::new().bold(),
@@ -342,6 +349,7 @@ impl ErrorStyle {
   }
 }
 
+#[cfg(feature="cli_support")]
 impl fmt::Display for ErrorFormat<'_> {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     let ErrorMessage {
@@ -349,6 +357,7 @@ impl fmt::Display for ErrorFormat<'_> {
       description,
       link,
     } = ErrorMessage::from_context(self.context);
+    let needs_color = false;
     let needs_color = std::io::stderr().is_tty();
     let style = if needs_color {
       ErrorStyle::colored()
@@ -386,7 +395,7 @@ impl fmt::Display for ErrorFormat<'_> {
   }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "cli_support"))]
 mod test {
   use super::*;
 

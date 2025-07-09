@@ -26,12 +26,11 @@ ast-grep-core = { version = "0.38.6", optional = true }
 ast-grep-dynamic = { version = "0.38.6", optional = true }
 ast-grep-language = { version = "0.38.6", features = [], optional = true }
 
-# We only need thread-languages for the SupportedLanguage enum (the vendored version of ast-grep's SupportLang).
-thread-languages = { workspace = true, optional = true, features = [""] }
-
+# CLI_support
 ansi_term = { workspace = true, optional = true }
-clap = { version = "4.5.40", optional = true }
+clap = { workspace = true, optional = true }
 crossterm = { workspace = true, optional = true }
+
 string-interner = { workspace = true, features = ["std"] }
 anyhow.workspace = true
 
@@ -39,21 +38,17 @@ anyhow.workspace = true
 # Default gives you the core functionality of ast-grep for Thread's main use cases. Other features expand functionality to include all of ast-grep's capabilities.
 default = ["tree-sitter", "language", "serde"]
 
-# The `cli` feature is enabled by default *for the cli* but not for the library.
-cli_support = [
-    "ansi_term",
-    "crossterm",
-    "clap",
-    "serde",
-    "thread-languages",
-    "ag-config",
-    "language",
-]
-
 # Serde support; enabled by default. You'll need it for most use cases, but if you're just using Thread for generating analytics, you may be able to go without.
 
-serde = ["string-interner/serde", "ansi_term/derive_serde_style"]
+serde = ["string-interner/serde"]
 # Ast-Grep's core config, which enables its serializable rules, replacements, searches, etc.
+
+cli_support = [
+    "ansi_term",
+    "clap",
+    "crossterm",
+    "serde",
+]
 
 ag-config = [
     "ast-grep-config",

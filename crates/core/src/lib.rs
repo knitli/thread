@@ -9,4 +9,5 @@ pub mod store;
 
 pub mod fastmap;
 
-pub mod services
+#[cfg(feature = "services")]
+pub mod services;

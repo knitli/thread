@@ -47,22 +47,50 @@ members = [
 
 # Note: difftastic's diffing functionality is vendored internally
 [workspace.dependencies]
-anyhow = "1.0.98"
-ansi_term = "0.12.2"            # for colored terminal output
-crossterm = "0.29.0"            # for cross-platform terminal handling
-ignore = { version = "0.4.23" }
+# Error handling
 thiserror = "2.0.12"
+anyhow = "1.0.98"
 
-dashmap = "6.1.0" # for fast hash maps
+# CLI
+clap = "4.5.40"
+ansi_term = "0.12.1"            # for colored terminal output
+crossterm = "0.29.0"            # for cross-platform terminal handling
+
+# respect gitignore
+ignore = { version = "0.4.23" }
+
+# for fast hash maps
+dashmap = "6.1.0"
+
+# threaded parallelism
 rayon = "1.10.0"
-ropey = "1.6.1" # for efficient text handling
+
+# Targeted editing and text manipulation
+ropey = "1.6.1"
+
+# Service abstraction
 tower-service = "0.3.3"
-smallvec = "1.15.1" # for small, efficient vectors
-string-interner = "0.19.0" # for fast string interning
-serde = { version = "1.0.219", features = ["derive"] } # serialization library
+
+# They're vecs, but smaller
+smallvec = "1.15.1"
+
+# String interning (less memory usage/faster lookup over large datasets)
+string-interner = "0.19.0"
+
+# The fastest hasher in town
+rapidhash = "1.4.0"
+
+# Serialization/Deserialization
+serde = { version = "1.0.219", features = ["derive"] }
 serde_json = { version = "1.0.140", features = [
   "preserve_order",
 ] } # JSON serialization
+
+# graph data structures and algorithms
+petgraph = "0.8.2"
+
+# The tree... we built this thing with
+tree-sitter = "0.25.6"
 
 thread-ast-grep = { path = "crates/ast-grep" }
 thread-core = { path = "crates/core" }

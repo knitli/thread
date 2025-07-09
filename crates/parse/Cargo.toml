@@ -13,8 +13,11 @@ documentation.workspace = true
 authors.workspace = true
 
 [dependencies]
-thread-ast-grep = { path = "../core", features = ["all-core", "language"] }
-serde.workspace = true
+thread-ast-grep = { workspace = true, features = ["all-core", "language"] }
+serde = { workspace = true, features = ["derive"], optional = true }
+
+[features]
+default = ["serde/derive"]
 
 # Conditional ast-grep language support
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]

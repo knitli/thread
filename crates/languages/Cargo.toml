@@ -30,12 +30,17 @@ readme = "README.md"
 # Other candidates: dockerfile, julia, just, jsdoc, ocaml, cuda, hcl, hlsl, make, meson, nix, nu, r, regex, scss, solidity, sql, svelte, xml, vue, zig
 # TODO: Integrate tree-sitter wasmtime support
 [dependencies]
-thread-ast-grep = { workspace = true, features = ["all-core", "language"] }
+thread-ast-grep = { workspace = true, features = ["all-core"] }
 thread-core = { workspace = true }
-tree-sitter = { version = "0.25.6", features = ["std"] }
-ignore.workspace = true
-serde.workspace = true
+tree-sitter = { workspace = true, features = ["std"] }
+ignore = { workspace = true }
+serde = { workspace = true, features = ["std"], optional = true }
 dashmap = { workspace = true, optional = true }
+
+# CLI Support
+ansi_term = { workspace = true, optional = true }
+clap = { workspace = true, optional = true }
+crossterm = { workspace = true, optional = true }
 
 tree-sitter-bash = { version = "0.25.0", optional = true }
 tree-sitter-c = { version = "0.24.1", optional = true }
@@ -64,9 +69,31 @@ tree-sitter-yaml = { version = "0.7.1", optional = true }
 cc = "1.2.29"
 
 [features]
-default = ["all", "dashmap"]
+default = ["all"]
+local = ["all", "dashmap", "serde", "ag-language", "threadlang", "ag-dynamic-language"]
+production = ["serde", "ag-language", "threadlang"]
 
-dashmap = ["dashmap/serde", "dashmap/rayon", "thread-core/dashmap"]
+# The `cli` feature is enabled by default *for the cli* but not for the library.
+cli_support = [
+    "ansi_term",
+    "crossterm",
+    "clap",
+    "serde",
+    "ag-config",
+    "ag-language",
+]
+threadlang = ["ag-config", "thread-ast-grep/all-core", "ag-tree-sitter"]
+ag-tree-sitter = ["thread-ast-grep/tree-sitter"]
+ag-matcher = ["thread-ast-grep/matcher"]
+ag-config = ["thread-ast-grep/ag-config"]
+ag-language = ["thread-ast-grep/language"]
+ag-dynamic-language = ["thread-ast-grep/dynamic-language"]
+
+serde = ["serde/derive", "serde/std", "dashmap/serde"]
+serde-no-derive = ["serde/std"]
+serde-derive = ["serde/derive", "serde/std", "ansi_term/derive_serde_style"]
+
+dashmap = ["dashmap/rayon", "thread-core/dashmap"]
 inline = ["dashmap/inline"]
 
 bash = ["tree-sitter-bash"]

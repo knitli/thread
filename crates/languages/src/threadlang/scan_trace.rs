@@ -19,8 +19,8 @@
 
 // TODO: Generalize these print methods to provide output to a Service
 
-use crate::{ProjectConfig, RuleCollection, RuleConfig};
-use crate::threadlang::ThreadLang;
+use thread_ast_grep::{ProjectConfig, RuleCollection, RuleConfig};
+use super::threadlang::ThreadLang;
 
 use anyhow::Result;
 

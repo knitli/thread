@@ -4,21 +4,19 @@
 //
 // SPDX-License-Identifier: MIT
 
+use crate::SupportedLanguage;
 
-use thread_languages::SupportedLanguage;
-use crate::{
-    #[cfg(feature = "language")] Language,
-    #[cfg(feature = "language")] LanguageExt,
-    #[cfg(feature = "dynamic-language")] CustomLang,
-    #[cfg(feature = "dynamic-language")] DynamicLang
-};
-#[cfg(feature = "matcher")]
-use crate::{Pattern, PatternBuilder, PatternError};
-#[cfg(feature = "tree-sitter")]
-use crate::{StrDoc, TSLanguage, TSRange, Node};
-#[cfg(feature = "serde")]
-use serde::{Serialize, Deserialize};
 use ignore::types::Types;
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+#[cfg(feature = "ag-dynamic-language")]
+use thread_ast_grep::{CustomLang, DynamicLang};
+#[cfg(feature = "ag-language")]
+use thread_ast_grep::{Language, LanguageExt};
+#[cfg(feature = "ag-tree-sitter")]
+use thread_ast_grep::{Node, StrDoc, TSLanguage, TSRange};
+#[cfg(feature = "ag-matcher")]
+use thread_ast_grep::{Pattern, PatternBuilder, PatternError};
 
 use std::borrow::Cow;
 use std::collections::HashMap;
@@ -32,13 +30,16 @@ pub use injection::SerializableInjection;
 #[cfg(feature = "ag-config")]
 pub use lang_globs::*;
 
+#[cfg(feature = "ag-config")]
+pub use crate::config::{AstGrepConfig, ProjectConfig, with_rule_stats, read_rule_file, TestConfig};
+
 #[derive(Copy, Clone, PartialEq, Eq, #[cfg(feature = "serde")] Serialize, #[cfg(feature = "serde")] Deserialize, Hash)]
 #[cfg_attr(feature = "serde", serde(untagged))]
 /// Threadlang is a combined language type that can represent both built-in and custom languages.
 pub enum ThreadLang {
-    #[cfg(feature = "language")]
+    #[cfg(feature = "ag-language")]
     BuiltIn(SupportedLanguage),
-    #[cfg(feature = "dynamic-language")]
+    #[cfg(feature = "ag-dynamic-language")]
     Custom(CustomLang),
 }
 
@@ -46,23 +47,29 @@ impl ThreadLang {
     /// Returns the file types associated with the language.
     pub fn file_types(&self) -> Vec<String> {
         match self {
-            #[cfg(feature = "language")]
+            #[cfg(feature = "ag-language")]
             ThreadLang::BuiltIn(lang) => lang.file_types(),
-            #[cfg(feature = "dynamic-language")]
+            #[cfg(feature = "ag-dynamic-language")]
             ThreadLang::Custom(lang) => lang.file_types(),
+            _ => Vec::new(),
         }
     }
 
     /// Returns all available languages, both built-in and custom, as a list of strings.
     pub fn all_languages() -> Vec<Self> {
-        #[cfg(feature = "language")]
-        let builtin = SupportedLanguage::all_languages().iter().copied().map(ThreadLang::BuiltIn);
-        #[cfg(all(feature = "dynamic-language"), feature = "language")]
-        let customs = CustomLang::all_languages().into_iter().map(ThreadLang::Custom);
+        #[cfg(feature = "ag-language")]
+        let builtin = SupportedLanguage::all_languages()
+            .iter()
+            .copied()
+            .map(ThreadLang::BuiltIn);
+        #[cfg(all(feature = "ag-dynamic-language"), feature = "ag-language")]
+        let customs = CustomLang::all_languages()
+            .into_iter()
+            .map(ThreadLang::Custom);
         builtin.chain(customs).collect()
     }
 
-    #[cfg(all(feature = "language", feature = "ag-config"))]
+    #[cfg(all(feature = "ag-language", feature = "ag-config"))]
     /// Registers injectable languages -- these are languages that can be included in other languages, like CSS in HTML.
     pub fn register_injections(injections: Vec<SerializableInjection>) -> Result<()> {
         unsafe { injection::register_injectables(injections) }
@@ -72,7 +79,7 @@ impl ThreadLang {
     /// Returns a list of injectable languages for the current language.
     fn injectable_languages(&self) -> Option<&'static [&'static str]> {
         injection::injectable_languages(*self)
-        }
+    }
 
     #[cfg(feature = "ag-config")]
     /// Returns an iterator over injectable languages that are supported by the current context.
@@ -80,10 +87,12 @@ impl ThreadLang {
         let languages = self.injectable_languages()?;
         // e.g vue can inject scss which is not supported by sg
         // we should report an error here
-        let iter = languages.iter().filter_map(|s| if let Some(lang) = SgLang::from_str(s).ok() {
-            if self.all_languages().contains(&lang) {
-                // Only return languages that are supported by the current context
-                Some(lang)
+        let iter = languages.iter().filter_map(|s| {
+            if let Some(lang) = SgLang::from_str(s).ok() {
+                if self.all_languages().contains(&lang) {
+                    // Only return languages that are supported by the current context
+                    Some(lang)
+                }
             }
         });
         Some(iter)
@@ -94,31 +103,31 @@ impl ThreadLang {
     pub fn augmented_file_type(&self) -> Types {
         let self_type = self.file_types();
         let injector = Self::all_languages().into_iter().filter_map(|lang| {
-            lang
-            .injectable_languages()?
-            .any(|l| l == *self)
-            .then_some(lang)
+            lang.injectable_languages()?
+                .any(|l| l == *self)
+                .then_some(lang)
         });
         let injector_types = injector.map(|lang| lang.file_types());
         let all_types = std::iter::once(self_type).chain(injector_types);
         lang_globs::merge_types(all_types)
-        }
+    }
 
     #[cfg(feature = "ag-config")]
     /// Merges file types for a given iterator of languages, including injectable languages.
-        pub fn file_types_for_languages(languages: impl Iterator<Item = Self>) -> Types {
+    pub fn file_types_for_languages(languages: impl Iterator<Item = Self>) -> Types {
         let types = languages.map(|lang| lang.augmented_file_type());
         lang_globs::merge_types(types)
-        }
+    }
 }
 
 impl Display for ThreadLang {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
-            #[cfg(feature = "language")]
+            #[cfg(feature = "ag-language")]
             ThreadLang::BuiltIn(lang) => write!(f, "{}", lang),
-            #[cfg(feature = "dynamic-language")]
+            #[cfg(feature = "ag-dynamic-language")]
             ThreadLang::Custom(lang) => write!(f, "{}", lang.name()),
+            _ => write!(f, "null"),
         }
     }
 }
@@ -126,10 +135,11 @@ impl Display for ThreadLang {
 impl Debug for ThreadLang {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
-            #[cfg(feature = "language")]
+            #[cfg(feature = "ag-language")]
             ThreadLang::BuiltIn(lang) => write!(f, "{:?}", lang),
-            #[cfg(feature = "dynamic-language")]
+            #[cfg(feature = "ag-dynamic-language")]
             ThreadLang::Custom(lang) => write!(f, "{:?}", lang.name()),
+            _ => write!(f, "NO VALUE -- NO LANGUAGE FEATURES ENABLED"),
         }
     }
 }
@@ -153,11 +163,11 @@ impl FromStr for ThreadLang {
     type Err = ThreadLangError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        #[cfg(feature = "language")]
+        #[cfg(feature = "ag-language")]
         if let Ok(lang) = SupportedLanguage::from_str(s) {
             return Ok(ThreadLang::BuiltIn(lang));
         }
-        #[cfg(feature = "dynamic-language")]
+        #[cfg(feature = "ag-dynamic-language")]
         if let Ok(lang) = CustomLang::from_str(s) {
             return Ok(ThreadLang::Custom(lang));
         }
@@ -177,94 +187,101 @@ impl From<CustomLang> for ThreadLang {
     }
 }
 
-use ThreadLang::*
+use ThreadLang::*;
+#[cfg(
+    all(any(feature = "ag-language", feature = "ag-dynamic-language")),
+    feature = "meta-var",
+    feature = "ag-matcher"
+)]
 impl Language for ThreadLang {
     fn pre_process_pattern<'q>(&self, query: &'q str) -> Cow<'q, str> {
         match self {
-            #[cfg(feature = "language")]
+            #[cfg(feature = "ag-language")]
             ThreadLang::BuiltIn(lang) => lang.pre_process_pattern(query),
-            #[cfg(feature = "dynamic-language")]
+            #[cfg(feature = "ag-dynamic-language")]
             ThreadLang::Custom(lang) => lang.pre_process_pattern(query),
+            _ => Cow::Borrowed(query),
         }
     }
 
     #[inline]
-    #[cfg(all(feature = "language", feature = "meta-var"))]
     fn meta_var_char(&self) -> char {
         match self {
-            #[cfg(feature = "language")]
+            #[cfg(feature = "ag-language")]
             ThreadLang::BuiltIn(lang) => lang.meta_var_char(),
-            #[cfg(feature = "dynamic-language")]
+            #[cfg(feature = "ag-dynamic-language")]
             ThreadLang::Custom(lang) => lang.meta_var_char(),
         }
     }
 
     #[inline]
-    #[cfg(feature = "language")]
     fn expando_char(&self) -> char {
         match self {
-            #[cfg(feature = "language")]
+            #[cfg(feature = "ag-language")]
             ThreadLang::BuiltIn(lang) => lang.expando_char(),
-            #[cfg(feature = "dynamic-language")]
+            #[cfg(feature = "ag-dynamic-language")]
             ThreadLang::Custom(lang) => lang.expando_char(),
         }
     }
 
     fn kind_to_id(&self, kind: &str) -> u16 {
         match self {
-            #[cfg(feature = "language")]
+            #[cfg(feature = "ag-language")]
             ThreadLang::BuiltIn(lang) => lang.kind_to_id(kind),
-            #[cfg(feature = "dynamic-language")]
+            #[cfg(feature = "ag-dynamic-language")]
             ThreadLang::Custom(lang) => lang.kind_to_id(kind),
+            _ => 0,
         }
     }
 
     fn field_to_id(&self, field: &str) -> Option<u16> {
         match self {
-            #[cfg(feature = "language")]
+            #[cfg(feature = "ag-language")]
             ThreadLang::BuiltIn(lang) => lang.field_to_id(field),
-            #[cfg(feature = "dynamic-language")]
+            #[cfg(feature = "ag-dynamic-language")]
             ThreadLang::Custom(lang) => lang.field_to_id(field),
+            _ => None,
         }
     }
 
     fn from_path<P: AsRef<Path>>(&self, path: P) -> Option<Self> {
         match self {
-            #[cfg(feature = "language")]
+            #[cfg(feature = "ag-language")]
             ThreadLang::BuiltIn(lang) => lang.from_path(path).map(ThreadLang::BuiltIn),
-            #[cfg(feature = "dynamic-language")]
+            #[cfg(feature = "ag-dynamic-language")]
             ThreadLang::Custom(lang) => lang.from_path(path).map(ThreadLang::Custom),
+            _ => None,
         }
     }
 
-    #[cfg(feature = "matcher", any(feature = "language", feature = "dynamic-language"))]
     fn build_pattern(&self, builder: &PatternBuilder) -> Result<Pattern, PatternError> {
         match self {
-            #[cfg(feature = "language")]
+            #[cfg(feature = "ag-language")]
             ThreadLang::BuiltIn(lang) => lang.build_pattern(builder),
-            #[cfg(feature = "dynamic-language")]
+            #[cfg(feature = "ag-dynamic-language")]
             ThreadLang::Custom(lang) => lang.build_pattern(builder),
         }
     }
 }
 
+#[cfg(
+    all(feature = "ag-tree-sitter"),
+    any(feature = "ag-language", feature = "ag-dynamic-language")
+)]
 impl LanguageExt for ThreadLang {
-    #[cfg(feature = "tree-sitter", any(feature = "language", feature = "dynamic-language"))]
     fn get_ts_language(&self) -> TSLanguage {
         match self {
-            #[cfg(feature = "language")]
+            #[cfg(feature = "ag-language")]
             ThreadLang::BuiltIn(lang) => lang.get_ts_language(),
-            #[cfg(feature = "dynamic-language")]
+            #[cfg(feature = "ag-dynamic-language")]
             ThreadLang::Custom(lang) => lang.get_ts_language(),
         }
     }
 
-    #[cfg(all(feature = "tree-sitter", any(feature = "language", feature = "dynamic-language"), feature = "ag-config"))]
     fn injectable_languages(&self) -> Option<&'static [&'static str]> {
         injection::injectable_languages(*self)
     }
 
-    #[cfg(all(feature = "tree-sitter", feature = "ag-config"))]
     fn extract_injections<L: LanguageExt>(
         &self,
         root: Node<StrDoc<L>>,
@@ -278,7 +295,7 @@ mod tests {
     use super::*;
     use std::mem::size_of;
 
-    #[cfg(feature = "dynamic-language")]
+    #[cfg(feature = "ag-dynamic-language")]
     #[test]
     fn test_threadlang_size() {
         // Ensure that ThreadLang is the same size as SupportedLanguage or CustomLang

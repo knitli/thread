@@ -18,14 +18,14 @@ ignore.workspace = true
 thread-ast-grep = { workspace = true, features = [
     "matcher",
     "tree-sitter",
-    "fastmap",
     "language",
 ] }
-thread-core = { workspace = true, features = ["fastmap"] }
+thread-core = { workspace = true }
 
 [features]
-inline = ["thread-ast-grep/inline"]
-dashmap = ["thread-ast-grep/dashmap"]
+default = ["dashmap"]
+production = ["thread-core/production"]
+dashmap = ["thread-core/dashmap"]
 
 [lints]
 workspace = true

@@ -7,17 +7,13 @@
 
 pub mod error_context;
 
-// While the threadlang module *can* run with any of these features, it is only fully functional when they are *all* enabled.
-#[cfg((any(feature = "language", feature = "dynamic-language", feature = "ag-config")))]
-pub mod threadlang;
-
 //* ======================  DynamicLanguage  ======================
 
-#[cfg(feature="dynamic-language", not(target_family="wasm"))]
-pub use ast_grep_dynamic::{DynamicLang, DynamicLangError, Registration, LibraryPath, CustomLang};
+#[cfg(all(feature="dynamic-language", not(target_family="wasm")))]
+pub use thread_ast_grep::{DynamicLang, DynamicLangError, Registration, LibraryPath, CustomLang};
 
 //* ======================  Language  ======================
-#[cfg(feature = "language")]
+#[cfg(all(feature = "language", not(feature="tree-sitter")))]
 pub use ast_grep_language::{Language, LanguageExt};
 
 //* =======================================================================
@@ -35,7 +31,7 @@ pub use ast_grep_core::meta_var::{MetaVarEnv, MetaVariable, MetaVariableID, Unde
 pub type AstG<D> = ast_grep_core::AstGrep<D>;
 
 #[cfg(feature = "tree-sitter")]
-pub use ast_grep_core::{Node, Position, source::{Content, Doc, Edit}};
+pub use ast_grep_core::{language::Language, {Node, Position, source::{Content, Doc, Edit}}};
 
 //* ======================  Tree-Sitter Transversal  ======================
 #[cfg(feature = "tree-sitter")]
@@ -51,10 +47,10 @@ pub use ast_grep_core::{
     MatchStrictness, Matcher, Pattern, PatternError,
     matcher::{
         KindMatcher, KindMatcherError, MatchAll, MatchNone, MatcherExt, NodeMatch,
-        PatternBuilder, PatternNode, RegexMatcher, RegexMatcherError, kind_utils,
+        PatternBuilder, PatternNode, RegexMatcher, RegexMatcherError, kind_utils
+    },
     ops::{
         All, And, Any, Not, Op, Or
-    }
     },
 };
 
@@ -68,5 +64,5 @@ pub use ast_grep_core::replacer::{Replacer, TemplateFix, TemplateFixError};
 //* ======================  DynamicLanguage  ======================
 #[cfg(feature = "ag-config")]
 pub use ast_grep_config::{
-    CombinedScan, Fixer, Label, LabelStyle, GlobalRules, DeserializeEnv, ProjectConfig, ProjectTrace, Rule, RuleSerializeError, SerializableRule, RuleCollection, Severity, RuleConfig, RuleConfigError, SerializableRuleConfig, Metadata,RuleCore, RuleCoreError, SerializableRuleCore, Transformation, from_str, from_yaml_string,
+    CombinedScan, Fixer, Label, LabelStyle, GlobalRules, DeserializeEnv, Rule, RuleSerializeError, SerializableRule, RuleCollection, Severity, RuleConfig, RuleConfigError, SerializableRuleConfig, Metadata,RuleCore, RuleCoreError, SerializableRuleCore, Transformation, from_str, from_yaml_string,
 };

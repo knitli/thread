@@ -18,8 +18,8 @@ authors.workspace = true
 js-sys = { version = "0.3.77" }
 wasm-bindgen = { version = "0.2.100" }
 web-sys = { version = "0.3.77", features = ["console"], optional = true }
-thread-languages = { version = "0.1.0", path = "../languages" }
-serde.workspace = true
+thread-languages = { workspace = true }
+serde = { workspace = true, optional = true  }
 
 # The `console_error_panic_hook` crate provides better debugging of panics by
 # logging them with `console.error`. This is great for development, but requires
@@ -42,11 +42,14 @@ path = "src/lib.rs"
 
 
 [features]
-worker = ["panic_hook"]
-browser = ["multi-threading"]
-default = []
+default = ["worker"]
+worker = ["web-sys/console", "serde"] # single-threaded worker deployment
+browser = ["multi-threading", "serde"]
+
+
+serde = ["serde/derive"]
 panic_hook = ['console_error_panic_hook', "web-sys/console"]
-multi-threading = ["dep:rayon"]
+multi-threading = ["rayon"]
 
 [package.metadata.wasm-pack.profile.profiling.wasm-bindgen]
 debug-js-glue = false

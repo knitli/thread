@@ -17,7 +17,7 @@ thread-core = { workspace = true }
 
 [features]
 default = ["dashmap"]
-inline = ["thread-core/inline"]
+production = ["thread-core/production"]
 dashmap = ["thread-core/dashmap"]
 
 

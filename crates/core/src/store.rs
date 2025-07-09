@@ -3,9 +3,8 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-
-use string_interner::{StringInterner, SymbolU32};
 use crate::fastmap::FastMap;
+use thread_ast_grep::{Language, LanguageExt};
 
 pub enum FileType {
     /// A file that is a source code file.
@@ -19,12 +18,11 @@ pub enum FileType {
     /// A file that is a data file.
     Data,
 }
-
 pub struct File {
     pub path: std::path::Path,
     pub file_type: FileType,
-    pub lang: &(impl crate::ast_grep::language::Language + crate::ast_grep::language::LanguageExt + 'static),
-    pub docs: FastMap<SymbolU32, crate::ast_grep::tree_sitter::StrDoc>,
+    pub lang: &'static (dyn Language + LanguageExt),
+    pub docs: FastMap<SymbolU32, thread_ast_grep::StrDoc>,
     pub content: Option<ropey::Rope>,
 }
 

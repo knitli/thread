@@ -14,24 +14,28 @@ documentation.workspace = true
 authors.workspace = true
 
 [dependencies]
-ast-grep-core = { version = "0.38.6", optional = true }
-# We don't want to import any languages here by default; we're only getting the Language and LanguageExt traits.
-ast-grep-language = { version = "0.38.6", optional = true }
+thread-ast-grep = { workspace = true, features = ["all-core", "language"] }
+thread-languages = { workspace = true, features = ["threadlang"], optional = true }
 
+rapidhash.workspace = true
 ropey = { workspace = true }
 dashmap = { workspace = true, optional = true }
 string-interner = { workspace = true, features = ["backends", "serde", "std"] }
-serde.workspace = true
-serde_json.workspace = true
+serde = { workspace = true, features = ["derive", "std"], optional = true }
+serde_json = { workspace = true, optional = true }
 thiserror.workspace = true
+ignore.workspace = true
+tower-service = { workspace = true, optional = true }
 
 [features]
+default = ["local", "serde", "services"]
 local = ["dashmap", "dashmap/rayon"]
 production = ["dash-inline", "string-interner/inline-more"]
-
+serde = ["serde_json", "serde/derive", "serde/std", "thread-ast-grep/serde", "thread-languages/serde"]
+services = ["thread-languages/threadlang", "tower-service"]
 
 dash-inline = ["dashmap/inline"]
-# Enables dashmap as the FastMap backend; default is standard HashMap
+# Enables dashmap as the FastMap backend; default is RapidHashMap
 dashmap = ["dashmap/rayon"]
 wasm-single-thread = []
 
