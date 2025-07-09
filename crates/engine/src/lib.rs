@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
+
 //! Thread analysis engine implementation
 //!
 //! This crate provides the main analysis engine that orchestrates parsing,
@@ -43,7 +44,7 @@ impl ThreadEngine {
         // 2. Build graph nodes and edges
         // 3. Store in content store
         // 4. Return analysis result
-        
+
         Ok(AnalysisResult {
             file_path: file_path.to_path_buf(),
             elements_found: 0,

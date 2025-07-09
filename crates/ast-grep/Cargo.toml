@@ -1,0 +1,90 @@
+# SPDX-FileCopyrightText: 2025 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+# SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+# SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+[package]
+name = "thread-ast-grep"
+description = "A convenience crate that re-exports ast-grep's core parsing and language traits and types, allowing for narrower feature selection. It also vendors some functionality from the ast-grep CLI to support various Thread features."
+readme = "README.md"
+version = "0.38.6" # We mirror ast-grep's version for this crate
+edition.workspace = true
+rust-version.workspace = true
+license = "MIT"
+repository.workspace = true
+documentation.workspace = true
+homepage.workspace = true
+authors = [
+    "Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>",
+    "Knitli Inc <knitli@knit.li>",
+    "Adam Poulemanos for Knitli <adam@knit.li>",
+]
+[dependencies]
+ast-grep-config = { version = "0.38.6", optional = true }
+ast-grep-core = { version = "0.38.6", optional = true }
+ast-grep-dynamic = { version = "0.38.6", optional = true }
+ast-grep-language = { version = "0.38.6", features = [], optional = true }
+
+# We only need thread-languages for the SupportedLanguage enum (the vendored version of ast-grep's SupportLang).
+thread-languages = { workspace = true, optional = true, features = [""] }
+
+ansi_term = { workspace = true, optional = true }
+clap = { version = "4.5.40", optional = true }
+crossterm = { workspace = true, optional = true }
+string-interner = { workspace = true, features = ["std"] }
+anyhow.workspace = true
+
+[features]
+# Default gives you the core functionality of ast-grep for Thread's main use cases. Other features expand functionality to include all of ast-grep's capabilities.
+default = ["tree-sitter", "language", "serde"]
+
+# The `cli` feature is enabled by default *for the cli* but not for the library.
+cli_support = [
+    "ansi_term",
+    "crossterm",
+    "clap",
+    "serde",
+    "thread-languages",
+    "ag-config",
+    "language",
+]
+
+# Serde support; enabled by default. You'll need it for most use cases, but if you're just using Thread for generating analytics, you may be able to go without.
+
+serde = ["string-interner/serde", "ansi_term/derive_serde_style"]
+# Ast-Grep's core config, which enables its serializable rules, replacements, searches, etc.
+
+ag-config = [
+    "ast-grep-config",
+    "serde",
+    "replacer",
+    "matcher",
+    "tree-sitter",
+    "meta-var",
+]
+# Ast-Grep's replacement features. Ast-Grep uses this to replace AST nodes with other nodes, which is useful for refactoring (i.e. major version changes). Thread does not currently use this feature for our editing features, but it is useful for other use cases.
+
+replacer = ["tree-sitter", "matcher"]
+# Ast-Grep's matcher features. This is used to match AST nodes against patterns, which is useful for searching and analytics.
+
+matcher = ["tree-sitter"]
+# Ast-Grep's core tree-sitter parsing features. This is the core of ast-grep's functionality, allowing it to parse source code into an AST and perform operations on it.
+tree-sitter = ["ast-grep-core/tree-sitter"]
+# Ast-Grep's dynamic language support. Enables dynamically adding languages, or dynamically acquiring and compiling languages at runtime. Pretty cool.
+
+dynamic-language = ["ast-grep-dynamic"]
+# Ast-Grep's core language support. Ast-Grep applies two custom traits to languages: `Language` and `LanguageExt`, which provide a common interface for searching, matching, and manipulating ASTs across different languages. They're implemented with a simple macro on top of existing `tree-sitter` language definitions.
+
+language = ["ast-grep-language"]
+# Ast-Grep's meta-variable support. This is used to match AST nodes against patterns with meta-variables, which is useful for searching and analytics.
+
+meta-var = ["ast-grep-core", "matcher"]
+# All functionality provided by the ast-grep-core crate. This includes the core tree-sitter parsing features, matcher, replacer, and meta-variable support.
+all-core = ["tree-sitter", "matcher", "replacer", "meta-var"]
+
+# Support for both dynamic and static languages.
+all-language = ["dynamic-language", "language"]
+
+[lints]
+workspace = true

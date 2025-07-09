@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
+
 //! Graph query operations for extracting context
 
 use crate::*;
@@ -97,11 +98,11 @@ impl FunctionContext {
     /// Format as markdown for AI consumption
     pub fn to_markdown(&self) -> String {
         let mut md = String::new();
-        
-        md.push_str(&format!("## Function: {} (line {})\n\n", 
-            self.function.name, 
+
+        md.push_str(&format!("## Function: {} (line {})\n\n",
+            self.function.name,
             self.function.location.line));
-        
+
         md.push_str("```rust\n");
         md.push_str(&self.function.signature);
         md.push_str("\n```\n\n");

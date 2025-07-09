@@ -1,11 +1,12 @@
 # SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
 # SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
 #
-# SPDX-License-Identifier: AGPL-3.0-or-later
+
+# SPDX-License-Identifier: MIT OR Apache-2.0
 
 # SPDX-FileCopyrightText: 2025 Knitli Inc. <https://knitli.com/>
 #
-# SPDX-License-Identifier: AGPL-3.0-or-later
+
 
 # This template contains all of the possible sections and their default values
 
@@ -58,7 +59,7 @@ targets = [
 # If true, metadata will be collected with `--all-features`. Note that this can't
 # be toggled off if true, if you want to conditionally enable `--all-features` it
 # is recommended to pass `--all-features` on the cmd line instead
-all-features = false
+all-features = true
 # If true, metadata will be collected with `--no-default-features`. The same
 # caveat with `all-features` applies
 no-default-features = false
@@ -254,7 +255,7 @@ allow-git = []
 
 [sources.allow-org]
 # github.com organizations to allow git sources for
-github = []
+github = ["knitli", "apple", "rust-lang", "microsoft", "google", "mozilla", "cloudflare", "aws"]
 # gitlab.com organizations to allow git sources for
 gitlab = []
 # bitbucket.org organizations to allow git sources for

@@ -1,5 +1,9 @@
-/// FastMap is a type alias for a concurrent map implementation, it allows for optional use of dashmap and concurrent access in multi-threaded environments, falling back to a standard HashMap when dashmap is not enabled or in single-threaded environments.
-/// `fastmap` is gated at the crate level with `fastmap` so it can be used alone
+// SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+// SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+
 #[cfg(all(feature = "dashmap", not(feature = "wasm-single-thread")))]
 pub type FastMap<K, V> = dashmap::DashMap<K, V>;
 #[cfg(all(feature = "dashmap", not(feature = "wasm-single-thread")))]

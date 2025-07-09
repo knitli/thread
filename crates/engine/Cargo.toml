@@ -1,11 +1,10 @@
 # SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
 # SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
-#
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: MIT OR Apache-2.0
 
 [package]
 name = "thread-engine"
-version.workspace = true
+version = "0.0.1"
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
@@ -18,9 +17,9 @@ keywords = ["parsing", "code-analysis", "static-analysis", "graph-algorithms"]
 categories = ["development-tools", "parser-implementations"]
 
 [dependencies]
-thread-core = { path = "../core" }
-thread-parse = { path = "../parse" }
-thread-store = { path = "../store" }
+thread-core = { workspace = true }
+thread-parse = { workspace = true }
+thread-store = { workspace = true }
 
 # Core dependencies
 anyhow.workspace = true

@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
 # SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
 #
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: MIT OR Apache-2.0
 
 [package]
 name = "thread-core"
@@ -14,47 +14,27 @@ documentation.workspace = true
 authors.workspace = true
 
 [dependencies]
-ast-grep-core = { version="0.38.6", optional = true }
+ast-grep-core = { version = "0.38.6", optional = true }
 # We don't want to import any languages here by default; we're only getting the Language and LanguageExt traits.
-ast-grep-language = { version="0.38.6", default-features = false, optional = true }
+ast-grep-language = { version = "0.38.6", optional = true }
 
 ropey = { workspace = true }
-dashmap = { workspace = true, features = ["serde", "rayon", "inline"], optional = true }
-string-interner = { workspace = true, features = ["backends", "serde", "std"], default-features = false }
-serde.workspace = true,
+dashmap = { workspace = true, optional = true }
+string-interner = { workspace = true, features = ["backends", "serde", "std"] }
+serde.workspace = true
 serde_json.workspace = true
 thiserror.workspace = true
 
 [features]
-default = ["all-ast-grep", "tree-sitter", "dashmap", "fastmap"]
-# tree-sitter feature is enabled by default
-# Provides expanded and more granular AST manipulation capabilities
-fastmap = []
-# Passes inline features to dashmap and string-interner -- slower builds, can get some performance improvements (it actually is default for prebuilt release binaries -- we pass it by command line)
-inline = ["dash-inline", "string-interner/inline-more"]
-# Same as inline, but for the dashmap crate only (there's a crate or two that don't need string interning)
+local = ["dashmap", "dashmap/rayon"]
+production = ["dash-inline", "string-interner/inline-more"]
+
+
 dash-inline = ["dashmap/inline"]
-# Enables dashmap
-dashmap = ["dashmap/serde", "dashmap/rayon"]
+# Enables dashmap as the FastMap backend; default is standard HashMap
+dashmap = ["dashmap/rayon"]
 wasm-single-thread = []
 
-# ======== Ast-Grep Features ========
-tree-sitter = ["ast-grep-core/tree-sitter"]
-meta-var = ["ast-grep-core"]
-# Enables the use of the Language and LanguageExt traits, SupportLang Enum (not the languages, just which are supported)
-language = ["ast-grep-language"]
-# Adds Ast-Grep's Matcher types
-matcher = ["ast-grep-core"]
-# Adds Ast-Grep's Replacer types
-replacer = ["ast-grep-core"]
-
-all-ast-grep = [
-    "tree-sitter",
-    "ast-grep",
-    "language",
-    "matcher",
-    "replacer"
-]
 
 [lints]
 workspace = true

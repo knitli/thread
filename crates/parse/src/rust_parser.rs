@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
+
 //! Rust-specific parser implementation using ast-grep
 //!
 //! This module provides functions to extract Rust code elements
@@ -11,7 +12,7 @@
 use crate::LanguageProvider;
 use ast_grep_core::{AstGrep, Pattern, NodeMatch};
 use thread_core::{
-    CodeElement, ElementId, ElementKind, ElementMetadata, FileParseResult, 
+    CodeElement, ElementId, ElementKind, ElementMetadata, FileParseResult,
     Import, Export, Parameter, SourceLocation, Visibility, LanguageParser, Result, ThreadError
 };
 use std::marker::PhantomData;
@@ -35,9 +36,9 @@ impl<P: LanguageProvider> RustParser<P> {
             let lang = P::get_language();
             let ast = lang.ast_grep(source);
             let root = ast.root();
-            
+
             let mut functions = Vec::new();
-            
+
             // Pattern for functions with return type
             if let Ok(pattern) = Pattern::new("fn $NAME($PARAMS) -> $RETURN { $$$BODY }", lang.clone()) {
                 for m in pattern.find_all(&root) {
@@ -46,7 +47,7 @@ impl<P: LanguageProvider> RustParser<P> {
                     }
                 }
             }
-            
+
             // Pattern for functions without return type
             if let Ok(pattern) = Pattern::new("fn $NAME($PARAMS) { $$$BODY }", lang.clone()) {
                 for m in pattern.find_all(&root) {
@@ -55,10 +56,10 @@ impl<P: LanguageProvider> RustParser<P> {
                     }
                 }
             }
-            
+
             Ok(functions)
         }
-        
+
         #[cfg(target_arch = "wasm32")]
         {
             // For WASM, return empty for now - would need custom implementation
@@ -73,9 +74,9 @@ impl<P: LanguageProvider> RustParser<P> {
             let lang = P::get_language();
             let ast = lang.ast_grep(source);
             let root = ast.root();
-            
+
             let mut imports = Vec::new();
-            
+
             // Pattern for simple use statements: use path;
             if let Ok(pattern) = Pattern::new("use $PATH;", lang.clone()) {
                 for m in pattern.find_all(&root) {
@@ -84,7 +85,7 @@ impl<P: LanguageProvider> RustParser<P> {
                     }
                 }
             }
-            
+
             // Pattern for use statements with items: use path::{items};
             if let Ok(pattern) = Pattern::new("use $PATH::{$$$ITEMS};", lang.clone()) {
                 for m in pattern.find_all(&root) {
@@ -93,10 +94,10 @@ impl<P: LanguageProvider> RustParser<P> {
                     }
                 }
             }
-            
+
             Ok(imports)
         }
-        
+
         #[cfg(target_arch = "wasm32")]
         {
             Ok(vec![])
@@ -107,26 +108,26 @@ impl<P: LanguageProvider> RustParser<P> {
     fn extract_function_from_match(&self, m: &NodeMatch<ast_grep_core::tree_sitter::StrDoc<P::Language>>, file_path: &str, has_return_type: bool) -> Result<CodeElement> {
         let env = m.get_env();
         let node = m.get_node();
-        
+
         let name = env.get_match("NAME")
             .ok_or_else(|| ThreadError::ParseError("Function name not found".to_string()))?
             .text()
             .to_string();
-            
+
         let params_text = env.get_match("PARAMS")
             .map(|n| n.text().to_string())
             .unwrap_or_default();
-            
+
         let return_type = if has_return_type {
             env.get_match("RETURN").map(|n| n.text().to_string())
         } else {
             None
         };
-        
+
         let range = node.range();
         let start_pos = node.start_pos();
         let end_pos = node.end_pos();
-        
+
         let location = SourceLocation::new(
             file_path.to_string(),
             start_pos.line() + 1, // ast-grep uses 0-based, we want 1-based
@@ -136,13 +137,13 @@ impl<P: LanguageProvider> RustParser<P> {
             range.start,
             range.end,
         );
-        
+
         let signature = if let Some(ret) = &return_type {
             format!("fn {}({}) -> {}", name, params_text, ret)
         } else {
             format!("fn {}({})", name, params_text)
         };
-        
+
         Ok(CodeElement {
             id: ElementId(format!("{}:{}", file_path, name)),
             kind: ElementKind::Function,
@@ -167,16 +168,16 @@ impl<P: LanguageProvider> RustParser<P> {
     fn extract_simple_import(&self, m: &NodeMatch<ast_grep_core::tree_sitter::StrDoc<P::Language>>, file_path: &str) -> Result<Import> {
         let env = m.get_env();
         let node = m.get_node();
-        
+
         let path = env.get_match("PATH")
             .ok_or_else(|| ThreadError::ParseError("Import path not found".to_string()))?
             .text()
             .to_string();
-        
+
         let range = node.range();
         let start_pos = node.start_pos();
         let end_pos = node.end_pos();
-        
+
         let location = SourceLocation::new(
             file_path.to_string(),
             start_pos.line() + 1,
@@ -186,7 +187,7 @@ impl<P: LanguageProvider> RustParser<P> {
             range.start,
             range.end,
         );
-        
+
         Ok(Import {
             module: path,
             items: vec![], // Simple import doesn't specify items
@@ -199,19 +200,19 @@ impl<P: LanguageProvider> RustParser<P> {
     fn extract_multi_import(&self, m: &NodeMatch<ast_grep_core::tree_sitter::StrDoc<P::Language>>, file_path: &str) -> Result<Import> {
         let env = m.get_env();
         let node = m.get_node();
-        
+
         let path = env.get_match("PATH")
             .ok_or_else(|| ThreadError::ParseError("Import path not found".to_string()))?
             .text()
             .to_string();
-        
+
         // TODO: Parse the ITEMS list properly
         let items = vec![]; // Simplified for now
-        
+
         let range = node.range();
         let start_pos = node.start_pos();
         let end_pos = node.end_pos();
-        
+
         let location = SourceLocation::new(
             file_path.to_string(),
             start_pos.line() + 1,
@@ -221,7 +222,7 @@ impl<P: LanguageProvider> RustParser<P> {
             range.start,
             range.end,
         );
-        
+
         Ok(Import {
             module: path,
             items,
@@ -242,12 +243,12 @@ impl<P: LanguageProvider> LanguageParser for RustParser<P> {
 
     fn parse_content(&self, content: &str, file_path: &str) -> Result<FileParseResult> {
         let start_time = std::time::Instant::now();
-        
+
         let functions = self.extract_functions(content, file_path)?;
         let imports = self.extract_imports(content, file_path)?;
-        
+
         let parse_time_ms = start_time.elapsed().as_millis() as u64;
-        
+
         Ok(FileParseResult {
             file_path: file_path.to_string(),
             language: self.language_id().to_string(),
@@ -271,7 +272,7 @@ fn parse_parameters(params_text: &str) -> Vec<Parameter> {
     if params_text.trim().is_empty() {
         return vec![];
     }
-    
+
     // Very basic parameter parsing - in reality we'd want to use ast-grep for this too
     params_text
         .split(',')
@@ -280,7 +281,7 @@ fn parse_parameters(params_text: &str) -> Vec<Parameter> {
             if param.is_empty() {
                 return None;
             }
-            
+
             // Handle "name: type" pattern
             if let Some((name, type_part)) = param.split_once(':') {
                 Some(Parameter {

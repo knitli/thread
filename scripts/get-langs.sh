@@ -5,18 +5,60 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
+# Script to pull or add tree-sitter language parsers. Not yet implemented. We want to get things fairly stable as-is before we start adding new languages.
+
 set -euo pipefail
 
 declare ARG
-ARG="${1:-pull}"
+declare -a ARGS LANGUAGES_FOR_ACTION
+ARGS=("$@")
+
+if [[ "${ARGS[0]}" == "--help" || "${ARGS[0]}" == "-h" ]]; then
+    echo "Usage: $0 [pull|add] [options] [language...]"
+    echo "Actions:"
+    echo "  pull   - Pull updates for specified languages or all if none specified."
+    echo "  add    - Add specified languages or all if none specified."
+    echo "Options:"
+    echo "  --all  - Apply action to all supported languages."
+    exit 0
+fi
+
+# Check arguments
+if [[ ${#ARGS[@]} -eq 0 ]]; then
+    echo "Usage: $0 [pull|add] [options] [language...]"
+    exit 1
+fi
+if [[ "${ARGS[0]}" != "pull" && "${ARGS[0]}" != "add" ]]; then
+    echo "Invalid action: ${ARGS[0]}. Use 'pull' or 'add'."
+    exit 1
+fi
+ARG="${ARGS[0]}"
+# Remove the first argument (action) from the array
+unset 'ARGS[0]'
+# Re-index the array to remove gaps
+ARGS=("${ARGS[@]}")
+# Declare global variables
+if [[ ${#ARGS[@]} -gt 0 ]]; then
+    if [[ "${ARGS[*]}" == *--all* ]]; then
+        LANGUAGES_FOR_ACTION=("ALL")
+    else
+        LANGUAGES_FOR_ACTION=("${ARGS[@]}")
+    fi
+else
+    LANGUAGES_FOR_ACTION=("ALL")
+fi
 
 declare PREFIX TREE_MAIN_URL TREE_GRAMS_URL
-declare -a LANGS GRAMMAR_REPOS REPO_LANGS
+declare -a LANGS GRAMMAR_REPOS REPO_LANGS IN_CRATESIO
 declare -A REPO BRANCH
 
 PREFIX="--prefix=parsers"
 TREE_MAIN_URL="https://github.com/tree-sitter/tree-sitter"
 TREE_GRAMS_URL="https://github.com/tree-sitter-grammars/tree-sitter"
+
+export IN_CRATESIO=("bash" "c" "cpp" "c-sharp" "css" "comment" "cuda" "dockerfile" "elixir" "go" "haskell" "hcl" "hlsl" "html" "java" "javascript" "json" "just" "julia" "kotlin" "lua" "make" "markdown" "nix" "ocaml" "pkl" "php" "python" "r" "regex" "ruby" "rst" "scala" "scss" "solidity" "sql" "swift" "svelte" "toml" "typescript" "tsx" "yaml" "xml" "zig")
+
+export THREAD_SUPPORT=("bash" "cpp" "c-sharp" "css" "elixir" "go" "haskell" "html" "javascript" "json" "kotlin" "lua" "php" "python" "ruby" "rust" "scala" "swift" "typescript" "tsx" "yaml")
 
 # These are all master branches in the main tree-sitter repository
 
@@ -107,9 +149,22 @@ get_cmd() {
     else
         error_exit "Invalid action: $action. Use 'pull' or 'add'."
     fi
+    echo "[$word] $lang from $url branch: $branch"
     echo "git subtree --squash $PREFIX/$lang $action $url $branch" 2>/dev/null || {
         error_exit "Failed to construct command for language: $lang"
     }
+}
+
+is_match() {
+    local lang="$1"
+    if [[ "${LANGUAGES_FOR_ACTION[0]}" == "ALL" ]]; then
+        return 0
+    else
+        if [[ "${LANGUAGES_FOR_ACTION[*]}" == *"$lang"* ]]; then
+            return 0
+        fi
+    fi
+    return 1
 }
 
 main() {
@@ -117,6 +172,10 @@ main() {
 
     for lang in "${LANGS[@]}"; do
         local repo_url cmd
+        if ! is_match "$lang"; then
+            echo "Skipping language: $lang"
+            continue
+        fi
         repo_url=$(get_main_repo "$lang")
         cmd=$(get_cmd "$lang" "$repo_url" "$ARG" "master")
         echo "executing command: $cmd"
@@ -126,6 +185,10 @@ main() {
     done
     for lang in "${REPO_LANGS[@]}"; do
         local repo_url branch cmd
+        if ! is_match "$lang"; then
+            echo "Skipping language: $lang"
+            continue
+        fi
         repo_url=$(get_repo "$lang")
         branch=${BRANCH[$lang]:-main}
         cmd=$(get_cmd "$lang" "$repo_url" "$ARG" "$branch")
@@ -136,6 +199,10 @@ main() {
     done
     for grammar in "${GRAMMAR_REPOS[@]}"; do
         IFS=',' read -r lang branch <<<"$grammar"
+        if ! is_match "$lang"; then
+            echo "Skipping grammar: $lang"
+            continue
+        fi
         repo_url=$(get_grammar_repo "$lang")
         cmd="$(get_cmd "$lang" "$repo_url" "$ARG" "$branch")"
         echo "executing command: $cmd"

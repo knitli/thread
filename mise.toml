@@ -1,7 +1,8 @@
 # SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
 # SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
 #
-# SPDX-License-Identifier: AGPL-3.0-or-later
+
+# SPDX-License-Identifier: MIT OR Apache-2.0
 
 [tools]
 act = "latest"
@@ -108,6 +109,14 @@ run = "cargo run -p xtask build-wasm --release"
 alias = 'bwr'                  # `mise run bwr` = build wasm release
 
 #** -------------------- Testing/Linting/Formatting Tasks --------------------
+
+[tasks.update-licenses]
+description = "Update license headers for all files"
+run = """
+#!/usr/bin/bash
+
+
+"""
 
 [tasks.test]
 description = 'Run automated tests'

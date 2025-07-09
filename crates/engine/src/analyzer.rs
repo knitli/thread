@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
+
 //! High-level analysis orchestration
 
 use crate::*;
@@ -38,7 +39,7 @@ impl Analyzer {
         // 1. Use thread-parse to extract functions from Rust content
         // 2. Build graph representation
         // 3. Return analysis result
-        
+
         self.engine.analyze_file(file_path, content)
     }
 

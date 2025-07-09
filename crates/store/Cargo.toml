@@ -1,7 +1,6 @@
 # SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
 # SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
-#
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: MIT OR Apache-2.0
 
 [package]
 name = "thread-store"
@@ -14,10 +13,10 @@ documentation.workspace = true
 authors.workspace = true
 
 [dependencies]
-thread-core = { workspace = true, features = ["fastmap"] }
+thread-core = { workspace = true }
 
 [features]
-default = ["dashmap", "inline"]
+default = ["dashmap"]
 inline = ["thread-core/inline"]
 dashmap = ["thread-core/dashmap"]
 

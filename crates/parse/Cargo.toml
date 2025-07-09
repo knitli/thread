@@ -1,7 +1,6 @@
 # SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
 # SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
-#
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: MIT OR Apache-2.0
 
 [package]
 name = "thread-parse"
@@ -14,15 +13,12 @@ documentation.workspace = true
 authors.workspace = true
 
 [dependencies]
-thread-core = { path = "../core" }
-serde = { version = "1.0.219", features = ["derive"] }
-
-# ast-grep core (WASM-compatible)
-ast-grep-core = { version = "0.38.6" }
+thread-ast-grep = { path = "../core", features = ["all-core", "language"] }
+serde.workspace = true
 
 # Conditional ast-grep language support
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-ast-grep-language = { version = "0.38.6" }
+thread-languages = { workspace = true, features = ["all"] }
 
 [lints]
 workspace = true

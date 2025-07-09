@@ -1,3 +1,11 @@
+<!--
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+
+SPDX-License-Identifier: MIT OR Apache-2.0
+SPDX-License-Identifier: MIT OR Apache-2.0
+-->
+
 # GNU AFFERO GENERAL PUBLIC LICENSE
 
                        Version 3, 19 November 2007

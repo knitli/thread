@@ -1,7 +1,6 @@
 # SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
 # SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
-#
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: MIT OR Apache-2.0
 
 [package]
 name = "thread-wasm"
@@ -19,7 +18,7 @@ authors.workspace = true
 js-sys = { version = "0.3.77" }
 wasm-bindgen = { version = "0.2.100" }
 web-sys = { version = "0.3.77", features = ["console"], optional = true }
-thread-langs = { version = "0.1.0", path = "../langs" }
+thread-languages = { version = "0.1.0", path = "../languages" }
 serde.workspace = true
 
 # The `console_error_panic_hook` crate provides better debugging of panics by
@@ -28,7 +27,7 @@ serde.workspace = true
 # code size when deploying.
 console_error_panic_hook = { version = "0.1.7", optional = true }
 
-rayon = { version = "1.10.0", features = ["web_spin_lock"], optional = true }
+rayon = { workspace = true, features = ["web_spin_lock"], optional = true }
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.50"
@@ -37,15 +36,15 @@ wasm-bindgen-test = "0.3.50"
 workspace = true
 
 [lib]
-name="thread_wasm"
+name = "thread_wasm"
 crate-type = ["cdylib", "rlib"]
-path="src/lib.rs"
+path = "src/lib.rs"
 
 
 [features]
-worker=["panic_hook"]
-browser=["multi-threading"]
-default=[]
+worker = ["panic_hook"]
+browser = ["multi-threading"]
+default = []
 panic_hook = ['console_error_panic_hook', "web-sys/console"]
 multi-threading = ["dep:rayon"]
 

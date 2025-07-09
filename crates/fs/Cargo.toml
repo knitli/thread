@@ -1,7 +1,6 @@
 # SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
 # SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
-#
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: MIT OR Apache-2.0
 
 [package]
 name = "thread-fs"
@@ -15,6 +14,18 @@ homepage.workspace = true
 authors.workspace = true
 
 [dependencies]
+ignore.workspace = true
+thread-ast-grep = { workspace = true, features = [
+    "matcher",
+    "tree-sitter",
+    "fastmap",
+    "language",
+] }
+thread-core = { workspace = true, features = ["fastmap"] }
+
+[features]
+inline = ["thread-ast-grep/inline"]
+dashmap = ["thread-ast-grep/dashmap"]
 
 [lints]
 workspace = true

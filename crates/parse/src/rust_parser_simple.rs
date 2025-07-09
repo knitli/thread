@@ -3,13 +3,14 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
+
 //! Simplified Rust parser implementation using ast-grep
-//! 
+//!
 //! This is a simplified version to get the basic integration working.
 
 use crate::LanguageProvider;
 use thread_core::{
-    CodeElement, ElementId, ElementKind, ElementMetadata, FileParseResult, 
+    CodeElement, ElementId, ElementKind, ElementMetadata, FileParseResult,
     Import, Parameter, SourceLocation, Visibility, LanguageParser, Result, ThreadError
 };
 use std::marker::PhantomData;
@@ -38,7 +39,7 @@ impl<P: LanguageProvider> LanguageParser for SimpleRustParser<P> {
 
     fn parse_content(&self, content: &str, file_path: &str) -> Result<FileParseResult> {
         let start_time = std::time::Instant::now();
-        
+
         // For now, just create a simple mock function to demonstrate the integration
         let mock_function = CodeElement {
             id: ElementId(format!("{}:main", file_path)),
@@ -61,9 +62,9 @@ impl<P: LanguageProvider> LanguageParser for SimpleRustParser<P> {
                 extra: std::collections::HashMap::new(),
             },
         };
-        
+
         let parse_time_ms = start_time.elapsed().as_millis() as u64;
-        
+
         Ok(FileParseResult {
             file_path: file_path.to_string(),
             language: self.language_id().to_string(),
