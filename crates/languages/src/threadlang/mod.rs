@@ -3,7 +3,9 @@
 // SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
 //
 // SPDX-License-Identifier: MIT
-
+pub mod config;
+pub mod injection;
+pub mod lang_globs;
 use crate::SupportedLanguage;
 
 use ignore::types::Types;
@@ -31,12 +33,12 @@ pub use injection::SerializableInjection;
 pub use lang_globs::*;
 
 #[cfg(feature = "ag-config")]
-pub use crate::config::{
+pub use config::{
     AstGrepConfig, ProjectConfig, TestConfig, read_rule_file, with_rule_stats,
 };
 
-#[derive(Copy, Clone, PartialEq, Eq, #[cfg(feature = "serde")] Serialize, #[cfg(feature = "serde")] Deserialize, Hash)]
-#[cfg_attr(feature = "serde", serde(untagged))]
+#[derive(Copy, Clone, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize), serde(untagged))]
 /// Threadlang is a combined language type that can represent both built-in and custom languages.
 pub enum ThreadLang {
     #[cfg(feature = "ag-language")]
@@ -94,7 +96,7 @@ impl ThreadLang {
         // e.g vue can inject scss which is not supported by sg
         // we should report an error here
         let iter = languages.iter().filter_map(|s| {
-            if let Some(lang) = SgLang::from_str(s).ok() {
+            if let Some(lang) = ThreadLang::from_str(s).ok() {
                 if self.all_languages().contains(&lang) {
                     // Only return languages that are supported by the current context
                     Some(lang)
@@ -186,7 +188,7 @@ impl From<SupportedLanguage> for ThreadLang {
         Self::BuiltIn(value)
     }
 }
-
+#[cfg(feature = "ag-dynamic-language")]
 impl From<CustomLang> for ThreadLang {
     fn from(value: CustomLang) -> Self {
         Self::Custom(value)
@@ -195,10 +197,10 @@ impl From<CustomLang> for ThreadLang {
 
 use ThreadLang::*;
 #[cfg(
-    all(any(feature = "ag-language", feature = "ag-dynamic-language")),
-    feature = "meta-var",
+    all(any(feature = "ag-language", feature = "ag-dynamic-language"),
+    feature = "ag-meta-var",
     feature = "ag-matcher"
-)]
+))]
 impl Language for ThreadLang {
     fn pre_process_pattern<'q>(&self, query: &'q str) -> Cow<'q, str> {
         match self {
@@ -271,8 +273,8 @@ impl Language for ThreadLang {
 }
 
 #[cfg(
-    all(feature = "ag-tree-sitter"),
-    any(feature = "ag-language", feature = "ag-dynamic-language")
+    all(feature = "ag-tree-sitter",
+    any(feature = "ag-language", feature = "ag-dynamic-language"))
 )]
 impl LanguageExt for ThreadLang {
     fn get_ts_language(&self) -> TSLanguage {
@@ -296,12 +298,12 @@ impl LanguageExt for ThreadLang {
     }
 }
 
+#[cfg(feature = "ag-dynamic-language")]
 #[cfg(test)]
 mod tests {
     use super::*;
     use std::mem::size_of;
 
-    #[cfg(feature = "ag-dynamic-language")]
     #[test]
     fn test_threadlang_size() {
         // Ensure that ThreadLang is the same size as SupportedLanguage or CustomLang

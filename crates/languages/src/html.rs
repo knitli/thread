@@ -6,7 +6,7 @@
 
 use super::pre_process_pattern;
 use rapidhash::RapidHashMap;
-use thread_ag::{
+use thread_ast_grep::{
     Doc, KindMatcher, Language, LanguageExt, Node, Pattern, PatternBuilder, PatternError, StrDoc,
     TSLanguage, TSRange,
 };

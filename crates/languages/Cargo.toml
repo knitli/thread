@@ -36,9 +36,10 @@ ignore = { workspace = true }
 serde = { workspace = true, features = ["std"], optional = true }
 rapidhash.workspace = true
 cfg-if.workspace = true
+anyhow.workspace = true
 
 # CLI Support
-ansi_term = { workspace = true, optional = true }
+ansiterm = { workspace = true, optional = true }
 clap = { workspace = true, optional = true }
 crossterm = { workspace = true, optional = true }
 
@@ -75,15 +76,21 @@ production = ["serde", "ag-language", "threadlang"]
 
 # The `cli` feature is enabled by default *for the cli* but not for the library.
 cli_support = [
-    "ansi_term",
+    "ansiterm",
     "crossterm",
     "clap",
     "serde",
     "ag-config",
     "ag-language",
 ]
-threadlang = ["ag-config", "thread-ast-grep/all-core", "ag-tree-sitter"]
+threadlang = [
+    "ag-config",
+    "thread-ast-grep/all-core",
+    "ag-tree-sitter",
+    "ag-meta-var",
+]
 ag-tree-sitter = ["thread-ast-grep/tree-sitter"]
+ag-meta-var = ["thread-ast-grep/meta-var"]
 ag-matcher = ["thread-ast-grep/matcher"]
 ag-config = ["thread-ast-grep/ag-config"]
 ag-language = ["thread-ast-grep/language"]
@@ -91,7 +98,7 @@ ag-dynamic-language = ["thread-ast-grep/dynamic-language"]
 
 serde = ["serde/derive", "serde/std"]
 serde-no-derive = ["serde/std"]
-serde-derive = ["serde/derive", "serde/std", "ansi_term/derive_serde_style"]
+serde-derive = ["serde/derive", "serde/std", "ansiterm/derive_serde_style"]
 
 bash = ["tree-sitter-bash"]
 c = ["tree-sitter-c"]

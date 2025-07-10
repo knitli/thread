@@ -53,8 +53,8 @@ thiserror = "2.0.12"
 anyhow = "1.0.98"
 
 # CLI
-clap = "4.5.40"
-ansi_term = "0.12.1" # for colored terminal output
+clap = "4.5.41"
+ansiterm = "0.12.2" # for colored terminal output
 crossterm = "0.29.0" # for cross-platform terminal handling
 
 # respect gitignore

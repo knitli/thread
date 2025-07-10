@@ -7,32 +7,30 @@
 use super::ThreadLang;
 use thread_ast_grep::error_context::ErrorContext as EC;
 #[cfg(feature = "ag-config")]
-use thread_ast_grep::{DeserializeEnv, RuleCore, SerializableRuleCore};
-#[cfg(all(feature = "ag-tree-sitter", feature = "ag-language"))]
-use thread_ast_grep::{Doc, LanguageExt, Node, StrDoc, TSRange};
+use thread_ast_grep::{DeserializeEnv, RuleCore, SerializableRuleCore, Doc, LanguageExt, Node, TSPoint as Point, TSRange};
 
 use anyhow::{Context, Result};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
-use std::collections::{HashSet, RapidHashMap};
+use rapidhash::{RapidHashSet, RapidHashMap};
 use std::ptr::{addr_of, addr_of_mut};
 use std::str::FromStr;
 
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize), serde(untagged))]
 #[derive(Clone)]
-#[serde(untagged)]
 pub enum Injected {
     Static(String),
     Dynamic(Vec<String>),
 }
 
 #[derive(Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "serde", serde(rename_all = "camelCase"))]
 pub struct SerializableInjection {
     #[cfg(all(feature = "serde", feature = "ag-config"))]
-    #[serde(flatten)]
+    #[cfg_attr(feature = "serde", serde(flatten))]
     core: SerializableRuleCore,
     /// The host language, e.g. html, contains other languages
     host_language: String,
@@ -47,7 +45,7 @@ struct Injection {
     host: ThreadLang,
     #[cfg(feature = "ag-config")]
     rules: Vec<(RuleCore, Option<String>)>,
-    injectable: HashSet<String>,
+    injectable: RapidHashSet<String>,
 }
 
 impl Injection {
@@ -160,7 +158,7 @@ pub fn extract_injections<L: LanguageExt>(
 
 #[cfg(all(
     feature = "ag-config",
-    feature = "tree-sitter",
+    feature = "ag-tree-sitter",
     feature = "ag-language"
 ))]
 fn extract_custom_inject<L: LanguageExt>(
@@ -191,15 +189,15 @@ fn extract_custom_inject<L: LanguageExt>(
     }
 }
 
-#[cfg(feature = "ag-tree-sitter")]
+#[cfg(all(feature = "ag-tree-sitter", feature = "ag-config"))]
 fn node_to_range<D: Doc>(node: &Node<D>) -> TSRange {
     let r = node.range();
     let start = node.start_pos();
     let sp = start.byte_point();
-    let sp = thread_ast_grep::Point::new(sp.0, sp.1);
+    let sp = Point::new(sp.0, sp.1);
     let end = node.end_pos();
     let ep = end.byte_point();
-    let ep = thread_ast_grep::Point::new(ep.0, ep.1);
+    let ep = Point::new(ep.0, ep.1);
     TSRange {
         start_byte: r.start,
         end_byte: r.end,
@@ -249,7 +247,7 @@ injected: [js, ts, tsx]";
         assert!(matches!(ec, EC::LangInjection));
     }
 
-    #[cfg(all(feature = "ag-config", feature = "serde"))]
+    #[cfg(all(feature = "ag-config", feature = "serde", feature = "ag-tree-sitter", feature = "ag-language"))]
     #[test]
     fn test_good_injection() {
         let mut map = RapidHashMap::new();

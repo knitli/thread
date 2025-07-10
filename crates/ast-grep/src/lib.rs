@@ -31,7 +31,7 @@ pub use ast_grep_core::meta_var::{MetaVarEnv, MetaVariable, MetaVariableID, Unde
 pub type AstG<D> = ast_grep_core::AstGrep<D>;
 
 #[cfg(feature = "tree-sitter")]
-pub use ast_grep_core::{language::Language, {Node, Position, source::{Content, Doc, Edit}}};
+pub use ast_grep_core::{language::{Language}, {Node, Position, source::{Content, Doc, Edit}}};
 
 //* ======================  Tree-Sitter Transversal  ======================
 #[cfg(feature = "tree-sitter")]

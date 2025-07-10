@@ -188,16 +188,16 @@ workspace-default-features = "allow"
 external-default-features = "allow"
 # List of crates that are allowed. Use with care!
 allow = [
-    #"ansi_term@0.11.0",
-    #{ crate = "ansi_term@0.11.0", reason = "you can specify a reason it is allowed" },
+    #"ansiterm@0.11.0",
+    #{ crate = "ansiterm@0.11.0", reason = "you can specify a reason it is allowed" },
 ]
 # List of crates to deny
 deny = [
-    #"ansi_term@0.11.0",
-    #{ crate = "ansi_term@0.11.0", reason = "you can specify a reason it is banned" },
+    #"ansiterm@0.11.0",
+    #{ crate = "ansiterm@0.11.0", reason = "you can specify a reason it is banned" },
     # Wrapper crates can optionally be specified to allow the crate when it
     # is a direct dependency of the otherwise banned crate
-    #{ crate = "ansi_term@0.11.0", wrappers = ["this-crate-directly-depends-on-ansi_term"] },
+    #{ crate = "ansiterm@0.11.0", wrappers = ["this-crate-directly-depends-on-ansiterm"] },
 ]
 
 # List of features to allow/deny
@@ -225,16 +225,16 @@ deny = [
 
 # Certain crates/versions that will be skipped when doing duplicate detection.
 skip = [
-    #"ansi_term@0.11.0",
-    #{ crate = "ansi_term@0.11.0", reason = "you can specify a reason why it can't be updated/removed" },
+    #"ansiterm@0.11.0",
+    #{ crate = "ansiterm@0.11.0", reason = "you can specify a reason why it can't be updated/removed" },
 ]
 # Similarly to `skip` allows you to skip certain crates during duplicate
 # detection. Unlike skip, it also includes the entire tree of transitive
 # dependencies starting at the specified crate, up to a certain depth, which is
 # by default infinite.
 skip-tree = [
-    #"ansi_term@0.11.0", # will be skipped along with _all_ of its direct and transitive dependencies
-    #{ crate = "ansi_term@0.11.0", depth = 20 },
+    #"ansiterm@0.11.0", # will be skipped along with _all_ of its direct and transitive dependencies
+    #{ crate = "ansiterm@0.11.0", depth = 20 },
 ]
 
 # This section is considered when running `cargo deny check sources`.
@@ -255,7 +255,16 @@ allow-git = []
 
 [sources.allow-org]
 # github.com organizations to allow git sources for
-github = ["knitli", "apple", "rust-lang", "microsoft", "google", "mozilla", "cloudflare", "aws"]
+github = [
+    "knitli",
+    "apple",
+    "rust-lang",
+    "microsoft",
+    "google",
+    "mozilla",
+    "cloudflare",
+    "aws",
+]
 # gitlab.com organizations to allow git sources for
 gitlab = []
 # bitbucket.org organizations to allow git sources for

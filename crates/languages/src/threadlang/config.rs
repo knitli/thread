@@ -6,7 +6,7 @@
 
 use super::{CustomLang, LanguageGlobs, SerializableInjection, ThreadLang};
 use thread_ast_grep::{
-    DeserializeEnv, ErrorContext as EC, GlobalRules, RuleCollection, RuleConfig, RuleOverwrite,
+    DeserializeEnv, error_context::ErrorContext as EC, GlobalRules, RuleCollection, RuleConfig, RuleOverwrite,
     RuleTrace, from_str, from_yaml_string,
 };
 

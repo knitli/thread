@@ -63,11 +63,12 @@ pub use html::Html;
 
 // While the threadlang module *can* run with any of these features, it is only fully functional when they are *all* enabled.
 #[cfg(feature = "threadlang")]
-#[cfg((all(any(feature = "ag-language", feature = "ag-dynamic-language", feature = "ag-config")), feature = "threadlang"))]
+#[cfg(all(any(feature = "ag-language", feature = "ag-dynamic-language", feature = "ag-config"), feature = "threadlang"))]
 pub mod threadlang;
 
 use rapidhash::RapidHashMap;
 use thread_ast_grep::{
+    Language, LanguageExt,
     MetaVariable, Node, Pattern, PatternBuilder, PatternError, StrDoc, TSLanguage, TSRange,
 };
 
@@ -82,8 +83,6 @@ use std::fmt::{Display, Formatter};
 use std::iter::repeat;
 use std::path::Path;
 use std::str::FromStr;
-
-pub use thread_core::{Language, LanguageExt};
 
 /// this macro implements bare-bone methods for a language
 macro_rules! impl_lang {
@@ -185,10 +184,6 @@ macro_rules! impl_alias {
             }
         }
 
-        #[cfg_attr(
-            not(no_diagnostic_namespace),
-            diagnostic::on_unimplemented(note = "You probably need to enable the 'serde' feature")
-        )]
         #[cfg(feature = "serde-derive")]
         impl<'de> Deserialize<'de> for $lang {
             fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
@@ -297,10 +292,8 @@ impl_lang!(Yaml, language_yaml);
 // https://github.com/BurntSushi/ripgrep/blob/master/crates/ignore/src/default_types.rs
 
 /// Represents all built-in languages.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, #[cfg_attr(
-  not(no_diagnostic_namespace),
-  diagnostic::on_unimplemented(note = "You probably need to enable the 'serde' feature"))
-] #[cfg(feature = "serde-derive")] Serialize, Hash)]
+#[cfg_attr(feature = "serde", (Serialize, Deserialize))]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum SupportedLanguage {
     #[cfg(feature = "bash")]
     Bash,

@@ -27,7 +27,7 @@ ast-grep-dynamic = { version = "0.38.6", optional = true }
 ast-grep-language = { version = "0.38.6", features = [], optional = true }
 
 # CLI_support
-ansi_term = { workspace = true, optional = true }
+ansiterm = { workspace = true, optional = true }
 clap = { workspace = true, optional = true }
 crossterm = { workspace = true, optional = true }
 
@@ -43,12 +43,7 @@ default = ["tree-sitter", "language", "serde"]
 serde = ["string-interner/serde"]
 # Ast-Grep's core config, which enables its serializable rules, replacements, searches, etc.
 
-cli_support = [
-    "ansi_term",
-    "clap",
-    "crossterm",
-    "serde",
-]
+cli_support = ["ansiterm", "clap", "crossterm", "serde"]
 
 ag-config = [
     "ast-grep-config",
