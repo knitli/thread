@@ -1,0 +1,11 @@
+[package]
+name = "ag-service-search"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "Single-function search_pattern crate for AST-grep. MIT licensed."
+
+[dependencies]
+ag-service-types = { path = "../types" }
+ast-grep-core = "0.38.7"
+ast-grep-language = "0.38.7"

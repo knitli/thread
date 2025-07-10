@@ -1,0 +1,12 @@
+[package]
+name = "ag-service-fix"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "Single-function apply_fixes crate for AST-grep. MIT licensed."
+
+[dependencies]
+ag-service-types = { path = "../types" }
+ast-grep-core = "0.38.7"
+ast-grep-config = "0.38.7"
+ast-grep-language = "0.38.7"

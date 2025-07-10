@@ -12,6 +12,12 @@ use serde::{Deserialize, Serialize};
 
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 #[derive(Debug, Clone)]
+pub struct AstGrepRequest {
+    config: AstGrepConfig,
+}
+
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+#[derive(Debug, Clone)]
 pub struct ConfigRequest {
     pub path: Option<PathBuf>,
 }

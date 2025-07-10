@@ -1,0 +1,11 @@
+[package]
+name = "ag-service-types"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "Shared types and traits for ag-service single-function crates."
+
+[dependencies]
+serde = { version = "1.0.219", features = ["derive"] }
+thiserror = "2.0.12"
+async-trait = "0.1.88"

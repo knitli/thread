@@ -1,0 +1,12 @@
+[package]
+name = "ag-service-label"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "label crate for AST-grep. MIT licensed."
+
+[dependencies]
+ag-service-types = { path = "../types" }
+ast-grep-core = "0.38.7"
+ast-grep-config = "0.38.7"
+ast-grep-language = "0.38.7"

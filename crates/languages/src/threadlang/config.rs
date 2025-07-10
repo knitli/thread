@@ -9,6 +9,7 @@ use thread_ast_grep::{
     DeserializeEnv, error_context::ErrorContext as EC, GlobalRules, RuleCollection, RuleConfig, RuleOverwrite,
     RuleTrace, from_str, from_yaml_string,
 };
+use thread_core::services::ast_grep::;
 
 use anyhow::{Context, Result};
 

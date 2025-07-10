@@ -6,6 +6,7 @@
 
 [tools]
 act = "latest"
+ast-grep = "latest"
 bun = "latest"
 cargo-binstall = "latest"
 "cargo:cargo-audit" = "latest"
