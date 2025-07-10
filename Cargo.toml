@@ -3,6 +3,7 @@
 #
 
 # SPDX-License-Identifier: MIT OR Apache-2.0
+cargo-features = ["codegen-backend"]
 
 [package]
 description = "A safe, fast, flexible code analysis and code parsing library and tool. Built with tree-sitter, ast-grep, and difftastic in Rust."
@@ -53,8 +54,8 @@ anyhow = "1.0.98"
 
 # CLI
 clap = "4.5.40"
-ansi_term = "0.12.1"            # for colored terminal output
-crossterm = "0.29.0"            # for cross-platform terminal handling
+ansi_term = "0.12.1" # for colored terminal output
+crossterm = "0.29.0" # for cross-platform terminal handling
 
 # respect gitignore
 ignore = { version = "0.4.23" }
@@ -91,7 +92,7 @@ petgraph = "0.8.2"
 
 # The tree... we built this thing with
 tree-sitter = "0.25.6"
-
+cfg-if = "1.0.1"
 thread-ast-grep = { path = "crates/ast-grep" }
 thread-core = { path = "crates/core" }
 thread-parse = { path = "crates/parse" }
@@ -115,12 +116,18 @@ cc = "*"
 opt-level = 1
 lto = false
 debug = true
+incremental = true
 debug-assertions = true
 codegen-units = 256     # More codegen units for faster compilation
+
+[profile.dev-debug]
+inherits = "dev"
+codegen-backend = "cranelift"
 
 [profile.release]
 lto = true        # Link-time optimization
 codegen-units = 1
+incremental = false
 panic = "abort"   # Smaller binary size
 opt-level = 3     # Maximum optimization
 
@@ -135,6 +142,7 @@ codegen-units = 256
 
 [profile.wasm-release]
 inherits = "release"
+incremental = false
 lto = true
 strip = true
 opt-level = "s"      # optimize for size in WASM

@@ -6,7 +6,7 @@
 
 use super::ThreadLang;
 use ignore::types::{Types, TypesBuilder};
-use std::collections::HashMap;
+use rapidhash::RapidHashMap;
 use std::path::Path;
 use std::ptr::{addr_of, addr_of_mut};
 use std::str::FromStr;
@@ -19,7 +19,7 @@ use thread_ast_grep::error_context::ErrorContext as EC;
 static mut LANG_GLOBS: Vec<(ThreadLang, Types)> = vec![];
 
 /// Language globs for registering languages and their file patterns.
-pub type LanguageGlobs = HashMap<String, Vec<String>>;
+pub type LanguageGlobs = RapidHashMap<String, Vec<String>>;
 
 /// Registers language globs.
 pub unsafe fn register(regs: LanguageGlobs) -> Result<()> {

@@ -13,7 +13,8 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Mutex;
 
 /// Granularity of tracing information.
-#[derive(Clone, Copy, #[cfg(feature = "cli_support")] ValueEnum, Default, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "cli_support", derive(ValueEnum))]
+#[derive(Clone, Copy, Default, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Granularity {
   /// Do not show any tracing information
   #[default]

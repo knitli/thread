@@ -31,11 +31,11 @@ readme = "README.md"
 # TODO: Integrate tree-sitter wasmtime support
 [dependencies]
 thread-ast-grep = { workspace = true, features = ["all-core"] }
-thread-core = { workspace = true }
 tree-sitter = { workspace = true, features = ["std"] }
 ignore = { workspace = true }
 serde = { workspace = true, features = ["std"], optional = true }
-dashmap = { workspace = true, optional = true }
+rapidhash.workspace = true
+cfg-if.workspace = true
 
 # CLI Support
 ansi_term = { workspace = true, optional = true }
@@ -70,7 +70,7 @@ cc = "1.2.29"
 
 [features]
 default = ["all"]
-local = ["all", "dashmap", "serde", "ag-language", "threadlang", "ag-dynamic-language"]
+local = ["all", "serde", "ag-language", "threadlang", "ag-dynamic-language"]
 production = ["serde", "ag-language", "threadlang"]
 
 # The `cli` feature is enabled by default *for the cli* but not for the library.
@@ -89,12 +89,9 @@ ag-config = ["thread-ast-grep/ag-config"]
 ag-language = ["thread-ast-grep/language"]
 ag-dynamic-language = ["thread-ast-grep/dynamic-language"]
 
-serde = ["serde/derive", "serde/std", "dashmap/serde"]
+serde = ["serde/derive", "serde/std"]
 serde-no-derive = ["serde/std"]
 serde-derive = ["serde/derive", "serde/std", "ansi_term/derive_serde_style"]
-
-dashmap = ["dashmap/rayon", "thread-core/dashmap"]
-inline = ["dashmap/inline"]
 
 bash = ["tree-sitter-bash"]
 c = ["tree-sitter-c"]

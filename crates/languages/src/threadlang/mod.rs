@@ -18,8 +18,8 @@ use thread_ast_grep::{Node, StrDoc, TSLanguage, TSRange};
 #[cfg(feature = "ag-matcher")]
 use thread_ast_grep::{Pattern, PatternBuilder, PatternError};
 
+use rapidhash::RapidHashMap;
 use std::borrow::Cow;
-use std::collections::HashMap;
 use std::fmt::{Debug, Display, Formatter};
 use std::path::Path;
 use std::str::FromStr;
@@ -31,7 +31,9 @@ pub use injection::SerializableInjection;
 pub use lang_globs::*;
 
 #[cfg(feature = "ag-config")]
-pub use crate::config::{AstGrepConfig, ProjectConfig, with_rule_stats, read_rule_file, TestConfig};
+pub use crate::config::{
+    AstGrepConfig, ProjectConfig, TestConfig, read_rule_file, with_rule_stats,
+};
 
 #[derive(Copy, Clone, PartialEq, Eq, #[cfg(feature = "serde")] Serialize, #[cfg(feature = "serde")] Deserialize, Hash)]
 #[cfg_attr(feature = "serde", serde(untagged))]
@@ -56,17 +58,21 @@ impl ThreadLang {
     }
 
     /// Returns all available languages, both built-in and custom, as a list of strings.
-    pub fn all_languages() -> Vec<Self> {
-        #[cfg(feature = "ag-language")]
-        let builtin = SupportedLanguage::all_languages()
-            .iter()
-            .copied()
-            .map(ThreadLang::BuiltIn);
-        #[cfg(all(feature = "ag-dynamic-language"), feature = "ag-language")]
-        let customs = CustomLang::all_languages()
-            .into_iter()
-            .map(ThreadLang::Custom);
-        builtin.chain(customs).collect()
+    cfg_if::cfg_if! {
+        if #[cfg(all(feature = "ag-language", feature = "ag-dynamic-language"))] {
+            // Both enabled version
+            pub fn all_languages() -> Vec<Self> { /* both logics */ }
+        } else if #[cfg(feature = "ag-language")] {
+            // Only built-in version
+            pub fn all_languages() -> Vec<Self> { /* only built-in logic */ }
+        } else if #[cfg(feature = "ag-dynamic-language")] {
+            // Only custom version
+            pub fn all_languages() -> Vec<Self> { /* only custom logic */ }
+        } else {
+            pub fn all_languages() -> Vec<Self> {
+                vec![]
+            }
+        }
     }
 
     #[cfg(all(feature = "ag-language", feature = "ag-config"))]
@@ -285,7 +291,7 @@ impl LanguageExt for ThreadLang {
     fn extract_injections<L: LanguageExt>(
         &self,
         root: Node<StrDoc<L>>,
-    ) -> HashMap<String, Vec<TSRange>> {
+    ) -> RapidHashMap<String, Vec<TSRange>> {
         injection::extract_injections(self, root)
     }
 }

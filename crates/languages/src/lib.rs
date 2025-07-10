@@ -66,10 +66,10 @@ pub use html::Html;
 #[cfg((all(any(feature = "ag-language", feature = "ag-dynamic-language", feature = "ag-config")), feature = "threadlang"))]
 pub mod threadlang;
 
-use thread_ag::{
+use rapidhash::RapidHashMap;
+use thread_ast_grep::{
     MetaVariable, Node, Pattern, PatternBuilder, PatternError, StrDoc, TSLanguage, TSRange,
 };
-use thread_core::fastmap::FastMap;
 
 use ignore::types::{Types, TypesBuilder};
 #[cfg(any(feature = "serde-derive", feature = "serde-no-derive"))]
@@ -652,15 +652,15 @@ impl LanguageExt for SupportedLanguage {
     fn extract_injections<L: LanguageExt>(
         &self,
         root: Node<StrDoc<L>>,
-    ) -> FastMap<String, Vec<TSRange>> {
+    ) -> RapidHashMap<String, Vec<TSRange>> {
         match self {
             SupportedLanguage::Html => Html.extract_injections(root),
-            _ => FastMap::new(),
+            _ => RapidHashMap::new(),
         }
     }
 }
 
-#[allow(rust_analyzer::non_snake_case)]
+#[allow(non_snake_case)]
 fn extensions(lang: SupportedLanguage) -> &'static [&'static str] {
     use SupportedLanguage::*;
     static BASH: &[&str] = &[

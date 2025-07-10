@@ -339,7 +339,6 @@ dependencies = [
  "once_cell",
  "parking_lot_core",
  "rayon",
- "serde",
 ]
 
 [[package]]
@@ -968,6 +967,7 @@ name = "thread-core"
 version = "0.0.1"
 dependencies = [
  "dashmap",
+ "ignore",
  "rapidhash",
  "ropey",
  "serde",
@@ -975,6 +975,7 @@ dependencies = [
  "string-interner",
  "thiserror",
  "thread-ast-grep",
+ "thread-languages",
  "tower-service",
 ]
 
@@ -1011,13 +1012,13 @@ version = "0.1.0"
 dependencies = [
  "ansi_term",
  "cc",
+ "cfg-if",
  "clap",
  "crossterm",
- "dashmap",
  "ignore",
+ "rapidhash",
  "serde",
  "thread-ast-grep",
- "thread-core",
  "tree-sitter",
  "tree-sitter-bash",
  "tree-sitter-c",
