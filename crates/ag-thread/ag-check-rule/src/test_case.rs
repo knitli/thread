@@ -2,7 +2,7 @@ use super::case_result::{CaseResult, CaseStatus};
 use super::snapshot::TestSnapshots;
 use thread_threadlang::ThreadLang;
 
-use ast_grep_config::RuleConfig;
+use ag_service_rule::RuleConfig;
 use serde::{Deserialize, Serialize};
 
 /// Corresponds to one rule-test.yml for testing.

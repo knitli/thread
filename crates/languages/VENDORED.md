@@ -1,10 +1,12 @@
-# Thread Languages: A Fork of Ast-Grep-Language
+# Thread-Languages: A Fork of Ast-Grep-Language
 
-The `thread-language` crate is a vendored-fork of `ast-grep-language`. We've made changes to the structure, dependencies, and functionality to better suit our needs.
+The `thread-languages` crate is a vendored-fork of `ast-grep-language`. We've made changes to the structure, dependencies, and functionality to better suit our needs.
 
 Like the rest of the [Ast-Grep][AG] project, it was a fantastic foundation to build on.
 
 ## Forked at Ast-Grep Version: 0.38.7
+
+You can view the [`ast-grep-language` crate](https://github.com/ast-grep/ast-grep/tree/0.38.7/crates/language/src) at the time we forked it.
 
 ## Why we Forked
 
@@ -14,13 +16,16 @@ Like the rest of the [Ast-Grep][AG] project, it was a fantastic foundation to bu
 
 - We needed to be able to add more languages, and there was no way to do this with the existing structure (besides the `ast-grep-dynamic` crate which is great but not what we needed). Since we're building a library to support different uses, and aren't constrained to a CLI binary in all cases, we needed a more flexible approach.
 - We needed a flatter structure to support different deployment options and to minimize binary size for Knitli's cloud microservice deployment.
-- We wanted to separate the `ThreadLang` type into its own crate for slimmer deployments for some use cases. This is now the `threadlang` crate.
+- We wanted to separate the `ThreadLang` (the `SgLang` type in Ast-Grep) type into its own crate for slimmer deployments for some use cases. This is now the [`threadlang`][thread-threadlang::ThreadLang] crate.
 
 As it stands, we can selectively take upstream changes from `ast-grep-language` for most of the crate while keeping our modifications intact. We can, and will, also submit bug fixes upstream when we identify issues with shared code.
 
-## Ast-Grep is awesome
+### Licensing
 
-Ast-Grep was created by and copyrighted to Herrington Darkholme under the MIT license. We kept the same licensing on our fork to avoid making things more complicated for anyone who wants to build from either.
+Our changes were minimal, so we kept the original licensing terms from `ast-grep-language` for our changes. The entire crate remains under the MIT license.
+
+
+## Ast-Grep is awesome
 
 [Ast-Grep][AG] provides a powerful framework for parsing, searching, targeting, and replacing code using [Tree-sitter's][ts] Concrete Syntax Trees[^1]. When we looked to build our tool with Tree-sitter, it quickly became clear that Ast-Grep already solved the more painful parts of that, and much more elegantly than we could have. Building on top of Ast-Grep freed us to focus on core functionality, and leave the hard work of wrangling syntax trees to its maintainers.
 

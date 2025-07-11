@@ -2,11 +2,18 @@
 name = "ag-service-fix"
 version = "0.1.0"
 edition = "2021"
-license = "MIT"
-description = "Single-function apply_fixes crate for AST-grep. MIT licensed."
+license = "AGPL-3.0-or-later AND MIT"
+description = "Single-function apply_fixes crate for AST-grep."
 
 [dependencies]
 ag-service-types.workspace = true
-ag-service-core.workspace = true
+ag-service-ast.workspace = true
+ag-service-rule.workspace = true
+ag-service-transform.workspace = true
 thread-threadlang.workspace = true
-thread_languages.workspace = true
+thread-languages.workspace = true
+
+regex.workspace = true
+schemars.workspace = true
+serde.workspace = true
+thread_utils.workspace = true

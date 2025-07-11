@@ -1,34 +1,16 @@
-use super::rewrite::Rewrite;
-use super::{string_case, Ctx, TransformError};
-use ag_service_core::meta_var::MetaVariable;
-use ag_service_core::source::Content;
-use ag_service_core::{Doc, Language};
+use ag_service_types::{Ctx, TransformError, Doc, Language, Content, MetaVariable, Trans, Replace, Convert};
 
 use regex::Regex;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
-use string_case::{Separator, StringCase};
+use string_case::string_transforms::{Separator, StringCase, Substring};
+use rewrite::rewriter::ReWrite;
 
 fn get_text_from_env<D: Doc>(var: &MetaVariable, ctx: &mut Ctx<'_, '_, D>) -> Option<String> {
   // TODO: check if topological sort has resolved transform dependency
   let bytes = ctx.env.get_var_bytes(var)?;
   Some(<D::Source as Content>::encode_bytes(bytes).into_owned())
-}
-
-/// Extracts a substring from the meta variable's text content.
-///
-/// Both `start_char` and `end_char` support negative indexing,
-/// which counts character from the end of an array, moving backwards.
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
-#[serde(rename_all = "camelCase")]
-pub struct Substring<T> {
-  /// source meta variable to be transformed
-  pub source: T,
-  /// optional starting character index of the substring, defaults to 0.
-  pub start_char: Option<i32>,
-  /// optional ending character index of the substring, defaults to the end of the string.
-  pub end_char: Option<i32>,
 }
 
 impl Substring<MetaVariable> {
@@ -61,17 +43,7 @@ fn resolve_char(opt: &Option<i32>, dft: i32, len: i32) -> usize {
   }
 }
 
-/// Replaces a substring in the meta variable's text content with another string.
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
-#[serde(rename_all = "camelCase")]
-pub struct Replace<T> {
-  /// source meta variable to be transformed
-  pub source: T,
-  /// a regex to find substring to be replaced
-  pub replace: String,
-  /// the replacement string
-  pub by: String,
-}
+
 impl Replace<MetaVariable> {
   fn compute<D: Doc>(&self, ctx: &mut Ctx<'_, '_, D>) -> Option<String> {
     let text = get_text_from_env(&self.source, ctx)?;
@@ -80,34 +52,11 @@ impl Replace<MetaVariable> {
   }
 }
 
-/// Converts the source meta variable's text content to a specified case format.
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
-#[serde(rename_all = "camelCase")]
-pub struct Convert<T> {
-  /// source meta variable to be transformed
-  pub source: T,
-  /// the target case format to convert the text content to
-  pub to_case: StringCase,
-  /// optional separators to specify how to separate word
-  pub separated_by: Option<Vec<Separator>>,
-}
-
 impl Convert<MetaVariable> {
   fn compute<D: Doc>(&self, ctx: &mut Ctx<'_, '_, D>) -> Option<String> {
     let text = get_text_from_env(&self.source, ctx)?;
     Some(self.to_case.apply(&text, self.separated_by.as_deref()))
   }
-}
-
-/// Represents a transformation that can be applied to a matched AST node.
-/// Available transformations are `substring`, `replace` and `convert`.
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
-#[serde(rename_all = "camelCase")]
-pub enum Trans<T> {
-  Substring(Substring<T>),
-  Replace(Replace<T>),
-  Convert(Convert<T>),
-  Rewrite(Rewrite<T>),
 }
 
 impl<T> Trans<T> {
@@ -202,13 +151,18 @@ impl Trans<MetaVariable> {
   }
 }
 
+pub mod transform {
+  pub use super::{Convert, Replace, Substring, Trans, Rewrite};
+
+}
+
 #[cfg(test)]
 mod test {
   use super::super::Transform;
   use super::*;
   use crate::test::TypeScript;
   use crate::{DeserializeEnv, Transformation};
-  use ag_service_core::tree_sitter::LanguageExt;
+  use ag_service_types::LanguageExt;
   use serde_yaml::with::singleton_map_recursive;
   use thread_utils::FastMap;
 

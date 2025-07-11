@@ -4,7 +4,7 @@
 //! without reinventing the wheel.
 
 use crate::prelude::*;
-use ag_core::{AstGrep, Language, Pattern, Matcher, MatcherExt, Node, Root, Doc};
+use ag_service_core::{AstGrep, Language, Pattern, Matcher, MatcherExt, Node, Root, Doc};
 use thread_languages::SupportedLanguage
 use thread_utils::FastMap;
 use std::path::Path;

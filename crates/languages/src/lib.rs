@@ -61,18 +61,6 @@ pub mod parsers;
 #[cfg(feature = "html")]
 pub use html::Html;
 
-// While the threadlang module *can* run with any of these features, it is only fully functional when they are *all* enabled.
-#[cfg(feature = "threadlang")]
-#[cfg(all(
-    any(
-        feature = "ag-language",
-        feature = "ag-dynamic-language",
-        feature = "ag-config"
-    ),
-    feature = "threadlang"
-))]
-pub mod threadlang;
-
 use ag_service_core::{
     Language, LanguageExt, MetaVariable, Node, Pattern, PatternBuilder, PatternError, StrDoc,
     TSLanguage, TSRange,

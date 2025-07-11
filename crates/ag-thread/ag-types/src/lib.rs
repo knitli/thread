@@ -3,6 +3,33 @@
 //! This crate provides the foundational service traits and types that enable
 //! ast-grep functionality to operate across diverse environments including CLI,
 //! Cloudflare Workers, CI/CD pipelines, and customer on-premise deployments.
+mod ast;
+mod fix;
+mod label;
+mod language;
+mod matcher;
+mod maybe;
+mod meta_var;
+mod ops;
+mod replacer;
+mod rule;
+mod strictness;
+mod transversal;
+mod ts;
+
+pub use ast::{AstGrep, Edit, SgNode, Doc, Content, Root, NodeData, PinnedNodeData, Position, Node, KindId};
+pub use fix::{Transformation, DecomposedTransString, ParseTransError, Rewrite, Trans, Convert, Replace, Delimiter, CaseState, Separator, StringCase, Substring, Fixer, Expansion, FixerError, SerializableFixConfig, SerializableFixer, TransformError, Transform, Transformation, Ctx};
+pub use label::{Label, LabelConfig, LabelStyle};
+pub use language::Language;
+pub use matcher::{KindMatcher, KindMatcherError, Matcher, MatchExt, MatchAll, MatchNone, NodeMatch, Pattern, PatternBuilder, PatternError, PatternNode, RegexMatcher, RegexMatcherError};
+pub use maybe::Maybe;
+pub use meta_var::{MetaVariable, MetaVarEnv, MetaVarExtract, Underlying, MetaVariableID};
+pub use ops::{And, Any, All, Or, Not, Op, NestedAnd, NestedOr};
+pub use replacer::{Replacer, DeindentedExtract, TemplateFix, TemplateFixError};
+pub use rule::{ContingentRule, RuleBucket, RuleCollection, RuleConfig, Severity, RuleConfigError, SerializableRuleConfig, SerializableRewriter, Metadata, SerializableRule, AtomicRule, Strictness, PatternStyle, RelationalRule, CompositeRule, Rule, RuleSerializeError, RuleCoreError, SerializableRuleCore, RuleCore, SerializableStopBy, StopBy, Inside, Has, Precedes, Follows, Registration, RuleRegistration, RegistrationRef, ReferentRuleError, ReferentRule, GlobalRules, SerializablePosition, SerializableRange, RangeMatcherError, RangeMatcher, NthChildError, NthChildSimple, SerializableNthChild, NthChild, DeserializeEnv, CheckHint};
+pub use strictness::{MatchStrictness, MatchOneNode};
+pub use transversal::{Visitor, Visit, Traversal, TsPre, Pre, Algorithm, PreOrder, PostOrder, Post, Level};
+pub use ts::{TSLanguage, TSTree, TSRange, TSInputEdit, TSNode, TSPoint, TSLanguageError, TSParser, TSTreeCursor, TSParseError, ContentExt, DisplayContext, LanguageExt, StrDoc, LanguageExt};
 
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
@@ -260,26 +287,6 @@ impl Default for ScanOptions {
     }
 }
 
-/// Options for searching with a pattern.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct SearchOptions {
-    pub strictness: Option<String>,
-    pub selector: Option<String>,
-    pub context_lines_before: usize,
-    pub context_lines_after: usize,
-}
-
-impl Default for SearchOptions {
-    fn default() -> Self {
-        Self {
-            strictness: None,
-            selector: None,
-            context_lines_before: 0,
-            context_lines_after: 0,
-        }
-    }
-}
-
 /// Options for applying fixes.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FixOptions {
@@ -322,14 +329,6 @@ impl Default for TestOptions {
 // Request/Response Types
 // =============================================================================
 
-/// Request for pattern searching.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct SearchRequest {
-    pub pattern: String,
-    pub discovery: FileDiscoveryRequest,
-    pub options: SearchOptions,
-    pub output_format: OutputFormat,
-}
 
 /// Request for applying fixes.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -368,30 +367,6 @@ pub struct ScanMatch {
     pub rule_id: String,
     pub message: String,
     pub severity: Severity,
-    pub start_line: usize,
-    pub end_line: usize,
-    pub start_column: usize,
-    pub end_column: usize,
-    pub matched_text: String,
-    pub context_before: Vec<String>,
-    pub context_after: Vec<String>,
-    pub metadata: FastMap<String, serde_json::Value>,
-}
-
-/// Result of a search operation.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct SearchResults {
-    pub matches: Vec<PatternMatch>,
-    pub execution_time: Option<Duration>,
-    pub files_processed: usize,
-}
-
-/// Individual pattern match result.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct PatternMatch {
-    pub id: Uuid,
-    pub file_path: String,
-    pub pattern: String,
     pub start_line: usize,
     pub end_line: usize,
     pub start_column: usize,
@@ -613,7 +588,6 @@ pub trait ConfigProvider: Send + Sync {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum Environment {
     Cli,
-    CloudflareWorkers,
     CiCd(CiProvider),
     Wasm,
     Custom,
@@ -669,7 +643,6 @@ pub mod tower_support {
     #[derive(Debug, Clone)]
     pub enum AstGrepRequest {
         Scan(ScanOptions),
-        Search(SearchRequest),
         Fix(FixRequest),
     }
 
@@ -677,7 +650,6 @@ pub mod tower_support {
     #[derive(Debug, Clone)]
     pub enum AstGrepResponse {
         Scan(ScanResults),
-        Search(SearchResults),
         Fix(FixResults),
     }
 

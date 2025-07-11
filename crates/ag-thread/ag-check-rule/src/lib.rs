@@ -18,7 +18,7 @@ use std::sync::{Arc, Mutex};
 use std::thread;
 use thread_utils::FastMap;
 
-use case_result::{CaseResult, CaseStatus};
+pub use case_result::{CaseResult, CaseStatus};
 use find_file::TestHarness;
 use reporter::{DefaultReporter, InteractiveReporter, Reporter};
 use snapshot::{SnapshotAction, SnapshotCollection, TestSnapshots};

@@ -1,23 +1,9 @@
-use super::rewrite::Rewrite;
-use super::trans::{Convert, Replace, Substring};
-use super::Trans;
+use ag_service_types::{DecomposedTransString, ParseTransError};
+use trans::transform::{Convert, Replace, Substring, Rewrite, Trans};
 use serde_yaml::from_str as yaml_from_str;
 use std::str::FromStr;
 use thiserror::Error;
 
-#[derive(Debug, Error)]
-pub enum ParseTransError {
-  #[error("`{0}` has syntax error.")]
-  Syntax(String),
-  #[error("`{0}` is not a valid transformation.")]
-  InvalidTransform(String),
-  #[error("`{0}` is not a valid argument.")]
-  InvalidArg(String),
-  #[error("Argument `{0}` is required.")]
-  RequiredArg(&'static str),
-  #[error("Invalid argument value.")]
-  ArgValue(#[from] serde_yaml::Error),
-}
 
 impl FromStr for Trans<String> {
   type Err = ParseTransError;
@@ -33,12 +19,6 @@ impl FromStr for Trans<String> {
     };
     Ok(trans)
   }
-}
-
-struct DecomposedTransString<'a> {
-  func: &'a str,
-  source: &'a str,
-  args: Vec<(&'a str, &'a str)>,
 }
 
 fn decompose_str(input: &str) -> Result<DecomposedTransString, ParseTransError> {
@@ -154,9 +134,13 @@ fn to_rewrite(decomposed: DecomposedTransString) -> Result<Rewrite<String>, Pars
   })
 }
 
+pub mod parser {
+  pub use super::{DecomposedTransString, ParseTransError, Trans};
+}
+
 #[cfg(test)]
 mod test {
-  use crate::transform::string_case::StringCase;
+  use string_case::;
 
   use super::*;
 

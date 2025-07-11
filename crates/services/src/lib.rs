@@ -4,11 +4,9 @@
 //! service implementations that enable ast-grep functionality to operate across CLI, cloud,
 //! CI/CD, and customer on-premise environments.
 
-pub mod adapters;
 pub mod ag_core_integration;
 pub mod core_services;
 pub mod orchestrator;
-pub mod registry;
 
 #[cfg(feature = "tower")]
 pub mod tower_support;

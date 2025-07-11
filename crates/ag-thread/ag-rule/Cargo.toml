@@ -2,13 +2,13 @@
 name = "ag-service-rule"
 version = "0.1.0"
 edition = "2021"
-license = "MIT"
-description = "rule crate for AST-grep. MIT licensed."
+license = "AGPL-3.0-or-later AND MIT"
+description = "rule crate for AST-grep."
 
 [dependencies]
 ag-service-types.workspace = true
-ag-service-core.workspace = true
 ag-service-fix.workspace = true
-ag-service-check-rule.workspace = true
-thread_languages.workspace = true
-globset = {version = "0.4.16"}
+ag-service-pattern.workspace = true
+thread-languages.workspace = true
+globset = { version = "0.4.16" }
+thread_utils.workspace = true

@@ -1,33 +1,11 @@
-use ag_service_core::{Doc, Node, NodeMatch};
+use ag_service_ast::{Doc, Node};
+use ag_service_pattern::NodeMatch;
+use ag_service_types::{Label, LabelConfig, LabelStyle};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use std::{collections::FastMap, ops::Range};
+use std::ops::Range;
 
-#[derive(Serialize, Deserialize, Clone, JsonSchema, PartialEq, Eq, Debug)]
-#[serde(rename_all = "camelCase")]
-pub enum LabelStyle {
-    /// Labels that describe the primary cause of a diagnostic.
-    Primary,
-    /// Labels that provide additional context for a diagnostic.
-    Secondary,
-}
-
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
-pub struct LabelConfig {
-    pub style: LabelStyle,
-    pub message: Option<String>,
-}
-
-/// A label is a way to mark a specific part of the code with a styled message.
-/// It is used to provide diagnostic information in LSP or CLI.
-/// 'r represents a lifetime for the message string from `rule`.
-/// 't represents a lifetime for the node from a ast `tree`.
-pub struct Label<'r, 't, D: Doc> {
-    pub style: LabelStyle,
-    pub message: Option<&'r str>,
-    pub start_node: Node<'t, D>,
-    pub end_node: Node<'t, D>,
-}
+use thread_utils::FastMap;
 
 impl<'t, D: Doc> Label<'_, 't, D> {
     fn primary(n: &Node<'t, D>) -> Self {
@@ -88,13 +66,14 @@ pub fn get_default_labels<'t, D: Doc>(n: &NodeMatch<'t, D>) -> Vec<Label<'static
     ret
 }
 
+pub use {Label, LabelStyle, LabelConfig};
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::test::TypeScript;
-    use ag_service_core::matcher::Pattern;
-    use ag_service_core::tree_sitter::LanguageExt;
-    use ag_service_core::tree_sitter::StrDoc;
+    use ag_service_pattern::Pattern;
+    use ag_service_tree_sitter::{LanguageExt, StrDoc};
 
     #[test]
     fn test_label_primary_secondary() {

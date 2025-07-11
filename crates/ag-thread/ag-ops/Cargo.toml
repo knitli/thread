@@ -1,0 +1,19 @@
+[package]
+name = "ag-service-ops"
+version = "0.27.3"
+edition = "2021"
+license = "AGPL-3.0-or-later AND MIT"
+description = "Advanced pattern operations for ast-grep"
+authors = ["Herrington Darkholme <hdh@hypers.space>"]
+
+[dependencies]
+# Pattern matching layer
+ag-service-ast.workspace = true
+ag-service-pattern.workspace = true
+ag-service-types.workspace = true
+
+# Bit operations for efficient kind matching
+bit-set.workspace = true
+
+[features]
+default = []

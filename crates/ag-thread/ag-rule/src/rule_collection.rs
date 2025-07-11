@@ -1,14 +1,7 @@
 use crate::{RuleConfig, Severity};
-use ag_service_core::language::Language;
+use ag_service_types::{Language, RuleBucket, RuleCollection, ContingentRule};
 use globset::{Glob, GlobSet, GlobSetBuilder};
 use std::path::Path;
-
-/// RuleBucket stores rules of the same language id.
-/// Rules for different language will stay in separate buckets.
-pub struct RuleBucket<L: Language> {
-  rules: Vec<RuleConfig<L>>,
-  lang: L,
-}
 
 impl<L: Language> RuleBucket<L> {
   fn new(lang: L) -> Self {
@@ -20,12 +13,6 @@ impl<L: Language> RuleBucket<L> {
   pub fn add(&mut self, rule: RuleConfig<L>) {
     self.rules.push(rule);
   }
-}
-
-struct ContingentRule<L: Language> {
-  rule: RuleConfig<L>,
-  files_globs: Option<GlobSet>,
-  ignore_globs: Option<GlobSet>,
 }
 
 fn build_glob_set(paths: &Vec<String>) -> Result<GlobSet, globset::Error> {
@@ -66,16 +53,7 @@ impl<L: Language> ContingentRule<L> {
   }
 }
 
-/// A collection of rules to run one round of scanning.
-/// Rules will be grouped together based on their language, path globbing and pattern rule.
-pub struct RuleCollection<L: Language + Eq> {
-  // use vec since we don't have many languages
-  /// a list of rule buckets grouped by languages.
-  /// Tenured rules will always run against a file of that language type.
-  tenured: Vec<RuleBucket<L>>,
-  /// contingent rules will run against a file if it matches file/ignore glob.
-  contingent: Vec<ContingentRule<L>>,
-}
+
 
 impl<L: Language + Eq> RuleCollection<L> {
   pub fn try_new(configs: Vec<RuleConfig<L>>) -> Result<Self, globset::Error> {

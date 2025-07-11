@@ -8,23 +8,23 @@ authors = ["Herrington Darkholme <hdh@hypers.space>"]
 
 [dependencies]
 # Tree-sitter for AST parsing
-tree-sitter = "0.25.6"
+tree-sitter = { workspace = true, optional = true }
 
 # Bit operations for efficient kind matching
-bit-set = "0.8"
+bit-set = { workspace = true }
 
 # Serialization support
-serde = { version = "1.0.219", features = ["derive"] }
-serde_yaml = "0.9.34"
+serde = { workspace = true }
+serde_yaml = { workspace = true }
 
 # Error handling
-thiserror = "2.0.12"
+thiserror = { workspace = true }
 
 # Regex support for text matching
-regex = "1.11.1"
+regex = { workspace = true }
 
 # UUID generation for node IDs
-uuid = { version = "1.17.0", features = ["v4"] }
+uuid.workspace = true
 
 [features]
 default = ["tree-sitter"]

@@ -1,7 +1,7 @@
 //! Single-function scan_files crate for AST-grep.
 
 use ag_service_types::{ScanOptions, AstGrepError, Result};
-use ag_service_core::AstGrep;
+use ag_service_tree_sitter::AstGrep;
 use ag_service_rule::{RuleCollection, RuleConfig};
 use thread_languages::SupportedLanguage;
 

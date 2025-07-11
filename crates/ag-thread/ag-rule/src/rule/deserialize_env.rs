@@ -1,27 +1,18 @@
 use super::referent_rule::{GlobalRules, ReferentRuleError, RuleRegistration};
-use ag_service_check_rule::check_var::CheckHint;
+use crate::check_var::CheckHint;
 use crate::maybe::Maybe;
 use crate::rule::{self, Rule, RuleSerializeError, SerializableRule};
 use crate::rule_core::{RuleCoreError, SerializableRuleCore};
-use ag_service_fix::transform::Trans;
-use ag_service_core::meta_var::MetaVariable;
+use ag_service_fix::Trans;
+use ag_service_pattern::MetaVariable;
 
-use ag_service_core::language::Language;
+use ag_service_types::{Language, SerializableGlobalRule, DeserializeEnv};
 
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
 use thread_utils::FastMap;
 
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
-pub struct SerializableGlobalRule<L: Language> {
-  #[serde(flatten)]
-  pub core: SerializableRuleCore,
-  /// Unique, descriptive identifier, e.g., no-unused-variable
-  pub id: String,
-  /// Specify the language to parse and the file extension to include in matching.
-  pub language: L,
-}
 
 fn into_map<L: Language>(
   rules: Vec<SerializableGlobalRule<L>>,
@@ -33,15 +24,6 @@ fn into_map<L: Language>(
 }
 
 type OrderResult<T> = Result<T, String>;
-
-/// A struct to store information to deserialize rules.
-#[derive(Clone)]
-pub struct DeserializeEnv<L: Language> {
-  /// registration for global utility rules and local utility rules.
-  pub(crate) registration: RuleRegistration,
-  /// current rules' language
-  pub(crate) lang: L,
-}
 
 trait DependentRule: Sized {
   fn visit_dependency<'a>(&'a self, sorter: &mut TopologicalSort<'a, Self>) -> OrderResult<()>;
@@ -209,13 +191,15 @@ impl<L: Language> DeserializeEnv<L> {
   }
 }
 
+pub use {DeserializeEnv, SerializableGlobalRule};
+
 #[cfg(test)]
 mod test {
   use super::*;
   use crate::test::TypeScript;
   use crate::{from_str, Rule};
-  use ag_service_core::tree_sitter::LanguageExt;
-  use ag_service_core::Matcher;
+  use ag_service_tree_sitter::LanguageExt;
+  use ag_service_pattern::Matcher;
 
   type Result<T> = std::result::Result<T, RuleSerializeError>;
 

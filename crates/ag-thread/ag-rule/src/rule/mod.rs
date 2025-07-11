@@ -9,17 +9,16 @@ pub use deserialize_env::DeserializeEnv;
 pub use relational_rule::Relation;
 pub use stop_by::StopBy;
 
+use ag_service_types::{SerializableRule, AtomicRule, Strictness, PatternStyle, RelationalRule, CompositeRule, Rule, ContingentRule, RuleSerializeError, Language};
 use crate::maybe::Maybe;
 use nth_child::{NthChild, NthChildError, SerializableNthChild};
 use range::{RangeMatcher, RangeMatcherError, SerializableRange};
 use referent_rule::{ReferentRule, ReferentRuleError};
 use relational_rule::{Follows, Has, Inside, Precedes};
 
-use ag_service_core::language::Language;
-use ag_service_core::matcher::{KindMatcher, KindMatcherError, RegexMatcher, RegexMatcherError};
-use ag_service_core::meta_var::MetaVarEnv;
-use ag_service_core::{ops as o, Doc, Node};
-use ag_service_core::{MatchStrictness, Matcher, Pattern, PatternError};
+use ag_service_pattern::{KindMatcher, KindMatcherError, RegexMatcher, RegexMatcherError, MetaVarEnv, MatchStrictness, Matcher, Pattern, PatternError};
+use ag_service_ast::{Doc, Node};
+use ag_service_ops::ops as o;
 
 use bit_set::BitSet;
 use schemars::JsonSchema;
@@ -27,73 +26,6 @@ use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 use thread_utils::FastSet;
 use thiserror::Error;
-
-/// A rule object to find matching AST nodes. We have three categories of rules in ast-grep.
-///
-/// * Atomic: the most basic rule to match AST. We have two variants: Pattern and Kind.
-///
-/// * Relational: filter matched target according to their position relative to other nodes.
-///
-/// * Composite: use logic operation all/any/not to compose the above rules to larger rules.
-///
-/// Every rule has it's unique name so we can combine several rules in one object.
-#[derive(Serialize, Deserialize, Clone, Default, JsonSchema)]
-#[serde(deny_unknown_fields)]
-pub struct SerializableRule {
-    // avoid embedding AtomicRule/RelationalRule/CompositeRule with flatten here for better error message
-
-    // atomic
-    /// A pattern string or a pattern object.
-    #[serde(default, skip_serializing_if = "Maybe::is_absent")]
-    pub pattern: Maybe<PatternStyle>,
-    /// The kind name of the node to match. You can look up code's kind names in playground.
-    #[serde(default, skip_serializing_if = "Maybe::is_absent")]
-    pub kind: Maybe<String>,
-    /// A Rust regular expression to match the node's text. https://docs.rs/regex/latest/regex/#syntax
-    #[serde(default, skip_serializing_if = "Maybe::is_absent")]
-    pub regex: Maybe<String>,
-    /// `nth_child` accepts number, string or object.
-    /// It specifies the position in nodes' sibling list.
-    #[serde(default, skip_serializing_if = "Maybe::is_absent", rename = "nthChild")]
-    pub nth_child: Maybe<SerializableNthChild>,
-    /// `range` accepts a range object.
-    /// the target node must exactly appear in the range.
-    #[serde(default, skip_serializing_if = "Maybe::is_absent")]
-    pub range: Maybe<SerializableRange>,
-
-    // relational
-    /// `inside` accepts a relational rule object.
-    /// the target node must appear inside of another node matching the `inside` sub-rule.
-    #[serde(default, skip_serializing_if = "Maybe::is_absent")]
-    pub inside: Maybe<Box<Relation>>,
-    /// `has` accepts a relational rule object.
-    /// the target node must has a descendant node matching the `has` sub-rule.
-    #[serde(default, skip_serializing_if = "Maybe::is_absent")]
-    pub has: Maybe<Box<Relation>>,
-    /// `precedes` accepts a relational rule object.
-    /// the target node must appear before another node matching the `precedes` sub-rule.
-    #[serde(default, skip_serializing_if = "Maybe::is_absent")]
-    pub precedes: Maybe<Box<Relation>>,
-    /// `follows` accepts a relational rule object.
-    /// the target node must appear after another node matching the `follows` sub-rule.
-    #[serde(default, skip_serializing_if = "Maybe::is_absent")]
-    pub follows: Maybe<Box<Relation>>,
-    // composite
-    /// A list of sub rules and matches a node if all of sub rules match.
-    /// The meta variables of the matched node contain all variables from the sub-rules.
-    #[serde(default, skip_serializing_if = "Maybe::is_absent")]
-    pub all: Maybe<Vec<SerializableRule>>,
-    /// A list of sub rules and matches a node if any of sub rules match.
-    /// The meta variables of the matched node only contain those of the matched sub-rule.
-    #[serde(default, skip_serializing_if = "Maybe::is_absent")]
-    pub any: Maybe<Vec<SerializableRule>>,
-    #[serde(default, skip_serializing_if = "Maybe::is_absent")]
-    /// A single sub-rule and matches a node if the sub rule does not match.
-    pub not: Maybe<Box<SerializableRule>>,
-    /// A utility rule id and matches a node if the utility rule matches.
-    #[serde(default, skip_serializing_if = "Maybe::is_absent")]
-    pub matches: Maybe<String>,
-}
 
 struct Categorized {
     pub atomic: AtomicRule,
@@ -127,27 +59,6 @@ impl SerializableRule {
     }
 }
 
-pub struct AtomicRule {
-    pub pattern: Option<PatternStyle>,
-    pub kind: Option<String>,
-    pub regex: Option<String>,
-    pub nth_child: Option<SerializableNthChild>,
-    pub range: Option<SerializableRange>,
-}
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
-#[serde(rename_all = "camelCase")]
-pub enum Strictness {
-    /// all nodes are matched
-    Cst,
-    /// all nodes except source trivial nodes are matched.
-    Smart,
-    /// only ast nodes are matched
-    Ast,
-    /// ast-nodes excluding comments are matched
-    Relaxed,
-    /// ast-nodes excluding comments, without text
-    Signature,
-}
 
 impl From<MatchStrictness> for Strictness {
     fn from(value: MatchStrictness) -> Self {
@@ -177,54 +88,7 @@ impl From<Strictness> for MatchStrictness {
     }
 }
 
-/// A String pattern will match one single AST node according to pattern syntax.
-/// Or an object with field `context`, `selector` and optionally `strictness`.
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
-#[serde(untagged)]
-pub enum PatternStyle {
-    Str(String),
-    Contextual {
-        /// The surrounding code that helps to resolve any ambiguity in the syntax.
-        context: String,
-        /// The sub-syntax node kind that is the actual matcher of the pattern.
-        selector: Option<String>,
-        /// Strictness of the pattern. More strict pattern matches fewer nodes.
-        strictness: Option<Strictness>,
-    },
-}
 
-pub struct RelationalRule {
-    pub inside: Option<Box<Relation>>,
-    pub has: Option<Box<Relation>>,
-    pub precedes: Option<Box<Relation>>,
-    pub follows: Option<Box<Relation>>,
-}
-
-pub struct CompositeRule {
-    pub all: Option<Vec<SerializableRule>>,
-    pub any: Option<Vec<SerializableRule>>,
-    pub not: Option<Box<SerializableRule>>,
-    pub matches: Option<String>,
-}
-
-pub enum Rule {
-    // atomic
-    Pattern(Pattern),
-    Kind(KindMatcher),
-    Regex(RegexMatcher),
-    NthChild(NthChild),
-    Range(RangeMatcher),
-    // relational
-    Inside(Box<Inside>),
-    Has(Box<Has>),
-    Precedes(Box<Precedes>),
-    Follows(Box<Follows>),
-    // composite
-    All(o::All<Rule>),
-    Any(o::Any<Rule>),
-    Not(Box<o::Not<Rule>>),
-    Matches(ReferentRule),
-}
 impl Rule {
     /// Check if it has a cyclic referent rule with the id.
     pub(crate) fn check_cyclic(&self, id: &str) -> bool {
@@ -342,28 +206,6 @@ fn match_and_add_label<'tree, D: Doc, M: Matcher>(
     let matched = inner.match_node_with_env(node, env)?;
     env.to_mut().add_label("secondary", matched.clone());
     Some(matched)
-}
-
-#[derive(Debug, Error)]
-pub enum RuleSerializeError {
-    #[error("Rule must have one positive matcher.")]
-    MissPositiveMatcher,
-    #[error("Rule contains invalid kind matcher.")]
-    InvalidKind(#[from] KindMatcherError),
-    #[error("Rule contains invalid pattern matcher.")]
-    InvalidPattern(#[from] PatternError),
-    #[error("Rule contains invalid nthChild.")]
-    NthChild(#[from] NthChildError),
-    #[error("Rule contains invalid regex matcher.")]
-    WrongRegex(#[from] RegexMatcherError),
-    #[error("Rule contains invalid matches reference.")]
-    MatchesReference(#[from] ReferentRuleError),
-    #[error("Rule contains invalid range matcher.")]
-    InvalidRange(#[from] RangeMatcherError),
-    #[error("field is only supported in has/inside.")]
-    FieldNotSupported,
-    #[error("Relational rule contains invalid field {0}.")]
-    InvalidField(String),
 }
 
 // TODO: implement positive/non positive
@@ -484,12 +326,14 @@ fn deserialize_atomic_rule<L: Language>(
     Ok(())
 }
 
+pub use Rule;
+
 #[cfg(test)]
 mod test {
     use super::*;
     use crate::from_str;
     use crate::test::TypeScript;
-    use ag_service_core::tree_sitter::LanguageExt;
+    use ag_service_tree_sitter::LanguageExt;
     use PatternStyle::*;
 
     #[test]

@@ -1,6 +1,7 @@
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::ops::Range;
+use ag_service_types::{Substring, StringCase, Separator, CaseState, Delimiter};
 
 fn capitalize(string: &str) -> String {
   let mut chars = string.chars();
@@ -9,19 +10,6 @@ fn capitalize(string: &str) -> String {
   } else {
     string.to_string()
   }
-}
-
-/// An enumeration representing different cases for strings.
-#[derive(Serialize, Deserialize, Clone, Copy, JsonSchema)]
-#[serde(rename_all = "camelCase")]
-pub enum StringCase {
-  LowerCase,
-  UpperCase,
-  Capitalize,
-  CamelCase,
-  SnakeCase,
-  KebabCase,
-  PascalCase,
 }
 
 use StringCase::*;
@@ -38,19 +26,6 @@ impl StringCase {
       PascalCase => split(s, seps).map(capitalize).collect(),
     }
   }
-}
-
-#[derive(Serialize, Deserialize, Clone, Copy, JsonSchema)]
-#[serde(rename_all = "camelCase")]
-/// Separator to split string. e.g. `user_accountName` -> `user`, `accountName`
-/// It will be rejoin according to `StringCase`.
-pub enum Separator {
-  CaseChange,
-  Dash,
-  Dot,
-  Slash,
-  Space,
-  Underscore,
 }
 
 impl From<&[Separator]> for Delimiter {
@@ -75,24 +50,7 @@ impl From<&[Separator]> for Delimiter {
   }
 }
 
-#[derive(PartialEq, Eq)]
-/// CaseState is used to record the case change between two characters.
-/// It will be used if separator is CaseChange.
-enum CaseState {
-  Lower,
-  OneUpper,
-  /// MultiUpper records consecutive uppercase characters.
-  /// char is the last uppercase char, used to calculate the split range.
-  MultiUpper(char),
-  IgnoreCase,
-}
 
-struct Delimiter {
-  left: usize,
-  right: usize,
-  state: CaseState,
-  delimiter: Vec<char>,
-}
 impl Delimiter {
   fn all() -> Delimiter {
     Delimiter {
@@ -219,6 +177,10 @@ where
     }
   }
   result
+}
+
+pub mod string_transforms {
+  pub use super::{StringCase, Separator, Delimiter, CaseState};
 }
 
 #[cfg(test)]

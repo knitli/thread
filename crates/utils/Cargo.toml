@@ -12,6 +12,7 @@ authors.workspace = true
 [dependencies]
 dashmap = { workspace = true, optional = true }
 rapidhash = { workspace = true, optional = true }
+cfg-if.workspace = true
 
 [features]
 default = ["dashmap"]

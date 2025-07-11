@@ -6,7 +6,7 @@
 
 use super::ThreadLang;
 use ag_service_core::error_context::ErrorContext as EC;
-#[cfg(feature = "ag-config")]
+
 use ag_service_core::{
     DeserializeEnv, Doc, LanguageExt, Node, RuleCore, SerializableRuleCore, TSPoint as Point,
     TSRange,
@@ -46,7 +46,7 @@ pub struct SerializableInjection {
 #[derive(Clone)]
 struct Injection {
     host: ThreadLang,
-    #[cfg(feature = "ag-config")]
+
     rules: Vec<(RuleCore, Option<String>)>,
     injectable: FastSet<String>,
 }
@@ -55,14 +55,13 @@ impl Injection {
     fn new(lang: ThreadLang) -> Self {
         Self {
             host: lang,
-            #[cfg(feature = "ag-config")]
+
             rules: vec![],
             injectable: Default::default(),
         }
     }
 }
 
-#[cfg(feature = "ag-config")]
 pub unsafe fn register_injectables(injections: Vec<SerializableInjection>) -> Result<()> {
     let mut injectable = FastMap::new();
     for injection in injections {
@@ -83,7 +82,6 @@ pub unsafe fn register_injectables(injections: Vec<SerializableInjection>) -> Re
     Ok(())
 }
 
-#[cfg(feature = "ag-config")]
 fn merge_default_injectable(ret: &mut FastMap<ThreadLang, Injection>) {
     for (lang, injection) in ret {
         let languages = match lang {
@@ -99,7 +97,6 @@ fn merge_default_injectable(ret: &mut FastMap<ThreadLang, Injection>) {
     }
 }
 
-#[cfg(feature = "ag-config")]
 fn register_injectable(
     injection: SerializableInjection,
     injectable: &mut FastMap<ThreadLang, Injection>,
@@ -124,7 +121,6 @@ fn register_injectable(
     Ok(())
 }
 
-#[cfg(feature = "ag-config")]
 static mut LANG_INJECTIONS: Vec<Injection> = vec![];
 static mut INJECTABLE_LANGS: Vec<(ThreadLang, Vec<&'static str>)> = vec![];
 

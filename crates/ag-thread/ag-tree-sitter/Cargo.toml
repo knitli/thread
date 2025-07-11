@@ -1,0 +1,30 @@
+[package]
+name = "ag-service-tree-sitter"
+version = "0.27.3"
+edition = "2021"
+license = "MIT"
+description = "Tree-sitter parsing backend for ast-grep"
+authors = ["Herrington Darkholme <hdh@hypers.space>"]
+
+[dependencies]
+# Foundation and pattern layers
+ag-service-ast.workspace = true
+ag-service-pattern.workspace = true
+ag-service-transform.workspace = true
+
+
+# Tree-sitter for AST parsing
+tree-sitter.workspace = true
+
+# Utility dependencies
+thread-utils.workspace = true
+
+# Error handling
+thiserror.workspace = true
+
+[dev-dependencies]
+tree-sitter-typescript = "0.23.2"
+
+[features]
+default = ["tree-sitter"]
+tree-sitter = ["dep:tree-sitter"]

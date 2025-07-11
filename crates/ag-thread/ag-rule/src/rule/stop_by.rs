@@ -1,8 +1,8 @@
 use super::deserialize_env::DeserializeEnv;
 use crate::rule::{Rule, RuleSerializeError, SerializableRule};
 
-use ag_service_core::language::Language;
-use ag_service_core::{Doc, Node};
+use ag_service_types::{Language, SerializableStopBy, StopBy};
+use ag_service_ast::{Doc, Node};
 
 use schemars::JsonSchema;
 use serde::de::{self, Deserializer, MapAccess, Visitor};
@@ -10,17 +10,6 @@ use serde::{Deserialize, Serialize};
 
 use thread_utils::FastSet;
 use std::fmt;
-
-// NB StopBy's JsonSchema is changed in xtask/schema.rs
-// revise schema is easier than manually implementation
-#[derive(Clone, Default, JsonSchema)]
-#[serde(rename_all = "camelCase")]
-pub enum SerializableStopBy {
-  #[default]
-  Neighbor,
-  End,
-  Rule(Box<SerializableRule>),
-}
 
 impl SerializableStopBy {
   /// String key used for serializing the Neighbor variant
@@ -80,12 +69,6 @@ impl Serialize for SerializableStopBy {
       SerializableStopBy::Rule(rule) => rule.serialize(serializer),
     }
   }
-}
-
-pub enum StopBy {
-  Neighbor,
-  End,
-  Rule(Rule),
 }
 
 impl StopBy {
@@ -158,6 +141,8 @@ fn inclusive_until<'t, D: Doc>(rule: &Rule) -> impl FnMut(&Node<'t, D>) -> bool 
     }
   }
 }
+
+pub use {StopBy, SerializableStopBy};
 
 #[cfg(test)]
 mod test {

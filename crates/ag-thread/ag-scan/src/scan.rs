@@ -1,6 +1,7 @@
 use std::path::{Path, PathBuf};
 
-use ag_service_core::{tree_sitter::StrDoc, NodeMatch};
+use ag_service_tree_sitter::StrDoc;
+use ag_service_pattern::NodeMatch;
 use ag_service_rule::{from_yaml_string, CombinedScan, RuleCollection, RuleConfig, Severity};
 use anyhow::{Context, Result};
 use ignore::WalkParallel;

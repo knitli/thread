@@ -1,7 +1,8 @@
 use crate::{Rule, RuleCore};
 
-use ag_service_core::meta_var::MetaVarEnv;
-use ag_service_core::{Doc, Matcher, Node};
+use ag_service_pattern::{MetaVarEnv, Matcher};
+use ag_service_ast::{Doc, Node};
+use ag_service_types::{Registration, RuleRegistration, RegistrationRef, ReferentRuleError, ReferentRule, GlobalRules};
 
 use bit_set::BitSet;
 use thiserror::Error;
@@ -10,7 +11,6 @@ use std::borrow::Cow;
 use thread_utils::{FastSet, FastMap};
 use std::sync::{Arc, Weak};
 
-pub struct Registration<R>(Arc<FastMap<String, R>>);
 
 impl<R> Clone for Registration<R> {
   fn clone(&self) -> Self {
@@ -26,7 +26,6 @@ impl<R> Registration<R> {
     unsafe { &mut *(Arc::as_ptr(&self.0) as *mut FastMap<String, R>) }
   }
 }
-pub type GlobalRules = Registration<RuleCore>;
 
 impl GlobalRules {
   pub fn insert(&self, id: &str, rule: RuleCore) -> Result<(), ReferentRuleError> {
@@ -50,18 +49,7 @@ impl<R> Default for Registration<R> {
     Self(Default::default())
   }
 }
-
-#[derive(Clone, Default)]
-pub struct RuleRegistration {
-  /// utility rule to every RuleCore, every sub-rule has its own local utility
-  local: Registration<Rule>,
-  /// global rules are shared by all RuleConfigs. It is a singleton.
-  global: Registration<RuleCore>,
-  /// Every RuleConfig has its own rewriters. But sub-rules share parent's rewriters.
-  rewriters: Registration<RuleCore>,
-}
-
-// these are shit code
+e shit code
 impl RuleRegistration {
   pub fn get_rewriters(&self) -> &FastMap<String, RuleCore> {
     &self.rewriters.0
@@ -112,12 +100,6 @@ impl RuleRegistration {
   }
 }
 
-/// RegistrationRef must use Weak pointer to avoid
-/// cyclic reference in RuleRegistration
-struct RegistrationRef {
-  local: Weak<FastMap<String, Rule>>,
-  global: Weak<FastMap<String, RuleCore>>,
-}
 impl RegistrationRef {
   fn get_local(&self) -> Arc<FastMap<String, Rule>> {
     self
@@ -131,21 +113,6 @@ impl RegistrationRef {
       .upgrade()
       .expect("Rule Registration must be kept alive")
   }
-}
-
-#[derive(Debug, Error)]
-pub enum ReferentRuleError {
-  #[error("Rule `{0}` is not defined.")]
-  UndefinedUtil(String),
-  #[error("Duplicate rule id `{0}` is found.")]
-  DuplicateRule(String),
-  #[error("Rule `{0}` has a cyclic dependency in its `matches` sub-rule.")]
-  CyclicRule(String),
-}
-
-pub struct ReferentRule {
-  pub(crate) rule_id: String,
-  reg_ref: RegistrationRef,
 }
 
 impl ReferentRule {
@@ -216,6 +183,8 @@ impl Matcher for ReferentRule {
       .flatten()
   }
 }
+
+pub use {GlobalRules, ReferentRule, ReferentRuleError, RuleRegistration, RegistrationRef, Registration};
 
 #[cfg(test)]
 mod test {

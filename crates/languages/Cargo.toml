@@ -66,28 +66,12 @@ cc = "1.2.29"
 
 [features]
 default = ["all"]
-local = ["all", "serde", "ag-language", "threadlang", "ag-dynamic-language"]
-production = ["serde", "ag-language", "threadlang"]
+local = ["all", "serde", "ag-language", "ag-dynamic-language"]
+production = ["serde", "ag-language"]
 
-# The `cli` feature is enabled by default *for the cli* but not for the library.
-cli_support = [
-    "ansiterm",
-    "crossterm",
-    "clap",
-    "serde",
-    "ag-config",
-    "ag-language",
-]
-threadlang = [
-    "ag-config",
-    "thread-ast-grep/all-core",
-    "ag-tree-sitter",
-    "ag-meta-var",
-]
 ag-tree-sitter = ["thread-ast-grep/tree-sitter"]
 ag-meta-var = ["thread-ast-grep/meta-var"]
 ag-matcher = ["thread-ast-grep/matcher"]
-ag-config = ["thread-ast-grep/ag-config"]
 ag-language = ["thread-ast-grep/language"]
 ag-dynamic-language = ["thread-ast-grep/dynamic-language"]
 

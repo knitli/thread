@@ -1,9 +1,9 @@
 use super::deserialize_env::DeserializeEnv;
 use super::stop_by::{SerializableStopBy, StopBy};
 use crate::rule::{Rule, RuleSerializeError, SerializableRule};
-use ag_service_core::language::Language;
-use ag_service_core::meta_var::MetaVarEnv;
-use ag_service_core::{Doc, Matcher, Node};
+use ag_service_types::{Language, MetaVarEnv, Precedes, Follows, Has, StopBy, Inside};
+use ag_service_ast::{Doc, Node};
+use ag_service_pattern::Matcher;
 
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -33,11 +33,7 @@ fn field_name_to_id<L: Language>(
     }
 }
 
-pub struct Inside {
-    outer: Rule,
-    field: Option<u16>,
-    stop_by: StopBy,
-}
+
 impl Inside {
     pub fn try_new<L: Language>(
         relation: Relation,
@@ -92,11 +88,6 @@ impl Matcher for Inside {
     }
 }
 
-pub struct Has {
-    inner: Rule,
-    stop_by: StopBy,
-    field: Option<u16>,
-}
 impl Has {
     pub fn try_new<L: Language>(
         relation: Relation,
@@ -173,10 +164,6 @@ impl Matcher for Has {
     }
 }
 
-pub struct Precedes {
-    later: Rule,
-    stop_by: StopBy,
-}
 impl Precedes {
     pub fn try_new<L: Language>(
         relation: Relation,
@@ -217,10 +204,6 @@ impl Matcher for Precedes {
     }
 }
 
-pub struct Follows {
-    former: Rule,
-    stop_by: StopBy,
-}
 impl Follows {
     pub fn try_new<L: Language>(
         relation: Relation,
@@ -260,14 +243,15 @@ impl Matcher for Follows {
     }
 }
 
+pub use {Follows, Precedes, Has, Inside};
+
 #[cfg(test)]
 mod test {
     use super::*;
     use crate::test::TypeScript as TS;
-    use ag_service_core::matcher::KindMatcher;
-    use ag_service_core::ops as o;
-    use ag_service_core::Pattern;
-    use ag_service_core::{tree_sitter::LanguageExt, Language};
+    use ag_service_pattern::{KindMatcher, Pattern};
+    use ag_service_ops::ops as o;
+    use ag_service_tree_sitter::{LanguageExt, Language};
 
     fn find_rule<M: Matcher>(src: &str, matcher: M) -> Option<String> {
         let grep = TS::Tsx.ast_grep(src);

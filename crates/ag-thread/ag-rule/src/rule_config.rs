@@ -1,17 +1,17 @@
 use crate::GlobalRules;
 
-use ag_service_check_rule::check_var::{check_rewriters_in_transform, CheckHint};
+use crate::check_var::{check_rewriters_in_transform, CheckHint};
 use ag_service_fix::fixer::Fixer;
-use crate::label::{get_default_labels, get_labels_from_config, Label, LabelConfig};
+use ag_service_label::{get_default_labels, get_labels_from_config, Label, LabelConfig};
 use crate::rule::DeserializeEnv;
 use crate::rule_core::{RuleCore, RuleCoreError, SerializableRuleCore};
 
-use ag_service_core::language::Language;
-use ag_service_core::replacer::Replacer;
-use ag_service_core::source::Content;
+use ag_service_ast::{Language, Content, Doc};
+use ag_service_transform::{Replacer};
+use ag_service_pattern::{Matcher, NodeMatch};
+
 use ag_service_core::{Doc, Matcher, NodeMatch};
 
-use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
 use serde::{Deserialize, Serialize};
 use serde_yaml::Error as YamlError;
 use serde_yaml::{with::singleton_map_recursive::deserialize, Deserializer};
@@ -21,85 +21,7 @@ use std::borrow::Cow;
 use thread_utils::FastMap;
 use std::ops::{Deref, DerefMut};
 
-#[derive(Serialize, Deserialize, Clone, Default, JsonSchema, Debug)]
-#[serde(rename_all = "camelCase")]
-pub enum Severity {
-  #[default]
-  /// Suggest improvements to the code.
-  Hint,
-  /// A firmer suggestion that code can be improved or optimized.
-  Info,
-  /// A warning that code might produce bugs or does not follow best practice.
-  Warning,
-  /// An error that code produces bugs or has logic errors.
-  Error,
-  /// Turns off the rule.
-  Off,
-}
-
-#[derive(Debug, Error)]
-pub enum RuleConfigError {
-  #[error("Fail to parse yaml as RuleConfig")]
-  Yaml(#[from] YamlError),
-  #[error("Fail to parse yaml as Rule.")]
-  Core(#[from] RuleCoreError),
-  #[error("Rewriter rule `{1}` is not configured correctly.")]
-  Rewriter(#[source] RuleCoreError, String),
-  #[error("Undefined rewriter `{0}` used in transform.")]
-  UndefinedRewriter(String),
-  #[error("Rewriter rule `{0}` should have `fix`.")]
-  NoFixInRewriter(String),
-  #[error("Label meta-variable `{0}` must be defined in `rule` or `constraints`.")]
-  LabelVariable(String),
-  #[error("Rule must specify a set of AST kinds to match. Try adding `kind` rule.")]
-  MissingPotentialKinds,
-}
-
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
-pub struct SerializableRewriter {
-  #[serde(flatten)]
-  pub core: SerializableRuleCore,
-  /// Unique, descriptive identifier, e.g., no-unused-variable
-  pub id: String,
-}
-
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
-pub struct SerializableRuleConfig<L: Language> {
-  #[serde(flatten)]
-  pub core: SerializableRuleCore,
-  /// Unique, descriptive identifier, e.g., no-unused-variable
-  pub id: String,
-  /// Specify the language to parse and the file extension to include in matching.
-  pub language: L,
-  /// Rewrite rules for `rewrite` transformation
-  pub rewriters: Option<Vec<SerializableRewriter>>,
-  /// Main message highlighting why this rule fired. It should be single line and concise,
-  /// but specific enough to be understood without additional context.
-  #[serde(default)]
-  pub message: String,
-  /// Additional notes to elaborate the message and provide potential fix to the issue.
-  /// `notes` can contain markdown syntax, but it cannot reference meta-variables.
-  pub note: Option<String>,
-  /// One of: hint, info, warning, or error
-  #[serde(default)]
-  pub severity: Severity,
-  /// Custom label dictionary to configure reporting. Key is the meta-variable name and
-  /// value is the label message and label style.
-  pub labels: Option<FastMap<String, LabelConfig>>,
-  /// Glob patterns to specify that the rule only applies to matching files
-  pub files: Option<Vec<String>>,
-  /// Glob patterns that exclude rules from applying to files
-  pub ignores: Option<Vec<String>>,
-  /// Documentation link to this rule
-  pub url: Option<String>,
-  /// Extra information for the rule
-  pub metadata: Option<Metadata>,
-}
-
-/// A trivial wrapper around a FastMap to work around
-/// the limitation of `serde_yaml::Value` not implementing `JsonSchema`.
-#[derive(Serialize, Deserialize, Clone)]
-pub struct Metadata(FastMap<String, serde_yaml::Value>);
+use ag_service_types::{Metadata, SerializableRuleConfig, RuleConfigError}
 
 impl JsonSchema for Metadata {
   fn schema_name() -> String {
@@ -185,11 +107,6 @@ impl<L: Language> DerefMut for SerializableRuleConfig<L> {
   fn deref_mut(&mut self) -> &mut Self::Target {
     &mut self.core
   }
-}
-
-pub struct RuleConfig<L: Language> {
-  inner: SerializableRuleConfig<L>,
-  pub matcher: RuleCore,
 }
 
 impl<L: Language> RuleConfig<L> {

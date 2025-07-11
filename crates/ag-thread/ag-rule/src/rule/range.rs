@@ -1,24 +1,8 @@
-use ag_service_core::{meta_var::MetaVarEnv, Doc, Node};
+use ag_service_ast::{Doc, Node};
+use ag_service_pattern::{MetaVarEnv}
+use ag_service_types::{SerializablePosition, SerializableRange, RangeMatcherError, RangeMatcher}
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-
-/// Represents a zero-based character-wise position in a document
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
-pub struct SerializablePosition {
-  /// 0-based line number in the source code
-  pub line: usize,
-  /// 0-based column number in the source code
-  pub column: usize,
-}
-
-/// Represents a position in source code using 0-based line and column numbers
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
-pub struct SerializableRange {
-  /// start position in the source code
-  pub start: SerializablePosition,
-  /// end position in the source code
-  pub end: SerializablePosition,
-}
 
 use std::borrow::Cow;
 
@@ -26,21 +10,6 @@ use bit_set::BitSet;
 use thiserror::Error;
 
 use super::Matcher;
-
-/// Errors that can occur when creating or using a RangeMatcher
-#[derive(Debug, Error)]
-pub enum RangeMatcherError {
-  /// Returned when the range is invalid. This can occur when:
-  /// - start position is after end position
-  /// - positions contain invalid line/column values
-  #[error("The start position must be before the end position.")]
-  InvalidRange,
-}
-
-pub struct RangeMatcher {
-  start: SerializablePosition,
-  end: SerializablePosition,
-}
 
 impl RangeMatcher {
   pub fn new(start_pos: SerializablePosition, end_pos: SerializablePosition) -> Self {
@@ -92,12 +61,14 @@ impl Matcher for RangeMatcher {
   }
 }
 
+pub use {RangeMatcher, RangeMatcherError, SerializableRange, SerializablePosition}
+
 #[cfg(test)]
 mod test {
   use super::*;
   use crate::test::TypeScript as TS;
-  use ag_service_core::matcher::MatcherExt;
-  use ag_service_core::tree_sitter::LanguageExt;
+  use ag_service_pattern::MatcherExt;
+  use ag_service_tree_sitter::LanguageExt;
 
   #[test]
   fn test_invalid_range() {

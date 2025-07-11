@@ -14,9 +14,7 @@ use serde::{Deserialize, Serialize};
 #[cfg(feature = "ag-dynamic-language")]
 use ast_grep_dynamic::{CustomLang, DynamicLang};
 use ag_service_core::{Language, LanguageExt};
-#[cfg(feature = "ag-tree-sitter")]
 use ag_service_core::{Node, StrDoc, TSLanguage, TSRange};
-#[cfg(feature = "ag-matcher")]
 use ag_service_core::{Pattern, PatternBuilder, PatternError};
 
 use thread_utils::FastMap;
@@ -25,13 +23,13 @@ use std::fmt::{Debug, Display, Formatter};
 use std::path::Path;
 use std::str::FromStr;
 
-#[cfg(feature = "ag-config")]
+
 pub use injection::SerializableInjection;
 
-#[cfg(feature = "ag-config")]
+
 pub use lang_globs::*;
 
-#[cfg(feature = "ag-config")]
+
 pub use config::{
     AstGrepConfig, ProjectConfig, TestConfig, read_rule_file, with_rule_stats,
 };
@@ -67,19 +65,19 @@ impl ThreadLang {
         languages
     }
 
-    #[cfg(feature = "ag-config")]
+
     /// Registers injectable languages -- these are languages that can be included in other languages, like CSS in HTML.
     pub fn register_injections(injections: Vec<SerializableInjection>) -> Result<()> {
         unsafe { injection::register_injectables(injections) }
     }
 
-    #[cfg(feature = "ag-config")]
+
     /// Returns a list of injectable languages for the current language.
     fn injectable_languages(&self) -> Option<&'static [&'static str]> {
         injection::injectable_languages(*self)
     }
 
-    #[cfg(feature = "ag-config")]
+
     /// Returns an iterator over injectable languages that are supported by the current context.
     pub fn injectable_languages(&self) -> Option<impl Iterator<Item = Self>> {
         let languages = self.injectable_languages()?;
@@ -96,7 +94,7 @@ impl ThreadLang {
         Some(iter)
     }
 
-    #[cfg(feature = "ag-config")]
+
     /// Returns the augmented file type for the current language, which includes the file types of injectable languages.
     pub fn augmented_file_type(&self) -> Types {
         let self_type = self.file_types();
@@ -110,7 +108,7 @@ impl ThreadLang {
         lang_globs::merge_types(all_types)
     }
 
-    #[cfg(feature = "ag-config")]
+
     /// Merges file types for a given iterator of languages, including injectable languages.
     pub fn file_types_for_languages(languages: impl Iterator<Item = Self>) -> Types {
         let types = languages.map(|lang| lang.augmented_file_type());

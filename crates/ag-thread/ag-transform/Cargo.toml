@@ -1,0 +1,20 @@
+[package]
+name = "ag-service-transform"
+version = "0.27.3"
+edition = "2021"
+license = "MIT"
+description = "Code replacement and transformation for ast-grep"
+authors = ["Herrington Darkholme <hdh@hypers.space>"]
+
+[dependencies]
+# Foundation and pattern layers
+ag-service-ast.workspace = true
+ag-service-pattern.workspace = true
+ag_service_types.workspace = true
+
+# Error handling
+thiserror.workspace = true
+thread_utils.workspace = true
+
+[features]
+default = []

@@ -25,7 +25,14 @@ crossterm = { workspace = true, optional = true }
 default = ["serde", "dashmap"]
 ag-dynamic = ["ast-grep-dynamic"]
 serde = ["serde/derive"]
-cli_support = ["ansiterm", "clap", "crossterm", "serde", "dashmap"]
+# The `cli` feature is enabled by default *for the cli* but not for the library.
+cli_support = [
+    "ansiterm",
+    "crossterm",
+    "clap",
+    "serde",
+    "dashmap",
+]
 dashmap = ["thread-utils/dashmap"]
 inline = ["thread-utils/inline"]
 

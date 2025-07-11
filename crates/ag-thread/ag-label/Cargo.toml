@@ -2,10 +2,17 @@
 name = "ag-service-label"
 version = "0.1.0"
 edition = "2021"
-license = "MIT"
-description = "label crate for AST-grep. MIT licensed."
+license = "AGPL-3.0-or-later AND MIT"
+description = "label crate for AST-grep."
 
 [dependencies]
+ag-service-ast.workspace = true
+ag-service-pattern.workspace = true
 ag-service-types.workspace = true
-ag-service-core.workspace = true
-thread_languages.workspace = true
+thread_utils.workspace = true
+
+schemars.workspace = true
+serde.workspace = true
+
+[dev-dependencies]
+ag-service-tree-sitter.workspace = true

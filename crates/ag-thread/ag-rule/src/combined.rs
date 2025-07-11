@@ -1,23 +1,9 @@
 use crate::{RuleConfig, SerializableRule, SerializableRuleConfig, SerializableRuleCore, Severity};
 
-use ag_service_core::language::Language;
-use ag_service_core::matcher::{Matcher, MatcherExt};
-use ag_service_core::{AstGrep, Doc, Node, NodeMatch};
+use ag_service_types::{AstGrep, CombinedScan, ScanResult, ScanResultInner, Doc, Language, SuppressKind, Suppressions, Suppression, MaySuppressed}
 
 use thread_utils::{FastMap, FastSet};
 
-pub struct ScanResult<'t, 'r, D: Doc, L: Language> {
-    pub diffs: Vec<(&'r RuleConfig<L>, NodeMatch<'t, D>)>,
-    pub matches: Vec<(&'r RuleConfig<L>, Vec<NodeMatch<'t, D>>)>,
-}
-
-/// store the index to the rule and the matched node
-/// it will be converted to ScanResult by resolving the rule
-struct ScanResultInner<'t, D: Doc> {
-    diffs: Vec<(usize, NodeMatch<'t, D>)>,
-    matches: FastMap<usize, Vec<NodeMatch<'t, D>>>,
-    unused_suppressions: Vec<NodeMatch<'t, D>>,
-}
 
 impl<'t, D: Doc> ScanResultInner<'t, D> {
     pub fn into_result<'r, L: Language>(
@@ -50,13 +36,6 @@ impl<'t, D: Doc> ScanResultInner<'t, D> {
     }
 }
 
-enum SuppressKind {
-    /// suppress the whole file
-    File,
-    /// suppress specific line
-    Line(usize),
-}
-
 fn get_suppression_kind(node: &Node<'_, impl Doc>) -> Option<SuppressKind> {
     if !node.kind().contains("comment") || !node.text().contains(IGNORE_TEXT) {
         return None;
@@ -67,7 +46,7 @@ fn get_suppression_kind(node: &Node<'_, impl Doc>) -> Option<SuppressKind> {
     } else {
         true
     };
-    // if the first line is suppressed and the next line is empyt,
+    // if the first line is suppressed and the next line is empty,
     // we suppress the whole file see gh #1541
     if line == 0
         && suppress_next_line
@@ -80,12 +59,6 @@ fn get_suppression_kind(node: &Node<'_, impl Doc>) -> Option<SuppressKind> {
     }
     let key = if suppress_next_line { line + 1 } else { line };
     Some(SuppressKind::Line(key))
-}
-
-struct Suppressions {
-    file: Option<Suppression>,
-    /// line number which may be suppressed
-    lines: FastMap<usize, Suppression>,
 }
 
 impl Suppressions {
@@ -156,17 +129,6 @@ impl Suppressions {
     }
 }
 
-struct Suppression {
-    /// None = suppress all
-    suppressed: Option<FastSet<String>>,
-    node_id: usize,
-}
-
-enum MaySuppressed<'a> {
-    Yes(&'a Suppression),
-    No,
-}
-
 impl MaySuppressed<'_> {
     fn suppressed_id(&self, rule_id: &str) -> Option<usize> {
         let suppression = match self {
@@ -186,17 +148,6 @@ impl MaySuppressed<'_> {
 }
 
 const IGNORE_TEXT: &str = "ast-grep-ignore";
-
-/// A struct to group all rules according to their potential kinds.
-/// This can greatly reduce traversal times and skip unmatchable rules.
-/// Rules are referenced by their index in the rules vector.
-pub struct CombinedScan<'r, L: Language> {
-    rules: Vec<&'r RuleConfig<L>>,
-    /// a vec of vec, mapping from kind to a list of rule index
-    kind_rule_mapping: Vec<Vec<usize>>,
-    /// a rule for unused_suppressions
-    unused_suppression_rule: Option<&'r RuleConfig<L>>,
-}
 
 impl<'r, L: Language> CombinedScan<'r, L> {
     pub fn new(mut rules: Vec<&'r RuleConfig<L>>) -> Self {
@@ -331,7 +282,7 @@ mod test {
     use crate::from_str;
     use crate::test::TypeScript;
     use crate::SerializableRuleConfig;
-    use ag_service_core::tree_sitter::{LanguageExt, StrDoc};
+    use ag_service_ast::{LanguageExt, StrDoc};
 
     fn create_rule() -> RuleConfig<TypeScript> {
         let rule: SerializableRuleConfig<TypeScript> = from_str(

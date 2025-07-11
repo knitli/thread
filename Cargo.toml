@@ -33,17 +33,18 @@ authors = [
 
 [workspace]
 members = [
+  "crates/ag-thread/*",
   "crates/cli",
   "crates/core",
-  "crates/engine",
   "crates/diff",
-  "crates/fs",
+  "crates/engine",
+  "crates/languages",
   "crates/parse",
   "crates/store",
+  "crates/threadlang",
+  "crates/utils",
   "crates/wasm",
   "xtask",
-  "crates/languages",
-  "crates/ag-thread/*", "crates/utils", "crates/threadlang",
 ]
 
 # Note: difftastic's diffing functionality is vendored internally
@@ -52,10 +53,16 @@ members = [
 thiserror = "2.0.12"
 anyhow = "1.0.98"
 
+async_trait = "0.1.88"
+
 # CLI
 clap = "4.5.41"
 ansiterm = "0.12.2" # for colored terminal output
 crossterm = "0.29.0" # for cross-platform terminal handling
+
+bit-set = "0.8.0" # for efficient kind matching
+regex = { version = "1.11.0", features = ["unicode", "perf", "std"] } # for text matching
+uuid = { version = "1.17.0", features = ["v4"] } # for unique identifiers
 
 # respect gitignore
 ignore = { version = "0.4.23" }
@@ -76,7 +83,7 @@ tower-service = "0.3.3"
 smallvec = "1.15.1"
 
 # String interning (less memory usage/faster lookup over large datasets)
-string-interner = "0.19.0"
+lasso = { version = "0.7.3" }
 
 # The fastest hasher in town
 rapidhash = "1.4.0"
@@ -93,12 +100,14 @@ petgraph = "0.8.2"
 
 # The tree... we built this thing with
 tree-sitter = "0.25.6"
+
 cfg-if = "1.0.1"
+
+# Thread crates
 thread-core = { path = "crates/core" }
 thread-parse = { path = "crates/parse" }
 thread-engine = { path = "crates/engine" }
 thread-diff = { path = "crates/diff" }
-thread-fs = { path = "crates/fs" }
 thread-wasm = { path = "crates/wasm" }
 thread-cli = { path = "crates/cli" }
 thread-store = { path = "crates/store" }
@@ -106,13 +115,18 @@ thread-languages = { path = "crates/languages" }
 thread-threadlang = { path = "crates/threadlang" }
 thread-services = { path = "crates/services" }
 
+# Ast-Grep-as-a-service (forked)
+ag-service-ast = { path = "crates/ag-thread/ag-ast"}
 ag-service-check-rule = { path = "crates/ag-thread/ag-check-rule" }
 ag-service-core = { path = "crates/ag-thread/ag-core" }
 ag-service-fix = { path = "crates/ag-thread/ag-fix" }
 ag-service-label = { path = "crates/ag-thread/ag-label" }
+ag-service-ops = { path = "crates/ag-thread/ag-ops" }
+ag-service-pattern = { path = "crates/ag-thread/ag-pattern" }
 ag-service-rule = { path = "crates/ag-thread/ag-rule" }
 ag-service-scan = { path = "crates/ag-thread/ag-scan" }
-ag-service-search = { path = "crates/ag-thread/ag-search" }
+ag-service-transform = { path = "crates/ag-thread/ag-transform" }
+ag-service-tree-sitter = { path = "crates/ag-thread/ag-tree-sitter" }
 ag-service-types = { path = "crates/ag-thread/ag-types" }
 ag-service-utils = { path = "crates/ag-thread/ag-utils" }
 

@@ -3,27 +3,17 @@ mod rewrite;
 mod string_case;
 mod trans;
 
-use crate::{DeserializeEnv, RuleCore};
+use arg_service_rule::{DeserializeEnv, RuleCore};
+use arg_service_ast::{MetaVarEnv, MetaVariable, Doc, Language};
+use arg_service_types::{Transformation, Transform, TransformError};
 
-use ag_service_core::meta_var::MetaVarEnv;
-use ag_service_core::meta_var::MetaVariable;
-use ag_service_core::Doc;
-use ag_service_core::Language;
-
-use parse::ParseTransError;
+use parse::parser::ParseTransError;
+pub use parse:parser::Trans;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use thread_utils::FastMap;
 use thiserror::Error;
 
-pub use trans::Trans;
-
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
-#[serde(untagged)]
-pub enum Transformation {
-    Simplied(String),
-    Object(Trans<String>),
-}
 
 impl Transformation {
     pub fn parse<L: Language>(&self, lang: &L) -> Result<Trans<MetaVariable>, TransformError> {
@@ -35,22 +25,6 @@ impl Transformation {
             Transformation::Object(t) => t.parse(lang),
         }
     }
-}
-
-#[derive(Debug, Error)]
-pub enum TransformError {
-    #[error("Cannot parse transform string.")]
-    Parse(#[from] ParseTransError),
-    #[error("`{0}` has a cyclic dependency.")]
-    Cyclic(String),
-    #[error("Transform var `{0}` has already defined.")]
-    AlreadyDefined(String),
-    #[error("source `{0}` should be $-prefixed.")]
-    MalformedVar(String),
-}
-
-pub struct Transform {
-    transforms: Vec<(String, Trans<MetaVariable>)>,
 }
 
 impl Transform {
@@ -98,11 +72,8 @@ impl Transform {
     }
 }
 
-// two lifetime to represent env root lifetime and lang/trans lifetime
-struct Ctx<'b, 'c, D: Doc> {
-    rewriters: &'b FastMap<String, RuleCore>,
-    env: &'b mut MetaVarEnv<'c, D>,
-    enclosing_env: &'b MetaVarEnv<'c, D>,
+pub mod transformation {
+    pub use super::Transformation;
 }
 
 #[cfg(test)]

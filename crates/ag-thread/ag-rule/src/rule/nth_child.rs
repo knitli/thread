@@ -1,8 +1,8 @@
 use super::{DeserializeEnv, Rule, RuleSerializeError, SerializableRule};
 
-use ag_service_core::language::Language;
-use ag_service_core::meta_var::MetaVarEnv;
-use ag_service_core::{Doc, Matcher, Node};
+use ag_service_types::{Language, NthChildError, NthChildSimple, SerializableNthChild, NthChild};
+use ag_service_pattern::{MetaVarEnv, Matcher};
+use ag_service_ast::{Doc, Node};
 
 use std::borrow::Cow;
 use thread_utils::FastSet;
@@ -11,26 +11,6 @@ use bit_set::BitSet;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
-
-#[derive(Debug, Error)]
-pub enum NthChildError {
-  #[error("Illegal character {0} encountered")]
-  IllegalCharacter(char),
-  #[error("Invalid syntax")]
-  InvalidSyntax,
-  #[error("Invalid ofRule")]
-  InvalidRule(#[from] Box<RuleSerializeError>),
-}
-
-/// A string or number describing the indices of matching nodes in a list of siblings.
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
-#[serde(untagged)]
-pub enum NthChildSimple {
-  /// A number indicating the precise element index
-  Numeric(usize),
-  /// Functional notation like CSS's An + B
-  Functional(String),
-}
 
 enum ParseState {
   Initial,
@@ -130,25 +110,6 @@ impl NthChildSimple {
   }
 }
 
-/// `nthChild` accepts either a number, a string or an object.
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
-#[serde(untagged, rename_all = "camelCase")]
-pub enum SerializableNthChild {
-  /// Simple syntax
-  Simple(NthChildSimple),
-  /// Object style syntax
-  #[serde(rename_all = "camelCase")]
-  Complex {
-    /// nth-child syntax
-    position: NthChildSimple,
-    /// select the nth node that matches the rule, like CSS's of syntax
-    of_rule: Option<Box<SerializableRule>>,
-    /// matches from the end instead like CSS's nth-last-child
-    #[serde(default)]
-    reverse: bool,
-  },
-}
-
 /// Corresponds to the CSS syntax An+B
 /// See https://developer.mozilla.org/en-US/docs/Web/CSS/:nth-child#functional_notation
 struct FunctionalPosition {
@@ -168,12 +129,6 @@ impl FunctionalPosition {
       n / step_size >= 0 && n % step_size == 0
     }
   }
-}
-
-pub struct NthChild {
-  position: FunctionalPosition,
-  of_rule: Option<Box<Rule>>,
-  reverse: bool,
 }
 
 impl NthChild {
@@ -260,14 +215,15 @@ impl Matcher for NthChild {
   }
 }
 
+pub use {NthChild, SerializableNthChild, NthChildSimple, NthChildError}
+
 #[cfg(test)]
 mod test {
   use super::*;
   use crate::from_str;
   use crate::test::TypeScript as TS;
-  use ag_service_core::matcher::RegexMatcher;
-  use ag_service_core::meta_var::MetaVarEnv;
-  use ag_service_core::tree_sitter::LanguageExt;
+  use ag_service_pattern::{RegexMatcher, MetaVarEnv};
+  use ag_service_tree_sitter::LanguageExt;
 
   #[test]
   fn test_positional() {

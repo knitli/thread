@@ -1,22 +1,9 @@
-use super::Ctx;
-use super::{trans::parse_meta_var, TransformError};
-use crate::rule_core::RuleCore;
+use super::trans::parse_meta_var;
+use ag_service_rule::RuleCore;
 
-use ag_service_core::meta_var::MetaVariable;
-use ag_service_core::source::{Content, Edit};
-use ag_service_core::{Doc, Language, Node, NodeMatch};
+use ag_service_types::{MetaVariable, Content, Edit, Doc, Language, Node, NodeMatch, Rewrite, TransformError, Ctx};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
-#[serde(rename_all = "camelCase")]
-pub struct Rewrite<T> {
-    pub source: T,
-    pub rewriters: Vec<String>,
-    // do we need this?
-    // sort_by: Option<String>,
-    pub join_by: Option<String>,
-}
 
 fn get_nodes_from_env<'b, D: Doc>(var: &MetaVariable, ctx: &Ctx<'_, 'b, D>) -> Vec<Node<'b, D>> {
     match var {
@@ -112,7 +99,7 @@ fn replace_one<'n, D: Doc>(
             // e.g. $B is matched in parent linter and it is inherited.
             // $C is matched in rewriter but is NOT inherited in recursive rewriter
             // this is to enable recursive rewriter to match sub nodes
-            // in future, we can use the explict `expose` to control env inheritance
+            // in future, we can use the explicit `expose` to control env inheritance
             if let Some(n) = rule.do_match(child.clone(), &mut env, Some(ctx.enclosing_env)) {
                 let nm = NodeMatch::new(n, env.into_owned());
                 edits.push(nm.make_edit(rule, rule.fixer.first().expect("rewriter must have fix")));
@@ -146,14 +133,17 @@ fn make_edit<D: Doc>(
     new_content
 }
 
+pub mod rewriter {
+    //! Provides implemented `Rewrite` trait for rewriting MetaVariables in AST nodes.
+    pub use super::Rewrite;
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
     use crate::check_var::CheckHint;
     use crate::from_str;
-    use crate::rule::referent_rule::RuleRegistration;
-    use crate::rule::DeserializeEnv;
-    use crate::rule_core::SerializableRuleCore;
+    use ag_service_rule::{RuleRegistration, SerializableRuleCore, DeserializeEnv};
     use crate::test::TypeScript;
     use thread_utils::FastSet;
 

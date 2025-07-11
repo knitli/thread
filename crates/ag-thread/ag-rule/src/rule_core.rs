@@ -2,13 +2,13 @@ use crate::rule::referent_rule::RuleRegistration;
 use crate::rule::Rule;
 use crate::rule::{RuleSerializeError, SerializableRule};
 use crate::DeserializeEnv;
-use ag_service_check_rule::check_var::{check_rule_with_hint, CheckHint};
-use ag_service_fix::fixer::{Fixer, FixerError, SerializableFixer};
-use ag_service_fix::transform::{Transform, TransformError, Transformation};
+use crate::check_var::{check_rule_with_hint, CheckHint};
+use ag_service_fix::{Fixer, FixerError, SerializableFixer};
+use ag_service_transform::{Transform, TransformError, Transformation};
 
-use ag_service_core::language::Language;
-use ag_service_core::meta_var::MetaVarEnv;
-use ag_service_core::{Doc, Matcher, Node};
+use ag_service_types::{Language, MetaVarEnv, RuleCore, SerializableRuleCore, RuleCoreError};
+use ag_service_ast::{Doc, Node};
+ise ag_service_pattern::Matcher;
 use serde::{Deserialize, Serialize};
 use serde_yaml::Error as YamlError;
 
@@ -20,44 +20,7 @@ use std::borrow::Cow;
 use std::ops::Deref;
 use thread_utils::{FastMap, FastSet};
 
-#[derive(Debug, Error)]
-pub enum RuleCoreError {
-    #[error("Fail to parse yaml as RuleConfig")]
-    Yaml(#[from] YamlError),
-    #[error("`utils` is not configured correctly.")]
-    Utils(#[source] RuleSerializeError),
-    #[error("`rule` is not configured correctly.")]
-    Rule(#[from] RuleSerializeError),
-    #[error("`constraints` is not configured correctly.")]
-    Constraints(#[source] RuleSerializeError),
-    #[error("`transform` is not configured correctly.")]
-    Transform(#[from] TransformError),
-    #[error("`fix` pattern is invalid.")]
-    Fixer(#[from] FixerError),
-    #[error("Undefined meta var `{0}` used in `{1}`.")]
-    UndefinedMetaVar(String, &'static str),
-}
-
 type RResult<T> = std::result::Result<T, RuleCoreError>;
-
-/// Used for global rules, rewriters, and pyo3/napi
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
-pub struct SerializableRuleCore {
-    /// A rule object to find matching AST nodes
-    pub rule: SerializableRule,
-    /// Additional meta variables pattern to filter matching
-    pub constraints: Option<FastMap<String, SerializableRule>>,
-    /// Utility rules that can be used in `matches`
-    pub utils: Option<FastMap<String, SerializableRule>>,
-    /// A dictionary for metavariable manipulation. Dict key is the new variable name.
-    /// Dict value is a [transformation] that specifies how meta var is processed.
-    /// See [transformation doc](https://ast-grep.github.io/reference/yaml/transformation.html).
-    pub transform: Option<FastMap<String, Transformation>>,
-    /// A pattern string or a FixConfig object to auto fix the issue.
-    /// It can reference metavariables appeared in rule.
-    /// See details in fix [object reference](https://ast-grep.github.io/reference/yaml/fix.html#fixconfig).
-    pub fix: Option<SerializableFixer>,
-}
 
 impl SerializableRuleCore {
     /// This function assumes env's local is empty.
@@ -138,15 +101,6 @@ impl SerializableRuleCore {
     }
 }
 
-pub struct RuleCore {
-    rule: Rule,
-    constraints: FastMap<String, Rule>,
-    kinds: Option<BitSet>,
-    pub(crate) transform: Option<Transform>,
-    pub fixer: Vec<Fixer>,
-    // this is required to hold util rule reference
-    registration: RuleRegistration,
-}
 
 impl RuleCore {
     #[inline]
