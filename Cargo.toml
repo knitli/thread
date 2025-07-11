@@ -43,7 +43,7 @@ members = [
   "crates/wasm",
   "xtask",
   "crates/languages",
-  "crates/ag-thread/*", "crates/utils",
+  "crates/ag-thread/*", "crates/utils", "crates/threadlang",
 ]
 
 # Note: difftastic's diffing functionality is vendored internally
@@ -94,7 +94,6 @@ petgraph = "0.8.2"
 # The tree... we built this thing with
 tree-sitter = "0.25.6"
 cfg-if = "1.0.1"
-thread-ast-grep = { path = "crates/ast-grep" }
 thread-core = { path = "crates/core" }
 thread-parse = { path = "crates/parse" }
 thread-engine = { path = "crates/engine" }
@@ -104,9 +103,25 @@ thread-wasm = { path = "crates/wasm" }
 thread-cli = { path = "crates/cli" }
 thread-store = { path = "crates/store" }
 thread-languages = { path = "crates/languages" }
+thread-threadlang = { path = "crates/threadlang" }
+thread-services = { path = "crates/services" }
+
+ag-service-check-rule = { path = "crates/ag-thread/ag-check-rule" }
+ag-service-core = { path = "crates/ag-thread/ag-core" }
+ag-service-fix = { path = "crates/ag-thread/ag-fix" }
+ag-service-label = { path = "crates/ag-thread/ag-label" }
+ag-service-rule = { path = "crates/ag-thread/ag-rule" }
+ag-service-scan = { path = "crates/ag-thread/ag-scan" }
+ag-service-search = { path = "crates/ag-thread/ag-search" }
+ag-service-types = { path = "crates/ag-thread/ag-types" }
+ag-service-utils = { path = "crates/ag-thread/ag-utils" }
 
 [features]
 # default = ["derive", "languages", "parser", "query"]
+
+[lib]
+name = "thread"
+path = "src/lib.rs"
 
 [dependencies]
 

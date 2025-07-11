@@ -5,11 +5,11 @@
 // SPDX-License-Identifier: MIT
 
 use super::pre_process_pattern;
-use rapidhash::RapidHashMap;
-use thread_ast_grep::{
+use ag_service_core::{
     Doc, KindMatcher, Language, LanguageExt, Node, Pattern, PatternBuilder, PatternError, StrDoc,
     TSLanguage, TSRange,
 };
+use thread_utils::FastMap;
 
 // tree-sitter-html uses locale dependent iswalnum for tagName
 // https://github.com/tree-sitter/tree-sitter-html/blob/b5d9758e22b4d3d25704b72526670759a9e4d195/src/scanner.c#L194
@@ -44,9 +44,9 @@ impl LanguageExt for Html {
     fn extract_injections<L: LanguageExt>(
         &self,
         root: Node<StrDoc<L>>,
-    ) -> RapidHashMap<String, Vec<TSRange>> {
+    ) -> FastMap<String, Vec<TSRange>> {
         let lang = root.lang();
-        let mut map = RapidHashMap::new();
+        let mut map = FastMap::new();
         let matcher = KindMatcher::new("script_element", lang.clone());
         for script in root.find_all(matcher) {
             let injected = find_lang(&script).unwrap_or_else(|| "js".into());
@@ -141,7 +141,7 @@ mod test {
         assert_eq!(ret, r#"<div class='bar'>foo</div>"#);
     }
 
-    fn extract(src: &str) -> RapidHashMap<String, Vec<TSRange>> {
+    fn extract(src: &str) -> FastMap<String, Vec<TSRange>> {
         let root = Html.ast_grep(src);
         Html.extract_injections(root.root())
     }

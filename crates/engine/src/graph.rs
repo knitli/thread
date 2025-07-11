@@ -9,12 +9,12 @@
 use crate::*;
 use thread_core::*;
 use petgraph::Graph;
-use std::collections::HashMap;
+use thread_utils::FastMap;
 
 /// Graph builder for constructing code graphs from parsed elements
 pub struct GraphBuilder {
     graph: Graph<CodeNode, CodeEdge>,
-    node_index: HashMap<ElementId, petgraph::graph::NodeIndex>,
+    node_index: FastMap<ElementId, petgraph::graph::NodeIndex>,
 }
 
 impl GraphBuilder {
@@ -22,7 +22,7 @@ impl GraphBuilder {
     pub fn new() -> Self {
         Self {
             graph: Graph::new(),
-            node_index: HashMap::new(),
+            node_index: FastMap::new(),
         }
     }
 
@@ -53,7 +53,7 @@ impl GraphBuilder {
     }
 
     /// Build the final graph (consumes the builder)
-    pub fn build(self) -> (Graph<CodeNode, CodeEdge>, HashMap<ElementId, petgraph::graph::NodeIndex>) {
+    pub fn build(self) -> (Graph<CodeNode, CodeEdge>, FastMap<ElementId, petgraph::graph::NodeIndex>) {
         (self.graph, self.node_index)
     }
 

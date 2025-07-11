@@ -5,18 +5,21 @@
 // SPDX-License-Identifier: MIT
 
 use super::ThreadLang;
-use thread_ast_grep::error_context::ErrorContext as EC;
+use ag_service_core::error_context::ErrorContext as EC;
 #[cfg(feature = "ag-config")]
-use thread_ast_grep::{DeserializeEnv, RuleCore, SerializableRuleCore, Doc, LanguageExt, Node, TSPoint as Point, TSRange};
+use ag_service_core::{
+    DeserializeEnv, Doc, LanguageExt, Node, RuleCore, SerializableRuleCore, TSPoint as Point,
+    TSRange,
+};
 
 use anyhow::{Context, Result};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
-use rapidhash::{RapidHashSet, RapidHashMap};
 use std::ptr::{addr_of, addr_of_mut};
 use std::str::FromStr;
+use thread_utils::{FastMap, FastSet};
 
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize), serde(untagged))]
 #[derive(Clone)]
@@ -45,7 +48,7 @@ struct Injection {
     host: ThreadLang,
     #[cfg(feature = "ag-config")]
     rules: Vec<(RuleCore, Option<String>)>,
-    injectable: RapidHashSet<String>,
+    injectable: FastSet<String>,
 }
 
 impl Injection {
@@ -61,7 +64,7 @@ impl Injection {
 
 #[cfg(feature = "ag-config")]
 pub unsafe fn register_injectables(injections: Vec<SerializableInjection>) -> Result<()> {
-    let mut injectable = RapidHashMap::new();
+    let mut injectable = FastMap::new();
     for injection in injections {
         register_injectable(injection, &mut injectable)?;
     }
@@ -81,7 +84,7 @@ pub unsafe fn register_injectables(injections: Vec<SerializableInjection>) -> Re
 }
 
 #[cfg(feature = "ag-config")]
-fn merge_default_injectable(ret: &mut RapidHashMap<ThreadLang, Injection>) {
+fn merge_default_injectable(ret: &mut FastMap<ThreadLang, Injection>) {
     for (lang, injection) in ret {
         let languages = match lang {
             ThreadLang::Builtin(b) => b.injectable_languages(),
@@ -99,7 +102,7 @@ fn merge_default_injectable(ret: &mut RapidHashMap<ThreadLang, Injection>) {
 #[cfg(feature = "ag-config")]
 fn register_injectable(
     injection: SerializableInjection,
-    injectable: &mut RapidHashMap<ThreadLang, Injection>,
+    injectable: &mut FastMap<ThreadLang, Injection>,
 ) -> Result<()> {
     let lang = ThreadLang::from_str(&injection.host_language)?;
     let env = DeserializeEnv::new(lang);
@@ -138,15 +141,11 @@ pub fn injectable_languages(lang: ThreadLang) -> Option<&'static [&'static str]>
     Some(&injection.1)
 }
 
-#[cfg(all(
-    feature = "ag-config",
-    feature = "ag-tree-sitter",
-    feature = "ag-language"
-))]
+#[cfg(all(feature = "ag-config", feature = "ag-tree-sitter"))]
 pub fn extract_injections<L: LanguageExt>(
     lang: &ThreadLang,
     root: Node<StrDoc<L>>,
-) -> RapidHashMap<String, Vec<TSRange>> {
+) -> FastMap<String, Vec<TSRange>> {
     let mut ret = match lang {
         ThreadLang::Custom(c) => c.extract_injections(root.clone()),
         ThreadLang::BuiltIn(b) => b.extract_injections(root.clone()),
@@ -156,16 +155,12 @@ pub fn extract_injections<L: LanguageExt>(
     ret
 }
 
-#[cfg(all(
-    feature = "ag-config",
-    feature = "ag-tree-sitter",
-    feature = "ag-language"
-))]
+#[cfg(all(feature = "ag-config", feature = "ag-tree-sitter",))]
 fn extract_custom_inject<L: LanguageExt>(
     lang: &ThreadLang,
     injections: &[Injection],
     root: Node<StrDoc<L>>,
-    ret: &mut RapidHashMap<String, Vec<TSRange>>,
+    ret: &mut FastMap<String, Vec<TSRange>>,
 ) {
     let Some(rules) = injections.iter().find(|n| n.host == *lang) else {
         return;
@@ -210,7 +205,7 @@ fn node_to_range<D: Doc>(node: &Node<D>) -> TSRange {
 mod test {
     use super::*;
     use crate::SupportedLanguage;
-    use thread_ast_grep::from_str;
+    use ag_service_core::from_str;
     const DYNAMIC: &str = "
 hostLanguage: js
 rule:
@@ -239,7 +234,7 @@ injected: [js, ts, tsx]";
     #[cfg(all(feature = "ag-config", feature = "serde"))]
     #[test]
     fn test_bad_inject() {
-        let mut map = RapidHashMap::new();
+        let mut map = FastMap::new();
         let inj: SerializableInjection = from_str(BAD).expect("should ok");
         let ret = register_injectable(inj, &mut map);
         assert!(ret.is_err());
@@ -247,10 +242,10 @@ injected: [js, ts, tsx]";
         assert!(matches!(ec, EC::LangInjection));
     }
 
-    #[cfg(all(feature = "ag-config", feature = "serde", feature = "ag-tree-sitter", feature = "ag-language"))]
+    #[cfg(all(feature = "ag-config", feature = "serde", feature = "ag-tree-sitter"))]
     #[test]
     fn test_good_injection() {
-        let mut map = RapidHashMap::new();
+        let mut map = FastMap::new();
         let inj: SerializableInjection = from_str(STATIC).expect("should ok");
         let ret = register_injectable(inj, &mut map);
         assert!(ret.is_ok());
@@ -259,7 +254,7 @@ injected: [js, ts, tsx]";
         assert!(ret.is_ok());
         assert_eq!(map.len(), 1);
         let injections: Vec<_> = map.into_values().collect();
-        let mut ret = RapidHashMap::new();
+        let mut ret = FastMap::new();
         let lang = ThreadLang::from(crate::SupportedLanguage::JavaScript);
         let tl = lang.ast_grep("const a = styled`.btn { margin: 0; }`");
         let root = tl.root();

@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-use crate::fastmap::FastMap;
-use thread_ast_grep::{Language, LanguageExt};
+use ag_service_core::{Language, LanguageExt};
+use thread_utils::FastMap;
 
 pub enum FileType {
     /// A file that is a source code file.
@@ -22,10 +22,9 @@ pub struct File {
     pub path: std::path::Path,
     pub file_type: FileType,
     pub lang: &'static (dyn Language + LanguageExt),
-    pub docs: FastMap<SymbolU32, thread_ast_grep::StrDoc>,
+    pub docs: FastMap<SymbolU32, ag_service_core::StrDoc>,
     pub content: Option<ropey::Rope>,
 }
-
 
 /// A simple key-value store using a fast map.
 pub struct Store {

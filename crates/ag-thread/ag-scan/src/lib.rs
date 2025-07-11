@@ -1,9 +1,9 @@
 //! Single-function scan_files crate for AST-grep.
 
-use lib_ast_grep_types::{ScanOptions, AstGrepError, Result};
-use ast_grep_core::AstGrep;
-use ast_grep_config::{RuleCollection, RuleConfig};
-use ast_grep_language::SupportLang;
+use ag_service_types::{ScanOptions, AstGrepError, Result};
+use ag_service_core::AstGrep;
+use ag_service_rule::{RuleCollection, RuleConfig};
+use thread_languages::SupportedLanguage;
 
 /// Represents a single scan match.
 #[derive(Debug, Clone)]
@@ -25,8 +25,8 @@ pub struct ScanResults {
 /// Scan the provided files/contents using the given rules and options.
 /// This is a placeholder signature; integration with adapters and config will be added.
 pub fn scan_files(
-    files: Vec<(String, String, SupportLang)>,
-    rules: &RuleCollection<SupportLang>,
+    files: Vec<(String, String, SupportedLanguage)>,
+    rules: &RuleCollection<SupportedLanguage>,
     options: &ScanOptions,
 ) -> Result<ScanResults> {
     let mut results = Vec::new();

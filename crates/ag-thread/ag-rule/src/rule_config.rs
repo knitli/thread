@@ -1,15 +1,15 @@
 use crate::GlobalRules;
 
-use crate::check_var::{check_rewriters_in_transform, CheckHint};
-use crate::fixer::Fixer;
+use ag_service_check_rule::check_var::{check_rewriters_in_transform, CheckHint};
+use ag_service_fix::fixer::Fixer;
 use crate::label::{get_default_labels, get_labels_from_config, Label, LabelConfig};
 use crate::rule::DeserializeEnv;
 use crate::rule_core::{RuleCore, RuleCoreError, SerializableRuleCore};
 
-use ast_grep_core::language::Language;
-use ast_grep_core::replacer::Replacer;
-use ast_grep_core::source::Content;
-use ast_grep_core::{Doc, Matcher, NodeMatch};
+use ag_service_core::language::Language;
+use ag_service_core::replacer::Replacer;
+use ag_service_core::source::Content;
+use ag_service_core::{Doc, Matcher, NodeMatch};
 
 use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
 use serde::{Deserialize, Serialize};
@@ -18,7 +18,7 @@ use serde_yaml::{with::singleton_map_recursive::deserialize, Deserializer};
 use thiserror::Error;
 
 use std::borrow::Cow;
-use std::collections::HashMap;
+use thread_utils::FastMap;
 use std::ops::{Deref, DerefMut};
 
 #[derive(Serialize, Deserialize, Clone, Default, JsonSchema, Debug)]
@@ -85,7 +85,7 @@ pub struct SerializableRuleConfig<L: Language> {
   pub severity: Severity,
   /// Custom label dictionary to configure reporting. Key is the meta-variable name and
   /// value is the label message and label style.
-  pub labels: Option<HashMap<String, LabelConfig>>,
+  pub labels: Option<FastMap<String, LabelConfig>>,
   /// Glob patterns to specify that the rule only applies to matching files
   pub files: Option<Vec<String>>,
   /// Glob patterns that exclude rules from applying to files
@@ -96,10 +96,10 @@ pub struct SerializableRuleConfig<L: Language> {
   pub metadata: Option<Metadata>,
 }
 
-/// A trivial wrapper around a HashMap to work around
+/// A trivial wrapper around a FastMap to work around
 /// the limitation of `serde_yaml::Value` not implementing `JsonSchema`.
 #[derive(Serialize, Deserialize, Clone)]
-pub struct Metadata(HashMap<String, serde_yaml::Value>);
+pub struct Metadata(FastMap<String, serde_yaml::Value>);
 
 impl JsonSchema for Metadata {
   fn schema_name() -> String {
@@ -260,7 +260,7 @@ mod test {
   use crate::from_str;
   use crate::rule::SerializableRule;
   use crate::test::TypeScript;
-  use ast_grep_core::tree_sitter::LanguageExt;
+  use ag_service_core::tree_sitter::LanguageExt;
 
   fn ts_rule_config(rule: SerializableRule) -> SerializableRuleConfig<TypeScript> {
     let core = SerializableRuleCore {

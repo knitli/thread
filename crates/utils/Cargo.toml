@@ -10,6 +10,14 @@ homepage.workspace = true
 authors.workspace = true
 
 [dependencies]
+dashmap = { workspace = true, optional = true }
+rapidhash = { workspace = true, optional = true }
+
+[features]
+default = ["dashmap"]
+dashmap = ["dashmap"]
+inline = ["dashmap/inline"]
+wasm-single-thread = []
 
 [lints]
 workspace = true

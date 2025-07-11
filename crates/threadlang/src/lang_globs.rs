@@ -6,20 +6,20 @@
 
 use super::ThreadLang;
 use ignore::types::{Types, TypesBuilder};
-use rapidhash::RapidHashMap;
+use thread_utils::FastMap;
 use std::path::Path;
 use std::ptr::{addr_of, addr_of_mut};
 use std::str::FromStr;
 
 use anyhow::{Context, Result};
-use thread_ast_grep::error_context::ErrorContext as EC;
+use ag_service_core::error_context::ErrorContext as EC;
 
 // both use vec since lang will be small
-#[cfg(any(feature = "ag-language", feature = "ag-dynamic-language"))]
+#[cfg(feature = "ag-dynamic-language")]
 static mut LANG_GLOBS: Vec<(ThreadLang, Types)> = vec![];
 
 /// Language globs for registering languages and their file patterns.
-pub type LanguageGlobs = RapidHashMap<String, Vec<String>>;
+pub type LanguageGlobs = FastMap<String, Vec<String>>;
 
 /// Registers language globs.
 pub unsafe fn register(regs: LanguageGlobs) -> Result<()> {
@@ -65,7 +65,7 @@ fn add_types(builder: &mut TypesBuilder, types: &Types) {
     }
 }
 
-#[cfg(any(feature = "ag-language", feature = "ag-dynamic-language"))]
+#[cfg(feature = "ag-dynamic-language")]
 fn get_types(lang: &ThreadLang) -> Option<&Types> {
     for (l, types) in unsafe { &*addr_of!(LANG_GLOBS) } {
         if l == lang {
@@ -91,7 +91,7 @@ pub fn merge_types(types_vec: impl Iterator<Item = Types>) -> Types {
 }
 
 /// Merges the globs of a specific language with the provided `Types`.
-#[cfg(any(feature = "ag-language", feature = "ag-dynamic-language"))]
+#[cfg(feature = "ag-dynamic-language")]
 pub fn merge_globs(lang: &ThreadLang, type1: Types) -> Types {
     let Some(type2) = get_types(lang) else {
         return type1;
@@ -104,7 +104,7 @@ pub fn merge_globs(lang: &ThreadLang, type1: Types) -> Types {
 }
 
 /// Checks if a path matches any registered language glob patterns.
-#[cfg(any(feature = "ag-language", feature = "ag-dynamic-language"))]
+#[cfg(feature = "ag-dynamic-language")]
 pub fn from_path(p: &Path) -> Option<ThreadLang> {
     for (lang, types) in unsafe { &*addr_of!(LANG_GLOBS) } {
         if types.matched(p, false).is_whitelist() {

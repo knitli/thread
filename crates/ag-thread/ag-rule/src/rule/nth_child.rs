@@ -1,11 +1,11 @@
 use super::{DeserializeEnv, Rule, RuleSerializeError, SerializableRule};
 
-use ast_grep_core::language::Language;
-use ast_grep_core::meta_var::MetaVarEnv;
-use ast_grep_core::{Doc, Matcher, Node};
+use ag_service_core::language::Language;
+use ag_service_core::meta_var::MetaVarEnv;
+use ag_service_core::{Doc, Matcher, Node};
 
 use std::borrow::Cow;
-use std::collections::HashSet;
+use thread_utils::FastSet;
 
 use bit_set::BitSet;
 use schemars::JsonSchema;
@@ -228,11 +228,11 @@ impl NthChild {
       .iter()
       .position(|child| child.node_id() == node.node_id())
   }
-  pub fn defined_vars(&self) -> HashSet<&str> {
+  pub fn defined_vars(&self) -> FastSet<&str> {
     if let Some(rule) = &self.of_rule {
       rule.defined_vars()
     } else {
-      HashSet::new()
+      FastSet::new()
     }
   }
 
@@ -265,9 +265,9 @@ mod test {
   use super::*;
   use crate::from_str;
   use crate::test::TypeScript as TS;
-  use ast_grep_core::matcher::RegexMatcher;
-  use ast_grep_core::meta_var::MetaVarEnv;
-  use ast_grep_core::tree_sitter::LanguageExt;
+  use ag_service_core::matcher::RegexMatcher;
+  use ag_service_core::meta_var::MetaVarEnv;
+  use ag_service_core::tree_sitter::LanguageExt;
 
   #[test]
   fn test_positional() {

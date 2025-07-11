@@ -41,7 +41,7 @@ macro_rules! into_napi_lang {
     };
 }
 
-use thread_ast_grep::TSLanguage;
+use ag_service_core::TSLanguage;
 
 #[cfg(feature = "bash")]
 pub fn language_bash() -> TSLanguage {

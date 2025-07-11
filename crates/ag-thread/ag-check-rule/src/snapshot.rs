@@ -1,7 +1,7 @@
-use crate::lang::SgLang;
+use thread_threadlang::ThreadLang;
 use anyhow::{anyhow, Result};
 use ast_grep_config::{Label, LabelStyle, RuleConfig};
-use ast_grep_core::{
+use ag_service_core::{
   tree_sitter::{LanguageExt, StrDoc},
   Doc,
 };
@@ -9,14 +9,14 @@ use ast_grep_core::{
 use super::CaseResult;
 use serde::{Deserialize, Serialize, Serializer};
 
-use std::collections::{BTreeMap, HashMap};
+use std::collections::BTreeMap\nthread_utils::FastMap;\n;
 
 type CaseId = String;
 type Source = String;
 
 /// A collection of test snapshots for different rules
 /// where each [TestSnapshots] is identified by its rule ID.
-pub type SnapshotCollection = HashMap<CaseId, TestSnapshots>;
+pub type SnapshotCollection = FastMap<CaseId, TestSnapshots>;
 
 fn merge_snapshots(
   accepted: SnapshotCollection,
@@ -67,7 +67,7 @@ impl SnapshotAction {
 pub struct TestSnapshots {
   pub id: CaseId,
   #[serde(serialize_with = "ordered_map")]
-  pub snapshots: HashMap<Source, TestSnapshot>,
+  pub snapshots: FastMap<Source, TestSnapshot>,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
@@ -84,7 +84,7 @@ impl TestSnapshot {
   // because Some/None indicates if we have found matches,
   // then Result<T> indicates if we have error during replace
   // But to reuse anyhow we use the Result<Option<T>>
-  pub fn generate(rule_config: &RuleConfig<SgLang>, case: &str) -> Result<Option<Self>> {
+  pub fn generate(rule_config: &RuleConfig<ThreadLang>, case: &str) -> Result<Option<Self>> {
     let mut sg = rule_config.language.ast_grep(case);
     let rule = &rule_config.matcher;
     let Some(matched) = sg.root().find(rule) else {
@@ -120,8 +120,8 @@ pub struct LabelSnapshot {
   start: usize,
   end: usize,
 }
-impl<'r, 't> From<Label<'r, 't, StrDoc<SgLang>>> for LabelSnapshot {
-  fn from(label: Label<'r, 't, StrDoc<SgLang>>) -> Self {
+impl<'r, 't> From<Label<'r, 't, StrDoc<ThreadLang>>> for LabelSnapshot {
+  fn from(label: Label<'r, 't, StrDoc<ThreadLang>>) -> Self {
     let range = label.range();
     let source = label.start_node.get_doc().get_source();
     Self {
@@ -134,7 +134,7 @@ impl<'r, 't> From<Label<'r, 't, StrDoc<SgLang>>> for LabelSnapshot {
   }
 }
 
-fn ordered_map<S>(value: &HashMap<String, TestSnapshot>, serializer: S) -> Result<S::Ok, S::Error>
+fn ordered_map<S>(value: &FastMap<String, TestSnapshot>, serializer: S) -> Result<S::Ok, S::Error>
 where
   S: Serializer,
 {
@@ -145,7 +145,7 @@ where
 #[cfg(test)]
 mod tests {
   use super::*;
-  use crate::verify::test::{get_rule_config, TEST_RULE};
+  use ag_service_rule_check::test::{get_rule_config, TEST_RULE};
 
   #[test]
   fn test_generate() -> Result<()> {
@@ -210,7 +210,7 @@ mod tests {
 
   #[test]
   fn test_snapshot_action() -> Result<()> {
-    use crate::verify::CaseStatus;
+    use ag_service_rule_check::CaseStatus;
     let action = SnapshotAction::NeedUpdate;
     let rule_config = get_rule_config("pattern: let x = $A");
     let sc = SnapshotCollection::new();

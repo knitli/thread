@@ -11,7 +11,7 @@
 
 use thread_core::*;
 use petgraph::Graph;
-use std::collections::HashMap;
+use thread_utils::FastMap;
 use std::path::Path;
 
 pub mod analyzer;
@@ -25,7 +25,7 @@ pub use query::*;
 /// Main analysis engine for Thread
 pub struct ThreadEngine {
     graph: Graph<CodeNode, CodeEdge>,
-    node_index: HashMap<ElementId, petgraph::graph::NodeIndex>,
+    node_index: FastMap<ElementId, petgraph::graph::NodeIndex>,
 }
 
 impl ThreadEngine {
@@ -33,7 +33,7 @@ impl ThreadEngine {
     pub fn new() -> Self {
         Self {
             graph: Graph::new(),
-            node_index: HashMap::new(),
+            node_index: FastMap::new(),
         }
     }
 

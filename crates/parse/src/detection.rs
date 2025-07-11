@@ -7,12 +7,12 @@
 // crates/thread-lang/src/detection.rs
 use ast_grep_core::{AstGrep, Language};
 use std::path::Path;
-use std::collections::HashMap;
+use thread_utils::FastMap;
 use anyhow::Result;
 
 pub struct LanguageDetector {
-    extensions: HashMap<String, SupportedLanguage>,
-    custom_languages: HashMap<String, CustomLanguage>,
+    extensions: FastMap<String, SupportedLanguage>,
+    custom_languages: FastMap<String, CustomLanguage>,
 }
 
 #[derive(Debug, Clone)]
@@ -34,7 +34,7 @@ pub struct CustomLanguage {
 
 impl LanguageDetector {
     pub fn new() -> Self {
-        let mut extensions = HashMap::new();
+        let mut extensions = FastMap::new();
         extensions.insert("rs".to_string(), SupportedLanguage::Rust);
         extensions.insert("js".to_string(), SupportedLanguage::JavaScript);
         extensions.insert("mjs".to_string(), SupportedLanguage::JavaScript);
@@ -44,7 +44,7 @@ impl LanguageDetector {
 
         Self {
             extensions,
-            custom_languages: HashMap::new(),
+            custom_languages: FastMap::new(),
         }
     }
 

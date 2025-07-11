@@ -5,15 +5,16 @@ ast-grep rule test has several concepts.
 Refer to https://ast-grep.github.io/guide/test-rule.html#basic-concepts
 for general review.
 */
-use super::{snapshot::TestSnapshot, SgLang, TestSnapshots};
-use ast_grep_config::RuleConfig;
-use ast_grep_language::LanguageExt;
+use super::{snapshot::TestSnapshot, TestSnapshots};
+use thread_threadlang::ThreadLang;
+use ag_service_rule::RuleConfig;
+use thread_languages::LanguageExt;
 
 /// [CaseStatus] categorize whether and how ast-grep
 /// reports error for either valid or invalid code.
 ///
 /// TestCase has two forms of input: valid code and invalid code.
-/// sg can either reports or not reports an error.
+/// ast-grep can either report or not report an error.
 /// This is a 2*2 = 4 scenarios. Also for reported scenario, we may have snapshot mismatching.
 #[derive(PartialEq, Eq, Debug)]
 pub enum CaseStatus<'a> {
@@ -41,7 +42,7 @@ pub enum CaseStatus<'a> {
 }
 
 impl<'a> CaseStatus<'a> {
-  pub fn verify_valid(rule_config: &RuleConfig<SgLang>, case: &'a str) -> Self {
+  pub fn verify_valid(rule_config: &RuleConfig<ThreadLang>, case: &'a str) -> Self {
     let rule = &rule_config.matcher;
     let sg = rule_config.language.ast_grep(case);
     if sg.root().find(rule).is_some() {
@@ -51,7 +52,8 @@ impl<'a> CaseStatus<'a> {
     }
   }
 
-  pub fn verify_invalid(rule_config: &RuleConfig<SgLang>, case: &'a str) -> Self {
+  /// Verify the status of an invalid test case.
+  pub fn verify_invalid(rule_config: &RuleConfig<ThreadLang>, case: &'a str) -> Self {
     let sg = rule_config.language.ast_grep(case);
     let rule = &rule_config.matcher;
     if sg.root().find(rule).is_some() {
@@ -61,8 +63,9 @@ impl<'a> CaseStatus<'a> {
     }
   }
 
+  /// Verify the status of a snapshot.
   pub fn verify_snapshot(
-    rule_config: &RuleConfig<SgLang>,
+    rule_config: &RuleConfig<ThreadLang>,
     case: &'a str,
     snapshot: Option<&TestSnapshot>,
   ) -> Self {
@@ -81,6 +84,7 @@ impl<'a> CaseStatus<'a> {
     }
   }
 
+  /// Accept the changes made to a test case.
   pub fn accept(&mut self) -> bool {
     let CaseStatus::Wrong { source, actual, .. } = self else {
       return false;
@@ -96,6 +100,7 @@ impl<'a> CaseStatus<'a> {
     true
   }
 
+  /// Check if the case passed.
   pub fn is_pass(&self) -> bool {
     matches!(
       self,
@@ -117,6 +122,7 @@ impl CaseResult<'_> {
   pub fn passed(&self) -> bool {
     self.cases.iter().all(CaseStatus::is_pass)
   }
+  /// Get all changed snapshots.
   pub fn changed_snapshots(&self) -> TestSnapshots {
     let snapshots = self
       .cases
@@ -136,7 +142,7 @@ impl CaseResult<'_> {
 #[cfg(test)]
 mod test {
   use super::*;
-  use crate::verify::test::get_rule_config;
+  use ag_service_rule_check::test::get_rule_config;
 
   #[test]
   fn test_snapshot() {

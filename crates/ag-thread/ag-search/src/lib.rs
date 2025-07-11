@@ -1,8 +1,8 @@
 //! Single-function search_pattern crate for AST-grep.
 
-use lib_ast_grep_types::{SearchOptions, AstGrepError, Result};
-use ast_grep_core::{AstGrep, Pattern};
-use ast_grep_language::SupportLang;
+use ag_service_core::{AstGrep, Pattern};
+use thread_languages::SupportedLanguage;
+use ag_service_types::{AstGrepError, Result, SearchOptions};
 
 /// Represents a single pattern match.
 #[derive(Debug, Clone)]
@@ -22,9 +22,9 @@ pub struct SearchResults {
 /// Search the provided files/contents for a pattern.
 /// This is a placeholder signature; integration with adapters and config will be added.
 pub fn search_pattern(
-    files: Vec<(String, String, SupportLang)>,
+    files: Vec<(String, String, SupportedLanguage)>,
     pattern: &str,
-    lang: SupportLang,
+    lang: SupportedLanguage,
     options: &SearchOptions,
 ) -> Result<SearchResults> {
     let mut results = Vec::new();

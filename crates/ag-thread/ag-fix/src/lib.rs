@@ -1,9 +1,9 @@
 //! Single-function apply_fixes crate for AST-grep.
 
-use lib_ast_grep_types::{FixOptions, AstGrepError, Result};
-use ast_grep_core::{AstGrep, Pattern};
-use ast_grep_config::Fixer;
-use ast_grep_language::SupportLang;
+use crate::fixer::Fixer;
+use ag_service_core::{AstGrep, Pattern};
+use ag_service_types::{AstGrepError, FixOptions, Result};
+use thread_languages::SupportedLanguage;
 
 /// Represents a single fix applied to a file.
 #[derive(Debug, Clone)]
@@ -24,10 +24,10 @@ pub struct Replacement {
 /// Apply fixes to the provided files/contents using the given pattern and replacement.
 /// This is a placeholder signature; integration with adapters and config will be added.
 pub fn apply_fixes(
-    files: Vec<(String, String, SupportLang)>,
+    files: Vec<(String, String, SupportedLanguage)>,
     pattern: &str,
     replacement: &str,
-    lang: SupportLang,
+    lang: SupportedLanguage,
     options: &FixOptions,
 ) -> Result<Vec<FixResult>> {
     let mut results = Vec::new();

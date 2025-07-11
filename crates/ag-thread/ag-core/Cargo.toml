@@ -1,0 +1,34 @@
+[package]
+name = "ag-core"
+version = "0.27.3"
+edition = "2021"
+license = "MIT"
+description = "Core AST-grep functionality with tree-sitter integration"
+authors = ["Herrington Darkholme <hdh@hypers.space>"]
+
+[dependencies]
+# Tree-sitter for AST parsing
+tree-sitter = "0.25.6"
+
+# Bit operations for efficient kind matching
+bit-set = "0.8"
+
+# Serialization support
+serde = { version = "1.0.219", features = ["derive"] }
+serde_yaml = "0.9.34"
+
+# Error handling
+thiserror = "2.0.12"
+
+# Regex support for text matching
+regex = "1.11.1"
+
+# UUID generation for node IDs
+uuid = { version = "1.17.0", features = ["v4"] }
+
+[features]
+default = ["tree-sitter"]
+tree-sitter = ["dep:tree-sitter"]
+
+[dev-dependencies]
+tree-sitter-typescript = "0.23.2"

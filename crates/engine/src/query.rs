@@ -9,19 +9,19 @@
 use crate::*;
 use thread_core::*;
 use petgraph::Graph;
-use std::collections::HashMap;
+use thread_utils::FastMap;
 
 /// Query engine for extracting context from code graphs
 pub struct QueryEngine<'a> {
     graph: &'a Graph<CodeNode, CodeEdge>,
-    node_index: &'a HashMap<ElementId, petgraph::graph::NodeIndex>,
+    node_index: &'a FastMap<ElementId, petgraph::graph::NodeIndex>,
 }
 
 impl<'a> QueryEngine<'a> {
     /// Create a new query engine
     pub fn new(
         graph: &'a Graph<CodeNode, CodeEdge>,
-        node_index: &'a HashMap<ElementId, petgraph::graph::NodeIndex>,
+        node_index: &'a FastMap<ElementId, petgraph::graph::NodeIndex>,
     ) -> Self {
         Self { graph, node_index }
     }

@@ -1,5 +1,5 @@
 use crate::{RuleConfig, Severity};
-use ast_grep_core::language::Language;
+use ag_service_core::language::Language;
 use globset::{Glob, GlobSet, GlobSetBuilder};
 use std::path::Path;
 

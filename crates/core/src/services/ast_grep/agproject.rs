@@ -5,7 +5,7 @@
 // SPDX-License-Identifier: MIT
 
 use thread_languages::{CustomLang, LanguageGlobs, SerializableInjection, ThreadLang, config_file_type};
-use thread_ast_grep::{ErrorContext as EC, RuleOverwrite, RuleTrace, from_str, from_yaml_string, DeserializeEnv, GlobalRules, RuleCollection, RuleConfig};
+use ag_service_core::{ErrorContext as EC, RuleOverwrite, RuleTrace, from_str, from_yaml_string, DeserializeEnv, GlobalRules, RuleCollection, RuleConfig};
 use crate::{ConfigReader, ProjectDiscovery, RuleLoader, DiscoveryRequest, ConfigRequest, RuleLoadRequest};
 
 use anyhow::{Context, Result};
@@ -15,7 +15,7 @@ use ignore::WalkBuilder;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
-use std::collections::HashMap;
+use thread_utils::FastMap;
 use std::fs::read_to_string;
 use std::path::{Path, PathBuf};
 
@@ -51,7 +51,7 @@ pub struct AstGrepConfig {
   pub util_dirs: Option<Vec<PathBuf>>,
   /// configuration for custom languages
   #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-  pub custom_languages: Option<HashMap<String, CustomLang>>,
+  pub custom_languages: Option<FastMap<String, CustomLang>>,
   /// additional file globs for languages
   #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
   pub language_globs: Option<LanguageGlobs>,

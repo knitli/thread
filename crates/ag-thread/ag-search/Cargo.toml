@@ -6,6 +6,6 @@ license = "MIT"
 description = "Single-function search_pattern crate for AST-grep. MIT licensed."
 
 [dependencies]
-ag-service-types = { path = "../types" }
-ast-grep-core = "0.38.7"
-ast-grep-language = "0.38.7"
+ag-service-types.workspace = true
+ag-service-core.workspace = true
+thread_languages.workspace = true

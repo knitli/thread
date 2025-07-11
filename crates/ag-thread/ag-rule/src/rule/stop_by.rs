@@ -1,14 +1,14 @@
 use super::deserialize_env::DeserializeEnv;
 use crate::rule::{Rule, RuleSerializeError, SerializableRule};
 
-use ast_grep_core::language::Language;
-use ast_grep_core::{Doc, Node};
+use ag_service_core::language::Language;
+use ag_service_core::{Doc, Node};
 
 use schemars::JsonSchema;
 use serde::de::{self, Deserializer, MapAccess, Visitor};
 use serde::{Deserialize, Serialize};
 
-use std::collections::HashSet;
+use thread_utils::FastSet;
 use std::fmt;
 
 // NB StopBy's JsonSchema is changed in xtask/schema.rs
@@ -101,11 +101,11 @@ impl StopBy {
     })
   }
 
-  pub fn defined_vars(&self) -> HashSet<&str> {
+  pub fn defined_vars(&self) -> FastSet<&str> {
     match self {
       StopBy::Rule(rule) => rule.defined_vars(),
-      StopBy::End => HashSet::new(),
-      StopBy::Neighbor => HashSet::new(),
+      StopBy::End => FastSet::new(),
+      StopBy::Neighbor => FastSet::new(),
     }
   }
 
@@ -225,7 +225,7 @@ inside:
   #[test]
   fn test_stop_by_defined_vars() {
     let stop_by = parse_stop_by("kind: class");
-    assert_eq!(stop_by.defined_vars(), HashSet::new());
+    assert_eq!(stop_by.defined_vars(), FastSet::new());
     let stop_by = parse_stop_by("pattern: $A");
     assert_eq!(stop_by.defined_vars(), ["A"].into_iter().collect());
   }

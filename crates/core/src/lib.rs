@@ -7,7 +7,5 @@
 pub mod error;
 pub mod store;
 
-pub mod fastmap;
-
 #[cfg(feature = "services")]
 pub mod services;

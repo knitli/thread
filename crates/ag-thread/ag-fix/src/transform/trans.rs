@@ -1,8 +1,8 @@
 use super::rewrite::Rewrite;
 use super::{string_case, Ctx, TransformError};
-use ast_grep_core::meta_var::MetaVariable;
-use ast_grep_core::source::Content;
-use ast_grep_core::{Doc, Language};
+use ag_service_core::meta_var::MetaVariable;
+use ag_service_core::source::Content;
+use ag_service_core::{Doc, Language};
 
 use regex::Regex;
 use schemars::JsonSchema;
@@ -208,9 +208,9 @@ mod test {
   use super::*;
   use crate::test::TypeScript;
   use crate::{DeserializeEnv, Transformation};
-  use ast_grep_core::tree_sitter::LanguageExt;
+  use ag_service_core::tree_sitter::LanguageExt;
   use serde_yaml::with::singleton_map_recursive;
-  use std::collections::HashMap;
+  use thread_utils::FastMap;
 
   type R = std::result::Result<(), ()>;
 
@@ -308,7 +308,7 @@ mod test {
     assert!(parsed.is_err());
   }
 
-  fn transform_env(trans: HashMap<String, Trans<String>>) -> HashMap<String, String> {
+  fn transform_env(trans: FastMap<String, Trans<String>>) -> FastMap<String, String> {
     let grep = TypeScript::Tsx.ast_grep("let a = 123");
     let root = grep.root();
     let trans = trans
@@ -340,7 +340,7 @@ mod test {
         endChar: -1
     "#,
     )?;
-    let mut map = HashMap::new();
+    let mut map = FastMap::new();
     map.insert("TR1".into(), tr1);
     map.insert("TR2".into(), tr2);
     let env = transform_env(map);
@@ -374,7 +374,7 @@ mod test {
         toCase: upperCase
     "#,
     )?;
-    let mut map = HashMap::new();
+    let mut map = FastMap::new();
     map.insert("REP".into(), rep);
     map.insert("SUB".into(), sub);
     map.insert("UP".into(), up);

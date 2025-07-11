@@ -13,7 +13,7 @@ use thread_ag::{MatchStrictness, Matcher, Pattern};
 use thread_ag::{Language, LanguageExt};
 
 use crate::config::ProjectConfig;
-use crate::lang::SgLang;
+use thread_threadlang::ThreadLang;
 use crate::utils::ErrorContext as EC;
 use crate::utils::{ContextArgs, InputArgs, MatchUnit, OutputArgs, filter_file_pattern};
 use crate::utils::{DebugFormat, FileTrace, RunTrace};
@@ -22,7 +22,7 @@ use crate::utils::{Items, PathWorker, StdInWorker, Worker};
 fn lang_help() -> String {
     format!(
         "The language of the pattern. Supported languages are:\n{:?}",
-        SgLang::all_languages()
+        ThreadLang::all_languages()
     )
 }
 
@@ -60,7 +60,7 @@ impl ValueEnum for Strictness {
 
 
 impl RunArg {
-    fn build_pattern(&self, lang: SgLang) -> Result<Pattern> {
+    fn build_pattern(&self, lang: ThreadLang) -> Result<Pattern> {
         let pattern = if let Some(sel) = &self.selector {
             Pattern::contextual(&self.pattern, sel, lang)
         } else {
@@ -75,7 +75,7 @@ impl RunArg {
     }
 
     // do not unwrap pattern here, we should allow non-pattern to be debugged as tree
-    fn debug_pattern_if_needed(&self, pattern_ret: &Result<Pattern>, lang: SgLang) {
+    fn debug_pattern_if_needed(&self, pattern_ret: &Result<Pattern>, lang: ThreadLang) {
         let Some(debug_query) = &self.debug_query else {
             return;
         };
@@ -152,7 +152,7 @@ impl PathWorker for RunWithInferredLang {
         path: &Path,
         processor: &P::Processor,
     ) -> Result<Vec<P::Processed>> {
-        let Some(lang) = SgLang::from_path(path) else {
+        let Some(lang) = ThreadLang::from_path(path) else {
             return Ok(vec![]);
         };
         self.trace.print_file(path, lang)?;
@@ -252,7 +252,7 @@ impl PathWorker for RunWithSpecificLang {
         let arg = &self.arg;
         let pattern = &self.pattern;
         let lang = arg.lang.expect("must present");
-        let Some(path_lang) = SgLang::from_path(path) else {
+        let Some(path_lang) = ThreadLang::from_path(path) else {
             return Ok(vec![]);
         };
         self.stats.print_file(path, path_lang)?;

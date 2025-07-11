@@ -1,12 +1,16 @@
-// SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
-// SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
-//
-// SPDX-License-Identifier: AGPL-3.0-or-later
+//! Thread - A safe, fast, flexible code analysis and code parsing library.
+//!
+//! This is the main library crate that re-exports functionality from the various
+//! component crates in the workspace.
 
-// This is the main function.
-fn main() {
-    // Statements here are executed when the compiled binary is called.
+// Re-export core functionality
+pub use thread_core as core;
 
-    // Print text to the console.
-    println!("Hello World!");
-}
+// Re-export other major components
+pub use thread_engine as engine;
+pub use thread_diff as diff;
+pub use thread_fs as fs;
+pub use thread_languages as languages;
+
+// Version information
+pub const VERSION: &str = env!("CARGO_PKG_VERSION");

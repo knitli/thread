@@ -9,3 +9,5 @@ description = "Shared utilities for ast-grep."
 serde = { version = "1.0.219", features = ["derive"] }
 thiserror = "2.0.12"
 async-trait = "0.1.88"
+
+ag_service_rule.workspace = true

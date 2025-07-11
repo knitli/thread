@@ -5,7 +5,7 @@
 // SPDX-License-Identifier: MIT
 
 use super::{CustomLang, LanguageGlobs, SerializableInjection, ThreadLang};
-use thread_ast_grep::{
+use ag_service_rule::{
     DeserializeEnv, error_context::ErrorContext as EC, GlobalRules, RuleCollection, RuleConfig, RuleOverwrite,
     RuleTrace, from_str, from_yaml_string,
 };
@@ -18,7 +18,7 @@ use ignore::WalkBuilder;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
-use rapidhash::RapidHashMap;
+use thread_utils::FastMap;
 use std::fs::read_to_string;
 use std::path::{Path, PathBuf};
 
@@ -65,7 +65,7 @@ pub struct AstGrepConfig {
     pub util_dirs: Option<Vec<PathBuf>>,
     /// configuration for custom languages
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    pub custom_languages: Option<RapidHashMap<String, CustomLang>>,
+    pub custom_languages: Option<FastMap<String, CustomLang>>,
     /// additional file globs for languages
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     pub language_globs: Option<LanguageGlobs>,

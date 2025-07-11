@@ -7,7 +7,7 @@
 // crates/thread-ast/src/graph.rs
 use petgraph::{Graph, NodeIndex, EdgeIndex};
 use serde::{Serialize, Deserialize};
-use std::collections::HashMap;
+use thread_utils::FastMap;
 
 pub type AstGraph = Graph<AstNode, AstEdge>;
 
@@ -67,7 +67,7 @@ pub struct NodeId(pub u32);
 
 pub struct AstGraphBuilder {
     graph: AstGraph,
-    node_map: HashMap<NodeId, NodeIndex>,
+    node_map: FastMap<NodeId, NodeIndex>,
     next_id: u32,
 }
 
@@ -75,7 +75,7 @@ impl AstGraphBuilder {
     pub fn new() -> Self {
         Self {
             graph: Graph::new(),
-            node_map: HashMap::new(),
+            node_map: FastMap::new(),
             next_id: 0,
         }
     }

@@ -1,16 +1,16 @@
 use crate::{Rule, RuleCore};
 
-use ast_grep_core::meta_var::MetaVarEnv;
-use ast_grep_core::{Doc, Matcher, Node};
+use ag_service_core::meta_var::MetaVarEnv;
+use ag_service_core::{Doc, Matcher, Node};
 
 use bit_set::BitSet;
 use thiserror::Error;
 
 use std::borrow::Cow;
-use std::collections::{HashMap, HashSet};
+use thread_utils::{FastSet, FastMap};
 use std::sync::{Arc, Weak};
 
-pub struct Registration<R>(Arc<HashMap<String, R>>);
+pub struct Registration<R>(Arc<FastMap<String, R>>);
 
 impl<R> Clone for Registration<R> {
   fn clone(&self) -> Self {
@@ -20,10 +20,10 @@ impl<R> Clone for Registration<R> {
 
 impl<R> Registration<R> {
   #[allow(clippy::mut_from_ref)]
-  fn write(&self) -> &mut HashMap<String, R> {
+  fn write(&self) -> &mut FastMap<String, R> {
     // SAFETY: `write` will only be called during initialization and
-    // it only insert new item to the hashmap. It is safe to cast the raw ptr.
-    unsafe { &mut *(Arc::as_ptr(&self.0) as *mut HashMap<String, R>) }
+    // it only insert new item to the FastMap. It is safe to cast the raw ptr.
+    unsafe { &mut *(Arc::as_ptr(&self.0) as *mut FastMap<String, R>) }
   }
 }
 pub type GlobalRules = Registration<RuleCore>;
@@ -63,7 +63,7 @@ pub struct RuleRegistration {
 
 // these are shit code
 impl RuleRegistration {
-  pub fn get_rewriters(&self) -> &HashMap<String, RuleCore> {
+  pub fn get_rewriters(&self) -> &FastMap<String, RuleCore> {
     &self.rewriters.0
   }
 
@@ -100,8 +100,8 @@ impl RuleRegistration {
     self.rewriters.insert(id, rewriter).expect("should work");
   }
 
-  pub(crate) fn get_local_util_vars(&self) -> HashSet<&str> {
-    let mut ret = HashSet::new();
+  pub(crate) fn get_local_util_vars(&self) -> FastSet<&str> {
+    let mut ret = FastSet::new();
     let utils = &self.local.0;
     for rule in utils.values() {
       for v in rule.defined_vars() {
@@ -115,17 +115,17 @@ impl RuleRegistration {
 /// RegistrationRef must use Weak pointer to avoid
 /// cyclic reference in RuleRegistration
 struct RegistrationRef {
-  local: Weak<HashMap<String, Rule>>,
-  global: Weak<HashMap<String, RuleCore>>,
+  local: Weak<FastMap<String, Rule>>,
+  global: Weak<FastMap<String, RuleCore>>,
 }
 impl RegistrationRef {
-  fn get_local(&self) -> Arc<HashMap<String, Rule>> {
+  fn get_local(&self) -> Arc<FastMap<String, Rule>> {
     self
       .local
       .upgrade()
       .expect("Rule Registration must be kept alive")
   }
-  fn get_global(&self) -> Arc<HashMap<String, RuleCore>> {
+  fn get_global(&self) -> Arc<FastMap<String, RuleCore>> {
     self
       .global
       .upgrade()
@@ -222,8 +222,8 @@ mod test {
   use super::*;
   use crate::rule::Rule;
   use crate::test::TypeScript as TS;
-  use ast_grep_core::ops as o;
-  use ast_grep_core::Pattern;
+  use ag_service_core::ops as o;
+  use ag_service_core::Pattern;
 
   type Result = std::result::Result<(), ReferentRuleError>;
 

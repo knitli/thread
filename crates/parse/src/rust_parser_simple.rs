@@ -59,7 +59,7 @@ impl<P: LanguageProvider> LanguageParser for SimpleRustParser<P> {
                 annotations: Vec::new(),
                 return_type: None,
                 parameters: Vec::new(),
-                extra: std::collections::HashMap::new(),
+                extra: thread_utils::FastMap::new(),
             },
         };
 

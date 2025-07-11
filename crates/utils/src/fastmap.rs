@@ -13,16 +13,16 @@
 #[cfg(all(feature = "dashmap", not(feature = "wasm-single-thread")))]
 pub type FastMap<K, V> = dashmap::DashMap<K, V>;
 #[cfg(all(feature = "dashmap", not(feature = "wasm-single-thread")))]
-pub type FastSet<K> = dashmap::DashSet<K>;
+pub type FastSet<V> = dashmap::DashSet<V>;
 
 // Fallback to HashMap for single-threaded
 #[cfg(all(feature = "dashmap", feature = "wasm-single-thread"))]
 pub type FastMap<K, V> = rapidhash::RapidHashMap<K, V>;
 #[cfg(all(feature = "dashmap", feature = "wasm-single-thread"))]
-pub type FastSet<K> = rapidhash::RapidHashSet<K>;
+pub type FastSet<V> = rapidhash::RapidHashSet<V>;
 
 // Fallback to HashMap when dashmap feature is not enabled (should never be the case, but just in case...)
 #[cfg(not(feature = "dashmap"))]
 pub type FastMap<K, V> = rapidhash::RapidHashMap<K, V>;
 #[cfg(not(feature = "dashmap"))]
-pub type FastSet<K> = rapidhash::RapidHashSet<K>;
+pub type FastSet<V> = rapidhash::RapidHashSet<V>;

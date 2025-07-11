@@ -1,5 +1,5 @@
 use crate::print::Printer;
-use crate::utils::FileTrace;
+use ag_service_utils::FileTrace;
 
 use anyhow::{anyhow, Result};
 use ignore::{DirEntry, WalkParallel, WalkState};

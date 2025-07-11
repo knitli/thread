@@ -1,0 +1,33 @@
+[package]
+name = "thread-threadlang"
+version = "0.0.1"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+documentation.workspace = true
+homepage.workspace = true
+authors.workspace = true
+
+[dependencies]
+thread-languages = { workspace = true }
+ast-grep-dynamic = { version = "0.38.7", optional = true }
+serde = { workspace = true, optional = true }
+ag_service_rule.workspace = true
+thread-utils.workspace = true
+
+# CLI Support
+ansiterm = { workspace = true, optional = true }
+clap = { workspace = true, optional = true }
+crossterm = { workspace = true, optional = true }
+
+[features]
+default = ["serde", "dashmap"]
+ag-dynamic = ["ast-grep-dynamic"]
+serde = ["serde/derive"]
+cli_support = ["ansiterm", "clap", "crossterm", "serde", "dashmap"]
+dashmap = ["thread-utils/dashmap"]
+inline = ["thread-utils/inline"]
+
+[lints]
+workspace = true

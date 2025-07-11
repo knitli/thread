@@ -14,7 +14,7 @@ Like the rest of the [Ast-Grep][AG] project, it was a fantastic foundation to bu
 
 - We needed to be able to add more languages, and there was no way to do this with the existing structure (besides the `ast-grep-dynamic` crate which is great but not what we needed). Since we're building a library to support different uses, and aren't constrained to a CLI binary in all cases, we needed a more flexible approach.
 - We needed a flatter structure to support different deployment options and to minimize binary size for Knitli's cloud microservice deployment.
-- We wanted to separate the `SgLang` type into its own crate for slimmer deployments for some use cases. This is now the `threadlang` crate.
+- We wanted to separate the `ThreadLang` type into its own crate for slimmer deployments for some use cases. This is now the `threadlang` crate.
 
 As it stands, we can selectively take upstream changes from `ast-grep-language` for most of the crate while keeping our modifications intact. We can, and will, also submit bug fixes upstream when we identify issues with shared code.
 

@@ -15,7 +15,9 @@ authors.workspace = true
 
 [dependencies]
 thread-ast-grep = { workspace = true, features = ["all-core", "language"] }
-thread-languages = { workspace = true, features = ["threadlang"], optional = true }
+thread-languages = { workspace = true, features = [
+    "threadlang",
+], optional = true }
 
 rapidhash.workspace = true
 ropey = { workspace = true }
@@ -31,11 +33,17 @@ tower-service = { workspace = true, optional = true }
 default = ["local", "serde", "services"]
 local = ["dashmap", "dashmap/rayon"]
 production = ["dash-inline", "string-interner/inline-more"]
-serde = ["serde_json", "serde/derive", "serde/std", "thread-ast-grep/serde", "thread-languages/serde"]
+serde = [
+    "serde_json",
+    "serde/derive",
+    "serde/std",
+    "thread-ast-grep/serde",
+    "thread-languages/serde",
+]
 services = ["thread-languages/threadlang", "tower-service"]
 
 dash-inline = ["dashmap/inline"]
-# Enables dashmap as the FastMap backend; default is RapidHashMap
+# Enables dashmap as the FastMap backend; default is FastMap
 dashmap = ["dashmap/rayon"]
 wasm-single-thread = []
 

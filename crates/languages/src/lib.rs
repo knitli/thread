@@ -63,20 +63,27 @@ pub use html::Html;
 
 // While the threadlang module *can* run with any of these features, it is only fully functional when they are *all* enabled.
 #[cfg(feature = "threadlang")]
-#[cfg(all(any(feature = "ag-language", feature = "ag-dynamic-language", feature = "ag-config"), feature = "threadlang"))]
+#[cfg(all(
+    any(
+        feature = "ag-language",
+        feature = "ag-dynamic-language",
+        feature = "ag-config"
+    ),
+    feature = "threadlang"
+))]
 pub mod threadlang;
 
-use rapidhash::RapidHashMap;
-use thread_ast_grep::{
-    Language, LanguageExt,
-    MetaVariable, Node, Pattern, PatternBuilder, PatternError, StrDoc, TSLanguage, TSRange,
+use ag_service_core::{
+    Language, LanguageExt, MetaVariable, Node, Pattern, PatternBuilder, PatternError, StrDoc,
+    TSLanguage, TSRange,
 };
+use thread_utils::FastMap;
 
 use ignore::types::{Types, TypesBuilder};
 #[cfg(any(feature = "serde-derive", feature = "serde-no-derive"))]
 use serde::de::Visitor;
 #[cfg(feature = "serde-derive")]
-use serde::{Deserialize, Deserializer, Serialize, de};
+use serde::{de, Deserialize, Deserializer, Serialize};
 use std::borrow::Cow;
 use std::fmt;
 use std::fmt::{Display, Formatter};
@@ -645,10 +652,10 @@ impl LanguageExt for SupportedLanguage {
     fn extract_injections<L: LanguageExt>(
         &self,
         root: Node<StrDoc<L>>,
-    ) -> RapidHashMap<String, Vec<TSRange>> {
+    ) -> FastMap<String, Vec<TSRange>> {
         match self {
             SupportedLanguage::Html => Html.extract_injections(root),
-            _ => RapidHashMap::new(),
+            _ => FastMap::new(),
         }
     }
 }
@@ -787,11 +794,9 @@ mod test {
         lang: impl LanguageExt,
     ) -> String {
         let mut source = lang.ast_grep(src);
-        assert!(
-            source
-                .replace(pattern, replacer)
-                .expect("should parse successfully")
-        );
+        assert!(source
+            .replace(pattern, replacer)
+            .expect("should parse successfully"));
         source.generate()
     }
 

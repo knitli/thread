@@ -159,7 +159,7 @@ impl<P: LanguageProvider> RustParser<P> {
                 annotations: Vec::new(),
                 return_type,
                 parameters: parse_parameters(&params_text),
-                extra: std::collections::HashMap::new(),
+                extra: thread_utils::FastMap::new(),
             },
         })
     }
