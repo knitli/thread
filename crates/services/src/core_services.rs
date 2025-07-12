@@ -6,10 +6,6 @@ use crate::prelude::*;
 use async_trait::async_trait;
 use thread_utils::FastMap;
 
-// =============================================================================
-// Core Service Traits (3 instead of 6)
-// =============================================================================
-
 /// Service for environment-specific I/O operations.
 /// This handles the differences between CLI, Cloudflare Workers, CI/CD, etc.
 #[async_trait]
@@ -60,10 +56,6 @@ pub trait OutputFormatter: Send + Sync {
     fn format_diagnostics(&self, diagnostics: &[Diagnostic]) -> Result<String>;
 }
 
-// =============================================================================
-// Simplified Service Registry
-// =============================================================================
-
 /// Simplified service registry with just the 3 essential services.
 pub struct ServiceRegistry {
     pub environment: Box<dyn EnvironmentAdapter>,
@@ -91,15 +83,6 @@ impl ServiceRegistry {
             environment: Box::new(CliEnvironmentAdapter::new()),
             rule_provider: Box::new(FileRuleProvider::new(".")),
             formatter: Box::new(TerminalFormatter::new()),
-        }
-    }
-
-    /// Create a registry for Cloudflare Workers environment.
-    pub fn for_cloudflare_workers() -> Self {
-        Self {
-            environment: Box::new(CloudflareEnvironmentAdapter::new()),
-            rule_provider: Box::new(CloudflareRuleProvider::new()),
-            formatter: Box::new(JsonFormatter::new()),
         }
     }
 

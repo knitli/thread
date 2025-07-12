@@ -1,7 +1,7 @@
 [package]
 name = "ag-service-fix"
 version = "0.1.0"
-edition = "2021"
+edition.workspace = true
 license = "AGPL-3.0-or-later AND MIT"
 description = "Single-function apply_fixes crate for AST-grep."
 
@@ -16,4 +16,4 @@ thread-languages.workspace = true
 regex.workspace = true
 schemars.workspace = true
 serde.workspace = true
-thread_utils.workspace = true
+thread-utils.workspace = true

@@ -1,6 +1,6 @@
 use super::{DeserializeEnv, Rule, RuleSerializeError, SerializableRule};
 
-use ag_service_types::{Language, NthChildError, NthChildSimple, SerializableNthChild, NthChild};
+use ag_service_types::{Language, FunctionalPosition, NthChildError, NthChildSimple, SerializableNthChild, NthChild};
 use ag_service_pattern::{MetaVarEnv, Matcher};
 use ag_service_ast::{Doc, Node};
 
@@ -108,13 +108,6 @@ impl NthChildSimple {
       NthChildSimple::Functional(s) => parse_an_b(s),
     }
   }
-}
-
-/// Corresponds to the CSS syntax An+B
-/// See https://developer.mozilla.org/en-US/docs/Web/CSS/:nth-child#functional_notation
-struct FunctionalPosition {
-  step_size: i32,
-  offset: i32,
 }
 
 impl FunctionalPosition {

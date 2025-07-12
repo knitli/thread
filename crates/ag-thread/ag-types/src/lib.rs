@@ -2,36 +2,63 @@
 //!
 //! This crate provides the foundational service traits and types that enable
 //! ast-grep functionality to operate across diverse environments including CLI,
-//! Cloudflare Workers, CI/CD pipelines, and customer on-premise deployments.
+//! CI/CD pipelines, and customer on-premise deployments.
+#[cfg(feature = "ast")]
 mod ast;
+#[cfg(feature = "fix")]
 mod fix;
+#[cfg(feature = "label")]
 mod label;
+#[cfg(feature = "language")]
 mod language;
+#[cfg(feature = "matcher")]
 mod matcher;
+#[cfg(feature = "maybe")]
 mod maybe;
+#[cfg(feature = "meta-var")]
 mod meta_var;
+#[cfg(feature = "ops")]
 mod ops;
+#[cfg(feature = "replacer")]
 mod replacer;
+#[cfg(feature = "rule")]
 mod rule;
+#[cfg(feature = "strictness")]
 mod strictness;
+#[cfg(feature = "transversal")]
 mod transversal;
+#[cfg(feature = "tree-sitter")]
 mod ts;
 
+#[cfg(feature = "ast")]
 pub use ast::{AstGrep, Edit, SgNode, Doc, Content, Root, NodeData, PinnedNodeData, Position, Node, KindId};
+#[cfg(feature = "fix")]
 pub use fix::{Transformation, DecomposedTransString, ParseTransError, Rewrite, Trans, Convert, Replace, Delimiter, CaseState, Separator, StringCase, Substring, Fixer, Expansion, FixerError, SerializableFixConfig, SerializableFixer, TransformError, Transform, Transformation, Ctx};
+#[cfg(feature = "label")]
 pub use label::{Label, LabelConfig, LabelStyle};
+#[cfg(feature = "language")]
 pub use language::Language;
+#[cfg(feature = "matcher")]
 pub use matcher::{KindMatcher, KindMatcherError, Matcher, MatchExt, MatchAll, MatchNone, NodeMatch, Pattern, PatternBuilder, PatternError, PatternNode, RegexMatcher, RegexMatcherError};
+#[cfg(feature = "maybe")]
 pub use maybe::Maybe;
+#[cfg(feature = "meta-var")]
 pub use meta_var::{MetaVariable, MetaVarEnv, MetaVarExtract, Underlying, MetaVariableID};
+#[cfg(feature = "ops")]
 pub use ops::{And, Any, All, Or, Not, Op, NestedAnd, NestedOr};
+#[cfg(feature = "replacer")]
 pub use replacer::{Replacer, DeindentedExtract, TemplateFix, TemplateFixError};
-pub use rule::{ContingentRule, RuleBucket, RuleCollection, RuleConfig, Severity, RuleConfigError, SerializableRuleConfig, SerializableRewriter, Metadata, SerializableRule, AtomicRule, Strictness, PatternStyle, RelationalRule, CompositeRule, Rule, RuleSerializeError, RuleCoreError, SerializableRuleCore, RuleCore, SerializableStopBy, StopBy, Inside, Has, Precedes, Follows, Registration, RuleRegistration, RegistrationRef, ReferentRuleError, ReferentRule, GlobalRules, SerializablePosition, SerializableRange, RangeMatcherError, RangeMatcher, NthChildError, NthChildSimple, SerializableNthChild, NthChild, DeserializeEnv, CheckHint};
+#[cfg(feature = "rule")]
+pub use rule::{ContingentRule, RuleBucket, RuleCollection, RuleConfig, Severity, RuleConfigError, SerializableRuleConfig, SerializableRewriter, Metadata, SerializableRule, AtomicRule, Strictness, PatternStyle, RelationalRule, CompositeRule, Rule, RuleSerializeError, RuleCoreError, SerializableRuleCore, RuleCore, SerializableStopBy, StopBy, Inside, Has, Precedes, Follows, Registration, RuleRegistration, RegistrationRef, ReferentRuleError, ReferentRule, GlobalRules, SerializablePosition, SerializableRange, RangeMatcherError, RangeMatcher, NthChildError, NthChildSimple, SerializableNthChild, NthChild, DeserializeEnv, CheckHint, FunctionalPosition};
+#[cfg(feature = "strictness")]
 pub use strictness::{MatchStrictness, MatchOneNode};
+#[cfg(feature = "transversal")]
 pub use transversal::{Visitor, Visit, Traversal, TsPre, Pre, Algorithm, PreOrder, PostOrder, Post, Level};
+#[cfg(feature = "tree-sitter")]
 pub use ts::{TSLanguage, TSTree, TSRange, TSInputEdit, TSNode, TSPoint, TSLanguageError, TSParser, TSTreeCursor, TSParseError, ContentExt, DisplayContext, LanguageExt, StrDoc, LanguageExt};
 
 use async_trait::async_trait;
+#[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 use thread_utils::FastMap;
 use std::fmt;
@@ -110,7 +137,8 @@ pub enum AstGrepError {
     },
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug, Clone)]
 pub enum ConfigType {
     Rules,
     ProjectSettings,
@@ -166,16 +194,24 @@ pub type Result<T> = std::result::Result<T, AstGrepError>;
 // =============================================================================
 
 /// Represents a file item discovered by the file discovery service.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug, Clone)]
 pub struct FileItem {
     pub path: String,
     pub language: Option<String>,
     pub size: Option<u64>,
-    pub metadata: FastMap<String, serde_json::Value>,
+    #cfg_if::cfg_if! {
+        if #[cfg(feature = "serde")] {
+            pub metadata: FastMap<String, serde_json::Value>,
+        } else {
+            pub metadata: FastMap<String, FastMap<String, String>>,
+        }
+    }
 }
 
 /// Request for discovering files in the source system.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug, Clone)]
 pub struct FileDiscoveryRequest {
     pub paths: Vec<String>,
     pub patterns: Vec<String>,
@@ -199,7 +235,8 @@ impl Default for FileDiscoveryRequest {
 }
 
 /// Configuration source specification.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug, Clone)]
 pub enum ConfigSource {
     File(String),
     Inline(String),
@@ -209,7 +246,8 @@ pub enum ConfigSource {
 }
 
 /// Output format specifications for different environments.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug, Clone)]
 pub enum OutputFormat {
     Json {
         pretty: bool,
@@ -224,7 +262,8 @@ pub enum OutputFormat {
     Custom(String),
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug, Clone)]
 pub enum ReportStyle {
     Rich,
     Compact,
@@ -240,7 +279,8 @@ impl Default for OutputFormat {
 }
 
 /// Severity levels for diagnostic results.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Severity {
     Error,
     Warning,
@@ -254,7 +294,8 @@ pub enum Severity {
 // =============================================================================
 
 /// Comprehensive options for scanning files with rules.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug, Clone)]
 pub struct ScanOptions {
     pub paths: Vec<String>,
     pub file_patterns: Vec<String>,
@@ -276,7 +317,7 @@ impl Default for ScanOptions {
             file_patterns: vec!["**/*".to_string()],
             exclude_patterns: vec![],
             language_filter: None,
-            config_source: ConfigSource::File("sgconfig.yml".to_string()),
+            config_source: ConfigSource::File("thread.yml".to_string()),
             output_format: OutputFormat::default(),
             context_lines_before: 0,
             context_lines_after: 0,
@@ -288,7 +329,8 @@ impl Default for ScanOptions {
 }
 
 /// Options for applying fixes.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug, Clone)]
 pub struct FixOptions {
     pub dry_run: bool,
     pub interactive: bool,
@@ -306,7 +348,8 @@ impl Default for FixOptions {
 }
 
 /// Options for test execution.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug, Clone)]
 pub struct TestOptions {
     pub parallel: bool,
     pub max_concurrency: Option<usize>,
@@ -331,7 +374,8 @@ impl Default for TestOptions {
 
 
 /// Request for applying fixes.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug, Clone)]
 pub struct FixRequest {
     pub fixes: Vec<FixInstruction>,
     pub discovery: FileDiscoveryRequest,
@@ -340,7 +384,8 @@ pub struct FixRequest {
 }
 
 /// Individual fix instruction.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug, Clone)]
 pub struct FixInstruction {
     pub pattern: String,
     pub replacement: String,
@@ -352,7 +397,8 @@ pub struct FixInstruction {
 // =============================================================================
 
 /// Result of a scan operation.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug, Clone)]
 pub struct ScanResults {
     pub matches: Vec<ScanMatch>,
     pub execution_time: Option<Duration>,
@@ -360,7 +406,8 @@ pub struct ScanResults {
 }
 
 /// Individual scan match result.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug, Clone)]
 pub struct ScanMatch {
     pub id: Uuid,
     pub file_path: String,
@@ -374,25 +421,34 @@ pub struct ScanMatch {
     pub matched_text: String,
     pub context_before: Vec<String>,
     pub context_after: Vec<String>,
-    pub metadata: FastMap<String, serde_json::Value>,
+    cfg_if::cfg_if! {
+        if #[cfg(feature = "serde")] {
+            pub metadata: FastMap<String, serde_json::Value>,
+        } else {
+            pub metadata: FastMap<String, FastMap<String, String>>,
+        }
+    }
 }
 
 /// Result of a fix operation.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug, Clone)]
 pub struct FixResults {
     pub files: Vec<FixedFile>,
     pub execution_time: Option<Duration>,
 }
 
 /// Individual file fix result.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug, Clone)]
 pub struct FixedFile {
     pub path: String,
     pub result: FixResult,
 }
 
 /// Fix operation result.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug, Clone)]
 pub enum FixResult {
     Applied {
         original_content: String,
@@ -408,7 +464,8 @@ pub enum FixResult {
 }
 
 /// Represents a diff/change in content.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug, Clone)]
 pub struct Diff {
     pub file_path: String,
     pub start_line: usize,
@@ -422,18 +479,26 @@ pub struct Diff {
 // =============================================================================
 
 /// Test case definition.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug, Clone)]
 pub struct TestCase {
     pub id: String,
     pub name: String,
     pub file_path: String,
     pub rule_path: String,
     pub expected_matches: usize,
-    pub metadata: FastMap<String, serde_json::Value>,
+    cfg_if::cfg_if! {
+        if #[cfg(feature = "serde")] {
+            pub metadata: FastMap<String, serde_json::Value>,
+        } else {
+            pub metadata: FastMap<String, String>>,
+        }
+    }
 }
 
 /// Test execution result.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug, Clone)]
 pub struct TestResult {
     pub test_case: TestCase,
     pub status: TestStatus,
@@ -442,7 +507,8 @@ pub struct TestResult {
     pub error_message: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug, Clone)]
 pub enum TestStatus {
     Passed,
     Failed,
@@ -451,7 +517,8 @@ pub enum TestStatus {
 }
 
 /// Snapshot action for test management.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug, Clone)]
 pub enum SnapshotAction {
     Update { test_id: String, new_snapshot: String },
     Create { test_id: String, snapshot: String },
@@ -463,7 +530,8 @@ pub enum SnapshotAction {
 // =============================================================================
 
 /// Result of user interaction.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug, Clone)]
 pub enum InteractionResult {
     Accepted,
     Rejected,
@@ -472,7 +540,8 @@ pub enum InteractionResult {
 }
 
 /// Diagnostic information.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug, Clone)]
 pub struct Diagnostic {
     pub level: Severity,
     pub message: String,
@@ -585,7 +654,8 @@ pub trait ConfigProvider: Send + Sync {
 // =============================================================================
 
 /// Supported deployment environments.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug, Clone)]
 pub enum Environment {
     Cli,
     CiCd(CiProvider),
@@ -593,7 +663,8 @@ pub enum Environment {
     Custom,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug, Clone)]
 pub enum CiProvider {
     GitHub,
     GitLab,

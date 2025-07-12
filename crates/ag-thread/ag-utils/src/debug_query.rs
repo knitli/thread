@@ -1,9 +1,8 @@
-use ag_service_core::{
-    matcher::PatternNode, meta_var::MetaVariable, tree_sitter::TSLanguage, Pattern,
-};
+use ag_service_pattern::{Pattern, PatternNode, MetaVariable};
+use ag_service_tree_sitter::{TSLanguage, LanguageExt, TSPoint, TSNode, TSTreeCursor};
+
 use thread_languages::LanguageExt;
 use thread_threadlang::ThreadLang;
-use tree_sitter as ts;
 
 pub enum DebugFormat {
     /// Print the query parsed in Pattern format
@@ -181,8 +180,8 @@ impl std::fmt::Debug for Pos {
     }
 }
 
-impl From<ts::Point> for Pos {
-    fn from(pt: ts::Point) -> Self {
+impl From<TSPoint> for Pos {
+    fn from(pt: TSPoint) -> Self {
         Pos {
             row: pt.row,
             column: pt.column,
@@ -190,14 +189,14 @@ impl From<ts::Point> for Pos {
     }
 }
 
-fn dump_node(node: ts::Node) -> DumpNode {
+fn dump_node(node: TSNode) -> DumpNode {
     let mut cursor = node.walk();
     let mut nodes = vec![];
     dump_one_node(&mut cursor, &mut nodes);
     nodes.pop().expect("should have at least one node")
 }
 
-fn dump_one_node(cursor: &mut ts::TreeCursor, target: &mut Vec<DumpNode>) {
+fn dump_one_node(cursor: &mut TSTreeCursor, target: &mut Vec<DumpNode>) {
     let node = cursor.node();
     let kind = if node.is_missing() {
         format!("MISSING {}", node.kind())
@@ -222,7 +221,7 @@ fn dump_one_node(cursor: &mut ts::TreeCursor, target: &mut Vec<DumpNode>) {
     })
 }
 
-fn dump_nodes(cursor: &mut ts::TreeCursor, target: &mut Vec<DumpNode>) {
+fn dump_nodes(cursor: &mut TSTreeCursor, target: &mut Vec<DumpNode>) {
     loop {
         dump_one_node(cursor, target);
         if !cursor.goto_next_sibling() {

@@ -5,10 +5,9 @@
 // SPDX-License-Identifier: MIT
 
 use super::pre_process_pattern;
-use ag_service_core::{
-    Doc, KindMatcher, Language, LanguageExt, Node, Pattern, PatternBuilder, PatternError, StrDoc,
-    TSLanguage, TSRange,
-};
+use ag_service_ast::{Node, Doc};
+use ag_service_tree_sitter::{TSLanguage, StrDoc, LanguageExt, TSRange};
+use ag_service_pattern::{Pattern, PatternBuilder, PatternError, KindMatcher
 use thread_utils::FastMap;
 
 // tree-sitter-html uses locale dependent iswalnum for tagName

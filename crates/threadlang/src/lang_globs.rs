@@ -12,7 +12,7 @@ use std::ptr::{addr_of, addr_of_mut};
 use std::str::FromStr;
 
 use anyhow::{Context, Result};
-use ag_service_core::error_context::ErrorContext as EC;
+use ag_service_utils::error_context::ErrorContext as EC;
 
 // both use vec since lang will be small
 #[cfg(feature = "ag-dynamic-language")]
@@ -118,7 +118,7 @@ pub fn from_path(p: &Path) -> Option<ThreadLang> {
 mod test {
     use super::*;
     use serde_yaml::from_str;
-    use crate::::SupportedLanguage;
+    use thread_languages::::SupportedLanguage;
 
     const YAML: &str = r"
 js: ['.eslintrc']

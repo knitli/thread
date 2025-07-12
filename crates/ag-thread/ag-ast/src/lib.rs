@@ -15,7 +15,7 @@ mod node;
 pub mod pinned;
 
 // Reexport implemented traits and types for easier access
-pub use AstGrep;
+pub use ag_service_types::AstGrep;
 pub use content::Content;
 pub use node::{Doc, Node, Position, Root};
 pub use pinned::{PinnedNodeData, NodeData};

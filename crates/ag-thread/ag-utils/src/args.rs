@@ -1,5 +1,5 @@
-use ag_service_utils::ErrorContext as EC;
-use ag_service_utils::Granularity;
+use crate::error_context::ErrorContext as EC;
+use crate::inspect::Granularity;
 use thread_threadlang::ThreadLang;
 
 use anyhow::{Context, Result};
@@ -8,7 +8,6 @@ use ignore::{
     WalkBuilder, WalkParallel,
 };
 use regex::Regex;
-use serde::{Deserialize, Serialize};
 
 use std::path::PathBuf;
 

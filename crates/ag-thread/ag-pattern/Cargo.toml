@@ -1,7 +1,7 @@
 [package]
 name = "ag-service-pattern"
 version = "0.27.3"
-edition = "2021"
+edition.workspace = true
 license = "AGPL-3.0-or-later AND MIT"
 description = "Pattern matching engine for ast-grep"
 authors = ["Herrington Darkholme <hdh@hypers.space>"]

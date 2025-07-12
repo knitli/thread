@@ -4,7 +4,9 @@
 //! without reinventing the wheel.
 
 use crate::prelude::*;
-use ag_service_core::{AstGrep, Language, Pattern, Matcher, MatcherExt, Node, Root, Doc};
+use ag_service_ast::{Node, Root, Doc};
+use ag_service_pattern::{Pattern, Matcher, MatcherExt};
+use ag_service_tree_sitter::{Language, AstGrep};
 use thread_languages::SupportedLanguage
 use thread_utils::FastMap;
 use std::path::Path;
@@ -185,14 +187,14 @@ pub struct EnrichedMatch {
 /// Parse YAML rule configuration into individual patterns.
 /// Much simpler than the previous implementation since we delegate to ag-core.
 pub fn parse_rule_patterns(rules_content: &str) -> Result<Vec<RulePattern>> {
-    #[derive(serde::Deserialize)]
+    #[cfg_attr(feature = "serde", derive(serde::Deserialize))]
     struct RuleFile {
         rules: Option<Vec<SingleRule>>,
-        #[serde(flatten)]
+        #[cfg_attr(feature = "serde", serde(flatten))]
         single_rule: Option<SingleRule>,
     }
 
-    #[derive(serde::Deserialize)]
+    #[cfg_attr(feature = "serde", derive(serde::Deserialize))]
     struct SingleRule {
         id: String,
         pattern: String,
@@ -200,7 +202,15 @@ pub fn parse_rule_patterns(rules_content: &str) -> Result<Vec<RulePattern>> {
         severity: Option<String>,
         language: String,
     }
-
+    cfg_if::cfg_if! {
+        if #[cfg(feature = "serde")] {
+        let rule_file: RuleFile = serde_yaml::from_str(rules_content)
+        .map_err(|e| AstGrepError::config_error(&e.to_string(), ConfigType::Rules))?;
+        } else {
+        // TODO: Implement an alternative parsing method if serde is not available
+        panic!("Serde feature is required for parsing rules");
+        }
+    }
     let rule_file: RuleFile = serde_yaml::from_str(rules_content)
         .map_err(|e| AstGrepError::config_error(&e.to_string(), ConfigType::Rules))?;
 

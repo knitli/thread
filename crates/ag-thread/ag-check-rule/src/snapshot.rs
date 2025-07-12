@@ -1,15 +1,16 @@
 use thread_threadlang::ThreadLang;
 use anyhow::{anyhow, Result};
-use ast_grep_config::{Label, LabelStyle, RuleConfig};
-use ag_service_core::{
-  tree_sitter::{LanguageExt, StrDoc},
-  Doc,
-};
+use ag_service_label::{Label, LabelStyle};
+use ag_service_rule::RuleConfig;
+use ag_service_tree_sitter::{LanguageExt, StrDoc};
+use ag_service_ast::Doc;
 
 use super::CaseResult;
+#[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize, Serializer};
 
-use std::collections::BTreeMap\nthread_utils::FastMap;\n;
+use std::collections::BTreeMap
+use thread_utils::FastMap;
 
 type CaseId = String;
 type Source = String;
@@ -62,18 +63,18 @@ impl SnapshotAction {
 /// A list of test snapshots for one specific rule-test identified by its `CaseId`.
 /// A test yaml for one rule have multiple valid/invalid test cases.
 /// Each invalid code test case has its [TestSnapshot].
-#[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize), feature = "serde", serde(rename_all = "camelCase"))]
 pub struct TestSnapshots {
   pub id: CaseId,
-  #[serde(serialize_with = "ordered_map")]
+  #[cfg_attr(feature = "serde", serde(serialize_with = "ordered_map"))]
   pub snapshots: FastMap<Source, TestSnapshot>,
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
-#[serde(rename_all = "camelCase")]
+#[cfg_attr(feature = "serde", serde(rename_all = "camelCase"), derive(Serialize, Deserialize))]
+#[derive(PartialEq, Eq, Debug, Clone)]
 pub struct TestSnapshot {
-  #[serde(skip_serializing_if = "Option::is_none")]
+  #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
   pub fixed: Option<String>,
   pub labels: Vec<LabelSnapshot>,
 }
@@ -110,11 +111,11 @@ impl TestSnapshot {
   }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
-#[serde(rename_all = "camelCase")]
+#[cfg_attr(feature = "serde", serde(rename_all = "camelCase"), derive(Serialize, Deserialize))]
+#[derive(PartialEq, Eq, Debug, Clone)]
 pub struct LabelSnapshot {
   pub(super) source: String,
-  #[serde(skip_serializing_if = "Option::is_none")]
+  #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
   message: Option<String>,
   style: LabelStyle,
   start: usize,
@@ -145,7 +146,7 @@ where
 #[cfg(test)]
 mod tests {
   use super::*;
-  use ag_service_rule_check::test::{get_rule_config, TEST_RULE};
+  use crate::test::{get_rule_config, TEST_RULE};
 
   #[test]
   fn test_generate() -> Result<()> {

@@ -1,5 +1,11 @@
-#[derive(Serialize, Deserialize, Clone, JsonSchema, PartialEq, Eq, Debug)]
-#[serde(rename_all = "camelCase")]
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
+#[cfg(feature = "schema")]
+use schemars::JsonSchema;
+
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize), cfg_attr(feature = "schema", derive(JsonSchema)), cfg_attr(feature = "serde", serde(rename_all = "camelCase")))]
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub enum LabelStyle {
     /// Labels that describe the primary cause of a diagnostic.
     Primary,
@@ -7,7 +13,8 @@ pub enum LabelStyle {
     Secondary,
 }
 
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize), cfg_attr(feature = "schema", derive(JsonSchema)))]
+#[derive(Clone)]
 pub struct LabelConfig {
     pub style: LabelStyle,
     pub message: Option<String>,

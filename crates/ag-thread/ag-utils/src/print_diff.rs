@@ -1,6 +1,6 @@
 use crate::print::ColorArg;
 
-use ansi_term::{Color, Style};
+use ansiterm::{Color, Style};
 use anyhow::Result;
 use similar::{ChangeTag, DiffOp, TextDiff};
 

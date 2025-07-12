@@ -1,5 +1,5 @@
-use crate::ast::Content;
-use ag_service_types::{Underlying};
+use crate::ast::{Content, Doc};
+use crate::meta_var::Underlying;
 use crate::matcher::{Matcher, NodeMatch};
 
 /// Replace meta variable in the replacer string

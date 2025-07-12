@@ -21,7 +21,7 @@
 use super::StrDoc;
 
 use ag_service_pattern::{Matcher, MatcherExt, NodeMatch};
-use crate::tree_sitter::LanguageExt;
+use ag-service-tree-sitter::LanguageExt;
 use ag_service_ast::{Doc, Node, Root};
 
 use std::marker::PhantomData;

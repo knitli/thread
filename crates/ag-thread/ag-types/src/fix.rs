@@ -1,15 +1,21 @@
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
+#[cfg(feature = "schema")]
+use schemars::JsonSchema;
+
 /// A pattern string or fix object to auto fix the issue.
 /// It can reference metavariables appeared in rule.
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
-#[serde(untagged)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize), cfg_attr(feature = "schema", derive(JsonSchema)), cfg_attr(feature = "serde", serde(untagged)))]
+#[derive(Clone)]
 pub enum SerializableFixer {
     Str(String),
     Config(Box<SerializableFixConfig>),
     List(Vec<SerializableFixConfig>),
 }
 
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
-#[serde(rename_all = "camelCase")]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize), cfg_attr(feature = "schema", derive(JsonSchema)), cfg_attr(feature = "serde", serde(rename_all = "camelCase")))]
+#[derive(Clone)]
 pub struct SerializableFixConfig {
     template: String,
     #[serde(default, skip_serializing_if = "Maybe::is_absent")]
@@ -71,8 +77,8 @@ pub struct Fixer {
 ///
 /// Both `start_char` and `end_char` support negative indexing,
 /// which counts character from the end of an array, moving backwards.
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
-#[serde(rename_all = "camelCase")]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize), cfg_attr(feature = "schema", derive(JsonSchema)), cfg_attr(feature = "serde", serde(rename_all = "camelCase")))]
+#[derive(Clone)]
 pub struct Substring<T> {
   /// source meta variable to be transformed
   pub source: T,
@@ -83,8 +89,8 @@ pub struct Substring<T> {
 }
 
 /// An enumeration representing different cases for strings.
-#[derive(Serialize, Deserialize, Clone, Copy, JsonSchema)]
-#[serde(rename_all = "camelCase")]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize), cfg_attr(feature = "schema", derive(JsonSchema)), cfg_attr(feature = "serde", serde(rename_all = "camelCase")))]
+#[derive(Clone, Copy)]
 pub enum StringCase {
   LowerCase,
   UpperCase,
@@ -95,8 +101,8 @@ pub enum StringCase {
   PascalCase,
 }
 
-#[derive(Serialize, Deserialize, Clone, Copy, JsonSchema)]
-#[serde(rename_all = "camelCase")]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize), cfg_attr(feature = "schema", derive(JsonSchema)), cfg_attr(feature = "serde", serde(rename_all = "camelCase")))]
+#[derive(Clone, Copy)]
 /// Separator to split string. e.g. `user_accountName` -> `user`, `accountName`
 /// It will be rejoin according to `StringCase`.
 pub enum Separator {
@@ -128,8 +134,8 @@ struct Delimiter {
 }
 
 /// Replaces a substring in the meta variable's text content with another string.
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
-#[serde(rename_all = "camelCase")]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize), cfg_attr(feature = "schema", derive(JsonSchema)), cfg_attr(feature = "serde", serde(rename_all = "camelCase")))]
+#[derive(Clone)]
 pub struct Replace<T> {
   /// source meta variable to be transformed
   pub source: T,
@@ -140,8 +146,8 @@ pub struct Replace<T> {
 }
 
 /// Converts the source meta variable's text content to a specified case format.
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
-#[serde(rename_all = "camelCase")]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize), cfg_attr(feature = "schema", derive(JsonSchema)), cfg_attr(feature = "serde", serde(rename_all = "camelCase")))]
+#[derive(Clone)]
 pub struct Convert<T> {
   /// source meta variable to be transformed
   pub source: T,
@@ -153,8 +159,8 @@ pub struct Convert<T> {
 
 /// Represents a transformation that can be applied to a matched AST node.
 /// Available transformations are `substring`, `replace` and `convert`.
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
-#[serde(rename_all = "camelCase")]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize), cfg_attr(feature = "schema", derive(JsonSchema)), cfg_attr(feature = "serde", serde(rename_all = "camelCase")))]
+#[derive(Clone)]
 pub enum Trans<T> {
   Substring(Substring<T>),
   Replace(Replace<T>),
@@ -162,8 +168,8 @@ pub enum Trans<T> {
   Rewrite(Rewrite<T>),
 }
 
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
-#[serde(rename_all = "camelCase")]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize), cfg_attr(feature = "schema", derive(JsonSchema)), cfg_attr(feature = "serde", serde(rename_all = "camelCase")))]
+#[derive(Clone)]
 pub struct Rewrite<T> {
     pub source: T,
     pub rewriters: Vec<String>,
@@ -182,8 +188,16 @@ pub enum ParseTransError {
   InvalidArg(String),
   #[error("Argument `{0}` is required.")]
   RequiredArg(&'static str),
-  #[error("Invalid argument value.")]
-  ArgValue(#[from] serde_yaml::Error),
+  cfg_if::cfg_if! {
+    if #[cfg(all(feature = "serde", feature = "yaml"))] {
+          #[error("Invalid argument value.")]
+          ArgValue(#[from] serde_yaml::Error),
+    } else {
+        #[error("Failed to parse transformation: {0}")]
+        ArgValue(String),
+    }
+  },
+
 }
 
 struct DecomposedTransString<'a> {
@@ -192,8 +206,8 @@ struct DecomposedTransString<'a> {
   args: Vec<(&'a str, &'a str)>,
 }
 
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
-#[serde(untagged)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize), cfg_attr(feature = "schema", derive(JsonSchema)), cfg_attr(feature = "serde", serde(untagged)))]
+#[derive(Clone)]
 pub enum Transformation {
     Simplied(String),
     Object(Trans<String>),

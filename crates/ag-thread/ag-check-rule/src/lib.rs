@@ -1,16 +1,16 @@
 mod case_result;
 mod find_file;
+#[cfg(feature = "cli-support")]
 mod reporter;
 mod snapshot;
 mod test_case;
 
-use crate::config::ProjectConfig;
 use ag_service_rule::RuleCollection;
 use ag_service_utils::{ErrorContext, RuleOverwrite};
 use anyhow::{anyhow, Result};
 use regex::Regex;
 use serde_yaml::to_string;
-use thread_threadlang::ThreadLang;
+use thread_threadlang::{ThreadLang, ProjectConfig};
 
 use std::io::Write;
 use std::path::PathBuf;

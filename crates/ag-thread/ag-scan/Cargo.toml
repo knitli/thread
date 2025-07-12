@@ -1,19 +1,18 @@
 [package]
 name = "ag-service-scan"
 version = "0.1.0"
-edition = "2021"
+edition.workspace = true
 license = "AGPL-3.0-or-later AND MIT"
 description = "Single-function scan_files crate for AST-grep."
 
 [dependencies]
-ag-service-types.workspace = true
+ag-service-types = { workspace = true, features = ["scan", "rule", "tree-sitter", "ast", "pattern"]}
+ag-service-utils.workspace = true
 ag-service-tree-sitter.workspace = true
 ag-service-pattern.workspace = true
 ag-service-rule.workspace = true
 thread-languages.workspace = true
 thread-threadlang.workspace = true
 
-
 ignore.workspace = true
-thread_languages.workspace = true
-thread_utils.workspace = true
+thread-utils.workspace = true

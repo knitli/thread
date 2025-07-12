@@ -1,4 +1,6 @@
 
+pub type AstGrep<D> = Root<D>;
+
 // https://github.com/tree-sitter/tree-sitter/blob/e4e5ffe517ca2c668689b24cb17c51b8c6db0790/cli/src/parse.rs
 #[derive(Debug)]
 pub struct Edit<S: Content> {

@@ -10,12 +10,10 @@
 //!   * rules skipped (dues to ignore/files)
 //! - Detail level: show how a rule runs on a file
 
-use crate::config::ProjectConfig;
-use ag_service_rule::{RuleCollection, RuleConfig};
-use thread_threadlang::ThreadLang;
+use ag_service_rule::{RuleCollection, RuleConfig, RuleTrace};
+use thread_threadlang::{ThreadLang, ProjectConfig};
 
 use anyhow::Result;
-use clap::ValueEnum;
 
 use std::fmt;
 use std::io::{Stderr, Write};

@@ -1,4 +1,4 @@
-use ag_service_types::{Language, MetaVarEnv, Doc, Node, NodeMatch, Position, SgNode};
+use ag_service_types::{Language, Edit, MetaVarEnv, Doc, Node, NodeMatch, Position, SgNode};
 
 pub fn gen_replacement<D: Doc>(root: &Root<D>, nm: &NodeMatch<D>) -> Underlying<D> {
   let edits = collect_edits(root, nm.get_env(), nm.lang());
@@ -92,7 +92,7 @@ fn get_meta_var_replacement<D: Doc>(
 mod test {
   use crate::language::Tsx;
   use ag_service_types::{LanguageExt, NodeMatch, Root};
-  use crate::{replacer::Replacer, tree_sitter::LanguageExt, NodeMatch, Root};
+  use crate::{replacer::Replacer};
   use thread_utils::FastMap;
 
   fn test_pattern_replace(replacer: &str, vars: &[(&str, &str)], expected: &str) {

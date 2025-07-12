@@ -20,13 +20,18 @@ Our changes are mostly structural—we needed finer-grained control over code or
 
 **What’s in ag-service-\*:**
 
+* [`ag-service-ast`](https://crates.io/crates/ag-service-ast) – from `ast-grep-core`’s core AST types (`SgNode`, `Node`, `Content`, `Doc`)
 * [`ag-service-check-rule`](https://crates.io/crates/ag-service-check-rule) – from `ast-grep-cli`’s `verify`
 * [`ag-service-core`](https://crates.io/crates/ag-service-core) – from `ast-grep-core`
 * [`ag-service-fix`](https://crates.io/crates/ag-service-fix) – from `ast-grep-config`’s fixer/transform
 * [`ag-service-label`](https://crates.io/crates/ag-service-label) – from `ast-grep-config`’s label
+* [`ag-service-ops`](https://crates.io/crates/ag-service-ops) – from `ast-grep-core`'s `ops` module (supporting matching operations).
+* [`ag-service-pattern`](https://crates.io/crates/ag-service-pattern) – from `ast-grep-core`’s pattern matching logic (`Pattern`, `NodeMatch`, etc.)
 * [`ag-service-rule`](https://crates.io/crates/ag-service-rule) – main rule/config logic
 * [`ag-service-scan`](https://crates.io/crates/ag-service-scan) – from `ast-grep-cli`’s scan
-* [`ag-service-types`](https://crates.io/crates/ag-service-types) – mostly our interface/types, plus some Ast-Grep enums
+* [`ag-service-transform`](https://crates.io/crates/ag-service-transform) – `ast-grep-core`'s transform and replace logic
+* [`ag-service-tree-sitter`](https://crates.io/crates/ag-service-tree-sitter) – from `ast-grep-core`’s Tree-sitter integration, with tree traversal and query logic
+* [`ag-service-types`](https://crates.io/crates/ag-service-types) – (nearly) all *unimplemented* structs, enums, and traits from `ast-grep-core` that we use in our services. It's a large crate, but just a type library. Each module is feature-gated anyway so you can use only what you need.
 * [`ag-service-utils`](https://crates.io/crates/ag-service-utils) – from `ast-grep-cli`’s utils
 
 > We didn’t move *all* language support into the `ag-service-*` crates because language support is a core part of Thread, and we wanted it fully extensible.

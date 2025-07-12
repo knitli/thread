@@ -2,8 +2,6 @@
 # SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
 # SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
 #
-# SPDX-License-Identifier: MIT
-# SPDX-License-Identifier: MIT OR Apache-2.0
 # SPDX-License-Identifier: MIT OR Apache-2.0
 
 [package]
@@ -19,7 +17,7 @@ authors = [
 ]
 edition.workspace = true
 # NOTE: We kept the original licensing from the forked ast-grep-language crate. The rest of Thread is AGPL 3.0, but this entire crate is MIT licensed.
-license = "MIT"
+license = "AGPL-3.0-or-later AND MIT"
 documentation.workspace = true
 repository.workspace = true
 
@@ -30,8 +28,11 @@ readme = "README.md"
 # Other candidates: dockerfile, julia, just, jsdoc, ocaml, cuda, hcl, hlsl, make, meson, nix, nu, r, regex, scss, solidity, sql, svelte, xml, vue, zig
 # TODO: Integrate tree-sitter wasmtime support
 [dependencies]
-thread-ast-grep = { workspace = true, features = ["all-core"] }
-tree-sitter = { workspace = true, features = ["std"] }
+ag-service-ast = { workspace = true }
+ag-service-pattern = { workspace = true }
+ag-service-tree-sitter = { workspace = true }
+ast-grep-dynamic = { version = "0.38.7", optional = true }
+thread-utils.workspace = true
 ignore = { workspace = true }
 serde = { workspace = true, features = ["std"], optional = true }
 rapidhash.workspace = true
@@ -66,18 +67,14 @@ cc = "1.2.29"
 
 [features]
 default = ["all"]
-local = ["all", "serde", "ag-language", "ag-dynamic-language"]
-production = ["serde", "ag-language"]
+local = ["all", "serde", "ag-dynamic-language"]
+production = ["serde"]
 
-ag-tree-sitter = ["thread-ast-grep/tree-sitter"]
-ag-meta-var = ["thread-ast-grep/meta-var"]
-ag-matcher = ["thread-ast-grep/matcher"]
-ag-language = ["thread-ast-grep/language"]
-ag-dynamic-language = ["thread-ast-grep/dynamic-language"]
+ag-dynamic-language = ["ast-grep-dynamic"]
 
 serde = ["serde/derive", "serde/std"]
 serde-no-derive = ["serde/std"]
-serde-derive = ["serde/derive", "serde/std", "ansiterm/derive_serde_style"]
+serde-derive = ["serde/derive", "serde/std", "ansiterm?/derive_serde_style", "ag-service-ast/serde", "ag-service-pattern/serde", "ag-service-tree-sitter/serde"]
 
 bash = ["tree-sitter-bash"]
 c = ["tree-sitter-c"]

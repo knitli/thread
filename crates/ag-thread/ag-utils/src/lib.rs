@@ -2,6 +2,7 @@ mod args;
 mod debug_query;
 mod error_context;
 mod inspect;
+#[cfg(feature = "cli-support")]
 mod print_diff;
 mod rule_overwrite;
 mod worker;
@@ -26,9 +27,8 @@ use crossterm::{
 use smallvec::{smallvec, SmallVec};
 
 use ag_service_rule::RuleCollection;
-use ag_service_core::Pattern;
-use ag_service_core::{tree_sitter::StrDoc, Matcher};
-use thread_languages::{Language, LanguageExt};
+use ag_service_pattern::{Pattern, Matcher};
+use ag_service_tree_sitter::{AstGrep, StrDoc, Language, LanguageExt};
 
 use std::fs::read_to_string;
 use std::io::stdout;
@@ -36,7 +36,7 @@ use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
-type AstGrep = ag_service_core::AstGrep<StrDoc<ThreadLang>>;
+type AstGrep = AstGrep<StrDoc<ThreadLang>>;
 
 fn read_char() -> Result<char> {
     loop {

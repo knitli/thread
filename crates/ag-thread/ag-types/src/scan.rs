@@ -1,3 +1,8 @@
+use crate::language::Language;
+use crate::matcher::NodeMatch;
+use crate::rule::RuleConfig;
+use crate::ast::Doc;
+
 pub struct ScanResult<'t, 'r, D: Doc, L: Language> {
     pub diffs: Vec<(&'r RuleConfig<L>, NodeMatch<'t, D>)>,
     pub matches: Vec<(&'r RuleConfig<L>, Vec<NodeMatch<'t, D>>)>,
@@ -21,12 +26,12 @@ pub enum SuppressKind {
 pub struct Suppressions {
     file: Option<Suppression>,
     /// line number which may be suppressed
-    lines: FastMap<usize, Suppression>,
+    lines: thread_utils::FastMap<usize, Suppression>,
 }
 
 pub struct Suppression {
     /// None = suppress all
-    suppressed: Option<FastSet<String>>,
+    suppressed: Option<thread_utils::FastSet<String>>,
     node_id: usize,
 }
 

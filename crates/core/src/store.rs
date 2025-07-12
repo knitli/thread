@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-use ag_service_core::{Language, LanguageExt};
+use ag_service_tree_sitter::{Language, LanguageExt};
 use thread_utils::FastMap;
 
 pub enum FileType {

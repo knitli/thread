@@ -30,10 +30,24 @@ authors = [
   "Knitli Inc <knitli@knit.li>",
   "Adam Poulemanos for Knitli <adam@knit.li>",
 ]
+include = [
+  "README.md",
+  "LICENSE.md",
+  "CONTRIBUTORS_LICENSE_AGREEMENT.md",
+  "CONTRIBUTING.md",
+  "VENDORED.md",
+  "src/**",
+  "CHANGELOG.md",
+  "sbom.spdx",
+  "examples/**",
+  "tests/**",
+]
 
 [workspace]
 members = [
+  # ag-service crates
   "crates/ag-thread/*",
+  # thread crates
   "crates/cli",
   "crates/core",
   "crates/diff",
@@ -53,7 +67,7 @@ members = [
 thiserror = "2.0.12"
 anyhow = "1.0.98"
 
-async_trait = "0.1.88"
+async-trait = "0.1.88"
 
 # CLI
 clap = "4.5.41"
@@ -88,18 +102,22 @@ lasso = { version = "0.7.3" }
 # The fastest hasher in town
 rapidhash = "1.4.0"
 
+tower = { version = "0.5.2", default-features = false } # for service abstractions
+
 # Serialization/Deserialization
 serde = { version = "1.0.219", features = ["derive"] }
 serde_json = { version = "1.0.140", features = [
   "preserve_order",
-] } # JSON serialization
-schemars = { version = "1.0.4" }
+] } # serialization
+# serde_yaml is deprecated, replaced by serde-yml
+serde_yaml = { package = "serde_yml", version = "0.0.12", features = ["derive"] } # YAML serialization
+schemars = { version = "1.0.4", features = ["derive", "std"] }
 
 # graph data structures and algorithms
 petgraph = "0.8.2"
 
 # The tree... we built this thing with
-tree-sitter = "0.25.6"
+tree-sitter = "0.25.7"
 
 cfg-if = "1.0.1"
 
@@ -114,6 +132,7 @@ thread-store = { path = "crates/store" }
 thread-languages = { path = "crates/languages" }
 thread-threadlang = { path = "crates/threadlang" }
 thread-services = { path = "crates/services" }
+thread-utils = { path = "crates/utils" }
 
 # Ast-Grep-as-a-service (forked)
 ag-service-ast = { path = "crates/ag-thread/ag-ast"}

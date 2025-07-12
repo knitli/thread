@@ -61,10 +61,9 @@ pub mod parsers;
 #[cfg(feature = "html")]
 pub use html::Html;
 
-use ag_service_core::{
-    Language, LanguageExt, MetaVariable, Node, Pattern, PatternBuilder, PatternError, StrDoc,
-    TSLanguage, TSRange,
-};
+use ag_service_ast::{Doc, Node};
+use ag_service_pattern::{Pattern, PatternBuilder, PatternError};
+use ag_service_tree_sitter::{Language, LanguageExt, TSLanguage, StrDoc, TSRange};
 use thread_utils::FastMap;
 
 use ignore::types::{Types, TypesBuilder};

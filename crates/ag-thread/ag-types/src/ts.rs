@@ -1,5 +1,8 @@
 pub use tree_sitter::{Language as TSLanguage, Point as TSPoint, Range as TSRange, InputEdit as TSInputEdit, Tree as TSTree, Node as TSNode, LanguageError as TSLanguageError, Parser as TSParser, TreeCursor as TSTreeCursor, Point as TSPoint, Range as TSRange};
 pub use tree_sitter::LanguageExt;
+use crate::ast::{AstGrep, Content, Node};
+use thread_utils::FastMap;
+
 /// Represents tree-sitter related error
 #[derive(Debug, Error)]
 pub enum TSParseError {
@@ -15,7 +18,7 @@ pub enum TSParseError {
 }
 
 pub trait ContentExt: Content {
-  fn accept_edit(&mut self, edit: &Edit<Self>) -> InputEdit;
+  fn accept_edit(&mut self, edit: &Edit<Self>) -> TSInputEdit;
 }
 
 pub struct DisplayContext<'r> {
@@ -50,7 +53,7 @@ pub trait LanguageExt: Language {
   /// also see https://tree-sitter.github.io/tree-sitter/using-parsers#multi-language-documents
   fn extract_injections<L: LanguageExt>(
     &self,
-    _root: crate::Node<StrDoc<L>>,
+    _root: Node<StrDoc<L>>,
   ) -> FastMap<String, Vec<TSRange>> {
     FastMap::new()
   }
@@ -60,5 +63,5 @@ pub trait LanguageExt: Language {
 pub struct StrDoc<L: LanguageExt> {
   pub src: String,
   pub lang: L,
-  pub tree: Tree,
+  pub tree: TSTree,
 }

@@ -5,11 +5,12 @@
 // SPDX-License-Identifier: MIT
 
 use super::ThreadLang;
-use ag_service_core::error_context::ErrorContext as EC;
+use ag_service_utils::error_context::ErrorContext as EC;
 
-use ag_service_core::{
-    DeserializeEnv, Doc, LanguageExt, Node, RuleCore, SerializableRuleCore, TSPoint as Point,
-    TSRange,
+use ag_service_tree_sitter::{StrDoc, TSPoint, TSRange, LanguageExt};
+use ag_service_ast::{Doc, Node};
+use ag_service_rule::{RuleCore, SerializableRuleCore};
+usee ag_service_fix::DeserializeEnv;
 };
 
 use anyhow::{Context, Result};
@@ -29,10 +30,8 @@ pub enum Injected {
 }
 
 #[derive(Clone)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "serde", serde(rename_all = "camelCase"))]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize), serde(rename_all = "camelCase"))]
 pub struct SerializableInjection {
-    #[cfg(all(feature = "serde", feature = "ag-config"))]
     #[cfg_attr(feature = "serde", serde(flatten))]
     core: SerializableRuleCore,
     /// The host language, e.g. html, contains other languages
@@ -137,7 +136,6 @@ pub fn injectable_languages(lang: ThreadLang) -> Option<&'static [&'static str]>
     Some(&injection.1)
 }
 
-#[cfg(all(feature = "ag-config", feature = "ag-tree-sitter"))]
 pub fn extract_injections<L: LanguageExt>(
     lang: &ThreadLang,
     root: Node<StrDoc<L>>,
@@ -151,7 +149,6 @@ pub fn extract_injections<L: LanguageExt>(
     ret
 }
 
-#[cfg(all(feature = "ag-config", feature = "ag-tree-sitter",))]
 fn extract_custom_inject<L: LanguageExt>(
     lang: &ThreadLang,
     injections: &[Injection],
@@ -180,15 +177,14 @@ fn extract_custom_inject<L: LanguageExt>(
     }
 }
 
-#[cfg(all(feature = "ag-tree-sitter", feature = "ag-config"))]
 fn node_to_range<D: Doc>(node: &Node<D>) -> TSRange {
     let r = node.range();
     let start = node.start_pos();
     let sp = start.byte_point();
-    let sp = Point::new(sp.0, sp.1);
+    let sp = TSPoint::new(sp.0, sp.1);
     let end = node.end_pos();
     let ep = end.byte_point();
-    let ep = Point::new(ep.0, ep.1);
+    let ep = TSPoint::new(ep.0, ep.1);
     TSRange {
         start_byte: r.start,
         end_byte: r.end,
@@ -200,8 +196,8 @@ fn node_to_range<D: Doc>(node: &Node<D>) -> TSRange {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::SupportedLanguage;
-    use ag_service_core::from_str;
+    use thread_languages::SupportedLanguage;
+    use ag_service_rule::from_str;
     const DYNAMIC: &str = "
 hostLanguage: js
 rule:
@@ -212,7 +208,7 @@ hostLanguage: js
 rule:
   pattern: styled`$CONTENT`
 injected: css";
-    #[cfg(all(feature = "ag-config", feature = "serde"))]
+    #[cfg(feature = "serde")]
     #[test]
     fn test_deserialize() {
         let inj: SerializableInjection = from_str(STATIC).expect("should ok");
@@ -227,7 +223,7 @@ rule:
   kind: not_exist
 injected: [js, ts, tsx]";
 
-    #[cfg(all(feature = "ag-config", feature = "serde"))]
+    #[cfg(feature = "serde")]
     #[test]
     fn test_bad_inject() {
         let mut map = FastMap::new();
@@ -238,7 +234,7 @@ injected: [js, ts, tsx]";
         assert!(matches!(ec, EC::LangInjection));
     }
 
-    #[cfg(all(feature = "ag-config", feature = "serde", feature = "ag-tree-sitter"))]
+    #[cfg(feature = "serde")]
     #[test]
     fn test_good_injection() {
         let mut map = FastMap::new();

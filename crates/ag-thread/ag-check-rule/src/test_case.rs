@@ -11,13 +11,12 @@ use serde::{Deserialize, Serialize};
 /// * id: the id of the rule that will be tested against
 /// * valid: code that we do not expect to have any issues
 /// * invalid: code that we do expect to have some issues
-#[derive(Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize), serde(rename_all = "camelCase"))]
 pub struct TestCase {
     pub id: String,
-    #[serde(default)]
+    #[cfg_attr(feature = "serde", serde(default))]
     pub valid: Vec<String>,
-    #[serde(default)]
+    #[cfg_attr(feature = "serde", serde(default))]
     pub invalid: Vec<String>,
 }
 
@@ -77,8 +76,8 @@ fn verify_test_case_with_snapshots<'a>(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ag_service_rule_check::snapshot::TestSnapshot;
-    use ag_service_rule_check::test::{get_rule_config, TEST_RULE};
+    use crate::snapshot::TestSnapshot;
+    use crate::test::{get_rule_config, TEST_RULE};
 
     fn mock_test_case(valid: &[&str], invalid: &[&str]) -> TestCase {
         TestCase {

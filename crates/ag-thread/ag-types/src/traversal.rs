@@ -1,6 +1,6 @@
 use crate::ast::{Doc, Node, Root};
 use crate::matcher::Matcher;
-use crate::tree_sitter::{LanguageExt, StrDoc, TSCursor, TSNode}
+use crate::ts::{LanguageExt, StrDoc, TSCursor, TSNode};
 
 pub struct Visitor<M, A = PreOrder> {
   /// Whether a node will match if it contains or is contained in another match.
@@ -83,7 +83,7 @@ pub struct Post<'tree, L: LanguageExt> {
 /// Though level-order is not used as frequently as other DFS traversals,
 /// traversing a big AST with level-order should be done with caution since it might increase the memory usage.
 pub struct Level<'tree, L: LanguageExt> {
-  deque: VecDeque<TSNode<'tree>>,
+  deque: std::collections::VecDeque<TSNode<'tree>>,
   cursor: TSCursor<'tree>,
   root: &'tree Root<StrDoc<L>>,
 }

@@ -1,16 +1,16 @@
 mod traversal;
 
-use ag_service_types::{Root, Content, ContentExt, Edit, SgNode, KindId, Language, Position, TSParseError, LanguageExt}
-use ag_service_ast::{Root, Doc, Node, Position, AstGrep};
+use ag_service_types::{ContentExt, Edit, SgNode, KindId, Language, Position, TSParseError, LanguageExt}
+use ag_service_ast::{Root, Content, Doc, Node, Position, AstGrep};
 use ag_service_pattern::{Matcher}
 use traversal::Traversal::{Level, Post, Pre, Visit, Visitor, TsPre}
-
 use ag_service_transform::Replacer;
+
 use std::borrow::Cow;
 use thread_utils::FastMap;
 use std::num::NonZero;
 use thiserror::Error;
-use ag_service_types::{TSLanguage, TSInputEdit, TSLanguageError, TSTree, TSNode, TSParser, TSPoint, LanguageExt};
+use ag_service_types::{TSLanguage, TSInputEdit, TSLanguageError, TSTree, TSNode, TSParser, TSPoint, LanguageExt, TSTreeCursor};
 
 #[inline]
 fn parse_lang(

@@ -27,7 +27,7 @@ use std::borrow::Cow;
 use thread_utils::FastSet;
 use thiserror::Error;
 
-struct Categorized {
+pub struct Categorized {
     pub atomic: AtomicRule,
     pub relational: RelationalRule,
     pub composite: CompositeRule,
@@ -58,7 +58,6 @@ impl SerializableRule {
         }
     }
 }
-
 
 impl From<MatchStrictness> for Strictness {
     fn from(value: MatchStrictness) -> Self {
@@ -326,7 +325,25 @@ fn deserialize_atomic_rule<L: Language>(
     Ok(())
 }
 
-pub use Rule;
+#[cfg(feature = "serde")]
+pub fn from_str<'de, T: Deserialize<'de>>(s: &'de str) -> Result<T, YamlError> {
+  let deserializer = Deserializer::from_str(s);
+  deserialize(deserializer)
+}
+#[cfg(all(feature = "serde", feature = "yaml"))]
+pub fn from_yaml_string<'a, L: Language + Deserialize<'a>>(
+  yamls: &'a str,
+  registration: &GlobalRules,
+) -> Result<Vec<RuleConfig<L>>, RuleConfigError> {
+  let mut ret = vec![];
+  for yaml in Deserializer::from_str(yamls) {
+    let config = RuleConfig::deserialize(yaml, registration)?;
+    ret.push(config);
+  }
+  Ok(ret)
+}
+
+pub use {Rule, SerializableRule};
 
 #[cfg(test)]
 mod test {

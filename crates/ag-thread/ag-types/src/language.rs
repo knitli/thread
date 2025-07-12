@@ -1,3 +1,6 @@
+use crate::meta_var::MetaVariable;
+use crate::matcher::{Pattern, PatternBuilder};
+
 /// Trait to abstract ts-language usage in ast-grep, which includes:
 /// * which character is used for meta variable.
 /// * if we need to use other char in meta var for parser at runtime
@@ -46,7 +49,9 @@ pub use test::*;
 #[cfg(test)]
 mod test {
   use super::*;
-  use crate::tree_sitter::{LanguageExt, StrDoc, TSLanguage};
+  #[cfg(feature = "tree-sitter")]
+  use ts::{LanguageExt, StrDoc, TSLanguage};
+  use tree_sitter_typescript;
 
   #[derive(Clone)]
   pub struct Tsx;

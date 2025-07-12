@@ -10,10 +10,13 @@ homepage.workspace = true
 authors.workspace = true
 
 [dependencies]
-thread-languages = { workspace = true }
+thread-languages = { workspace = true, optional = true }
 ast-grep-dynamic = { version = "0.38.7", optional = true }
 serde = { workspace = true, optional = true }
-ag_service_rule.workspace = true
+ag-service-ast.workspace = true
+ag-service-pattern.workspace = true
+ag-service-rule.workspace = true
+ag-service-tree-sitter.workspace = true
 thread-utils.workspace = true
 
 # CLI Support
@@ -26,15 +29,12 @@ default = ["serde", "dashmap"]
 ag-dynamic = ["ast-grep-dynamic"]
 serde = ["serde/derive"]
 # The `cli` feature is enabled by default *for the cli* but not for the library.
-cli_support = [
-    "ansiterm",
-    "crossterm",
-    "clap",
-    "serde",
-    "dashmap",
-]
+cli-support = ["ansiterm", "crossterm", "clap", "serde", "dashmap"]
 dashmap = ["thread-utils/dashmap"]
 inline = ["thread-utils/inline"]
 
 [lints]
 workspace = true
+
+[dev-dependencies]
+serde_yaml.workspace = true

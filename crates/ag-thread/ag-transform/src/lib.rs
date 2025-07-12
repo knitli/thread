@@ -11,7 +11,8 @@ It provides APIs for replacing and modifying code, including:
 mod indent;
 mod structural;
 mod template;
-use ag_service_types::{Replacer};
+use ag_service_types::{Doc, Replacer, MetaVariable, MetaVarExtract, MetaVariableID, Underlying};
+use ag_service_pattern::NodeMatch;
 pub use indent::{Indentation, IndentationError};
 pub use structural::{StructuralReplacement, StructuralReplacementError};
 pub use template::{TemplateFix, TemplateFixError};

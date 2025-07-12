@@ -1,7 +1,7 @@
 [package]
 name = "ag-service-transform"
 version = "0.27.3"
-edition = "2021"
+edition.workspace = true
 license = "MIT"
 description = "Code replacement and transformation for ast-grep"
 authors = ["Herrington Darkholme <hdh@hypers.space>"]
@@ -10,11 +10,11 @@ authors = ["Herrington Darkholme <hdh@hypers.space>"]
 # Foundation and pattern layers
 ag-service-ast.workspace = true
 ag-service-pattern.workspace = true
-ag_service_types.workspace = true
+ag-service-types = { workspace = true, features = ["replacer", "meta-var", "ast", "matcher", "language"]}
 
 # Error handling
 thiserror.workspace = true
-thread_utils.workspace = true
+thread-utils.workspace = true
 
 [features]
 default = []

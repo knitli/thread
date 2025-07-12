@@ -13,9 +13,9 @@ use ignore::types::Types;
 use serde::{Deserialize, Serialize};
 #[cfg(feature = "ag-dynamic-language")]
 use ast_grep_dynamic::{CustomLang, DynamicLang};
-use ag_service_core::{Language, LanguageExt};
-use ag_service_core::{Node, StrDoc, TSLanguage, TSRange};
-use ag_service_core::{Pattern, PatternBuilder, PatternError};
+use ag_service_tree_sitter::{Language, LanguageExt, TSLanguage, TSRange, StrDoc};
+use ag_service_ast::{Doc, Node};
+use ag_service_pattern::{Pattern, PatternBuilder, PatternError};
 
 use thread_utils::FastMap;
 use std::borrow::Cow;
@@ -38,7 +38,6 @@ pub use config::{
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize), serde(untagged))]
 /// Threadlang is a combined language type that can represent both built-in and custom languages.
 pub enum ThreadLang {
-    #[cfg(feature = "ag-language")]
     BuiltIn(SupportedLanguage),
     #[cfg(feature = "ag-dynamic-language")]
     Custom(CustomLang),
@@ -48,7 +47,6 @@ impl ThreadLang {
     /// Returns the file types associated with the language.
     pub fn file_types(&self) -> Vec<String> {
         match self {
-            #[cfg(feature = "ag-language")]
             ThreadLang::BuiltIn(lang) => lang.file_types(),
             #[cfg(feature = "ag-dynamic-language")]
             ThreadLang::Custom(lang) => lang.file_types(),
@@ -181,11 +179,7 @@ impl From<CustomLang> for ThreadLang {
 }
 
 use ThreadLang::*;
-#[cfg(
-    all(feature = "ag-dynamic-language"),
-    feature = "ag-meta-var",
-    feature = "ag-matcher"
-))]
+#[cfg(feature = "ag-dynamic-language")]
 impl Language for ThreadLang {
     fn pre_process_pattern<'q>(&self, query: &'q str) -> Cow<'q, str> {
         match self {
@@ -250,10 +244,7 @@ impl Language for ThreadLang {
     }
 }
 
-#[cfg(
-    all(feature = "ag-tree-sitter",
-    feature = "ag-dynamic-language"))
-]
+#[cfg(feature = "ag-dynamic-language")]
 impl LanguageExt for ThreadLang {
     fn get_ts_language(&self) -> TSLanguage {
         match self {

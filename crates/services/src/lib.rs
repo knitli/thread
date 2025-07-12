@@ -4,6 +4,7 @@
 //! service implementations that enable ast-grep functionality to operate across CLI, cloud,
 //! CI/CD, and customer on-premise environments.
 
+#[cfg(feature = "serde")]
 pub mod ag_core_integration;
 pub mod core_services;
 pub mod orchestrator;
@@ -15,6 +16,7 @@ pub mod tower_support;
 pub use ag_service_types::*;
 
 // Re-export new clean architecture components
+#[cfg(feature = "serde")]
 pub use ag_core_integration::{detect_language, parse_rule_patterns, AgCoreService, EnrichedMatch};
 pub use core_services::{
     CliEnvironmentAdapter, EnvironmentAdapter, FileRuleProvider, OutputFormatter, RuleProvider,

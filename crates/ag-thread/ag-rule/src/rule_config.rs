@@ -12,9 +12,6 @@ use ag_service_pattern::{Matcher, NodeMatch};
 
 use ag_service_core::{Doc, Matcher, NodeMatch};
 
-use serde::{Deserialize, Serialize};
-use serde_yaml::Error as YamlError;
-use serde_yaml::{with::singleton_map_recursive::deserialize, Deserializer};
 use thiserror::Error;
 
 use std::borrow::Cow;

@@ -1,5 +1,14 @@
 use crate::maybe::Maybe;
 use thread_utils::{FastMap, FastSet};
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+#[cfg(feature = "schema")]
+use schemars::JsonSchema;
+#[cfg(feature = "yaml")]
+use serde_yaml::{Value as YamlValue, Error as YamlError};
+use bit_set::BitSet;
+use crate::meta_var::MetaVarEnv;
+use crate::matcher::{Pattern, PatternError, KindMatcher, KindMatcherError, RegexMatcher, RegexMatcherError};
 
 pub enum CheckHint<'r> {
   Global,
@@ -16,61 +25,61 @@ pub enum CheckHint<'r> {
 /// * Composite: use logic operation all/any/not to compose the above rules to larger rules.
 ///
 /// Every rule has it's unique name so we can combine several rules in one object.
-#[derive(Serialize, Deserialize, Clone, Default, JsonSchema)]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize), cfg_attr(feature = "schema", derive(JsonSchema)), cfg_attr(feature = "serde", serde(deny_unknown_fields)))]
+#[derive(Clone, Default)]
 pub struct SerializableRule {
     // avoid embedding AtomicRule/RelationalRule/CompositeRule with flatten here for better error message
 
     // atomic
     /// A pattern string or a pattern object.
-    #[serde(default, skip_serializing_if = "Maybe::is_absent")]
+    #[cfg_attr(feature = "serde", serde(default, skip_serializing_if = "Maybe::is_absent"))]
     pub pattern: Maybe<PatternStyle>,
     /// The kind name of the node to match. You can look up code's kind names in playground.
-    #[serde(default, skip_serializing_if = "Maybe::is_absent")]
+    #[cfg_attr(feature = "serde", serde(default, skip_serializing_if = "Maybe::is_absent"))]
     pub kind: Maybe<String>,
     /// A Rust regular expression to match the node's text. https://docs.rs/regex/latest/regex/#syntax
-    #[serde(default, skip_serializing_if = "Maybe::is_absent")]
+    #[cfg_attr(feature = "serde", serde(default, skip_serializing_if = "Maybe::is_absent"))]
     pub regex: Maybe<String>,
     /// `nth_child` accepts number, string or object.
     /// It specifies the position in nodes' sibling list.
-    #[serde(default, skip_serializing_if = "Maybe::is_absent", rename = "nthChild")]
+    #[cfg_attr(feature = "serde", serde(default, skip_serializing_if = "Maybe::is_absent", rename = "nthChild"))]
     pub nth_child: Maybe<SerializableNthChild>,
     /// `range` accepts a range object.
     /// the target node must exactly appear in the range.
-    #[serde(default, skip_serializing_if = "Maybe::is_absent")]
+    #[cfg_attr(feature = "serde", serde(default, skip_serializing_if = "Maybe::is_absent"))]
     pub range: Maybe<SerializableRange>,
 
     // relational
     /// `inside` accepts a relational rule object.
     /// the target node must appear inside of another node matching the `inside` sub-rule.
-    #[serde(default, skip_serializing_if = "Maybe::is_absent")]
+    #[cfg_attr(feature = "serde", serde(default, skip_serializing_if = "Maybe::is_absent"))]
     pub inside: Maybe<Box<Relation>>,
     /// `has` accepts a relational rule object.
     /// the target node must has a descendant node matching the `has` sub-rule.
-    #[serde(default, skip_serializing_if = "Maybe::is_absent")]
+    #[cfg_attr(feature = "serde", serde(default, skip_serializing_if = "Maybe::is_absent"))]
     pub has: Maybe<Box<Relation>>,
     /// `precedes` accepts a relational rule object.
     /// the target node must appear before another node matching the `precedes` sub-rule.
-    #[serde(default, skip_serializing_if = "Maybe::is_absent")]
+    #[cfg_attr(feature = "serde", serde(default, skip_serializing_if = "Maybe::is_absent"))]
     pub precedes: Maybe<Box<Relation>>,
     /// `follows` accepts a relational rule object.
     /// the target node must appear after another node matching the `follows` sub-rule.
-    #[serde(default, skip_serializing_if = "Maybe::is_absent")]
+    #[cfg_attr(feature = "serde", serde(default, skip_serializing_if = "Maybe::is_absent"))]
     pub follows: Maybe<Box<Relation>>,
     // composite
     /// A list of sub rules and matches a node if all of sub rules match.
     /// The meta variables of the matched node contain all variables from the sub-rules.
-    #[serde(default, skip_serializing_if = "Maybe::is_absent")]
+    #[cfg_attr(feature = "serde", serde(default, skip_serializing_if = "Maybe::is_absent"))]
     pub all: Maybe<Vec<SerializableRule>>,
     /// A list of sub rules and matches a node if any of sub rules match.
     /// The meta variables of the matched node only contain those of the matched sub-rule.
-    #[serde(default, skip_serializing_if = "Maybe::is_absent")]
+    #[cfg_attr(feature = "serde", serde(default, skip_serializing_if = "Maybe::is_absent"))]
     pub any: Maybe<Vec<SerializableRule>>,
-    #[serde(default, skip_serializing_if = "Maybe::is_absent")]
+    #[cfg_attr(feature = "serde", serde(default, skip_serializing_if = "Maybe::is_absent"))]
     /// A single sub-rule and matches a node if the sub rule does not match.
     pub not: Maybe<Box<SerializableRule>>,
     /// A utility rule id and matches a node if the utility rule matches.
-    #[serde(default, skip_serializing_if = "Maybe::is_absent")]
+    #[cfg_attr(feature = "serde", serde(default, skip_serializing_if = "Maybe::is_absent"))]
     pub matches: Maybe<String>,
 }
 
@@ -81,8 +90,8 @@ pub struct AtomicRule {
     pub nth_child: Option<SerializableNthChild>,
     pub range: Option<SerializableRange>,
 }
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
-#[serde(rename_all = "camelCase")]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize), cfg_attr(feature = "schema", derive(JsonSchema)), cfg_attr(feature = "serde", serde(rename_all = "camelCase")))]
+#[derive(Clone)]
 pub enum Strictness {
     /// all nodes are matched
     Cst,
@@ -98,8 +107,8 @@ pub enum Strictness {
 
 /// A String pattern will match one single AST node according to pattern syntax.
 /// Or an object with field `context`, `selector` and optionally `strictness`.
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
-#[serde(untagged)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize), cfg_attr(feature = "schema", derive(JsonSchema)), cfg_attr(feature = "serde", serde(untagged)))]
+#[derive(Clone)]
 pub enum PatternStyle {
     Str(String),
     Contextual {
@@ -191,8 +200,8 @@ pub struct RuleBucket<L: Language> {
   lang: L,
 }
 
-#[derive(Serialize, Deserialize, Clone, Default, JsonSchema, Debug)]
-#[serde(rename_all = "camelCase")]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize), cfg_attr(feature = "schema", derive(JsonSchema)), cfg_attr(feature = "serde", serde(rename_all = "camelCase")))]
+#[derive(Clone, Default, Debug)]
 pub enum Severity {
   #[default]
   /// Suggest improvements to the code.
@@ -209,9 +218,17 @@ pub enum Severity {
 
 #[derive(Debug, Error)]
 pub enum RuleConfigError {
-  #[error("Fail to parse yaml as RuleConfig")]
-  Yaml(#[from] YamlError),
-  #[error("Fail to parse yaml as Rule.")]
+  cfg_if::cfg_if! {
+    if #[cfg(all(feature = "serde", feature = "yaml"))] {
+      #[error("Fail to parse yaml as RuleConfig")]
+      Yaml(#[from] YamlError),
+    } else {
+      #[error("Failed to parse rule config. You may need to enable the yaml feature flag.")]
+      Yaml(#[from] RuleSerializeError),
+    }
+  },
+
+  #[error("Fail to parse as Rule.")]
   Core(#[from] RuleCoreError),
   #[error("Rewriter rule `{1}` is not configured correctly.")]
   Rewriter(#[source] RuleCoreError, String),
@@ -225,7 +242,8 @@ pub enum RuleConfigError {
   MissingPotentialKinds,
 }
 
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize), cfg_attr(feature = "schema", derive(JsonSchema)))]
+#[derive(Clone)]
 pub struct SerializableRewriter {
   #[serde(flatten)]
   pub core: SerializableRuleCore,
@@ -233,7 +251,8 @@ pub struct SerializableRewriter {
   pub id: String,
 }
 
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize), cfg_attr(feature = "schema", derive(JsonSchema)))]
+#[derive(Clone)]
 pub struct SerializableRuleConfig<L: Language> {
   #[serde(flatten)]
   pub core: SerializableRuleCore,
@@ -245,13 +264,13 @@ pub struct SerializableRuleConfig<L: Language> {
   pub rewriters: Option<Vec<SerializableRewriter>>,
   /// Main message highlighting why this rule fired. It should be single line and concise,
   /// but specific enough to be understood without additional context.
-  #[serde(default)]
+  #[cfg_attr(feature = "serde", serde(default))]
   pub message: String,
   /// Additional notes to elaborate the message and provide potential fix to the issue.
   /// `notes` can contain markdown syntax, but it cannot reference meta-variables.
   pub note: Option<String>,
   /// One of: hint, info, warning, or error
-  #[serde(default)]
+  #[cfg_attr(feature = "serde", serde(default))]
   pub severity: Severity,
   /// Custom label dictionary to configure reporting. Key is the meta-variable name and
   /// value is the label message and label style.
@@ -268,9 +287,15 @@ pub struct SerializableRuleConfig<L: Language> {
 
 /// A trivial wrapper around a FastMap to work around
 /// the limitation of `serde_yaml::Value` not implementing `JsonSchema`.
-#[derive(Serialize, Deserialize, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize), cfg_attr(feature = "schema", derive(JsonSchema)))]
+#[derive(Clone)]
+cfg_if::cfg_if! {
+  if #[cfg(all(feature = "serde", feature = "yaml"))] {
 pub struct Metadata(FastMap<String, serde_yaml::Value>);
-
+  } else {
+    pub struct Metadata(FastMap<String, FastMap<String, String>>);
+  }
+}
 pub struct RuleConfig<L: Language> {
   inner: SerializableRuleConfig<L>,
   pub matcher: RuleCore,
@@ -278,8 +303,15 @@ pub struct RuleConfig<L: Language> {
 
 #[derive(Debug, Error)]
 pub enum RuleCoreError {
-    #[error("Fail to parse yaml as RuleConfig")]
-    Yaml(#[from] YamlError),
+    cfg_if::cfg_if! {
+        if #[cfg(all(feature = "serde", feature = "yaml"))] {
+            #[error("Failed to parse yaml as RuleConfig")]
+            Yaml(#[from] YamlError),
+        } else {
+            #[error("Failed to parse rule config. You may need to enable the yaml feature flag.")]
+            Yaml(#[from] RuleSerializeError),
+        }
+    },
     #[error("`utils` is not configured correctly.")]
     Utils(#[source] RuleSerializeError),
     #[error("`rule` is not configured correctly.")]
@@ -295,7 +327,8 @@ pub enum RuleCoreError {
 }
 
 // Used for global rules, rewriters, and pyo3/napi
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize), cfg_attr(feature = "schema", derive(JsonSchema)))]
+#[derive(Clone)]
 pub struct SerializableRuleCore {
     /// A rule object to find matching AST nodes
     pub rule: SerializableRule,
@@ -325,8 +358,8 @@ pub struct RuleCore {
 
 // NB StopBy's JsonSchema is changed in xtask/schema.rs
 // revise schema is easier than manually implementation
-#[derive(Clone, Default, JsonSchema)]
-#[serde(rename_all = "camelCase")]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize), cfg_attr(feature = "schema", derive(JsonSchema)), cfg_attr(feature = "serde", serde(rename_all = "camelCase")))]
+#[derive(Clone, Default)]
 pub enum SerializableStopBy {
   #[default]
   Neighbor,
@@ -399,7 +432,8 @@ pub struct ReferentRule {
 pub type GlobalRules = Registration<RuleCore>;
 
 /// Represents a zero-based character-wise position in a document
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize), cfg_attr(feature = "schema", derive(JsonSchema)))]
+#[derive(Clone)]
 pub struct SerializablePosition {
   /// 0-based line number in the source code
   pub line: usize,
@@ -408,7 +442,8 @@ pub struct SerializablePosition {
 }
 
 /// Represents a position in source code using 0-based line and column numbers
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize), cfg_attr(feature = "schema", derive(JsonSchema)))]
+#[derive(Clone)]
 pub struct SerializableRange {
   /// start position in the source code
   pub start: SerializablePosition,
@@ -442,8 +477,8 @@ pub enum NthChildError {
 }
 
 /// A string or number describing the indices of matching nodes in a list of siblings.
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
-#[serde(untagged)]
+##[cfg_attr(feature = "serde", derive(Serialize, Deserialize), cfg_attr(feature = "schema", derive(JsonSchema)), cfg_attr(feature = "serde", serde(untagged)))]
+#[derive(Clone)]
 pub enum NthChildSimple {
   /// A number indicating the precise element index
   Numeric(usize),
@@ -452,22 +487,29 @@ pub enum NthChildSimple {
 }
 
 /// `nthChild` accepts either a number, a string or an object.
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
-#[serde(untagged, rename_all = "camelCase")]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize), cfg_attr(feature = "schema", derive(JsonSchema)), cfg_attr(feature = "serde", serde(untagged, rename_all = "camelCase")))]
+#[derive(Clone)]
 pub enum SerializableNthChild {
   /// Simple syntax
   Simple(NthChildSimple),
   /// Object style syntax
-  #[serde(rename_all = "camelCase")]
+  #[cfg_attr(feature = "serde", serde(rename_all = "camelCase"))]
   Complex {
     /// nth-child syntax
     position: NthChildSimple,
     /// select the nth node that matches the rule, like CSS's of syntax
     of_rule: Option<Box<SerializableRule>>,
     /// matches from the end instead like CSS's nth-last-child
-    #[serde(default)]
+    #[cfg_attr(feature = "serde", serde(default))]
     reverse: bool,
   },
+}
+
+/// Corresponds to the CSS syntax An+B
+/// See https://developer.mozilla.org/en-US/docs/Web/CSS/:nth-child#functional_notation
+pub struct FunctionalPosition {
+  step_size: i32,
+  offset: i32,
 }
 
 pub struct NthChild {
@@ -476,9 +518,10 @@ pub struct NthChild {
   reverse: bool,
 }
 
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize), cfg_attr(feature = "schema", derive(JsonSchema)))]
+#[derive(Clone)]
 pub struct SerializableGlobalRule<L: Language> {
-  #[serde(flatten)]
+  #[cfg_attr(feature = "serde", serde(flatten))]
   pub core: SerializableRuleCore,
   /// Unique, descriptive identifier, e.g., no-unused-variable
   pub id: String,

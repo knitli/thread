@@ -1,6 +1,7 @@
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub enum MatchStrictness {
   Cst,       // all nodes are matched
+  #[default]
   Smart,     // all nodes except source trivial nodes are matched.
   Ast,       // only ast nodes are matched
   Relaxed,   // ast-nodes excluding comments are matched

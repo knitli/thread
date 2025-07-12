@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 use tower_service::Service;
-use thread_languages::{RuleCollection, ThreadLang, RuleTrace, RuleError};
-
+use thread_languages::{ThreadLang};
+use ag_service_rule::{RuleCollection, RuleError, RuleTrace};
 #[derive(Debug, Clone)]
 pub struct RuleLoadRequest {
     pub rule_dirs: Vec<PathBuf>,
