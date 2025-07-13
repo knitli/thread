@@ -1,17 +1,29 @@
+# SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+# SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
 [package]
 name = "thread-language"
 description = "Language definitions and parsers for Thread"
 keywords = ["ast", "pattern", "codemod", "search", "rewrite", "languages"]
 license = "AGPL-3.0-or-later AND MIT"
 version = "0.1.0"
-authors.workspace = true
+authors = [
+  "Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>",
+  "Knitli Inc <knitli@knit.li>",
+  "Adam Poulemanos for Knitli <adam@knit.li>",
+]
 edition.workspace = true
 repository.workspace = true
 rust-version.workspace = true
+include.workspace = true
+
+[build-dependencies]
+cc = "*"
 
 [dependencies]
 thread-ast-engine = { workspace = true, features = ["parsing"] }
-thread-utils.workspace = true
+thread-utils = { workspace = true, default-features = false, features = ["hashers"] }
 ignore.workspace = true
 serde.workspace = true
 tree-sitter.workspace = true
@@ -40,9 +52,6 @@ tree-sitter-typescript = { version = "0.23.2", optional = true }
 tree-sitter-yaml = { version = "0.7.1", optional = true }
 
 [features]
-
-dashmap = ["thread-utils/dashmap"]
-inline = ["thread-utils/inline"]
 
 builtin-parser = [
   "tree-sitter-bash",
@@ -74,4 +83,4 @@ napi-lang = [
   "tree-sitter-javascript",
   "tree-sitter-typescript",
 ]
-default = ["builtin-parser", "dashmap"]
+default = ["builtin-parser"]

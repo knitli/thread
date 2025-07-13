@@ -3,7 +3,7 @@
 # SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
 # SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
 #
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: MIT OR Apache-2.0
 
 # Script to pull or add tree-sitter language parsers. Not yet implemented. We want to get things fairly stable as-is before we start adding new languages.
 

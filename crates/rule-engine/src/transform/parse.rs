@@ -1,3 +1,9 @@
+// SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+// SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+// SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
+
 use super::rewrite::Rewrite;
 use super::trans::{Convert, Replace, Substring};
 use super::Trans;
@@ -41,7 +47,7 @@ struct DecomposedTransString<'a> {
   args: Vec<(&'a str, &'a str)>,
 }
 
-fn decompose_str(input: &str) -> Result<DecomposedTransString, ParseTransError> {
+fn decompose_str(input: &str) -> Result<DecomposedTransString<'_>, ParseTransError> {
   let error = || ParseTransError::Syntax(input.to_string());
   let input = input.trim();
   let (func, rest) = input.split_once('(').ok_or_else(error)?;

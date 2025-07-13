@@ -1,3 +1,9 @@
+// SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+// SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+// SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
+
 //! This module defines the supported programming languages for ast-grep.
 //!
 //! It provides a set of customized languages with expando_char / pre_process_pattern,
@@ -27,25 +33,25 @@ mod scala;
 mod swift;
 mod yaml;
 
-use thread_engine::matcher::{Pattern, PatternBuilder, PatternError};
+use thread_ast_engine::matcher::{Pattern, PatternBuilder, PatternError};
 pub use html::Html;
 
-use thread_engine::meta_var::MetaVariable;
-use thread_engine::tree_sitter::{StrDoc, TSLanguage, TSRange};
-use thread_engine::Node;
+use thread_ast_engine::meta_var::MetaVariable;
+use thread_ast_engine::tree_sitter::{StrDoc, TSLanguage, TSRange};
+use thread_ast_engine::Node;
 use ignore::types::{Types, TypesBuilder};
 use serde::de::Visitor;
 use serde::{de, Deserialize, Deserializer, Serialize};
 use std::borrow::Cow;
-use std::collections::HashMap;
+use thread_utils::RapidMap;
 use std::fmt;
 use std::fmt::{Display, Formatter};
 use std::iter::repeat;
 use std::path::Path;
 use std::str::FromStr;
 
-pub use thread_engine::language::Language;
-pub use thread_engine::tree_sitter::LanguageExt;
+pub use thread_ast_engine::language::Language;
+pub use thread_ast_engine::tree_sitter::LanguageExt;
 
 /// this macro implements bare-bone methods for a language
 macro_rules! impl_lang {
@@ -76,7 +82,7 @@ macro_rules! impl_lang {
   };
 }
 
-fn pre_process_pattern(expando: char, query: &str) -> std::borrow::Cow<str> {
+fn pre_process_pattern(expando: char, query: &str) -> std::borrow::Cow<'_, str> {
   let mut ret = Vec::with_capacity(query.len());
   let mut dollar_count = 0;
   for c in query.chars() {
@@ -449,10 +455,10 @@ impl LanguageExt for SupportLang {
   fn extract_injections<L: LanguageExt>(
     &self,
     root: Node<StrDoc<L>>,
-  ) -> HashMap<String, Vec<TSRange>> {
+  ) -> RapidMap<String, Vec<TSRange>> {
     match self {
       SupportLang::Html => Html.extract_injections(root),
-      _ => HashMap::new(),
+      _ => RapidMap::default(),
     }
   }
 }
@@ -530,7 +536,7 @@ pub fn config_file_type() -> Types {
 #[cfg(test)]
 mod test {
   use super::*;
-  use thread_engine::{matcher::MatcherExt, Pattern};
+  use thread_ast_engine::{matcher::MatcherExt, Pattern};
 
   pub fn test_match_lang(query: &str, source: &str, lang: impl LanguageExt) {
     let cand = lang.ast_grep(source);

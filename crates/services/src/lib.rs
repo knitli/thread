@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+// SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+// SPDX-License-Identifier: AGPL-3.0-or-later
 /*!
 This module defines the service layer interfaces for Thread.
 
@@ -77,13 +80,13 @@ impl ExecutionContext for FileSystemContext {
 
 /// In-memory execution context for testing and WASM environments
 pub struct MemoryContext {
-    content: std::collections::HashMap<String, String>,
+    content: thread_utils::RapidMap<String, String>,
 }
 
 impl MemoryContext {
     pub fn new() -> Self {
         Self {
-            content: std::collections::HashMap::new(),
+            content: thread_utils::RapidMap::default(),
         }
     }
 

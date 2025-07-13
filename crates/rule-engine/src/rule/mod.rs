@@ -1,3 +1,9 @@
+// SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+// SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+// SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
+
 mod deserialize_env;
 mod nth_child;
 mod range;
@@ -15,17 +21,17 @@ use range::{RangeMatcher, RangeMatcherError, SerializableRange};
 use referent_rule::{ReferentRule, ReferentRuleError};
 use relational_rule::{Follows, Has, Inside, Precedes};
 
-use thread_engine::language::Language;
-use thread_engine::matcher::{KindMatcher, KindMatcherError, RegexMatcher, RegexMatcherError};
-use thread_engine::meta_var::MetaVarEnv;
-use thread_engine::{ops as o, Doc, Node};
-use thread_engine::{MatchStrictness, Matcher, Pattern, PatternError};
+use thread_ast_engine::language::Language;
+use thread_ast_engine::matcher::{KindMatcher, KindMatcherError, RegexMatcher, RegexMatcherError};
+use thread_ast_engine::meta_var::MetaVarEnv;
+use thread_ast_engine::{ops as o, Doc, Node};
+use thread_ast_engine::{MatchStrictness, Matcher, Pattern, PatternError};
 
 use bit_set::BitSet;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
-use std::collections::HashSet;
+use thread_utils::RapidSet;
 use thiserror::Error;
 
 /// A rule object to find matching AST nodes. We have three categories of rules in ast-grep.
@@ -237,13 +243,13 @@ impl Rule {
     }
   }
 
-  pub fn defined_vars(&self) -> HashSet<&str> {
+  pub fn defined_vars(&self) -> RapidSet<&str> {
     match self {
       Rule::Pattern(p) => p.defined_vars(),
-      Rule::Kind(_) => HashSet::new(),
-      Rule::Regex(_) => HashSet::new(),
+      Rule::Kind(_) => RapidSet::default(),
+      Rule::Regex(_) => RapidSet::default(),
       Rule::NthChild(n) => n.defined_vars(),
-      Rule::Range(_) => HashSet::new(),
+      Rule::Range(_) => RapidSet::default(),
       Rule::Has(c) => c.defined_vars(),
       Rule::Inside(p) => p.defined_vars(),
       Rule::Precedes(f) => f.defined_vars(),
@@ -252,7 +258,7 @@ impl Rule {
       Rule::Any(sub) => sub.inner().iter().flat_map(|r| r.defined_vars()).collect(),
       Rule::Not(sub) => sub.inner().defined_vars(),
       // TODO: this is not correct, we are collecting util vars else where
-      Rule::Matches(_r) => HashSet::new(),
+      Rule::Matches(_r) => RapidSet::default(),
     }
   }
 
@@ -376,8 +382,8 @@ pub fn deserialize_rule<L: Language>(
   let categorized = serialized.categorized();
   // ATTENTION, relational_rule should always come at last
   // after target node is decided by atomic/composite rule
-  deserialze_atomic_rule(categorized.atomic, &mut rules, env)?;
-  deserialze_composite_rule(categorized.composite, &mut rules, env)?;
+  deserialize_atomic_rule(categorized.atomic, &mut rules, env)?;
+  deserialize_composite_rule(categorized.composite, &mut rules, env)?;
   deserialize_relational_rule(categorized.relational, &mut rules, env)?;
 
   if rules.is_empty() {
@@ -389,7 +395,7 @@ pub fn deserialize_rule<L: Language>(
   }
 }
 
-fn deserialze_composite_rule<L: Language>(
+fn deserialize_composite_rule<L: Language>(
   composite: CompositeRule,
   rules: &mut Vec<Rule>,
   env: &DeserializeEnv<L>,
@@ -441,7 +447,7 @@ fn deserialize_relational_rule<L: Language>(
   Ok(())
 }
 
-fn deserialze_atomic_rule<L: Language>(
+fn deserialize_atomic_rule<L: Language>(
   atomic: AtomicRule,
   rules: &mut Vec<Rule>,
   env: &DeserializeEnv<L>,
@@ -489,7 +495,7 @@ mod test {
   use super::*;
   use crate::from_str;
   use crate::test::TypeScript;
-  use thread_engine::tree_sitter::LanguageExt;
+  use thread_ast_engine::tree_sitter::LanguageExt;
   use PatternStyle::*;
 
   #[test]

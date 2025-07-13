@@ -1,3 +1,9 @@
+// SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+// SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+// SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
+
 //! This module defines the `Doc` and `Content` traits to abstract away source code encoding issues.
 //!
 //! ast-grep supports three kinds of encoding: utf-8 for CLI, utf-16 for nodeJS napi and `Vec<char>` for wasm.
@@ -28,14 +34,14 @@ pub struct Edit<S: Content> {
 pub trait SgNode<'r>: Clone {
   fn parent(&self) -> Option<Self>;
   fn children(&self) -> impl ExactSizeIterator<Item = Self>;
-  fn kind(&self) -> Cow<str>;
+  fn kind(&self) -> Cow<'_, str>;
   fn kind_id(&self) -> KindId;
   fn node_id(&self) -> usize;
   fn range(&self) -> std::ops::Range<usize>;
   fn start_pos(&self) -> Position;
   fn end_pos(&self) -> Position;
 
-  // default implentation
+  // default implementation
   fn ancestors(&self, _root: Self) -> impl Iterator<Item = Self> {
     let mut ancestors = vec![];
     let mut current = self.clone();
@@ -140,10 +146,10 @@ pub trait Content: Sized {
   fn get_range(&self, range: Range<usize>) -> &[Self::Underlying];
   /// Used for string replacement. We need this for
   /// indentation and deindentation.
-  fn decode_str(src: &str) -> Cow<[Self::Underlying]>;
+  fn decode_str(src: &str) -> Cow<'_, [Self::Underlying]>;
   /// Used for string replacement. We need this for
   /// transformation.
-  fn encode_bytes(bytes: &[Self::Underlying]) -> Cow<str>;
+  fn encode_bytes(bytes: &[Self::Underlying]) -> Cow<'_, str>;
   /// Get the character column at the given position
   fn get_char_column(&self, column: usize, offset: usize) -> usize;
 }
@@ -153,10 +159,10 @@ impl Content for String {
   fn get_range(&self, range: Range<usize>) -> &[Self::Underlying] {
     &self.as_bytes()[range]
   }
-  fn decode_str(src: &str) -> Cow<[Self::Underlying]> {
+  fn decode_str(src: &str) -> Cow<'_, [Self::Underlying]> {
     Cow::Borrowed(src.as_bytes())
   }
-  fn encode_bytes(bytes: &[Self::Underlying]) -> Cow<str> {
+  fn encode_bytes(bytes: &[Self::Underlying]) -> Cow<'_, str> {
     String::from_utf8_lossy(bytes)
   }
 

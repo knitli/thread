@@ -1,11 +1,17 @@
+// SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+// SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+// SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
+
 use super::{DeserializeEnv, Rule, RuleSerializeError, SerializableRule};
 
-use thread_engine::language::Language;
-use thread_engine::meta_var::MetaVarEnv;
-use thread_engine::{Doc, Matcher, Node};
+use thread_ast_engine::language::Language;
+use thread_ast_engine::meta_var::MetaVarEnv;
+use thread_ast_engine::{Doc, Matcher, Node};
 
 use std::borrow::Cow;
-use std::collections::HashSet;
+use thread_utils::RapidSet;
 
 use bit_set::BitSet;
 use schemars::JsonSchema;
@@ -228,11 +234,11 @@ impl NthChild {
       .iter()
       .position(|child| child.node_id() == node.node_id())
   }
-  pub fn defined_vars(&self) -> HashSet<&str> {
+  pub fn defined_vars(&self) -> RapidSet<&str> {
     if let Some(rule) = &self.of_rule {
       rule.defined_vars()
     } else {
-      HashSet::new()
+      RapidSet::default()
     }
   }
 
@@ -265,9 +271,9 @@ mod test {
   use super::*;
   use crate::from_str;
   use crate::test::TypeScript as TS;
-  use thread_engine::matcher::RegexMatcher;
-  use thread_engine::meta_var::MetaVarEnv;
-  use thread_engine::tree_sitter::LanguageExt;
+  use thread_ast_engine::matcher::RegexMatcher;
+  use thread_ast_engine::meta_var::MetaVarEnv;
+  use thread_ast_engine::tree_sitter::LanguageExt;
 
   #[test]
   fn test_positional() {

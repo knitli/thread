@@ -1,17 +1,18 @@
 # SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
 # SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
 #
-
 # SPDX-License-Identifier: MIT OR Apache-2.0
 cargo-features = ["codegen-backend"]
 
+# =========================================================
+#*               THREAD - Workspace
+# =========================================================
+
 [workspace.package]
 description = "A safe, fast, flexible code analysis and code parsing library and tool. Built with tree-sitter, ast-grep, and difftastic in Rust."
-resolver = "3"
 edition = "2024"
 rust-version = "1.85"
 license = "AGPL-3.0-or-later"
-name = "thread"
 version = "0.0.1"
 keywords = [
   "parsing",
@@ -69,7 +70,6 @@ serde_json = "1.0.140"
 serde_yaml = { version = "0.0.12", package = "serde_yml" }
 
 # speed!
-dashmap = "6.1.0"
 rapidhash = "1.4.0"
 rayon = { version = "1.10.0" }
 
@@ -79,9 +79,6 @@ thread-rule-engine = { path = "crates/rule-engine", default-features = false }
 thread-services = { path = "crates/services", default-features = false }
 thread-utils = { path = "crates/utils", default-features = false }
 thread-wasm = { path = "crates/wasm", default-features = false }
-
-[workspace.build-dependencies]
-cc = "*"
 
 [profile.dev]
 opt-level = 1

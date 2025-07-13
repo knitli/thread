@@ -1,3 +1,9 @@
+// SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+// SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+// SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
+
 use super::{Edit, Underlying};
 use crate::language::Language;
 use crate::meta_var::MetaVarEnv;
@@ -97,7 +103,7 @@ mod test {
   use crate::language::Tsx;
   use crate::meta_var::MetaVarEnv;
   use crate::{replacer::Replacer, tree_sitter::LanguageExt, NodeMatch, Root};
-  use std::collections::HashMap;
+  use thread_utils::RapidMap;
 
   fn test_pattern_replace(replacer: &str, vars: &[(&str, &str)], expected: &str) {
     let mut env = MetaVarEnv::new();
@@ -114,7 +120,7 @@ mod test {
       replaced,
       expected,
       "wrong replacement {replaced} {expected} {:?}",
-      HashMap::from(env)
+      RapidMap::from(env)
     );
   }
 
@@ -174,7 +180,7 @@ mod test {
       replaced,
       expected,
       "wrong replacement {replaced} {expected} {:?}",
-      HashMap::from(env)
+      RapidMap::from(env)
     );
   }
 

@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+# SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
 [package]
 name = "thread-utils"
 version = "0.0.1"
@@ -8,17 +12,15 @@ repository.workspace = true
 documentation.workspace = true
 homepage.workspace = true
 authors.workspace = true
+include.workspace = true
 
 [dependencies]
-dashmap = { workspace = true, optional = true }
-rapidhash = { workspace = true, optional = true }
-cfg-if.workspace = true
+rapidhash = { workspace = true, features = ["std", "rand"], optional = true }
 
 [features]
-default = ["dashmap"]
-dashmap = ["dep:dashmap", "dashmap/rayon"]
-inline = ["dashmap/inline"]
-wasm-single-thread = []
+default = ["hashers"]
+hashers = ["dep:rapidhash"]
+serialization = []
 
 [lints]
 workspace = true

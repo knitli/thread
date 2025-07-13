@@ -1,4 +1,10 @@
-use thread_engine::{meta_var::MetaVarEnv, Doc, Node};
+// SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+// SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+// SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
+
+use thread_ast_engine::{meta_var::MetaVarEnv, Doc, Node};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
@@ -96,8 +102,8 @@ impl Matcher for RangeMatcher {
 mod test {
   use super::*;
   use crate::test::TypeScript as TS;
-  use thread_engine::matcher::MatcherExt;
-  use thread_engine::tree_sitter::LanguageExt;
+  use thread_ast_engine::matcher::MatcherExt;
+  use thread_ast_engine::tree_sitter::LanguageExt;
 
   #[test]
   fn test_invalid_range() {

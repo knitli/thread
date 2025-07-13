@@ -1,9 +1,15 @@
+// SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+// SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+// SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
+
 use crate::match_tree::does_node_match_exactly;
 use crate::matcher::Matcher;
 use crate::source::Content;
 use crate::{Doc, Node};
 use std::borrow::Cow;
-use std::collections::HashMap;
+use thread_utils::{RapidMap, map_with_capacity};
 
 use crate::replacer::formatted_slice;
 
@@ -15,17 +21,17 @@ pub type Underlying<D> = Vec<<<D as Doc>::Source as Content>::Underlying>;
 /// const a = 123 matched with const a = $A will produce env: $A => 123
 #[derive(Clone)]
 pub struct MetaVarEnv<'tree, D: Doc> {
-  single_matched: HashMap<MetaVariableID, Node<'tree, D>>,
-  multi_matched: HashMap<MetaVariableID, Vec<Node<'tree, D>>>,
-  transformed_var: HashMap<MetaVariableID, Underlying<D>>,
+  single_matched: RapidMap<MetaVariableID, Node<'tree, D>>,
+  multi_matched: RapidMap<MetaVariableID, Vec<Node<'tree, D>>>,
+  transformed_var: RapidMap<MetaVariableID, Underlying<D>>,
 }
 
 impl<'t, D: Doc> MetaVarEnv<'t, D> {
   pub fn new() -> Self {
     Self {
-      single_matched: HashMap::new(),
-      multi_matched: HashMap::new(),
-      transformed_var: HashMap::new(),
+      single_matched: RapidMap::default(),
+      multi_matched: RapidMap::default(),
+      transformed_var: RapidMap::default(),
     }
   }
 
@@ -47,12 +53,37 @@ impl<'t, D: Doc> MetaVarEnv<'t, D> {
     }
   }
 
+  /// Insert without cloning the key if it's already owned
+  pub fn insert_owned(&mut self, id: String, ret: Node<'t, D>) -> Option<&mut Self> {
+    if self.match_variable(&id, &ret) {
+      self.single_matched.insert(id, ret);
+      Some(self)
+    } else {
+      None
+    }
+  }
+
+  /// Insert multi without cloning the key if it's already owned
+  pub fn insert_multi_owned(&mut self, id: String, ret: Vec<Node<'t, D>>) -> Option<&mut Self> {
+    if self.match_multi_var(&id, &ret) {
+      self.multi_matched.insert(id, ret);
+      Some(self)
+    } else {
+      None
+    }
+  }
+
   pub fn get_match(&self, var: &str) -> Option<&'_ Node<'t, D>> {
     self.single_matched.get(var)
   }
 
   pub fn get_multiple_matches(&self, var: &str) -> Vec<Node<'t, D>> {
     self.multi_matched.get(var).cloned().unwrap_or_default()
+  }
+
+  /// Returns a reference to multiple matches without cloning
+  pub fn get_multiple_matches_ref(&self, var: &str) -> Option<&Vec<Node<'t, D>>> {
+    self.multi_matched.get(var)
   }
 
   pub fn add_label(&mut self, label: &str, node: Node<'t, D>) {
@@ -71,18 +102,15 @@ impl<'t, D: Doc> MetaVarEnv<'t, D> {
     let single = self
       .single_matched
       .keys()
-      .cloned()
-      .map(|n| MetaVariable::Capture(n, false));
+      .map(|n| MetaVariable::Capture(n.clone(), false));
     let transformed = self
       .transformed_var
       .keys()
-      .cloned()
-      .map(|n| MetaVariable::Capture(n, false));
+      .map(|n| MetaVariable::Capture(n.clone(), false));
     let multi = self
       .multi_matched
       .keys()
-      .cloned()
-      .map(MetaVariable::MultiCapture);
+      .map(|n| MetaVariable::MultiCapture(n.clone()));
     single.chain(multi).chain(transformed)
   }
 
@@ -119,7 +147,7 @@ impl<'t, D: Doc> MetaVarEnv<'t, D> {
 
   pub fn match_constraints<M: Matcher>(
     &mut self,
-    var_matchers: &HashMap<MetaVariableID, M>,
+    var_matchers: &RapidMap<MetaVariableID, M>,
   ) -> bool {
     let mut env = Cow::Borrowed(self);
     for (var_id, candidate) in &self.single_matched {
@@ -280,9 +308,9 @@ pub(crate) fn is_valid_meta_var_char(c: char) -> bool {
   is_valid_first_char(c) || c.is_ascii_digit()
 }
 
-impl<'tree, D: Doc> From<MetaVarEnv<'tree, D>> for HashMap<String, String> {
+impl<'tree, D: Doc> From<MetaVarEnv<'tree, D>> for RapidMap<String, String> {
   fn from(env: MetaVarEnv<'tree, D>) -> Self {
-    let mut ret = HashMap::new();
+    let mut ret = map_with_capacity(env.single_matched.len() + env.multi_matched.len() + env.transformed_var.len());
     for (id, node) in env.single_matched {
       ret.insert(id, node.text().into());
     }
@@ -290,9 +318,26 @@ impl<'tree, D: Doc> From<MetaVarEnv<'tree, D>> for HashMap<String, String> {
       ret.insert(id, <D::Source as Content>::encode_bytes(&bytes).to_string());
     }
     for (id, nodes) in env.multi_matched {
-      let s: Vec<_> = nodes.iter().map(|n| n.text()).collect();
-      let s = s.join(", ");
-      ret.insert(id, format!("[{s}]"));
+      // Optimize string concatenation by pre-calculating capacity
+      if nodes.is_empty() {
+        ret.insert(id, "[]".to_string());
+        continue;
+      }
+
+      let estimated_capacity = nodes.len() * 16 + 10; // rough estimate
+      let mut result = String::with_capacity(estimated_capacity);
+      result.push('[');
+
+      let mut first = true;
+      for node in &nodes {
+        if !first {
+          result.push_str(", ");
+        }
+        result.push_str(&node.text());
+        first = false;
+      }
+      result.push(']');
+      ret.insert(id, result);
     }
     ret
   }
@@ -331,7 +376,7 @@ mod test {
   }
 
   fn match_constraints(pattern: &str, node: &str) -> bool {
-    let mut matchers = HashMap::new();
+    let mut matchers = thread_utils::RapidMap::default();
     matchers.insert("A".to_string(), Pattern::new(pattern, Tsx));
     let mut env = MetaVarEnv::new();
     let root = Tsx.ast_grep(node);

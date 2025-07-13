@@ -1,3 +1,9 @@
+// SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+// SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+// SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
+
 mod check_var;
 mod combined;
 mod fixer;
@@ -12,7 +18,7 @@ mod transform;
 use serde::Deserialize;
 use serde_yaml::{with::singleton_map_recursive::deserialize, Deserializer, Error as YamlError};
 
-use thread_engine::language::Language;
+use thread_ast_engine::language::Language;
 
 pub use combined::CombinedScan;
 pub use fixer::Fixer;
@@ -44,9 +50,9 @@ pub fn from_yaml_string<'a, L: Language + Deserialize<'a>>(
 #[cfg(test)]
 mod test {
   use super::*;
-  use thread_engine::matcher::{Pattern, PatternBuilder, PatternError};
-  use thread_engine::tree_sitter::{LanguageExt, StrDoc, TSLanguage};
-  use thread_engine::Language;
+  use thread_ast_engine::matcher::{Pattern, PatternBuilder, PatternError};
+  use thread_ast_engine::tree_sitter::{LanguageExt, StrDoc, TSLanguage};
+  use thread_ast_engine::Language;
   use std::path::Path;
 
   #[derive(Clone, Deserialize, PartialEq, Eq)]

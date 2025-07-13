@@ -3,7 +3,6 @@ SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
 SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
 
 SPDX-License-Identifier: MIT OR Apache-2.0
-SPDX-License-Identifier: MIT OR Apache-2.0
 -->
 
 # Thread
@@ -32,9 +31,9 @@ If you're not familiar with the AGPL 3.0, the important parts are:
 
 While most of Thread is licensed under the AGPL 3.0, there are some exceptions:
 
-- The `thread-ast-grep` and `thread-languages` crates are licensed under the MIT license (even the languages we've added). These crates are heavily based on parts of the wonderful [ast-grep](https://github.com/ast-grep/ast-grep) project, which is also licensed under the MIT license. We are grateful for their work and contributions to the open source community, and felt it best to keep these crates under the same license. We couldn't have built Thread without the foundation Ast-Grep provided.
-- Unless otherwise noted, documentation and configuration files are licensed under either the MIT license or the Apache License 2.0. This includes the `README.md`, `CONTRIBUTORS_LICENSE_AGREEMENT.md`, and other similar files. This allows for more flexibility in how these files can be used and shared.
-- All other files in the repository are licensed under the AGPL 3.0 or later.
+- Some components were forked from [`Ast-Grep`](https://github.com/ast-grep/ast-grep) and are licensed under the AGPL 3.0 or later *AND* the MIT license. Our changes are AGPL; the original code is MIT. See [`VENDORED.md`](VENDORED.md) for details.
+- Unless otherwise noted, documentation and configuration files are licensed under either the MIT license or the Apache License 2.0, your choice. This includes the `README.md`, `CONTRIBUTORS_LICENSE_AGREEMENT.md`, and other similar files. This allows for more flexibility in how these files can be used and shared.
+-
 
 ### Contributing
 
@@ -42,4 +41,4 @@ We love contributions of any kind! By contributing to Thread, you agree to our [
 
 #### We Use Reuse
 
-If you're in doubt, look at the top of the file, or look for a `.license` file with the same name as the file (like `Cargo.lock.license`). We follow the [Reuse Specification](https://reuse.software/) for license information in our codebase, which means every single file should have license information.
+If you're in doubt, look at the top of the file, or look for a `.license` file with the same name as the file (like `Cargo.lock.license`). We follow the [Reuse Specification](https://reuse.software/) for license information in our codebase, which means every single file should have license information. We also keep a Software Bill of Materials (SBOM) in the repository root: [`sbom.spdx`](sbom.spdx). This file lists all the licenses of the files in the repository, and is generated automatically by our build system.

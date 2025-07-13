@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
+
 # SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
 # SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
+
 """Update licenses for files in the repository."""
 
 import subprocess
@@ -20,8 +22,16 @@ def parse_args() -> Namespace:
         "--files",
         nargs="+",
         default=[],
-        type=Path,
+        type=list[Path],
         help="List of files to update licenses for.",
+    )
+    parser.add_argument(
+        "--contributor",
+        default=["Adam Poulemanos <adam@knit.li>"],
+        type=list,
+        help="Name and email of the contributor(s) to add.",
+        nargs="+",
+        action="append"
     )
     return parser.parse_args()
 
@@ -34,6 +44,7 @@ ALLOWED_DIRS = [
         not d.name.startswith(".")
         or d.name in {".github", ".vscode", ".roo", ".claude"}
     )
+    and d.name not in ["target", "debug", "release", "dist", "LICENSES"]
 ]
 
 
@@ -48,6 +59,9 @@ def is_allowed_path(path: Path) -> bool:
 
 
 def years() -> str:
+    """
+    Get the range of years for the copyright notice.
+    """
     if (year := str(datetime.now().year)) and year != "2025":
         return f"2025-{year}"
     else:
@@ -62,8 +76,10 @@ BASE_CMD = [
     "--copyright",
     "Knitli Inc. <knitli@knit.li>",
     "--fallback-dot-license",
-    "--skip-existing",
+    "--merge-copyrights",
+    "--skip-existing"
 ]
+
 
 AST_GREP_COPYRIGHT = (
     "Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>"
@@ -72,8 +88,9 @@ AST_GREP_COPYRIGHT = (
 AST_GREP_PATHS = [
     path
     for path in (
-        list((Path.cwd() / "crates" / "ast-grep").rglob("*.rs"))
-        + list((Path.cwd() / "crates" / "languages").rglob("*.rs"))
+        list((Path.cwd() / "crates" / "ast-engine").rglob("*.rs"))
+        + list((Path.cwd() / "crates" / "language").rglob("*.rs"))
+        + list((Path.cwd() / "crates" / "rule-engine").rglob("*.rs"))
     )
     if path.is_file() and is_allowed_path(path)
 ]
@@ -191,10 +208,13 @@ def run_command(cmd: list[str], paths: list[Path]) -> None:
 def main() -> None:
     """Main function to update licenses."""
     print("Updating licenses for code files...")
+    if contributors := parse_args().contributor:
+        for contributor in contributors:
+            BASE_CMD.extend(["--contributor", contributor])
     if not AST_GREP_PATHS and not CODE_PATHS and not NON_CODE_PATHS:
         return
     if AST_GREP_PATHS:
-        ast_grep_cmd = BASE_CMD + ["-c", AST_GREP_COPYRIGHT, "-l", "MIT"]
+        ast_grep_cmd = BASE_CMD + ["-c", AST_GREP_COPYRIGHT, "-l", "AGPL-3.0-or-later AND MIT"]
         run_command(ast_grep_cmd, AST_GREP_PATHS)
     if CODE_PATHS:
         code_cmd = BASE_CMD + ["-l", "AGPL-3.0-or-later"]
@@ -202,3 +222,6 @@ def main() -> None:
     if NON_CODE_PATHS:
         non_code_cmd = BASE_CMD + ["-l", "MIT OR Apache-2.0"]
         run_command(non_code_cmd, NON_CODE_PATHS)
+
+if __name__ == "__main__":
+    main()

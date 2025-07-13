@@ -1,3 +1,9 @@
+// SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+// SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+// SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
+
 /*!
 This module contains the core engine for Thread.
 
@@ -42,7 +48,7 @@ pub use match_tree::MatchStrictness;
 #[cfg(feature = "matching")]
 pub use matcher::{Matcher, NodeMatch, Pattern, PatternError};
 
-use node::Root;
+pub use node::Root;
 
 pub type AstGrep<D> = Root<D>;
 

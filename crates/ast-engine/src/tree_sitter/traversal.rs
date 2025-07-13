@@ -1,3 +1,9 @@
+// SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+// SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+// SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
+
 //! # Traverse Node AST
 //!
 //! ast-grep supports common tree traversal algorithms, including
@@ -75,7 +81,7 @@ where
 {
   pub fn visit<L: LanguageExt>(
     self,
-    node: Node<StrDoc<L>>,
+    node: Node<'_, StrDoc<L>>,
   ) -> Visit<'_, StrDoc<L>, A::Traversal<'_, L>, M>
   where
     M: Matcher,
@@ -136,20 +142,20 @@ where
 
 pub trait Algorithm {
   type Traversal<'t, L: LanguageExt>: Traversal<'t, StrDoc<L>>;
-  fn traverse<L: LanguageExt>(node: Node<StrDoc<L>>) -> Self::Traversal<'_, L>;
+  fn traverse<L: LanguageExt>(node: Node<'_, StrDoc<L>>) -> Self::Traversal<'_, L>;
 }
 
 pub struct PreOrder;
 impl Algorithm for PreOrder {
   type Traversal<'t, L: LanguageExt> = Pre<'t, L>;
-  fn traverse<L: LanguageExt>(node: Node<StrDoc<L>>) -> Self::Traversal<'_, L> {
+  fn traverse<L: LanguageExt>(node: Node<'_, StrDoc<L>>) -> Self::Traversal<'_, L> {
     Pre::new(&node)
   }
 }
 pub struct PostOrder;
 impl Algorithm for PostOrder {
   type Traversal<'t, L: LanguageExt> = Post<'t, L>;
-  fn traverse<L: LanguageExt>(node: Node<StrDoc<L>>) -> Self::Traversal<'_, L> {
+  fn traverse<L: LanguageExt>(node: Node<'_, StrDoc<L>>) -> Self::Traversal<'_, L> {
     Post::new(&node)
   }
 }

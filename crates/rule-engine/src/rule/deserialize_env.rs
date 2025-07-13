@@ -1,17 +1,23 @@
+// SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+// SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+// SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
+
 use super::referent_rule::{GlobalRules, ReferentRuleError, RuleRegistration};
 use crate::check_var::CheckHint;
 use crate::maybe::Maybe;
 use crate::rule::{self, Rule, RuleSerializeError, SerializableRule};
 use crate::rule_core::{RuleCoreError, SerializableRuleCore};
 use crate::transform::Trans;
-use thread_engine::meta_var::MetaVariable;
+use thread_ast_engine::meta_var::MetaVariable;
 
-use thread_engine::language::Language;
+use thread_ast_engine::language::Language;
 
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
-use std::collections::HashMap;
+use thread_utils::RapidMap;
 
 #[derive(Serialize, Deserialize, Clone, JsonSchema)]
 pub struct SerializableGlobalRule<L: Language> {
@@ -25,7 +31,7 @@ pub struct SerializableGlobalRule<L: Language> {
 
 fn into_map<L: Language>(
   rules: Vec<SerializableGlobalRule<L>>,
-) -> HashMap<String, (L, SerializableRuleCore)> {
+) -> RapidMap<String, (L, SerializableRuleCore)> {
   rules
     .into_iter()
     .map(|r| (r.id, (r.language, r.core)))
@@ -69,14 +75,14 @@ impl DependentRule for Trans<MetaVariable> {
 /// A struct to topological sort rules
 /// it is used to report cyclic dependency errors in rules/transformation
 struct TopologicalSort<'a, T: DependentRule> {
-  maps: &'a HashMap<String, T>,
+  maps: &'a RapidMap<String, T>,
   order: Vec<&'a str>,
   // bool stands for if the rule has completed visit
-  seen: HashMap<&'a str, bool>,
+  seen: RapidMap<&'a str, bool>,
 }
 
 impl<'a, T: DependentRule> TopologicalSort<'a, T> {
-  fn get_order(maps: &HashMap<String, T>) -> OrderResult<Vec<&str>> {
+  fn get_order(maps: &RapidMap<String, T>) -> OrderResult<Vec<&str>> {
     let mut top_sort = TopologicalSort::new(maps);
     for key in maps.keys() {
       top_sort.visit(key)?;
@@ -84,11 +90,11 @@ impl<'a, T: DependentRule> TopologicalSort<'a, T> {
     Ok(top_sort.order)
   }
 
-  fn new(maps: &'a HashMap<String, T>) -> Self {
+  fn new(maps: &'a RapidMap<String, T>) -> Self {
     Self {
       maps,
       order: vec![],
-      seen: HashMap::new(),
+      seen: RapidMap::default(),
     }
   }
 
@@ -157,7 +163,7 @@ impl<L: Language> DeserializeEnv<L> {
   /// by their dependency. `potential_kinds` need ordered insertion.
   pub fn with_utils(
     self,
-    utils: &HashMap<String, SerializableRule>,
+    utils: &RapidMap<String, SerializableRule>,
   ) -> Result<Self, RuleSerializeError> {
     let order = TopologicalSort::get_order(utils)
       .map_err(ReferentRuleError::CyclicRule)
@@ -196,7 +202,7 @@ impl<L: Language> DeserializeEnv<L> {
 
   pub(crate) fn get_transform_order<'a>(
     &self,
-    trans: &'a HashMap<String, Trans<MetaVariable>>,
+    trans: &'a RapidMap<String, Trans<MetaVariable>>,
   ) -> Result<Vec<&'a str>, String> {
     TopologicalSort::get_order(trans)
   }
@@ -214,8 +220,8 @@ mod test {
   use super::*;
   use crate::test::TypeScript;
   use crate::{from_str, Rule};
-  use thread_engine::tree_sitter::LanguageExt;
-  use thread_engine::Matcher;
+  use thread_ast_engine::tree_sitter::LanguageExt;
+  use thread_ast_engine::Matcher;
 
   type Result<T> = std::result::Result<T, RuleSerializeError>;
 
@@ -250,7 +256,7 @@ member-name:
   #[test]
   #[ignore = "TODO, need to figure out potential_kinds"]
   fn test_local_util_kinds() -> Result<()> {
-    // run multiple times to avoid accidental working order due to HashMap randomness
+    // run multiple times to avoid accidental working order due to FastMap randomness
     for _ in 0..10 {
       let (rule, _env) = get_dependent_utils()?;
       assert!(rule.potential_kinds().is_some());

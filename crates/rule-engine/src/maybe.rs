@@ -1,3 +1,9 @@
+// SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+// SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+// SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
+
 use schemars::{SchemaGenerator, Schema, JsonSchema};
 use serde::{de, ser, Deserialize, Serialize};
 use std::borrow::Cow;
@@ -76,12 +82,12 @@ impl<T: JsonSchema> JsonSchema for Maybe<T> {
   fn schema_id() -> Cow<'static, str> {
     Cow::Owned(format!("Maybe<{}>", T::schema_id()))
   }
-  fn json_schema(gen: &mut SchemaGenerator) -> Schema {
-    gen.subschema_for::<T>()
+  fn json_schema(generator: &mut SchemaGenerator) -> Schema {
+    generator.subschema_for::<T>()
   }
 
-  fn _schemars_private_non_optional_json_schema(gen: &mut SchemaGenerator) -> Schema {
-    T::_schemars_private_non_optional_json_schema(gen)
+  fn _schemars_private_non_optional_json_schema(generator: &mut SchemaGenerator) -> Schema {
+    T::_schemars_private_non_optional_json_schema(generator)
   }
 
   fn _schemars_private_is_option() -> bool {
@@ -137,7 +143,7 @@ mod test {
   }
 
   #[test]
-  fn test_from_optio() {
+  fn test_from_option() {
     let mut maybe = Maybe::from(None);
     assert!(maybe.is_absent());
     maybe = Maybe::from(Some(123));

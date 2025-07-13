@@ -1,4 +1,11 @@
 #![allow(clippy::doc_overindented_list_items)]
+
+// SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+// SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+// SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
+
 /**
   This module is for indentation-sensitive replacement.
 
@@ -136,7 +143,7 @@ pub enum DeindentedExtract<'a, C: Content> {
 }
 
 /// Returns DeindentedExtract for later de-indent/re-indent.
-pub fn extract_with_deindent<C: Content>(content: &C, range: Range<usize>) -> DeindentedExtract<C> {
+pub fn extract_with_deindent<C: Content>(content: &C, range: Range<usize>) -> DeindentedExtract<'_, C> {
   let extract_slice = content.get_range(range.clone());
   // no need to compute indentation for single line
   if !extract_slice.contains(&get_new_line::<C>()) {

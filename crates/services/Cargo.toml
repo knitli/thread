@@ -1,25 +1,28 @@
+# SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+# SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
 [package]
 name = "thread-services"
 description = "Service layer interfaces for Thread"
 keywords = ["ast", "pattern", "services", "interface"]
-version = "0.0.1"
+version = "0.1.0"
 authors.workspace = true
 edition.workspace = true
 license.workspace = true
 repository.workspace = true
 rust-version.workspace = true
+include.workspace = true
 
 [dependencies]
 thread-ast-engine = { workspace = true, default-features = false }
 thread-rule-engine = { workspace = true, default-features = false }
 thread-language = { workspace = true, default-features = false }
-thread-utils.workspace = true
+thread-utils = { workspace = true, default-features = false, features = ["hashers"] }
 
 serde = { workspace = true, optional = true }
 thiserror = { workspace = true }
 
 [features]
-default = ["dashmap"]
+default = []
 serialization = ["dep:serde"]
-dashmap = ["thread-utils/dashmap"]
-inline = ["thread-utils/inline"]

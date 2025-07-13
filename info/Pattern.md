@@ -1,4 +1,11 @@
+<!--
+SPDX-FileCopyrightText: 2023 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileContributor: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-License-Identifier: MIT
+-->
+
 # A Deep Dive Into ast-grep’s Pattern
+
 Herrington Darkholme
 
 Follow

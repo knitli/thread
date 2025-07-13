@@ -1,3 +1,9 @@
+// SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+// SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+// SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
+
 use crate::matcher::{Matcher, MatcherExt, NodeMatch};
 use crate::replacer::Replacer;
 use crate::source::{Content, Edit as E, SgNode};
@@ -60,7 +66,7 @@ impl<D: Doc> Root<D> {
     self.doc.get_lang()
   }
   /// The root node represents the entire source
-  pub fn root(&self) -> Node<D> {
+  pub fn root(&self) -> Node<'_, D> {
     Node {
       inner: self.doc.root_node(),
       root: self,
@@ -140,7 +146,7 @@ impl<'r, D: Doc> Node<'r, D> {
   pub fn is_error(&self) -> bool {
     self.inner.is_error()
   }
-  pub fn kind(&self) -> Cow<str> {
+  pub fn kind(&self) -> Cow<'_, str> {
     self.inner.kind()
   }
   pub fn kind_id(&self) -> KindId {

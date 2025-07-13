@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+SPDX-License-Identifier: MIT OR Apache-2.0
+-->
+
 # Copilot Instructions for Thread
 
 ## Project Overview
@@ -79,7 +85,7 @@ Structure implementations for different environments:
 // CLI implementation
 impl YourService for CliYourService { /* uses std::fs */ }
 
-// Cloud implementation  
+// Cloud implementation
 impl YourService for CloudYourService { /* uses S3/HTTP */ }
 
 // WASM implementation
@@ -103,7 +109,7 @@ Replace direct filesystem access with service traits:
 let content = file_service.read_file(path).await?;
 ```
 
-### Terminal I/O  
+### Terminal I/O
 Replace direct terminal access with service traits:
 ```rust
 // Instead of println! or crossterm

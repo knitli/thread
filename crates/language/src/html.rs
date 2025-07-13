@@ -1,9 +1,15 @@
+// SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+// SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+// SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
+
 use super::pre_process_pattern;
-use thread_engine::matcher::{Pattern, PatternBuilder, PatternError};
-use thread_engine::tree_sitter::{LanguageExt, StrDoc, TSLanguage, TSRange};
-use thread_engine::Language;
-use thread_engine::{matcher::KindMatcher, Doc, Node};
-use std::collections::HashMap;
+use thread_ast_engine::matcher::{Pattern, PatternBuilder, PatternError};
+use thread_ast_engine::tree_sitter::{LanguageExt, StrDoc, TSLanguage, TSRange};
+use thread_ast_engine::Language;
+use thread_ast_engine::{matcher::KindMatcher, Doc, Node};
+use thread_utils::RapidMap;
 
 // tree-sitter-html uses locale dependent iswalnum for tagName
 // https://github.com/tree-sitter/tree-sitter-html/blob/b5d9758e22b4d3d25704b72526670759a9e4d195/src/scanner.c#L194
@@ -38,9 +44,9 @@ impl LanguageExt for Html {
   fn extract_injections<L: LanguageExt>(
     &self,
     root: Node<StrDoc<L>>,
-  ) -> HashMap<String, Vec<TSRange>> {
+  ) -> RapidMap<String, Vec<TSRange>> {
     let lang = root.lang();
-    let mut map = HashMap::new();
+    let mut map = RapidMap::default();
     let matcher = KindMatcher::new("script_element", lang.clone());
     for script in root.find_all(matcher) {
       let injected = find_lang(&script).unwrap_or_else(|| "js".into());
@@ -137,7 +143,7 @@ mod test {
     assert_eq!(ret, r#"<div class='bar'>foo</div>"#);
   }
 
-  fn extract(src: &str) -> HashMap<String, Vec<TSRange>> {
+  fn extract(src: &str) -> RapidMap<String, Vec<TSRange>> {
     let root = Html.ast_grep(src);
     Html.extract_injections(root.root())
   }

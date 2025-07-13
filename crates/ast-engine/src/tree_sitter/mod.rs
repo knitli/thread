@@ -1,3 +1,9 @@
+// SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+// SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+// SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
+
 pub mod traversal;
 
 use crate::node::Root;
@@ -6,7 +12,7 @@ use crate::source::{Content, Doc, Edit, SgNode};
 use crate::{node::KindId, Language, Position};
 use crate::{AstGrep, Matcher};
 use std::borrow::Cow;
-use std::collections::HashMap;
+use thread_utils::RapidMap;
 use std::num::NonZero;
 use thiserror::Error;
 pub use traversal::{TsPre, Visitor};
@@ -199,7 +205,7 @@ impl<'r> SgNode<'r> for Node<'r> {
   fn is_leaf(&self) -> bool {
     self.child_count() == 0
   }
-  fn kind(&self) -> Cow<str> {
+  fn kind(&self) -> Cow<'_, str> {
     Cow::Borrowed(Node::kind(self))
   }
   fn kind_id(&self) -> KindId {
@@ -285,8 +291,8 @@ pub trait LanguageExt: Language {
   fn extract_injections<L: LanguageExt>(
     &self,
     _root: crate::Node<StrDoc<L>>,
-  ) -> HashMap<String, Vec<TSRange>> {
-    HashMap::new()
+  ) -> RapidMap<String, Vec<TSRange>> {
+    RapidMap::default()
   }
 }
 

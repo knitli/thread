@@ -1,3 +1,9 @@
+// SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+// SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+// SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
+
 mod match_node;
 mod strictness;
 
@@ -150,7 +156,7 @@ mod test {
   use crate::meta_var::MetaVarEnv;
   use crate::tree_sitter::StrDoc;
   use crate::{Node, Root};
-  use std::collections::HashMap;
+  use thread_utils::RapidMap;
 
   fn find_node_recursive<'tree>(
     goal: &Pattern,
@@ -164,7 +170,7 @@ mod test {
     })
   }
 
-  fn test_match(s1: &str, s2: &str) -> HashMap<String, String> {
+  fn test_match(s1: &str, s2: &str) -> RapidMap<String, String> {
     let goal = Pattern::new(s1, Tsx);
     let cand = Root::str(s2, Tsx);
     let cand = cand.root();
@@ -175,7 +181,7 @@ mod test {
       "goal: {goal:?}, candidate: {}",
       cand.get_inner_node().to_sexp(),
     );
-    HashMap::from(env.into_owned())
+    RapidMap::from(env.into_owned())
   }
 
   fn test_non_match(s1: &str, s2: &str) {
