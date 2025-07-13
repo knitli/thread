@@ -1,0 +1,36 @@
+[package]
+name = "thread-rule-engine"
+description = "Rule-based scanning and transformation engine for Thread"
+keywords = ["ast", "pattern", "codemod", "search", "rewrite", "rules"]
+version = "0.1.0"
+license = "AGPL-3.0-or-later AND MIT"
+authors.workspace = true
+edition.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[features]
+default = ["scanning", "fixing", "dashmap"]
+# The 'scanning' feature enables finding code via rules
+scanning = ["thread-ast-engine/matching"]
+# The 'fixing' feature enables transforming code via rules
+fixing = ["thread-ast-engine/matching"]
+
+dashmap = ["thread-utils/dashmap"]
+inline = ["thread-utils/inline"]
+
+[dependencies]
+thread-ast-engine = { workspace = true, default-features = false }
+thread-utils.workspace = true
+
+bit-set.workspace = true
+globset = "0.4.16"
+regex.workspace = true
+serde.workspace = true
+serde_yaml = { workspace = true }
+serde_json = { workspace = true }
+thiserror.workspace = true
+schemars.workspace = true
+
+[dev-dependencies]
+tree-sitter-typescript = "0.23.2"

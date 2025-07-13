@@ -16,7 +16,7 @@ cfg-if.workspace = true
 
 [features]
 default = ["dashmap"]
-dashmap = ["dashmap", "dashmap/rayon"]
+dashmap = ["dep:dashmap", "dashmap/rayon"]
 inline = ["dashmap/inline"]
 wasm-single-thread = []
 

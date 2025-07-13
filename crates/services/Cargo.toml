@@ -1,52 +1,25 @@
 [package]
 name = "thread-services"
-version = "0.1.0"
+description = "Service layer interfaces for Thread"
+keywords = ["ast", "pattern", "services", "interface"]
+version = "0.0.1"
+authors.workspace = true
 edition.workspace = true
-license = "AGPL-3.0-or-later"
-description = "Service registry and dependency injection for ag-thread multi-environment deployment."
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
 
 [dependencies]
-ag-service-types.workspace = true
-ag-service-ast.workspace = true
-ag-service-pattern.workspace = true
-ag-service-tree-sitter.workspace = true
-async-trait.workspace = true
+thread-ast-engine = { workspace = true, default-features = false }
+thread-rule-engine = { workspace = true, default-features = false }
+thread-language = { workspace = true, default-features = false }
+thread-utils.workspace = true
+
 serde = { workspace = true, optional = true }
-serde_json = { workspace = true, optional = true }
-serde_yaml = { workspace = true, optional = true }
-thiserror.workspace = true
-tokio = { version = "1.46.1", features = ["full"], optional = true }
-ignore.workspace = true
-uuid = { version = "1.17.0", features = ["v4"] }
-
-# cli-support
-crossterm = { version = "0.29", optional = true }
-
-
-[dependencies.tower]
-version = "0.5.2"
-optional = true
-features = ["util", "timeout", "limit", "load-shed", "buffer"]
-
-
-[dev-dependencies]
-tokio-test = "0.4.4"
-futures = "0.3.31"
-# Tree-sitter language parsers for testing
-tree-sitter-typescript = { version = "0.23.2", optional = true }
-tree-sitter-rust = { version = "0.24", optional = true }
+thiserror = { workspace = true }
 
 [features]
-default = ["serde"]
-tokio-runtime = ["dep:tokio"]
-tower = ["dep:tower"]
-cli-support = ["dep:crossterm"]
-serde = [
-    "dep:serde",
-    "dep:serde_json",
-    "dep:serde_yaml",
-    "ag-service-ast/serde",
-    "ag-service-pattern/serde",
-    "ag-service-tree-sitter/serde",
-    "uuid/serde",
-]
+default = ["dashmap"]
+serialization = ["dep:serde"]
+dashmap = ["thread-utils/dashmap"]
+inline = ["thread-utils/inline"]

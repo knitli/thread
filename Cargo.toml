@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: MIT OR Apache-2.0
 cargo-features = ["codegen-backend"]
 
-[package]
+[workspace.package]
 description = "A safe, fast, flexible code analysis and code parsing library and tool. Built with tree-sitter, ast-grep, and difftastic in Rust."
 resolver = "3"
 edition = "2024"
@@ -44,121 +44,43 @@ include = [
 ]
 
 [workspace]
+resolver = "3"
 members = [
-  # ag-service crates
-  "crates/ag-thread/*",
-  # thread crates
-  "crates/cli",
-  "crates/core",
-  "crates/diff",
-  "crates/engine",
-  "crates/languages",
-  "crates/parse",
-  "crates/store",
-  "crates/threadlang",
+  "crates/ast-engine",
+  "crates/rule-engine",
+  "crates/services",
+  "crates/language",
   "crates/utils",
   "crates/wasm",
   "xtask",
 ]
 
-# Note: difftastic's diffing functionality is vendored internally
 [workspace.dependencies]
-# Error handling
-thiserror = "2.0.12"
-anyhow = "1.0.98"
-
-async-trait = "0.1.88"
-
-# CLI
-clap = "4.5.41"
-ansiterm = "0.12.2" # for colored terminal output
-crossterm = "0.29.0" # for cross-platform terminal handling
-
-bit-set = "0.8.0" # for efficient kind matching
-regex = { version = "1.11.0", features = ["unicode", "perf", "std"] } # for text matching
-uuid = { version = "1.17.0", features = ["v4"] } # for unique identifiers
-
-# respect gitignore
-ignore = { version = "0.4.23" }
-
-# for fast hash maps
-dashmap = "6.1.0"
-
-# threaded parallelism
-rayon = "1.10.0"
-
-# Targeted editing and text manipulation
-ropey = "1.6.1"
-
-# Service abstraction
-tower-service = "0.3.3"
-
-# They're vecs, but smaller
-smallvec = "1.15.1"
-
-# String interning (less memory usage/faster lookup over large datasets)
-lasso = { version = "0.7.3" }
-
-# The fastest hasher in town
-rapidhash = "1.4.0"
-
-tower = { version = "0.5.2", default-features = false } # for service abstractions
-
-# Serialization/Deserialization
-serde = { version = "1.0.219", features = ["derive"] }
-serde_json = { version = "1.0.140", features = [
-  "preserve_order",
-] } # serialization
-# serde_yaml is deprecated, replaced by serde-yml
-serde_yaml = { package = "serde_yml", version = "0.0.12", features = ["derive"] } # YAML serialization
-schemars = { version = "1.0.4", features = ["derive", "std"] }
-
-# graph data structures and algorithms
-petgraph = "0.8.2"
-
-# The tree... we built this thing with
-tree-sitter = "0.25.7"
-
+bit-set = "0.8.0"
 cfg-if = "1.0.1"
+ignore = "0.4.22"
+regex = "1.10"
+schemars = "1.0.4"
+serde = { version = "1.0.219", features = ["derive"] }
+thiserror = "2.0.12"
+tree-sitter = "0.25.8"
 
-# Thread crates
-thread-core = { path = "crates/core" }
-thread-parse = { path = "crates/parse" }
-thread-engine = { path = "crates/engine" }
-thread-diff = { path = "crates/diff" }
-thread-wasm = { path = "crates/wasm" }
-thread-cli = { path = "crates/cli" }
-thread-store = { path = "crates/store" }
-thread-languages = { path = "crates/languages" }
-thread-threadlang = { path = "crates/threadlang" }
-thread-services = { path = "crates/services" }
-thread-utils = { path = "crates/utils" }
+serde_json = "1.0.140"
+serde_yaml = { version = "0.0.12", package = "serde_yml" }
 
-# Ast-Grep-as-a-service (forked)
-ag-service-ast = { path = "crates/ag-thread/ag-ast"}
-ag-service-check-rule = { path = "crates/ag-thread/ag-check-rule" }
-ag-service-core = { path = "crates/ag-thread/ag-core" }
-ag-service-fix = { path = "crates/ag-thread/ag-fix" }
-ag-service-label = { path = "crates/ag-thread/ag-label" }
-ag-service-ops = { path = "crates/ag-thread/ag-ops" }
-ag-service-pattern = { path = "crates/ag-thread/ag-pattern" }
-ag-service-rule = { path = "crates/ag-thread/ag-rule" }
-ag-service-scan = { path = "crates/ag-thread/ag-scan" }
-ag-service-transform = { path = "crates/ag-thread/ag-transform" }
-ag-service-tree-sitter = { path = "crates/ag-thread/ag-tree-sitter" }
-ag-service-types = { path = "crates/ag-thread/ag-types" }
-ag-service-utils = { path = "crates/ag-thread/ag-utils" }
+# speed!
+dashmap = "6.1.0"
+rapidhash = "1.4.0"
+rayon = { version = "1.10.0" }
 
-[features]
-# default = ["derive", "languages", "parser", "query"]
+thread-ast-engine = { path = "crates/ast-engine", default-features = false }
+thread-language = { path = "crates/language", default-features = false }
+thread-rule-engine = { path = "crates/rule-engine", default-features = false }
+thread-services = { path = "crates/services", default-features = false }
+thread-utils = { path = "crates/utils", default-features = false }
+thread-wasm = { path = "crates/wasm", default-features = false }
 
-[lib]
-name = "thread"
-path = "src/lib.rs"
-
-[dependencies]
-
-[build-dependencies]
+[workspace.build-dependencies]
 cc = "*"
 
 [profile.dev]
@@ -249,16 +171,3 @@ transmute_undefined_repr = "allow"
 unnecessary_wraps = "allow"
 unused_self = "allow"
 used_underscore_items = "allow"
-
-[workspace.package]
-version = "0.0.1"
-edition = "2024"
-rust-version = "1.85"
-license = "AGPL-3.0-or-later"
-repository = "https://github.com/knitli/thread"
-documentation = "https://thread.knitli.dev"
-homepage = "https://knitli.com"
-authors = [
-  "Knitli Inc <knitli@knit.li>",
-  "Adam Poulemanos for Knitli <adam@knit.li>",
-]

@@ -1,0 +1,38 @@
+[package]
+name = "thread-ast-engine"
+description = "Core engine for Thread - parsing, matching, and transforming code using AST patterns"
+keywords = ["ast", "pattern", "codemod", "search", "rewrite"]
+categories = ["command-line-utilities", "development-tools", "parsing"]
+license = "AGPL-3.0-or-later AND MIT"
+version = "0.1.0"
+authors.workspace = true
+documentation.workspace = true
+edition.workspace = true
+homepage.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+bit-set.workspace = true
+regex.workspace = true
+thiserror.workspace = true
+tree-sitter = { workspace = true, optional = true }
+
+thread-utils.workspace = true
+
+[features]
+default = ["parsing", "matching", "dashmap"]
+# The 'parsing' feature enables the tree-sitter backend
+parsing = ["dep:tree-sitter"]
+# The 'matching' feature enables the pattern matching engine
+matching = []
+
+dashmap = ["thread-utils/dashmap"]
+inline = ["thread-utils/inline"]
+
+[dev-dependencies]
+tree-sitter-typescript = "0.23.2"
+
+[lints]
+# Enable linting for the crate
+workspace = true

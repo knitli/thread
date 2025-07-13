@@ -14,11 +14,11 @@ documentation.workspace = true
 authors.workspace = true
 
 [dependencies]
-# TODO: Add compile-for-os support as a universal binary (i.e. for moonrepo)
+# TODO: Add WASI support as a universal binary (i.e. for moonrepo)
 js-sys = { version = "0.3.77" }
 wasm-bindgen = { version = "0.2.100" }
 web-sys = { version = "0.3.77", features = ["console"], optional = true }
-thread-languages = { workspace = true }
+thread-language = { workspace = true }
 serde = { workspace = true, optional = true }
 
 # The `console_error_panic_hook` crate provides better debugging of panics by
@@ -29,6 +29,8 @@ console_error_panic_hook = { version = "0.1.7", optional = true }
 
 rayon = { workspace = true, features = ["web_spin_lock"], optional = true }
 
+thread-utils.workspace = true
+
 [dev-dependencies]
 wasm-bindgen-test = "0.3.50"
 
@@ -36,20 +38,22 @@ wasm-bindgen-test = "0.3.50"
 workspace = true
 
 [lib]
-name = "thread-wasm"
+name = "thread_wasm"
 crate-type = ["cdylib", "rlib"]
 path = "src/lib.rs"
 
-
 [features]
 default = ["worker"]
-worker = ["web-sys/console", "serde"]  # single-threaded worker deployment
-browser = ["multi-threading", "serde"]
+worker = ["web-sys/console", "thread-utils/wasm-single-thread"]  # single-threaded worker deployment
+browser = ["multi-threading", "serialization"]
+# TODO: wasi = [ ]
 
+# Passes `inline` to thread-utils, which more aggressively inlines dashmap and rayon if enabled. Has no effect for single-threaded builds -- those are inlined by default.
+inline = ["thread-utils/inline"]
 
-serde = ["serde/derive"]
+serialization = ["serde/derive"]
 panic_hook = ['console_error_panic_hook', "web-sys/console"]
-multi-threading = ["rayon"]
+multi-threading = ["rayon", "thread-utils/dashmap"]
 
 [package.metadata.wasm-pack.profile.profiling.wasm-bindgen]
 debug-js-glue = false

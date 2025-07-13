@@ -13,9 +13,24 @@ Natively, `ast-grep` consists of a handful of crates -- `cli`, `core`, `language
 
 ## Current Status
 
-We've done very little work on `Thread` itself, instead engaged on getting the ast-grep foundation 'right'. We broke apart the `ast-grep` codebase into a set of crates by functionality. The `ast-grep-core` crate is actually designed to be used as a library, but it leaves out a lot of capability from what the CLI tool provides. Ultimately, we currently have the following crates. We adopted a naming scheme of `ag-service-*` to make it clear it's not the original `ast-grep` codebase, but rather a service-oriented architecture built on top of it (ast-grep is MIT licensed):
+We've done very little work on `Thread` itself, instead engaged on getting the ast-grep foundation 'right'. We broke apart the `ast-grep` codebase into a set of crates by functionality. The `ast-grep-core` crate is actually designed to be used as a library, but it leaves out a lot of capability from what the CLI tool provides.
+
+### Incomplete Service Implementations
+
+1. `thread-services`: This is the main skeleton/scaffold for the service-oriented architecture.
+2. `ag-service-types`: While most of the crate is the core types from ast-grep, the `lib.rs` file contains a series of types and implementations intended as a service-oriented architecture. It is not complete, and I honestly don't know if it is well thought out, or not. It is a remnant of our initial attempt at implementing a service-oriented architecture.
+
+### Motivations for Breaking up the Ast-Grep Codebase into so many crates
+
+- The overall goal was getting the flexibility to isolate builds to be able to deploy focused services to WASM without pulling in unnecessary dependencies. It's not important for the CLI tool, but it's very important for the cloud service. We chose this course after we initially tried to just use ast-grep as a library, or do minimal vendoring, such as of the language crate, but it became clear we would have to choose either "just use the core and lose the rest of the ast-grep, or bite the bullet and make ast-grep the library we would need it to be to keep all of its functions.
+- We also tried just re-exporting `ast-grep-core` with narrower feature gates but it was very messy.
+
+### Ast-Grep Crates
+
+Ultimately, we currently have the following crates. We adopted a naming scheme of `ag-service-*` to make it clear it's not the original `ast-grep` codebase, but rather a service-oriented architecture built on top of it (ast-grep is MIT licensed):
 
 - `ag-service-types`: We moved all type definitions (struct, enum, trait) from the other crates and consolidated them by function into this crate. There are no implementations here, just definitions, and each function is feature-gated so that we can pick and choose what we want to include in a given build. It's kind of big, but it does make the codebase easier to reason about.
+  - Separating these out was a lot of work, we should be willing to undo it if it doesn't make sense, but the benefits need to be clear. It did help decouple the type dependencies (when we don't need the implemented traits, it keeps us from pulling in a lot of code).
 - `ag-service-ast`: The core ast-grep AST functionality from `ast-grep-core`, but without the tree-sitter dependencies (it's the layer above the tree manipulation logic).
 - `ag-service-check-rule`: This was a module in the CLI. It offers validation of rules, which is useful for testing rules before using them on a recurring basis. It won't be as frequent as scanning, but it is a good service to have.
 - `ag-service-fix`: This was a module in the CLI. It provides functionality for fixing code based on rules, which is useful for automated updates for major code changes.
@@ -27,6 +42,7 @@ We've done very little work on `Thread` itself, instead engaged on getting the a
 - `ag-service-transform`: This was the `Replacer` module in `ast-grep-core`. It provides functionality for transforming code based on rules, which is a core part of the ast-grep functionality.
 - `ag-service-tree-sitter`: This is the actual tree-sitter interface that handles Tree transversal and manipulation.
 - `ag-service-utils`: This was a module in the CLI. It provides a set of utilities that are mostly CLI focused, but some of them may be more broadly useful if separated out. Minimally it will help us save time on CLI implementation.
+- `thread-threadlang` and `thread-languages`: `thread-languages` is almost exactly the same as `ast-grep-language`, but we needed important components public that weren't exposed in the original crate. Primarily that helped with feature gating each language. `thread-threadlang` provides the `ThreadLang` type, renamed from `SgLang`, which is the main interface for interacting with languages in `ast-grep`. It provides a standardized interface for tree-sitter parsers. We broke this off from partly being in the CLI and partly in the `language` crate. We chose to put these in the main `thread` crates because they are much more core to our vision of Thread.
 
 > NOTE: The workspace does not currently build. Dependencies are a mess from the reorganization, but I don't think it's worth fixing until we've finalized the architecture.
 
