@@ -109,7 +109,11 @@ fn replace_one<'n, D: Doc>(
     rules: &[&RuleCore],
     ctx: &Ctx<'_, 'n, D>,
 ) -> Vec<Edit<D::Source>> {
-    let mut edits = vec![];
+    let mut edits = Vec::new();
+
+    // Pre-allocate edits vector with estimated capacity to reduce allocations
+    edits.reserve(16); // reasonable estimate for most cases
+
     for child in node.dfs() {
         for rule in rules {
             let mut env = std::borrow::Cow::Borrowed(ctx.enclosing_env);

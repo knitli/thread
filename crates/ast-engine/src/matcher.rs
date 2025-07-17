@@ -10,11 +10,12 @@
 //! * Pattern: matches against a tree-sitter node based on its tree structure.
 //! * KindMatcher: matches a node based on its `kind`
 //! * RegexMatcher: matches a node based on its textual content using regex.
-
+pub mod types;
 mod kind;
 mod node_match;
 mod pattern;
 mod text;
+
 
 use crate::Doc;
 use crate::{meta_var::MetaVarEnv, Node};
@@ -24,7 +25,7 @@ use std::borrow::Cow;
 
 pub use kind::{kind_utils, KindMatcher, KindMatcherError};
 pub use node_match::NodeMatch;
-pub use pattern::{Pattern, PatternBuilder, PatternError, PatternNode};
+pub use types::{Pattern, PatternBuilder, PatternError, PatternNode, MatchStrictness};
 pub use text::{RegexMatcher, RegexMatcherError};
 
 /// `Matcher` defines whether a tree-sitter node matches certain pattern,

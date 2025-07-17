@@ -9,18 +9,22 @@ use super::{Ctx, TransformError, string_case};
 use thread_ast_engine::meta_var::MetaVariable;
 use thread_ast_engine::source::Content;
 use thread_ast_engine::{Doc, Language};
+use thread_utils::is_ascii_simd;
 
 use regex::Regex;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
+use std::sync::{OnceLock};
 
 use string_case::{Separator, StringCase};
 
+#[inline]
 fn get_text_from_env<D: Doc>(var: &MetaVariable, ctx: &mut Ctx<'_, '_, D>) -> Option<String> {
     // TODO: check if topological sort has resolved transform dependency
     let bytes = ctx.env.get_var_bytes(var)?;
     Some(<D::Source as Content>::encode_bytes(bytes).into_owned())
 }
+
 
 /// Extracts a substring from the meta variable's text content.
 ///
@@ -38,21 +42,68 @@ pub struct Substring<T> {
 }
 
 impl Substring<MetaVariable> {
+    /// Computes the substring based on the provided character indices.
+    #[inline]
     fn compute<D: Doc>(&self, ctx: &mut Ctx<'_, '_, D>) -> Option<String> {
         let text = get_text_from_env(&self.source, ctx)?;
-        let chars: Vec<_> = text.chars().collect();
-        let len = chars.len() as i32;
-        let start = resolve_char(&self.start_char, 0, len);
-        let end = resolve_char(&self.end_char, len, len);
-        if start > end || start >= len as usize || end > len as usize {
+
+        // SIMD-optimized ASCII check for better performance on longer strings
+        if is_ascii_simd(&text) {
+            return self.compute_ascii(&text);
+        }
+        // Fallback to standard ASCII check
+        if text.is_ascii() {
+            return self.compute_ascii(&text);
+        }
+
+        // UTF-8 path using char indices for boundary-safe slicing
+        self.compute_unicode(&text)
+    }
+
+    /// Optimized substring for ASCII strings
+    #[inline]
+    fn compute_ascii(&self, text: &str) -> Option<String> {
+        let len = text.len() as i32;
+        let start = resolve_char(&self.start_char, 0, len) as usize;
+        let end = resolve_char(&self.end_char, len, len) as usize;
+
+        if start > end || start >= text.len() || end > text.len() {
             return Some(String::new());
         }
-        Some(chars[start..end].iter().collect())
+
+        Some(text[start..end].to_string())
+    }
+
+    /// UTF-8 aware substring using char boundaries
+    #[inline]
+    fn compute_unicode(&self, text: &str) -> Option<String> {
+        let char_count = text.chars().count() as i32;
+        let start_idx = resolve_char(&self.start_char, 0, char_count);
+        let end_idx = resolve_char(&self.end_char, char_count, char_count);
+
+        if start_idx > end_idx || start_idx >= char_count as usize {
+            return Some(String::new());
+        }
+
+        // Use char_indices for efficient boundary detection
+        let mut char_indices = text.char_indices();
+        let start_byte = char_indices.nth(start_idx).map(|(i, _)| i).unwrap_or(text.len());
+
+        if end_idx >= char_count as usize {
+            return Some(text[start_byte..].to_string());
+        }
+
+        let end_byte = char_indices.nth(end_idx - start_idx - 1)
+            .map(|(i, _)| i)
+            .unwrap_or(text.len());
+
+        Some(text[start_byte..end_byte].to_string())
     }
 }
 
 /// resolve relative negative char index to absolute index
 /// e.g. -1 => len - 1, n > len => n
+#[inline]
 fn resolve_char(opt: &Option<i32>, dft: i32, len: i32) -> usize {
     let c = *opt.as_ref().unwrap_or(&dft);
     if c >= len {
@@ -77,11 +128,40 @@ pub struct Replace<T> {
     pub replace: String,
     /// the replacement string
     pub by: String,
+    /// Cached compiled regex for performance
+    #[serde(skip)]
+    #[schemars(skip)]
+    compiled_regex: OnceLock<Result<Regex, String>>,
 }
+
+impl<T> Replace<T> {
+    /// Create a new Replace with empty cache
+    #[inline]
+    pub fn new(source: T, replace: String, by: String) -> Self {
+        Self {
+            source,
+            replace,
+            by,
+            compiled_regex: OnceLock::new(),
+        }
+    }
+
+    /// Get the cached compiled regex, compiling it if necessary
+    #[inline]
+    fn get_regex(&self) -> Option<&Regex> {
+        let result = self.compiled_regex.get_or_init(|| {
+            Regex::new(&self.replace).map_err(|e| e.to_string())
+        });
+        result.as_ref().ok()
+    }
+}
+
 impl Replace<MetaVariable> {
+    /// Computes the replacement of the matched text.
+    #[inline]
     fn compute<D: Doc>(&self, ctx: &mut Ctx<'_, '_, D>) -> Option<String> {
         let text = get_text_from_env(&self.source, ctx)?;
-        let re = Regex::new(&self.replace).unwrap();
+        let re = self.get_regex()?;
         Some(re.replace_all(&text, &self.by).into_owned())
     }
 }
@@ -99,6 +179,7 @@ pub struct Convert<T> {
 }
 
 impl Convert<MetaVariable> {
+    #[inline]
     fn compute<D: Doc>(&self, ctx: &mut Ctx<'_, '_, D>) -> Option<String> {
         let text = get_text_from_env(&self.source, ctx)?;
         Some(self.to_case.apply(&text, self.separated_by.as_deref()))
@@ -144,11 +225,11 @@ impl Trans<String> {
     pub fn parse<L: Language>(&self, lang: &L) -> Result<Trans<MetaVariable>, TransformError> {
         use Trans as T;
         Ok(match self {
-            T::Replace(r) => T::Replace(Replace {
-                source: parse_meta_var(&r.source, lang)?,
-                replace: r.replace.clone(),
-                by: r.by.clone(),
-            }),
+            T::Replace(r) => T::Replace(Replace::new(
+                parse_meta_var(&r.source, lang)?,
+                r.replace.clone(),
+                r.by.clone(),
+            )),
             T::Substring(s) => T::Substring(Substring {
                 source: parse_meta_var(&s.source, lang)?,
                 start_char: s.start_char,

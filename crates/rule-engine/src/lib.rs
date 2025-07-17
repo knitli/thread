@@ -4,6 +4,8 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
 
+#![feature(portable_simd)]
+
 mod check_var;
 mod combined;
 mod fixer;

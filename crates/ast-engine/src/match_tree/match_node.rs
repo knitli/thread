@@ -4,7 +4,8 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
 
-use super::strictness::{MatchOneNode, MatchStrictness};
+use super::strictness::{MatchOneNode};
+use crate::matcher::MatchStrictness;
 use super::Aggregator;
 use crate::matcher::{kind_utils, PatternNode};
 use crate::meta_var::MetaVariable;
@@ -240,9 +241,10 @@ fn match_ellipsis<'t, D: Doc>(
 #[cfg(test)]
 mod test {
   use super::*;
+  use crate::matcher::types::Pattern;
   use crate::language::Tsx;
-  use crate::matcher::KindMatcher;
-  use crate::{meta_var::MetaVarEnv, Matcher, Pattern, Root};
+  use crate::{matcher::KindMatcher};
+  use crate::{meta_var::MetaVarEnv, Matcher, Root};
   use std::borrow::Cow;
   fn match_tree(p: &str, n: &str, strictness: MatchStrictness) -> MatchOneNode {
     let pattern = Pattern::new(p, Tsx);

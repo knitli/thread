@@ -4,21 +4,13 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
 
-use crate::matcher::{kind_utils, PatternNode};
+use crate::matcher::{kind_utils, PatternNode, MatchStrictness};
 use crate::meta_var::MetaVariable;
 use crate::node::Node;
 use crate::Doc;
 use std::iter::Peekable;
 use std::str::FromStr;
 
-#[derive(Clone)]
-pub enum MatchStrictness {
-  Cst,       // all nodes are matched
-  Smart,     // all nodes except source trivial nodes are matched.
-  Ast,       // only ast nodes are matched
-  Relaxed,   // ast-nodes excluding comments are matched
-  Signature, // ast-nodes excluding comments, without text
-}
 
 pub(crate) enum MatchOneNode {
   MatchedBoth,

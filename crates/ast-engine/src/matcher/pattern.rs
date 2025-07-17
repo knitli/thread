@@ -5,29 +5,18 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
 
 use crate::language::Language;
-use crate::match_tree::{MatchStrictness, match_end_non_recursive, match_node_non_recursive};
-use crate::matcher::{KindMatcher, KindMatcherError, Matcher, kind_utils};
+use crate::match_tree::{match_end_non_recursive, match_node_non_recursive};
+use crate::matcher::types::{Pattern, MatchStrictness, PatternBuilder, PatternError, PatternNode};
+use crate::matcher::{KindMatcher, Matcher, kind_utils};
 use crate::meta_var::{MetaVarEnv, MetaVariable};
 use crate::source::SgNode;
 use crate::{Doc, Node, Root};
 
 use bit_set::BitSet;
-use thiserror::Error;
-
 use std::borrow::Cow;
 use thread_utils::RapidSet;
 
-#[derive(Clone)]
-pub struct Pattern {
-    pub node: PatternNode,
-    root_kind: Option<u16>,
-    pub strictness: MatchStrictness,
-}
 
-pub struct PatternBuilder<'a> {
-    selector: Option<&'a str>,
-    src: Cow<'a, str>,
-}
 
 impl PatternBuilder<'_> {
     pub fn build<D, F>(&self, parse: F) -> Result<Pattern, PatternError>
@@ -70,24 +59,6 @@ impl PatternBuilder<'_> {
             strictness: MatchStrictness::Smart,
         })
     }
-}
-
-#[derive(Clone)]
-pub enum PatternNode {
-    MetaVar {
-        meta_var: MetaVariable,
-    },
-    /// Node without children.
-    Terminal {
-        text: String,
-        is_named: bool,
-        kind_id: u16,
-    },
-    /// Non-Terminal Syntax Nodes are called Internal
-    Internal {
-        kind_id: u16,
-        children: Vec<PatternNode>,
-    },
 }
 
 impl PatternNode {
@@ -164,21 +135,6 @@ fn extract_var_from_node<D: Doc>(goal: &Node<'_, D>) -> Option<MetaVariable> {
     goal.lang().extract_meta_var(&key)
 }
 
-#[derive(Debug, Error)]
-pub enum PatternError {
-    #[error("Fails to parse the pattern query: `{0}`")]
-    Parse(String),
-    #[error("No AST root is detected. Please check the pattern source `{0}`.")]
-    NoContent(String),
-    #[error("Multiple AST nodes are detected. Please check the pattern source `{0}`.")]
-    MultipleNode(String),
-    #[error(transparent)]
-    InvalidKind(#[from] KindMatcherError),
-    #[error(
-        "Fails to create Contextual pattern: selector `{selector}` matches no node in the context `{context}`."
-    )]
-    NoSelectorInContext { context: String, selector: String },
-}
 
 #[inline]
 fn is_single_node<'r, N: SgNode<'r>>(n: &N) -> bool {

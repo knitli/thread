@@ -27,8 +27,7 @@ fixing = ["thread-ast-engine/matching"]
 
 [dependencies]
 thread-ast-engine = { workspace = true, default-features = false }
-thread-utils = { workspace = true, default-features = false, features = ["hashers"] }
-
+thread-utils = { workspace = true, default-features = false, features = ["hashers", "simd"] }
 bit-set.workspace = true
 globset = "0.4.16"
 regex.workspace = true

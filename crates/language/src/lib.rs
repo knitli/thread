@@ -12,6 +12,7 @@
 //! You need use `impl_lang_expando!` macro and a standalone file for testing.
 //! Otherwise, you can define it as a stub language using `impl_lang!`.
 //! To see the full list of languages, visit `<https://ast-grep.github.io/reference/languages.html>`
+pub mod parsers;
 
 mod bash;
 mod cpp;
@@ -24,8 +25,9 @@ mod html;
 mod json;
 mod kotlin;
 mod lua;
-mod parsers;
 mod php;
+#[cfg(feature = "profiling")]
+pub mod profiling;
 mod python;
 mod ruby;
 mod rust;
@@ -33,7 +35,7 @@ mod scala;
 mod swift;
 mod yaml;
 
-use thread_ast_engine::matcher::{Pattern, PatternBuilder, PatternError};
+use thread_ast_engine::matcher::types::{Pattern, PatternBuilder, PatternError};
 pub use html::Html;
 
 use thread_ast_engine::meta_var::MetaVariable;
@@ -46,7 +48,6 @@ use std::borrow::Cow;
 use thread_utils::RapidMap;
 use std::fmt;
 use std::fmt::{Display, Formatter};
-use std::iter::repeat;
 use std::path::Path;
 use std::str::FromStr;
 
@@ -83,24 +84,63 @@ macro_rules! impl_lang {
 }
 
 fn pre_process_pattern(expando: char, query: &str) -> std::borrow::Cow<'_, str> {
-  let mut ret = Vec::with_capacity(query.len());
+  // Fast path: check if any processing is needed
+  let has_dollar = query.as_bytes().iter().any(|&b| b == b'$');
+  if !has_dollar {
+    return std::borrow::Cow::Borrowed(query);
+  }
+
+  // Count exact size needed to avoid reallocations
+  let mut size_needed = 0;
+  let mut needs_processing = false;
   let mut dollar_count = 0;
+
+  for c in query.chars() {
+    if c == '$' {
+      dollar_count += 1;
+    } else {
+      let need_replace = matches!(c, 'A'..='Z' | '_') || dollar_count == 3;
+      if need_replace && dollar_count > 0 {
+        needs_processing = true;
+      }
+      size_needed += dollar_count + 1;
+      dollar_count = 0;
+    }
+  }
+  size_needed += dollar_count;
+
+  // If no replacement needed, return borrowed
+  if !needs_processing {
+    return std::borrow::Cow::Borrowed(query);
+  }
+
+  // Pre-allocate exact size and process in-place
+  let mut ret = String::with_capacity(size_needed);
+  dollar_count = 0;
+
   for c in query.chars() {
     if c == '$' {
       dollar_count += 1;
       continue;
     }
-    let need_replace = matches!(c, 'A'..='Z' | '_') // $A or $$A or $$$A
-      || dollar_count == 3; // anonymous multiple
+    let need_replace = matches!(c, 'A'..='Z' | '_') || dollar_count == 3;
     let sigil = if need_replace { expando } else { '$' };
-    ret.extend(repeat(sigil).take(dollar_count));
+
+    // Push dollars directly without iterator allocation
+    for _ in 0..dollar_count {
+      ret.push(sigil);
+    }
     dollar_count = 0;
     ret.push(c);
   }
-  // trailing anonymous multiple
+
+  // Handle trailing dollars
   let sigil = if dollar_count == 3 { expando } else { '$' };
-  ret.extend(repeat(sigil).take(dollar_count));
-  std::borrow::Cow::Owned(ret.into_iter().collect())
+  for _ in 0..dollar_count {
+    ret.push(sigil);
+  }
+
+  std::borrow::Cow::Owned(ret)
 }
 
 /// this macro will implement expando_char and pre_process_pattern
@@ -384,6 +424,35 @@ impl_aliases! {
 impl FromStr for SupportLang {
   type Err = SupportLangErr;
   fn from_str(s: &str) -> Result<Self, Self::Err> {
+    // Fast path: try exact matches first (most common case)
+    match s {
+      "bash" => return Ok(SupportLang::Bash),
+      "c" => return Ok(SupportLang::C),
+      "cpp" | "c++" => return Ok(SupportLang::Cpp),
+      "cs" | "csharp" => return Ok(SupportLang::CSharp),
+      "css" => return Ok(SupportLang::Css),
+      "elixir" | "ex" => return Ok(SupportLang::Elixir),
+      "go" | "golang" => return Ok(SupportLang::Go),
+      "haskell" | "hs" => return Ok(SupportLang::Haskell),
+      "html" => return Ok(SupportLang::Html),
+      "java" => return Ok(SupportLang::Java),
+      "javascript" | "js" => return Ok(SupportLang::JavaScript),
+      "json" => return Ok(SupportLang::Json),
+      "kotlin" | "kt" => return Ok(SupportLang::Kotlin),
+      "lua" => return Ok(SupportLang::Lua),
+      "php" => return Ok(SupportLang::Php),
+      "python" | "py" => return Ok(SupportLang::Python),
+      "ruby" | "rb" => return Ok(SupportLang::Ruby),
+      "rust" | "rs" => return Ok(SupportLang::Rust),
+      "scala" => return Ok(SupportLang::Scala),
+      "swift" => return Ok(SupportLang::Swift),
+      "typescript" | "ts" => return Ok(SupportLang::TypeScript),
+      "tsx" => return Ok(SupportLang::Tsx),
+      "yaml" | "yml" => return Ok(SupportLang::Yaml),
+      _ => {} // Fall through to case-insensitive search
+    }
+
+    // Slow path: case-insensitive search for less common aliases
     for &lang in Self::all_langs() {
       for moniker in alias(lang) {
         if s.eq_ignore_ascii_case(moniker) {
@@ -463,7 +532,7 @@ impl LanguageExt for SupportLang {
   }
 }
 
-fn extensions(lang: SupportLang) -> &'static [&'static str] {
+const fn extensions(lang: SupportLang) -> &'static [&'static str] {
   use SupportLang::*;
   match lang {
     Bash => &[
@@ -499,6 +568,26 @@ fn extensions(lang: SupportLang) -> &'static [&'static str] {
 /// N.B do not confuse it with `FromStr` trait. This function is to guess language from file extension.
 fn from_extension(path: &Path) -> Option<SupportLang> {
   let ext = path.extension()?.to_str()?;
+
+  // Fast path: try most common extensions first
+  match ext {
+    "rs" => return Some(SupportLang::Rust),
+    "js" | "mjs" | "cjs" => return Some(SupportLang::JavaScript),
+    "ts" | "cts" | "mts" => return Some(SupportLang::TypeScript),
+    "tsx" => return Some(SupportLang::Tsx),
+    "py" | "py3" | "pyi" => return Some(SupportLang::Python),
+    "java" => return Some(SupportLang::Java),
+    "cpp" | "cc" | "cxx" => return Some(SupportLang::Cpp),
+    "c" => return Some(SupportLang::C),
+    "go" => return Some(SupportLang::Go),
+    "html" | "htm" => return Some(SupportLang::Html),
+    "css" => return Some(SupportLang::Css),
+    "json" => return Some(SupportLang::Json),
+    "yaml" | "yml" => return Some(SupportLang::Yaml),
+    _ => {}
+  }
+
+  // Fallback: comprehensive search for less common extensions
   SupportLang::all_langs()
     .iter()
     .copied()

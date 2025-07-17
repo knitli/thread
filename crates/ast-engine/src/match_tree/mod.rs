@@ -9,10 +9,10 @@ mod strictness;
 
 use match_node::match_node_impl;
 use strictness::MatchOneNode;
-pub use strictness::MatchStrictness;
+use crate::matcher::{Pattern};
 
 use crate::meta_var::{MetaVarEnv, MetaVariable};
-use crate::{Doc, Node, Pattern};
+use crate::{Doc, Node};
 
 use std::borrow::Cow;
 

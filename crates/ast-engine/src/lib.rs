@@ -20,6 +20,7 @@ pub mod source;
 mod node;
 pub use node::{Node, Position};
 pub use source::Doc;
+pub use matcher::types::{MatchStrictness, Pattern, PatternBuilder, PatternError, PatternNode};
 
 // Feature-gated modules
 #[cfg(feature = "parsing")]
@@ -44,9 +45,7 @@ pub mod pinned;
 pub use language::Language;
 
 #[cfg(feature = "matching")]
-pub use match_tree::MatchStrictness;
-#[cfg(feature = "matching")]
-pub use matcher::{Matcher, NodeMatch, Pattern, PatternError};
+pub use matcher::{Matcher, NodeMatch};
 
 pub use node::Root;
 

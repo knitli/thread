@@ -83,4 +83,13 @@ napi-lang = [
   "tree-sitter-javascript",
   "tree-sitter-typescript",
 ]
+profiling = []
 default = ["builtin-parser"]
+
+[dev-dependencies]
+criterion = { version = "0.6", features = ["html_reports"] }
+thread-ast-engine = { workspace = true, features = ["matching", "parsing"]}
+
+[[bench]]
+name = "performance"
+harness = false

@@ -6,7 +6,7 @@
 
 use crate::matcher::PatternBuilder;
 use crate::meta_var::{extract_meta_var, MetaVariable};
-use crate::{Pattern, PatternError};
+use crate::matcher::types::{Pattern, PatternError};
 use std::borrow::Cow;
 use std::path::Path;
 

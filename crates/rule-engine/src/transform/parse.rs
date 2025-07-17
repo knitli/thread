@@ -115,11 +115,11 @@ fn to_replace(decomposed: DecomposedTransString) -> Result<Replace<String>, Pars
   }
   let replace = replace.ok_or(ParseTransError::RequiredArg("replace"))?;
   let by = by.ok_or(ParseTransError::RequiredArg("by"))?;
-  Ok(Replace {
-    source: decomposed.source.to_string(),
-    replace: serde_yaml::from_str(replace)?,
-    by: serde_yaml::from_str(by)?,
-  })
+  Ok(Replace::new(
+    decomposed.source.to_string(),
+    serde_yaml::from_str(replace)?,
+    serde_yaml::from_str(by)?,
+  ))
 }
 fn to_substring(decomposed: DecomposedTransString) -> Result<Substring<String>, ParseTransError> {
   debug_assert_eq!(decomposed.func, "substring");

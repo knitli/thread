@@ -15,11 +15,23 @@ authors.workspace = true
 include.workspace = true
 
 [dependencies]
-rapidhash = { workspace = true, features = ["std", "rand"], optional = true }
+rapidhash = { workspace = true, features = ["std"], optional = true }
+simdeez = { workspace = true, optional = true }
+memchr = { workspace = true, optional = true }
 
 [features]
-default = ["hashers"]
+default = ["hashers", "random", "simd"]
+# enable SIMD support for fast vector operations
+# simdeez gives SIMD support on Rust stable with wasm32 (SIMD128), ARM (NEON), and X86 processors (SSE2, 3, 4.1, avx2).
+simd = ["dep:simdeez", "dep:memchr"]
+
 hashers = ["dep:rapidhash"]
+# use `rand` library for seeding hash generation
+random = ["rapidhash?/rand"]
+
+# can't use RapidHash's implementation in a CloudFlare worker; it relies on `os_rand`, which isn't available; rapidhash falls back to a different implementation that's good enough for most cases. If you need a more robust solution, consider seeding with TCP/IP calls to Cloudflare's [`drand`](https://docs.drand.love/docs/overview/).
+worker = ["dep:simdeez"]
+
 serialization = []
 
 [lints]

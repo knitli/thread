@@ -10,7 +10,7 @@ use thread_ast_engine::language::Language;
 use thread_ast_engine::matcher::{Matcher, MatcherExt};
 use thread_ast_engine::{AstGrep, Doc, Node, NodeMatch};
 
-use thread_utils::{RapidMap, RapidSet};
+use thread_utils::{map_with_capacity, RapidMap, RapidSet};
 
 pub struct ScanResult<'t, 'r, D: Doc, L: Language> {
     pub diffs: Vec<(&'r RuleConfig<L>, NodeMatch<'t, D>)>,
@@ -210,21 +210,38 @@ impl<'r, L: Language> CombinedScan<'r, L> {
         // note, mapping.push will invert order so we sort fixable order in reverse
         rules.sort_unstable_by_key(|r| (r.fix.is_some(), &r.id));
         let mut mapping = Vec::new();
+
+        // Pre-calculate the maximum kind to avoid repeated resizing
+        let max_kind = rules
+            .iter()
+            .filter_map(|rule| rule.matcher.potential_kinds())
+            .map(|bitset| bitset.iter().max().unwrap_or(0))
+            .max()
+            .unwrap_or(0);
+
+        // Pre-allocate with known capacity to avoid allocations during insertion
+        mapping.resize(max_kind + 1, Vec::new());
+
         for (idx, rule) in rules.iter().enumerate() {
             let Some(kinds) = rule.matcher.potential_kinds() else {
                 eprintln!("rule `{}` must have kind", &rule.id);
                 continue;
             };
             for kind in &kinds {
-                // NOTE: common languages usually have about several hundred kinds
-                // from 200+ ~ 500+, it is okay to waste about 500 * 24 Byte vec size = 12kB
-                // see https://github.com/Wilfred/difftastic/tree/master/vendored_parsers
-                while mapping.len() <= kind {
-                    mapping.push(vec![]);
-                }
+                // Now we can safely index without bounds checking
                 mapping[kind].push(idx);
             }
         }
+
+        // Shrink the mapping to remove empty vectors at the end
+        while let Some(last) = mapping.last() {
+            if last.is_empty() {
+                mapping.pop();
+            } else {
+                break;
+            }
+        }
+
         Self {
             rules,
             kind_rule_mapping: mapping,
@@ -244,9 +261,9 @@ impl<'r, L: Language> CombinedScan<'r, L> {
         D: Doc<Lang = L>,
     {
         let mut result = ScanResultInner {
-            diffs: vec![],
-            matches: RapidMap::default(),
-            unused_suppressions: vec![],
+            diffs: Vec::with_capacity(32), // Pre-allocate for common case
+            matches: map_with_capacity(self.rules.len()),
+            unused_suppressions: Vec::with_capacity(8),
         };
         let (suppressions, mut suppression_nodes) = Suppressions::collect_all(root);
         let file_sup = suppressions.file_suppression();

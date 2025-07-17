@@ -71,6 +71,8 @@ serde_yaml = { version = "0.0.12", package = "serde_yml" }
 
 # speed!
 rapidhash = "1.4.0"
+memchr = { version = "2.7.5", features = ["std"] }
+simdeez = "2.0.0-dev5"
 rayon = { version = "1.10.0" }
 
 thread-ast-engine = { path = "crates/ast-engine", default-features = false }

@@ -47,28 +47,69 @@ impl LanguageExt for Html {
   ) -> RapidMap<String, Vec<TSRange>> {
     let lang = root.lang();
     let mut map = RapidMap::default();
-    let matcher = KindMatcher::new("script_element", lang.clone());
-    for script in root.find_all(matcher) {
-      let injected = find_lang(&script).unwrap_or_else(|| "js".into());
-      let content = script.children().find(|c| c.kind() == "raw_text");
-      if let Some(content) = content {
-        map
-          .entry(injected)
-          .or_insert_with(Vec::new)
-          .push(node_to_range(&content));
-      };
+
+    // Pre-allocate common language vectors to avoid repeated allocations
+    let mut js_ranges = Vec::new();
+    let mut css_ranges = Vec::new();
+    let mut other_ranges: RapidMap<String, Vec<TSRange>> = RapidMap::default();
+
+    // Process script elements
+    let script_matcher = KindMatcher::new("script_element", lang.clone());
+    for script in root.find_all(script_matcher) {
+      if let Some(content) = script.children().find(|c| c.kind() == "raw_text") {
+        let range = node_to_range(&content);
+
+        // Fast path for common languages
+        match find_lang(&script) {
+          Some(lang_name) => {
+            if lang_name == "js" || lang_name == "javascript" {
+              js_ranges.push(range);
+            } else if lang_name == "ts" || lang_name == "typescript" {
+              other_ranges.entry(lang_name).or_insert_with(Vec::new).push(range);
+            } else {
+              other_ranges.entry(lang_name).or_insert_with(Vec::new).push(range);
+            }
+          }
+          None => js_ranges.push(range), // Default to JavaScript
+        }
+      }
     }
-    let matcher = KindMatcher::new("style_element", lang.clone());
-    for style in root.find_all(matcher) {
-      let injected = find_lang(&style).unwrap_or_else(|| "css".into());
-      let content = style.children().find(|c| c.kind() == "raw_text");
-      if let Some(content) = content {
-        map
-          .entry(injected)
-          .or_insert_with(Vec::new)
-          .push(node_to_range(&content));
-      };
+
+    // Process style elements
+    let style_matcher = KindMatcher::new("style_element", lang.clone());
+    for style in root.find_all(style_matcher) {
+      if let Some(content) = style.children().find(|c| c.kind() == "raw_text") {
+        let range = node_to_range(&content);
+
+        // Fast path for CSS (most common)
+        match find_lang(&style) {
+          Some(lang_name) => {
+            if lang_name == "css" {
+              css_ranges.push(range);
+            } else {
+              other_ranges.entry(lang_name).or_insert_with(Vec::new).push(range);
+            }
+          }
+          None => css_ranges.push(range), // Default to CSS
+        }
+      }
     }
+
+    // Only insert non-empty vectors to reduce map size
+    if !js_ranges.is_empty() {
+      map.insert("js".to_string(), js_ranges);
+    }
+    if !css_ranges.is_empty() {
+      map.insert("css".to_string(), css_ranges);
+    }
+
+    // Merge other languages
+    for (lang_name, ranges) in other_ranges {
+      if !ranges.is_empty() {
+        map.insert(lang_name, ranges);
+      }
+    }
+
     map
   }
 }

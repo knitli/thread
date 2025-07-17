@@ -22,7 +22,7 @@ rust-version.workspace = true
 include.workspace = true
 
 [dependencies]
-thread-utils = { workspace = true, default-features = false, features = ["hashers"] }
+thread-utils = { workspace = true, default-features = false, features = ["hashers", "simd"] }
 thiserror.workspace = true
 
 # Tree-sitter required for parsing
@@ -40,7 +40,7 @@ matching = ["dep:regex", "dep:bit-set"]
 
 [dev-dependencies]
 tree-sitter-typescript = "0.23.2"
-thread-language.workspace = true
+thread-language = { workspace = true, features = ["builtin-parser"]}
 criterion = { version = "0.6.0", features = ["html_reports"] }
 
 [[bench]]
