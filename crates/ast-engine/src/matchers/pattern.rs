@@ -328,7 +328,7 @@ mod test {
     }
 
     fn test_match(s1: &str, s2: &str) {
-        let pattern = Pattern::new(s1, Tsx);
+        let pattern = Pattern::new(s1, &Tsx);
         let cand = pattern_node(s2);
         let cand = cand.root();
         assert!(
@@ -339,7 +339,7 @@ mod test {
         );
     }
     fn test_non_match(s1: &str, s2: &str) {
-        let pattern = Pattern::new(s1, Tsx);
+        let pattern = Pattern::new(s1, &Tsx);
         let cand = pattern_node(s2);
         let cand = cand.root();
         assert!(
@@ -364,7 +364,7 @@ mod test {
     }
 
     fn match_env(goal_str: &str, cand: &str) -> RapidMap<String, String> {
-        let pattern = Pattern::new(goal_str, Tsx);
+        let pattern = Pattern::new(goal_str, &Tsx);
         let cand = pattern_node(cand);
         let cand = cand.root();
         let nm = pattern.find_node(cand).unwrap();
@@ -381,7 +381,7 @@ mod test {
     #[test]
     fn test_pattern_should_not_pollute_env() {
         // gh issue #1164
-        let pattern = Pattern::new("const $A = 114", Tsx);
+        let pattern = Pattern::new("const $A = 114", &Tsx);
         let cand = pattern_node("const a = 514");
         let cand = cand.root().child(0).unwrap();
         let map = MetaVarEnv::new();
@@ -413,7 +413,7 @@ mod test {
 
     #[test]
     fn test_contextual_pattern() {
-        let pattern = Pattern::contextual("class A { $F = $I }", "public_field_definition", Tsx)
+        let pattern = Pattern::contextual("class A { $F = $I }", "public_field_definition", &Tsx)
             .expect("test");
         let cand = pattern_node("class B { b = 123 }");
         assert!(pattern.find_node(cand.root()).is_some());
@@ -423,7 +423,7 @@ mod test {
 
     #[test]
     fn test_contextual_match_with_env() {
-        let pattern = Pattern::contextual("class A { $F = $I }", "public_field_definition", Tsx)
+        let pattern = Pattern::contextual("class A { $F = $I }", "public_field_definition", &Tsx)
             .expect("test");
         let cand = pattern_node("class B { b = 123 }");
         let nm = pattern.find_node(cand.root()).expect("test");
@@ -435,7 +435,7 @@ mod test {
 
     #[test]
     fn test_contextual_unmatch_with_env() {
-        let pattern = Pattern::contextual("class A { $F = $I }", "public_field_definition", Tsx)
+        let pattern = Pattern::contextual("class A { $F = $I }", "public_field_definition", &Tsx)
             .expect("test");
         let cand = pattern_node("let b = 123");
         let nm = pattern.find_node(cand.root());
@@ -448,7 +448,7 @@ mod test {
 
     #[test]
     fn test_pattern_potential_kinds() {
-        let pattern = Pattern::new("const a = 1", Tsx);
+        let pattern = Pattern::new("const a = 1", &Tsx);
         let kind = get_kind("lexical_declaration");
         let kinds = pattern.potential_kinds().expect("should have kinds");
         assert_eq!(kinds.len(), 1);
@@ -457,7 +457,7 @@ mod test {
 
     #[test]
     fn test_pattern_with_non_root_meta_var() {
-        let pattern = Pattern::new("const $A = $B", Tsx);
+        let pattern = Pattern::new("const $A = $B", &Tsx);
         let kind = get_kind("lexical_declaration");
         let kinds = pattern.potential_kinds().expect("should have kinds");
         assert_eq!(kinds.len(), 1);
@@ -466,14 +466,14 @@ mod test {
 
     #[test]
     fn test_bare_wildcard() {
-        let pattern = Pattern::new("$A", Tsx);
+        let pattern = Pattern::new("$A", &Tsx);
         // wildcard should match anything, so kinds should be None
         assert!(pattern.potential_kinds().is_none());
     }
 
     #[test]
     fn test_contextual_potential_kinds() {
-        let pattern = Pattern::contextual("class A { $F = $I }", "public_field_definition", Tsx)
+        let pattern = Pattern::contextual("class A { $F = $I }", "public_field_definition", &Tsx)
             .expect("test");
         let kind = get_kind("public_field_definition");
         let kinds = pattern.potential_kinds().expect("should have kinds");
@@ -484,7 +484,7 @@ mod test {
     #[test]
     fn test_contextual_wildcard() {
         let pattern =
-            Pattern::contextual("class A { $F }", "property_identifier", Tsx).expect("test");
+            Pattern::contextual("class A { $F }", "property_identifier", &Tsx).expect("test");
         let kind = get_kind("property_identifier");
         let kinds = pattern.potential_kinds().expect("should have kinds");
         assert_eq!(kinds.len(), 1);
@@ -494,7 +494,7 @@ mod test {
     #[test]
     #[ignore]
     fn test_multi_node_pattern() {
-        let pattern = Pattern::new("a;b;c;", Tsx);
+        let pattern = Pattern::new("a;b;c;", &Tsx);
         let kinds = pattern.potential_kinds().expect("should have kinds");
         assert_eq!(kinds.len(), 1);
         test_match("a;b;c", "a;b;c;");
@@ -517,16 +517,16 @@ mod test {
 
     #[test]
     fn test_error_kind() {
-        let ret = Pattern::contextual("a", "property_identifier", Tsx);
+        let ret = Pattern::contextual("a", "property_identifier", &Tsx);
         assert!(ret.is_err());
-        let ret = Pattern::new("123+", Tsx);
+        let ret = Pattern::new("123+", &Tsx);
         assert!(ret.has_error());
     }
 
     #[test]
     fn test_bare_wildcard_in_context() {
         let pattern =
-            Pattern::contextual("class A { $F }", "property_identifier", Tsx).expect("test");
+            Pattern::contextual("class A { $F }", "property_identifier", &Tsx).expect("test");
         let cand = pattern_node("let b = 123");
         // it should not match
         assert!(pattern.find_node(cand.root()).is_none());
@@ -534,24 +534,24 @@ mod test {
 
     #[test]
     fn test_pattern_fixed_string() {
-        let pattern = Pattern::new("class A { $F }", Tsx);
+        let pattern = Pattern::new("class A { $F }", &Tsx);
         assert_eq!(pattern.fixed_string(), "class");
         let pattern =
-            Pattern::contextual("class A { $F }", "property_identifier", Tsx).expect("test");
+            Pattern::contextual("class A { $F }", "property_identifier", &Tsx).expect("test");
         assert!(pattern.fixed_string().is_empty());
     }
 
     #[test]
     fn test_pattern_error() {
-        let pattern = Pattern::try_new("", Tsx);
+        let pattern = Pattern::try_new("", &Tsx);
         assert!(matches!(pattern, Err(PatternError::NoContent(_))));
-        let pattern = Pattern::try_new("12  3344", Tsx);
+        let pattern = Pattern::try_new("12  3344", &Tsx);
         assert!(matches!(pattern, Err(PatternError::MultipleNode(_))));
     }
 
     #[test]
     fn test_debug_pattern() {
-        let pattern = Pattern::new("var $A = 1", Tsx);
+        let pattern = Pattern::new("var $A = 1", &Tsx);
         assert_eq!(
             format!("{pattern:?}"),
             "[var, [Capture(\"A\", true), =, 1]]"
@@ -559,7 +559,7 @@ mod test {
     }
 
     fn defined_vars(s: &str) -> Vec<String> {
-        let pattern = Pattern::new(s, Tsx);
+        let pattern = Pattern::new(s, &Tsx);
         let mut vars: Vec<_> = pattern
             .defined_vars()
             .into_iter()
@@ -590,7 +590,7 @@ mod test {
     #[test]
     fn test_contextual_pattern_vars() {
         let pattern =
-            Pattern::contextual("<div ref={$A}/>", "jsx_attribute", Tsx).expect("correct");
+            Pattern::contextual("<div ref={$A}/>", "jsx_attribute", &Tsx).expect("correct");
         assert_eq!(pattern.defined_vars(), ["A"].into_iter().collect());
     }
 

@@ -323,7 +323,7 @@ mod test {
         };
         let fixer = parse(config)?;
         let grep = TypeScript::Tsx.ast_grep("var a = { b: 123, }");
-        let matcher = KindMatcher::new("pair", TypeScript::Tsx);
+        let matcher = KindMatcher::new("pair", &TypeScript::Tsx);
         let node = grep.root().find(&matcher).expect("should found");
         let edit = node.make_edit(&matcher, &fixer);
         let text = String::from_utf8_lossy(&edit.inserted_text);

@@ -4,6 +4,43 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
 
+//! # Pattern Match Results with Meta-Variable Capture
+//!
+//! Contains the [`NodeMatch`] type that represents the result of a successful
+//! pattern match, including both the matched AST node and any captured meta-variables.
+//!
+//! When a pattern like `"function $NAME($$$PARAMS) { $$$BODY }"` matches an AST node,
+//! it creates a [`NodeMatch`] that stores:
+//! - The matched node (the function declaration)
+//! - The captured variables (`$NAME`, `$PARAMS`, `$BODY`)
+//!
+//! ## Key Features
+//!
+//! - **Node access**: Use like a regular [`Node`] through [`Deref`]
+//! - **Meta-variable access**: Get captured variables via [`NodeMatch::get_env`]
+//! - **Code replacement**: Generate edits with [`NodeMatch::replace_by`]
+//! - **Type safety**: Lifetime-bound to ensure memory safety
+//!
+//! ## Example Usage
+//!
+//! ```rust,ignore
+//! // Find function declarations
+//! let matches = root.find_all("function $NAME($$$PARAMS) { $$$BODY }");
+//!
+//! for match_ in matches {
+//!     // Use as a regular node
+//!     println!("Function at line {}", match_.start_pos().line());
+//!
+//!     // Access captured meta-variables
+//!     let env = match_.get_env();
+//!     let name = env.get_match("NAME").unwrap();
+//!     println!("Function name: {}", name.text());
+//!
+//!     // Generate replacement code
+//!     let edit = match_.replace_by("async function $NAME($$$PARAMS) { $$$BODY }");
+//! }
+//! ```
+
 use super::matcher::Matcher;
 use crate::meta_var::MetaVarEnv;
 use crate::replacer::Replacer;
@@ -15,9 +52,35 @@ use std::ops::Deref;
 
 type Edit<D> = E<<D as Doc>::Source>;
 
-/// Represents the matched node with populated `MetaVarEnv`.
-/// It derefs to the `Node` so you can use it as a `Node`.
-/// To access the underlying `MetaVarEnv`, call `get_env` method.
+/// Result of a successful pattern match containing the matched node and captured variables.
+///
+/// `NodeMatch` combines an AST node with the meta-variables captured during
+/// pattern matching. It acts like a regular [`Node`] (through [`Deref`]) while
+/// also providing access to captured variables through [`get_env`].
+///
+/// # Lifetime
+///
+/// The lifetime `'t` ties the match to its source document, ensuring memory safety.
+///
+/// # Usage Patterns
+///
+/// ```rust,ignore
+/// // Use as a regular node
+/// let text = node_match.text();
+/// let position = node_match.start_pos();
+///
+/// // Access captured meta-variables
+/// let env = node_match.get_env();
+/// let captured_name = env.get_match("VAR_NAME").unwrap();
+///
+/// // Generate replacement code
+/// let edit = node_match.replace_by("new code with $VAR_NAME");
+/// ```
+///
+/// # Type Parameters
+///
+/// - `'t` - Lifetime tied to the source document
+/// - `D: Doc` - Document type containing the source and language info
 #[derive(Clone)]
 pub struct NodeMatch<'t, D: Doc>(Node<'t, D>, MetaVarEnv<'t, D>);
 

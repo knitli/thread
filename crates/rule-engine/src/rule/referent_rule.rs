@@ -271,7 +271,7 @@ mod test {
     fn test_success_rule() -> Result {
         let registration = RuleRegistration::default();
         let rule = ReferentRule::try_new("test".into(), &registration)?;
-        let pattern = Rule::Pattern(Pattern::new("some", TS::Tsx));
+        let pattern = Rule::Pattern(Pattern::new("some", &TS::Tsx));
         let ret = registration.insert_local("test", pattern);
         assert!(ret.is_ok());
         assert!(rule.potential_kinds().is_some());

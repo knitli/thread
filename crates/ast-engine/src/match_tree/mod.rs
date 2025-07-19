@@ -173,7 +173,7 @@ mod test {
     }
 
     fn test_match(s1: &str, s2: &str) -> RapidMap<String, String> {
-        let goal = Pattern::new(s1, Tsx);
+        let goal = Pattern::new(s1, &Tsx);
         let cand = Root::str(s2, Tsx);
         let cand = cand.root();
         let mut env = Cow::Owned(MetaVarEnv::new());
@@ -187,7 +187,7 @@ mod test {
     }
 
     fn test_non_match(s1: &str, s2: &str) {
-        let goal = Pattern::new(s1, Tsx);
+        let goal = Pattern::new(s1, &Tsx);
         let cand = Root::str(s2, Tsx);
         let cand = cand.root();
         let mut env = Cow::Owned(MetaVarEnv::new());
@@ -310,15 +310,15 @@ mod test {
     fn find_end_recursive(goal: &Pattern, node: &Node<StrDoc<Tsx>>) -> Option<usize> {
         match_end_non_recursive(goal, node).or_else(|| {
             node.children()
-                .find_map(|sub| find_end_recursive(goal, sub))
+                .find_map(|sub| find_end_recursive(goal, &sub))
         })
     }
 
     fn test_end(s1: &str, s2: &str) -> Option<usize> {
-        let goal = Pattern::new(s1, Tsx);
+        let goal = Pattern::new(s1, &Tsx);
         let cand = Root::str(s2, Tsx);
         let cand = cand.root();
-        find_end_recursive(&goal, cand.clone())
+        find_end_recursive(&goal, &cand)
     }
 
     #[test]

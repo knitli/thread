@@ -372,7 +372,7 @@ transform:
             "A".to_string(),
             Rule::Regex(RegexMatcher::try_new("a").unwrap()),
         );
-        let rule = RuleCore::new(Rule::Pattern(Pattern::new("$A", TypeScript::Tsx)))
+        let rule = RuleCore::new(Rule::Pattern(Pattern::new("$A", &TypeScript::Tsx)))
             .with_matchers(constraints);
         let grep = TypeScript::Tsx.ast_grep("a");
         assert!(grep.root().find(&rule).is_some());

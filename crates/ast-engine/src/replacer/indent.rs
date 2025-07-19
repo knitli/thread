@@ -6,118 +6,89 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
 
-/**
-  This module is for indentation-sensitive replacement.
-
-  Ideally, structural search and replacement should all be based on AST.
-  But this means our changed AST need to be pretty-printed by structural rules,
-  which we don't have enough resource to support. An indentation solution is used.
-
-  The algorithm is quite complicated, uncomprehensive, sluggish and buggy.
-  But let's walk through it by example.
-
-  consider this code
-  ```ignore
-  if (true) {
-    a(
-      1
-        + 2
-        + 3
-    )
-  }
-  ```
-
-  and this pattern and replacement
-
-  ```ignore
-  // pattern
-  a($B)
-  // replacement
-  c(
-    $B
-  )
-  ```
-
-  We need to compute the relative indentation of the captured meta-var.
-  When we insert the meta-var into replacement, keep the relative indent intact,
-  while also respecting the replacement indent.
-  Finally, the whole replacement should replace the matched node
-  in a manner that maintains the indentation of the source.
-
-  We need to consider multiple indentations.
-  Key concepts here:
-  * meta-var node: in this case `$B` in pattern/replacement, or `1+2+3` in source.
-  * matched node: in this case `a($B)` in pattern, `a(1 + 2 + 3)` in source
-  * meta-var source indentation: `$B` matches `1+2+3`, the first line's indentation in source code is 4.
-  * meta-var replacement indentation: in this case 2
-  * matched node source indentation: in this case 2
-
-  ## Extract Meta-var with de-indent
-  1. Initial meta-var node B text:
-      The meta-var source indentation for `$B` is 4.
-      However, meta-var node does not have the first line indentation.
-      ```ignore
-      1
-            + 2
-            + 3
-      ```
-  2. Deindent meta-var node B, except first line:
-      De-indenting all lines following the first line by 4 spaces gives us this relative code layout.
-
-      ```ignore
-      1
-        + 2
-        + 3
-      ```
-
-  ## Insert meta-var into replacement with re-indent
-
-  3. Re-indent by meta-var replacement indentation.
-      meta-var node $B occurs in replace with first line indentation of 2.
-      We need to re-indent the meta-var code before replacement, except the first line
-      ```ignore
-      1
-          + 2
-          + 3
-      ```
-
-  4. Insert meta-var code in to replacement
-      ```ignore
-      c(
-        1
-          + 2
-          + 3
-      )
-      ```
-
-  ## Insert replacement into source with re-indent
-
-  5. Re-indent the replaced template code except first line
-      The whole matched node first line indentation is 2.
-      We need to reindent the replacement code by 2, except the first line.
-      ```ignore
-      c(
-          1
-            + 2
-            + 3
-        )
-      ```
-
-  6. Inserted replacement code to original tree
-
-      ```ignore
-      if (true) {
-        c(
-          1
-            + 2
-            + 3
-        )
-      }
-      ```
-
-  The steps 3,4 and steps 5,6 are similar. We can define a `replace_with_indent` to it.
-  Following the same path, we can define a `extract_with_deindent` for steps 1,2
-*/
+//! # Indentation-Preserving Code Replacement
+//!
+//! Handles automatic indentation adjustment during code replacement to maintain
+//! proper formatting when inserting multi-line code snippets.
+//!
+//! ## The Challenge
+//!
+//! When replacing AST nodes with new code that contains meta-variables, we need to:
+//! 1. Preserve the relative indentation within captured variables
+//! 2. Adjust indentation to match the replacement context
+//! 3. Maintain overall source code formatting
+//!
+//! ## Algorithm Overview
+//!
+//! The indentation algorithm works in three phases:
+//!
+//! ### 1. Extract with De-indent
+//! Extract captured meta-variables and normalize their indentation by removing
+//! the original context indentation (except from the first line).
+//!
+//! ### 2. Insert with Re-indent
+//! Insert the normalized meta-variable content into the replacement template,
+//! applying the replacement context's indentation.
+//!
+//! ### 3. Final Re-indent
+//! Adjust the entire replacement to match the original matched node's indentation
+//! in the source code.
+//!
+//! ## Example Walkthrough
+//!
+//! **Original Code:**
+//! ```ignore
+//! if (true) {
+//!   a(
+//!     1
+//!       + 2
+//!       + 3
+//!   )
+//! }
+//! ```
+//!
+//! **Pattern:** `a($B)`
+//! **Replacement:** `c(\n  $B\n)`
+//!
+//! **Step 1 - Extract `$B` (indented at 4 spaces):**
+//! ```ignore
+//! 1
+//!   + 2    // Relative indent preserved
+//!   + 3
+//! ```
+//!
+//! **Step 2 - Insert into replacement (2 space context):**
+//! ```ignore
+//! c(
+//!   1
+//!     + 2  // 2 + 2 = 4 spaces total
+//!     + 3
+//! )
+//! ```
+//!
+//! **Step 3 - Final indent (match original 2 space context):**
+//! ```ignore
+//! if (true) {
+//!   c(
+//!     1
+//!       + 2
+//!       + 3
+//!   )
+//! }
+//! ```
+//!
+//! ## Key Types
+//!
+//! - [`DeindentedExtract`] - Represents extracted content with indentation info
+//! - [`extract_with_deindent`] - Extracts and normalizes meta-variable content
+//! - [`indent_lines`] - Applies indentation to multi-line content
+//!
+//! ## Limitations
+//!
+//! - Only supports space-based indentation (tabs not fully supported)
+//! - Assumes well-formed input indentation
+//! - Performance overhead for large code blocks
+//! - Complex algorithm with edge cases
 use crate::source::Content;
 use std::borrow::Cow;
 use std::cmp::Ordering;
@@ -134,15 +105,51 @@ fn get_space<C: Content>() -> C::Underlying {
 
 const MAX_LOOK_AHEAD: usize = 512;
 
-/// Represents how we de-indent matched meta var.
+/// Extracted content with indentation information for later re-indentation.
+///
+/// Represents the result of extracting a meta-variable's content from source code,
+/// along with the indentation context needed for proper re-insertion.
 pub enum DeindentedExtract<'a, C: Content> {
-    /// If meta-var is only one line, no need to de-indent/re-indent
+    /// Single-line content that doesn't require indentation adjustment.
+    ///
+    /// Contains just the raw content bytes since there are no line breaks
+    /// to worry about for indentation purposes.
     SingleLine(&'a [C::Underlying]),
-    /// meta-var's has multiple lines, may need re-indent
+
+    /// Multi-line content with original indentation level recorded.
+    ///
+    /// Contains the content bytes and the number of spaces that were used
+    /// for indentation in the original context. The first line's indentation
+    /// is not included in the content.
+    ///
+    /// # Fields
+    /// - Content bytes with relative indentation preserved
+    /// - Original indentation level (number of spaces)
     MultiLine(&'a [C::Underlying], usize),
 }
 
-/// Returns [`DeindentedExtract`] for later de-indent/re-indent.
+/// Extract content from source code and prepare it for indentation-aware replacement.
+///
+/// Analyzes the content at the given range and determines whether it needs
+/// indentation processing. For multi-line content, calculates the original
+/// indentation level for later re-indentation.
+///
+/// # Parameters
+///
+/// - `content` - Source content to extract from
+/// - `range` - Byte range of the content to extract
+///
+/// # Returns
+///
+/// [`DeindentedExtract`] containing the content and indentation information
+///
+/// # Example
+///
+/// ```rust,ignore
+/// let source = "  if (true) {\n    console.log('test');\n  }";
+/// let extract = extract_with_deindent(&source, 2..source.len());
+/// // Returns MultiLine with 2-space indentation context
+/// ```
 pub fn extract_with_deindent<C: Content>(
     content: &C,
     range: Range<usize>,
@@ -210,7 +217,7 @@ where
     let mut ret = vec![];
     let space = get_space::<C>();
     let leading: Vec<_> = std::iter::repeat_n(space, indent).collect();
-    // first line never got indent
+    // first line wasn't indented, so we don't add leading spaces
     if let Some(line) = lines.next() {
         ret.extend(line.iter().cloned());
     }
@@ -251,7 +258,7 @@ pub fn get_indent_at_offset<C: Content>(src: &[C::Underlying]) -> usize {
 }
 
 // NOTE: we assume input is well indented.
-// following line's should have fewer indentation than initial line
+// following lines should have fewer indentations than initial line
 fn remove_indent<C: Content>(indent: usize, src: &[C::Underlying]) -> Vec<C::Underlying> {
     let indentation: Vec<_> = std::iter::repeat_n(get_space::<C>(), indent)
         .collect();

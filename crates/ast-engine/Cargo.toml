@@ -36,11 +36,13 @@ bit-set = { workspace = true, optional = true }
 regex = { workspace = true, optional = true }
 
 [features]
-default = ["parsing", "matching"]
+default = ["parsing", "matching", "replacing"]
 # The 'parsing' feature enables the tree-sitter backend
 parsing = ["dep:tree-sitter"]
 # The 'matching' feature enables the pattern matching engine
 matching = ["dep:regex", "dep:bit-set"]
+
+replacing = ["matching"]
 
 [dev-dependencies]
 tree-sitter-typescript = "0.23.2"

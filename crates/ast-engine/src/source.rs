@@ -4,33 +4,94 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
 
-//! This module defines the `Doc` and `Content` traits to abstract away source code encoding issues.
+//! # Document and Content Abstraction
 //!
-//! ast-grep supports three kinds of encoding: utf-8 for CLI, utf-16 for nodeJS napi and `Vec<char>` for wasm.
-//! Different encoding will produce different tree-sitter Node's range and position.
+//! Core traits for abstracting source code documents and their encoding across different platforms.
 //!
-//! The `Content` trait is defined to abstract different encoding.
-//! It is used as associated type bound `Source` in the `Doc` trait.
-//! Its associated type `Underlying`  represents the underlying type of the content, e.g. `Vec<u8>`, `Vec<u16>`.
+//! ## Multi-Platform Support
 //!
-//! `Doc` is a trait that defines a document that can be parsed by Tree-sitter.
-//! It has a `Source` associated type bounded by `Content` that represents the source code of the document,
-//! and a `Lang` associated type that represents the language of the document.
+//! thread-ast-engine supports multiple text encodings to work across different environments:
+//! - **UTF-8** - Standard for CLI applications and most Rust code
+//! - **UTF-16** - Required for Node.js NAPI bindings
+//! - **`Vec<char>`** - Used in WASM environments for JavaScript interop
+//!
+//! Different encodings affect how byte positions and ranges are calculated in tree-sitter nodes,
+//! so this abstraction ensures consistent behavior across platforms.
+//!
+//! ## Key Concepts
+//!
+//! ### Documents ([`Doc`])
+//! Represents a complete source code document with its language and parsing information.
+//! Provides methods to access the source text, perform edits, and get AST nodes.
+//!
+//! ### Content ([`Content`])
+//! Abstracts the underlying text representation (bytes, UTF-16 code units, etc.).
+//! Handles encoding/decoding operations needed for text manipulation and replacement.
+//!
+//! ### Node Interface ([`SgNode`])
+//! Generic interface for AST nodes that works across different parser backends.
+//! Provides navigation, introspection, and traversal methods.
+//!
+//! ## Example Usage
+//!
+//! ```rust,ignore
+//! // Documents abstract over different source encodings
+//! let doc = StrDoc::new("const x = 42;", Language::JavaScript);
+//! let root = doc.root_node();
+//!
+//! // Content trait handles encoding differences transparently
+//! let source_bytes = doc.get_source().get_range(0..5); // "const"
+//! ```
 
 use crate::{Position, language::Language, node::KindId};
 use std::borrow::Cow;
 use std::ops::Range;
 
+/// Represents an edit operation on source code.
+///
+/// Edits specify where in the source to make changes and what new content
+/// to insert. Used for incremental parsing and code transformation.
+///
+/// # Type Parameters
+///
+/// - `S: Content` - The content type (determines encoding)
+///
+/// # Example
+///
+/// ```rust,ignore
+/// let edit = Edit {
+///     position: 5,           // Start at byte position 5
+///     deleted_length: 3,     // Delete 3 bytes
+///     inserted_text: "new".as_bytes().to_vec(), // Insert "new"
+/// };
+/// ```
 // https://github.com/tree-sitter/tree-sitter/blob/e4e5ffe517ca2c668689b24cb17c51b8c6db0790/cli/src/parse.rs
 #[derive(Debug, Clone)]
 pub struct Edit<S: Content> {
+    /// Byte position where the edit starts
     pub position: usize,
+    /// Number of bytes to delete from the original content
     pub deleted_length: usize,
+    /// New content to insert (in the content's underlying representation)
     pub inserted_text: Vec<S::Underlying>,
 }
 
-/// NOTE: Some method names are the same as tree-sitter's methods.
-/// Fully Qualified Syntax may needed <https://stackoverflow.com/a/44445976/2198656>
+/// Generic interface for AST nodes across different parser backends.
+///
+/// `SgNode` (SourceGraph Node) provides a consistent API for working with
+/// AST nodes regardless of the underlying parser implementation. Supports
+/// navigation, introspection, and traversal operations.
+///
+/// # Lifetime
+///
+/// The lifetime `'r` ties the node to its root document, ensuring memory safety.
+///
+/// # Note
+///
+/// Some method names match tree-sitter's API. Use fully qualified syntax
+/// if there are naming conflicts with tree-sitter imports.
+///
+/// See: <https://stackoverflow.com/a/44445976/2198656>
 pub trait SgNode<'r>: Clone {
     fn parent(&self) -> Option<Self>;
     fn children(&self) -> impl ExactSizeIterator<Item = Self>;
@@ -131,27 +192,95 @@ pub trait SgNode<'r>: Clone {
     fn child_by_field_id(&self, field_id: u16) -> Option<Self>;
 }
 
+/// Represents a source code document with its language and parsed AST.
+///
+/// `Doc` provides the core interface for working with parsed source code documents.
+/// It combines the source text, language information, and AST representation in
+/// a single abstraction that supports editing and node operations.
+///
+/// # Type Parameters
+///
+/// - `Source: Content` - The text representation (String, UTF-16, etc.)
+/// - `Lang: Language` - The programming language implementation
+/// - `Node: SgNode` - The AST node implementation
+///
+/// # Example
+///
+/// ```rust,ignore
+/// // Documents provide access to source, language, and AST
+/// let doc = StrDoc::new("const x = 42;", JavaScript);
+///
+/// // Access different aspects of the document
+/// let source = doc.get_source();  // Get source text
+/// let lang = doc.get_lang();      // Get language info
+/// let root = doc.root_node();     // Get AST root
+///
+/// // Extract text from specific nodes
+/// let node_text = doc.get_node_text(&some_node);
+/// ```
 pub trait Doc: Clone + 'static {
+    /// The source code representation (String, UTF-16, etc.)
     type Source: Content;
+    /// The programming language implementation
     type Lang: Language;
+    /// The AST node type for this document
     type Node<'r>: SgNode<'r>;
+
+    /// Get the language implementation for this document
     fn get_lang(&self) -> &Self::Lang;
+
+    /// Get the source code content
     fn get_source(&self) -> &Self::Source;
+
+    /// Apply an edit to the document, updating both source and AST
     fn do_edit(&mut self, edit: &Edit<Self::Source>) -> Result<(), String>;
+
+    /// Get the root AST node
     fn root_node(&self) -> Self::Node<'_>;
+
+    /// Extract the text content of a specific AST node
     fn get_node_text<'a>(&'a self, node: &Self::Node<'a>) -> Cow<'a, str>;
 }
 
+/// Abstracts source code text representation across different encodings.
+///
+/// `Content` allows the same AST operations to work with different text encodings
+/// (UTF-8, UTF-16, etc.) by providing encoding/decoding operations and position
+/// calculations. Essential for cross-platform support.
+///
+/// # Type Parameters
+///
+/// - `Underlying` - The basic unit type (u8 for UTF-8, u16 for UTF-16, etc.)
+///
+/// # Example
+///
+/// ```rust,ignore
+/// // Content trait abstracts encoding differences
+/// let content = "Hello, world!";
+/// let bytes = content.get_range(0..5);  // [72, 101, 108, 108, 111] for UTF-8
+/// let column = content.get_char_column(0, 7); // Character position
+/// ```
 pub trait Content: Sized {
+    /// The underlying data type (u8, u16, char, etc.)
     type Underlying: Clone + PartialEq;
+
+    /// Get a slice of the underlying data for the given byte range
     fn get_range(&self, range: Range<usize>) -> &[Self::Underlying];
-    /// Used for string replacement. We need this for
-    /// indentation and deindentation.
+
+    /// Convert a string to this content's underlying representation.
+    ///
+    /// Used during text replacement to ensure proper encoding.
     fn decode_str(src: &str) -> Cow<'_, [Self::Underlying]>;
-    /// Used for string replacement. We need this for
-    /// transformation.
+
+    /// Convert underlying data back to a string.
+    ///
+    /// Used to extract text content after transformations.
     fn encode_bytes(bytes: &[Self::Underlying]) -> Cow<'_, str>;
-    /// Get the character column at the given position
+
+    /// Calculate the character column position at a given byte offset.
+    ///
+    /// Handles Unicode properly by computing actual character positions
+    /// rather than byte positions.
     fn get_char_column(&self, column: usize, offset: usize) -> usize;
 }
 

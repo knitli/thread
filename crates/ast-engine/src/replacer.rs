@@ -4,6 +4,54 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
 
+//! # Code Replacement and Transformation
+//!
+//! Tools for replacing and transforming matched AST nodes with new content.
+//!
+//! ## Core Concepts
+//!
+//! - [`Replacer`] - Trait for generating replacement content from matched nodes
+//! - Template-based replacement using meta-variables (e.g., `"let $VAR = $VALUE"`)
+//! - Structural replacement using other AST nodes
+//! - Automatic indentation handling to preserve code formatting
+//!
+//! ## Built-in Replacers
+//!
+//! Several types implement [`Replacer`] out of the box:
+//!
+//! - **`&str`** - Template strings with meta-variable substitution
+//! - **[`Root`]** - Replace with entire AST trees
+//! - **[`Node`]** - Replace with specific nodes
+//!
+//! ## Examples
+//!
+//! ### Template Replacement
+//!
+//! ```rust,no_run
+//! # use thread_ast_engine::Language;
+//! # use thread_ast_engine::tree_sitter::LanguageExt;
+//! # use thread_ast_engine::matcher::MatcherExt;
+//! let mut ast = Language::Tsx.ast_grep("var x = 42;");
+//!
+//! // Replace using a template string
+//! ast.replace("var $NAME = $VALUE", "const $NAME = $VALUE");
+//! println!("{}", ast.generate()); // "const x = 42;"
+//! ```
+//!
+//! ### Structural Replacement
+//!
+//! ```rust,no_run
+//! # use thread_ast_engine::Language;
+//! # use thread_ast_engine::tree_sitter::LanguageExt;
+//! # use thread_ast_engine::matcher::MatcherExt;
+//! let mut target = Language::Tsx.ast_grep("old_function();");
+//! let replacement = Language::Tsx.ast_grep("new_function(42)");
+//!
+//! // Replace with another AST
+//! target.replace("old_function()", replacement);
+//! println!("{}", target.generate()); // "new_function(42);"
+//! ```
+
 use crate::matcher::Matcher;
 use crate::meta_var::{MetaVariableID, Underlying, is_valid_meta_var_char};
 use crate::{Doc, Node, NodeMatch, Root};
@@ -21,9 +69,60 @@ mod template;
 pub use crate::source::Content;
 pub use template::{TemplateFix, TemplateFixError};
 
-/// Replace meta variable in the replacer string
+/// Generate replacement content for matched AST nodes.
+///
+/// The `Replacer` trait defines how to transform a matched node into new content.
+/// Implementations can use template strings with meta-variables, structural
+/// replacement with other AST nodes, or custom logic.
+///
+/// # Type Parameters
+///
+/// - `D: Doc` - The document type containing source code and language information
+///
+/// # Example Implementation
+///
+/// ```rust,no_run
+/// # use thread_ast_engine::replacer::Replacer;
+/// # use thread_ast_engine::{Doc, NodeMatch};
+/// # use thread_ast_engine::meta_var::Underlying;
+/// struct CustomReplacer;
+///
+/// impl<D: Doc> Replacer<D> for CustomReplacer {
+///     fn generate_replacement(&self, nm: &NodeMatch<'_, D>) -> Underlying<D> {
+///         // Custom replacement logic here
+///         "new_code".as_bytes().to_vec()
+///     }
+/// }
+/// ```
 pub trait Replacer<D: Doc> {
+    /// Generate replacement content for a matched node.
+    ///
+    /// Takes a [`NodeMatch`] containing the matched node and its captured
+    /// meta-variables, then returns the raw bytes that should replace the
+    /// matched content in the source code.
+    ///
+    /// # Parameters
+    ///
+    /// - `nm` - The matched node with captured meta-variables
+    ///
+    /// # Returns
+    ///
+    /// Raw bytes representing the replacement content
     fn generate_replacement(&self, nm: &NodeMatch<'_, D>) -> Underlying<D>;
+
+    /// Determine the exact range of source code to replace.
+    ///
+    /// By default, replaces the entire matched node's range. Some matchers
+    /// may want to replace only a portion of the matched content.
+    ///
+    /// # Parameters
+    ///
+    /// - `nm` - The matched node
+    /// - `matcher` - The matcher that found this node (may provide custom range info)
+    ///
+    /// # Returns
+    ///
+    /// Byte range in the source code to replace
     fn get_replaced_range(&self, nm: &NodeMatch<'_, D>, matcher: impl Matcher) -> Range<usize> {
         let range = nm.range();
         if let Some(len) = matcher.get_match_len(nm.get_node().clone()) {

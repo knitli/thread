@@ -3,6 +3,29 @@
 // SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
+//! # Meta-variable Environment and Utilities
+//!
+//! This module provides types and functions for handling meta-variables in AST pattern matching.
+//! Meta-variables allow patterns to flexibly match and capture code fragments, supporting single and multi-capture semantics.
+//!
+//! ## Key Components
+//!
+//! - [`MetaVarEnv`](crates/ast-engine/src/meta_var.rs:26): Stores meta-variable instantiations during pattern matching.
+//! - [`MetaVariable`](crates/ast-engine/src/meta_var.rs:260): Enum representing different meta-variable forms (single, multi, dropped).
+//! - `extract_meta_var`: Utility to parse meta-variable strings.
+//! - Insertion, retrieval, and transformation APIs for meta-variable environments.
+//!
+//! ## Example
+//!
+//! ```rust,no_run
+//! use thread_ast_engine::meta_var::{MetaVarEnv, MetaVariable, extract_meta_var};
+//!
+//! let mut env = MetaVarEnv::new();
+//! env.insert("$A", node);
+//! let meta = extract_meta_var("$A", '$');
+//! ```
+//!
+//! See [`MetaVarEnv`](crates/ast-engine/src/meta_var.rs:48) for details on usage in AST matching and rewriting.
 #[cfg(feature = "matching")]
 use crate::match_tree::does_node_match_exactly;
 #[cfg(feature = "matching")]
@@ -389,7 +412,7 @@ mod test {
 
     fn match_constraints(pattern: &str, node: &str) -> bool {
         let mut matchers = thread_utils::RapidMap::default();
-        matchers.insert("A".to_string(), Pattern::new(pattern, Tsx));
+        matchers.insert("A".to_string(), Pattern::new(pattern, &Tsx));
         let mut env = MetaVarEnv::new();
         let root = Tsx.ast_grep(node);
         let node = root.root().child(0).unwrap().child(0).unwrap();
