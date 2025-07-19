@@ -214,8 +214,8 @@ tags
 
 *~
 
-crates/rule-engine/serialization_analysis/serialization_analysis
-!crates/rule-engine/serialization_analysis/serialization_analysis.rs
+crates/rule-engine/serialization_analysis/analyze_serialization
+!crates/rule-engine/serialization_analysis/analyze_serialization.rs
 
 # temporary files which can be created if a process still has a handle open of a deleted file
 .fuse_hidden*

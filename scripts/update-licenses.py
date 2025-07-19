@@ -1,4 +1,4 @@
-#!/usr/bin/env -S uv run --all-extras -s
+#!/usr/bin/env -S uv run -s
 # /// script
 # requires-python = ">=3.11"
 # dependencies = ["rignore", "cyclopts"]
@@ -9,8 +9,12 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
-"""Update licenses for files in the repository."""
+"""Update licenses for files in the repository.
 
+TODO: Add interactive prompt for contributors.
+"""
+
+import json
 import subprocess
 import sys
 from pathlib import Path
@@ -69,6 +73,12 @@ BASE_CMD = [
     "--fallback-dot-license",
     "--merge-copyrights",
     "--skip-existing"
+]
+
+CHECK_CMD = [
+    "reuse",
+    "lint",
+    "-j",
 ]
 
 # Collect non-code paths that are not in the AST-Grep or code paths
@@ -140,7 +150,6 @@ AST_GREP_COPYRIGHT = (
     "Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>"
 )
 
-
 class PathsForProcessing(NamedTuple):
     """Paths for processing."""
     ast_grep_paths: list[Path]
@@ -203,6 +212,27 @@ def filter_path(paths: tuple[Path] | None = None, path: Path | None = None) -> b
         return path.is_file() and not path.is_symlink()
     return path in paths and path.is_file() and not path.is_symlink()
 
+def get_files_with_missing() -> list[Path] | None:
+    """Get files with missing licenses."""
+    try:
+        result = subprocess.run(
+            CHECK_CMD,
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        output = json.loads(result.stdout.strip())
+        non_compliant_report = output.get("non_compliant", {})
+        missing_files = non_compliant_report.get("missing_copyright_info", []) + non_compliant_report.get("missing_licensing_info", [])
+        if not missing_files:
+            print("No files with missing licenses found.")
+            return None
+        print(f"Found {len(missing_files)} files with missing licenses.")
+        return sorted({BASE_PATH / file for file in missing_files})
+    except subprocess.CalledProcessError as e:
+        print(f"Error checking files: {e}")
+        return None
+
 def get_empty_lists() -> tuple[list, list, list]:
     """Get empty lists for AST-Grep paths, code paths, and non-code paths."""
     return [], [], []
@@ -237,6 +267,20 @@ def process_contributors(contributors: list[str]) -> list[str]:
 def update_all(*, contributors: Annotated[list[str], CONTRIBUTORS] = DEFAULT_CONTRIBUTORS) -> None:
     """Update all licenses in the repository."""
     path_obj = sort_paths()
+    BASE_CMD.extend(process_contributors(contributors))
+    try:
+        path_obj.process_with_cmd(BASE_CMD)
+    except Exception as e:
+        print(f"Error updating licenses: {e}")
+
+@app.command(help="Add licenses for only those files missing license information in the repository. Will check every file in the repository and add license information if it's missing.")
+def missing(*, contributors: Annotated[list[str], CONTRIBUTORS] = DEFAULT_CONTRIBUTORS) -> None:
+    """Add licenses for only those files missing license information in the repository."""
+    missing_files = get_files_with_missing()
+    if not missing_files:
+        print("No files with missing licenses found.")
+        return
+    path_obj = sort_paths(missing_files)
     BASE_CMD.extend(process_contributors(contributors))
     try:
         path_obj.process_with_cmd(BASE_CMD)
