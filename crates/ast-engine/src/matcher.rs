@@ -10,12 +10,6 @@
 //! * Pattern: matches against a tree-sitter node based on its tree structure.
 //! * KindMatcher: matches a node based on its `kind`
 //! * RegexMatcher: matches a node based on its textual content using regex.
-pub mod types;
-mod kind;
-mod node_match;
-mod pattern;
-mod text;
-
 
 use crate::Doc;
 use crate::{meta_var::MetaVarEnv, Node};
@@ -23,6 +17,38 @@ use crate::{meta_var::MetaVarEnv, Node};
 use bit_set::BitSet;
 use std::borrow::Cow;
 
+pub use crate::matchers::kind::*;
+pub use crate::matchers::node_match::*;
+pub use crate::matchers::pattern::*;
+pub use crate::matchers::text::*;
+<<<<<<< Updated upstream
+
+/// `Matcher` defines whether a tree-sitter node matches certain pattern,
+/// and update the matched meta-variable values in `MetaVarEnv`.
+/// N.B. At least one positive term is required for matching
+pub trait Matcher {
+  /// Returns the node why the input is matched or None if not matched.
+  /// The return value is usually input node itself, but it can be different node.
+  /// For example `Has` matcher can return the child or descendant node.
+  fn match_node_with_env<'tree, D: Doc>(
+    &self,
+    _node: Node<'tree, D>,
+    _env: &mut Cow<MetaVarEnv<'tree, D>>,
+  ) -> Option<Node<'tree, D>>;
+
+  /// Returns a bitset for all possible target node kind ids.
+  /// Returns None if the matcher needs to try against all node kind.
+  fn potential_kinds(&self) -> Option<BitSet> {
+    None
+  }
+
+  /// get_match_len will skip trailing anonymous child node to exclude punctuation.
+  // This is not included in NodeMatch since it is only used in replace
+  fn get_match_len<D: Doc>(&self, _node: Node<'_, D>) -> Option<usize> {
+    None
+  }
+}
+||||||| Stash base
 pub use kind::{kind_utils, KindMatcher, KindMatcherError};
 pub use node_match::NodeMatch;
 pub use types::{Pattern, PatternBuilder, PatternError, PatternNode, MatchStrictness};
@@ -53,6 +79,9 @@ pub trait Matcher {
     None
   }
 }
+=======
+pub use crate::matchers::matcher::Matcher;
+>>>>>>> Stashed changes
 
 /// MatcherExt provides additional utility methods for `Matcher`.
 /// It is implemented for all types that implement `Matcher`.

@@ -14,7 +14,7 @@ use thread_ast_engine::meta_var::MetaVariable;
 use thread_ast_engine::source::{Content, Edit};
 use thread_ast_engine::{Doc, Language, Node, NodeMatch};
 
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
+#[derive(Serialize, Deserialize, Clone, Debug, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct Rewrite<T> {
     pub source: T,

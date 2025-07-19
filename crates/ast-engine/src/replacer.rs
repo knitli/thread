@@ -63,6 +63,7 @@ impl<D: Doc> Replacer<D> for Node<'_, D> {
   }
 }
 
+#[derive(Debug, Clone)]
 enum MetaVarExtract {
   /// $A for captured meta var
   Single(MetaVariableID),

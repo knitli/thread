@@ -48,7 +48,7 @@ fn parse_lang(
   }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct StrDoc<L: LanguageExt> {
   pub src: String,
   pub lang: L,

@@ -1,5 +1,5 @@
 {
-  "git.enabled": false,
+  "git.enabled": true,
   "chat.mcp.serverSampling": {
     "thread/.vscode/mcp.json: browser-debug-tools": {
       "allowedModels": []

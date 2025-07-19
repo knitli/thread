@@ -35,7 +35,7 @@ mod scala;
 mod swift;
 mod yaml;
 
-use thread_ast_engine::matcher::types::{Pattern, PatternBuilder, PatternError};
+use thread_ast_engine::{Pattern, PatternBuilder, PatternError};
 pub use html::Html;
 
 use thread_ast_engine::meta_var::MetaVariable;

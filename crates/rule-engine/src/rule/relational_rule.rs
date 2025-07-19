@@ -16,7 +16,7 @@ use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 use thread_utils::RapidSet;
 
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
+#[derive(Serialize, Deserialize, Clone, Debug, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct Relation {
     #[serde(flatten)]
@@ -39,6 +39,7 @@ fn field_name_to_id<L: Language>(
     }
 }
 
+#[derive(Clone, Debug)]
 pub struct Inside {
     outer: Rule,
     field: Option<u16>,
@@ -80,14 +81,14 @@ impl Matcher for Inside {
         let ancestors = || node.ancestors();
         if let Some(field) = self.field {
             let mut last_id = node.node_id();
-            let finder = move |nd: Node<'tree, D>| {
+            let finder = move |moved_node: Node<'tree, D>| {
                 let expect_id = last_id;
-                last_id = nd.node_id();
-                let n = nd.child_by_field_id(field)?;
+                last_id = moved_node.node_id();
+                let n = moved_node.child_by_field_id(field)?;
                 if n.node_id() != expect_id {
                     None
                 } else {
-                    self.outer.match_node_with_env(nd, env)
+                    self.outer.match_node_with_env(moved_node, env)
                 }
             };
             self.stop_by.find(parent, ancestors, finder)
@@ -98,6 +99,7 @@ impl Matcher for Inside {
     }
 }
 
+#[derive(Clone, Debug)]
 pub struct Has {
     inner: Rule,
     stop_by: StopBy,
@@ -136,19 +138,19 @@ impl Matcher for Has {
         env: &mut Cow<MetaVarEnv<'tree, D>>,
     ) -> Option<Node<'tree, D>> {
         if let Some(field) = self.field {
-            let nd = node.child_by_field_id(field)?;
+            let child_node = node.child_by_field_id(field)?;
             return match &self.stop_by {
-                StopBy::Neighbor => self.inner.match_node_with_env(nd, env),
-                StopBy::End => nd
+                StopBy::Neighbor => self.inner.match_node_with_env(child_node, env),
+                StopBy::End => child_node
                     .dfs()
                     .find_map(|n| self.inner.match_node_with_env(n, env)),
                 StopBy::Rule(matcher) => {
                     // TODO: use Pre traversal to reduce stack allocation
-                    self.inner.match_node_with_env(nd.clone(), env).or_else(|| {
-                        if nd.matches(matcher) {
+                    self.inner.match_node_with_env(child_node.clone(), env).or_else(|| {
+                        if child_node.matches(matcher) {
                             None
                         } else {
-                            nd.children()
+                            child_node.children()
                                 .find_map(|n| self.inner.match_node_with_env(n, env))
                         }
                     })
@@ -179,6 +181,7 @@ impl Matcher for Has {
     }
 }
 
+#[derive(Clone, Debug)]
 pub struct Precedes {
     later: Rule,
     stop_by: StopBy,
@@ -223,6 +226,7 @@ impl Matcher for Precedes {
     }
 }
 
+#[derive(Clone, Debug)]
 pub struct Follows {
     former: Rule,
     stop_by: StopBy,

@@ -3,12 +3,43 @@
 //! Definitions for the globally important pattern matching types.
 //! Allows their use outside the pattern matching feature flags (unimplemented).
 
-use super::kind::{KindMatcherError};
 use thiserror::Error;
+use bit_set::BitSet;
+use crate::Doc;
+use crate::MetaVarEnv;
+use crate::node::Node;
 use std::borrow::Cow;
 use crate::meta_var::MetaVariable;
 
+<<<<<<< Updated upstream
+||||||| Stash base
 #[derive(Clone)]
+=======
+pub trait Matcher {
+  /// Returns the node why the input is matched or None if not matched.
+  /// The return value is usually input node itself, but it can be different node.
+  /// For example `Has` matcher can return the child or descendant node.
+  fn match_node_with_env<'tree, D: Doc>(
+    &self,
+    _node: Node<'tree, D>,
+    _env: &mut Cow<MetaVarEnv<'tree, D>>,
+  ) -> Option<Node<'tree, D>>;
+
+  /// Returns a bitset for all possible target node kind ids.
+  /// Returns None if the matcher needs to try against all node kind.
+  fn potential_kinds(&self) -> Option<BitSet> {
+    None
+  }
+
+  /// get_match_len will skip trailing anonymous child node to exclude punctuation.
+  // This is not included in NodeMatch since it is only used in replace
+  fn get_match_len<D: Doc>(&self, _node: Node<'_, D>) -> Option<usize> {
+    None
+  }
+}
+
+>>>>>>> Stashed changes
+#[derive(Clone, Debug)]
 pub enum MatchStrictness {
   Cst,       // all nodes are matched
   Smart,     // all nodes except source trivial nodes are matched.
@@ -24,6 +55,7 @@ pub struct Pattern {
     pub strictness: MatchStrictness,
 }
 
+#[derive(Clone, Debug)]
 pub struct PatternBuilder<'a> {
     pub(crate) selector: Option<&'a str>,
     pub(crate) src: Cow<'a, str>,
@@ -56,7 +88,8 @@ pub enum PatternError {
     #[error("Multiple AST nodes are detected. Please check the pattern source `{0}`.")]
     MultipleNode(String),
     #[error(transparent)]
-    InvalidKind(#[from] KindMatcherError),
+    #[cfg(feature = "matching")]
+    InvalidKind(#[from] super::kind::KindMatcherError),
     #[error(
         "Fails to create Contextual pattern: selector `{selector}` matches no node in the context `{context}`."
     )]

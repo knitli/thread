@@ -4,7 +4,7 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
 
-use crate::matcher::NodeMatch;
+use crate::NodeMatch;
 use crate::node::{Node, Root};
 use crate::Doc;
 

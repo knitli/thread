@@ -57,7 +57,7 @@ mod test {
   use thread_ast_engine::Language;
   use std::path::Path;
 
-  #[derive(Clone, Deserialize, PartialEq, Eq)]
+  #[derive(Clone, Debug, Deserialize, PartialEq, Eq)]
   pub enum TypeScript {
     Tsx,
   }

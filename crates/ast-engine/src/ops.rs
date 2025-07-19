@@ -48,6 +48,7 @@ where
 
 // we pre-compute and cache potential_kinds. So patterns should not be mutated.
 // Box<[P]> is used here for immutability so that kinds will never be invalidated.
+#[derive(Clone, Debug)]
 pub struct All<P: Matcher> {
   patterns: Box<[P]>,
   kinds: Option<BitSet>,
@@ -110,6 +111,7 @@ impl<P: Matcher> Matcher for All<P> {
 }
 
 // Box<[P]> for immutability and potential_kinds cache correctness
+#[derive(Clone, Debug)]
 pub struct Any<P> {
   patterns: Box<[P]>,
   kinds: Option<BitSet>,
@@ -165,6 +167,7 @@ impl<M: Matcher> Matcher for Any<M> {
   }
 }
 
+#[derive(Clone, Debug)]
 pub struct Or<P1: Matcher, P2: Matcher> {
   pattern1: P1,
   pattern2: P2,
@@ -200,6 +203,7 @@ where
   }
 }
 
+#[derive(Clone, Debug)]
 pub struct Not<M: Matcher> {
   not: M,
 }
@@ -229,7 +233,7 @@ where
   }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Op<M: Matcher> {
   inner: M,
 }

@@ -19,7 +19,7 @@ use thread_utils::RapidSet;
 
 // NB StopBy's JsonSchema is changed in xtask/schema.rs
 // revise schema is easier than manually implementation
-#[derive(Clone, Default, JsonSchema)]
+#[derive(Clone, Debug, Default, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub enum SerializableStopBy {
     #[default]
@@ -90,6 +90,7 @@ impl Serialize for SerializableStopBy {
     }
 }
 
+#[derive(Clone, Debug)]
 pub enum StopBy {
     Neighbor,
     End,

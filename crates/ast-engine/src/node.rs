@@ -4,6 +4,7 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
 
+#[cfg(feature = "matching")]
 use crate::matcher::{Matcher, MatcherExt, NodeMatch};
 use crate::replacer::Replacer;
 use crate::source::{Content, Edit as E, SgNode};
@@ -52,7 +53,7 @@ impl Position {
 
 /// Represents [`tree_sitter::Tree`] and owns source string
 /// Note: Root is generic against [`Language`](crate::language::Language)
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Root<D: Doc> {
   pub(crate) doc: D,
 }
@@ -119,7 +120,7 @@ impl<D: Doc> Root<D> {
 
 // why we need one more content? https://github.com/ast-grep/ast-grep/issues/1951
 /// 'r represents root lifetime
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Node<'r, D: Doc> {
   pub(crate) inner: D::Node<'r>,
   pub(crate) root: &'r Root<D>,

@@ -26,7 +26,7 @@ use std::borrow::Cow;
 use std::ops::Deref;
 use thread_utils::{RapidMap, RapidSet};
 
-#[derive(Debug, Error)]
+#[derive(Error, Debug)]
 pub enum RuleCoreError {
     #[error("Fail to parse yaml as RuleConfig")]
     Yaml(#[from] YamlError),
@@ -47,7 +47,7 @@ pub enum RuleCoreError {
 type RResult<T> = std::result::Result<T, RuleCoreError>;
 
 /// Used for global rules, rewriters, and pyo3/napi
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
+#[derive(Serialize, Deserialize, Clone, Debug, JsonSchema)]
 pub struct SerializableRuleCore {
     /// A rule object to find matching AST nodes
     pub rule: SerializableRule,
@@ -144,6 +144,7 @@ impl SerializableRuleCore {
     }
 }
 
+#[derive(Clone, Debug)]
 pub struct RuleCore {
     rule: Rule,
     constraints: RapidMap<String, Rule>,

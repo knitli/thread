@@ -30,7 +30,7 @@ fn get_text_from_env<D: Doc>(var: &MetaVariable, ctx: &mut Ctx<'_, '_, D>) -> Op
 ///
 /// Both `start_char` and `end_char` support negative indexing,
 /// which counts character from the end of an array, moving backwards.
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
+#[derive(Serialize, Deserialize, Clone, Debug, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct Substring<T> {
     /// source meta variable to be transformed
@@ -119,7 +119,7 @@ fn resolve_char(opt: &Option<i32>, dft: i32, len: i32) -> usize {
 }
 
 /// Replaces a substring in the meta variable's text content with another string.
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
+#[derive(Serialize, Deserialize, Clone, Debug, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct Replace<T> {
     /// source meta variable to be transformed
@@ -167,7 +167,7 @@ impl Replace<MetaVariable> {
 }
 
 /// Converts the source meta variable's text content to a specified case format.
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
+#[derive(Serialize, Deserialize, Clone, Debug, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct Convert<T> {
     /// source meta variable to be transformed
@@ -188,7 +188,7 @@ impl Convert<MetaVariable> {
 
 /// Represents a transformation that can be applied to a matched AST node.
 /// Available transformations are `substring`, `replace` and `convert`.
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
+#[derive(Serialize, Deserialize, Clone, Debug, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub enum Trans<T> {
     Substring(Substring<T>),

@@ -18,7 +18,7 @@ fn capitalize(string: &str) -> String {
 }
 
 /// An enumeration representing different cases for strings.
-#[derive(Serialize, Deserialize, Clone, Copy, JsonSchema)]
+#[derive(Serialize, Deserialize, Clone, Copy, Debug, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub enum StringCase {
   LowerCase,
@@ -46,7 +46,7 @@ impl StringCase {
   }
 }
 
-#[derive(Serialize, Deserialize, Clone, Copy, JsonSchema)]
+#[derive(Serialize, Deserialize, Clone, Copy, Debug, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 /// Separator to split string. e.g. `user_accountName` -> `user`, `accountName`
 /// It will be rejoin according to `StringCase`.
@@ -81,7 +81,7 @@ impl From<&[Separator]> for Delimiter {
   }
 }
 
-#[derive(PartialEq, Eq)]
+#[derive(PartialEq, Eq, Debug, Clone)]
 /// CaseState is used to record the case change between two characters.
 /// It will be used if separator is CaseChange.
 enum CaseState {
@@ -93,6 +93,7 @@ enum CaseState {
   IgnoreCase,
 }
 
+#[derive(Debug)]
 struct Delimiter {
   left: usize,
   right: usize,

@@ -67,6 +67,8 @@ rules:
           - pattern: serialize
           - pattern: from_str
           - pattern: to_string
+          - pattern: serde_yaml::from_str
+          - pattern: serde_yaml::to_string
           - pattern: from_yaml_string
           - regex: "(deserialize|serialize)"
 

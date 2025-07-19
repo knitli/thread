@@ -16,6 +16,7 @@ use thiserror::Error;
 use std::borrow::Cow;
 use thread_utils::{RapidSet, get_set};
 
+#[derive(Debug, Clone)]
 pub enum TemplateFix {
     // no meta_var, pure text
     Textual(String),
@@ -55,6 +56,7 @@ impl<D: Doc> Replacer<D> for TemplateFix {
 
 type Indent = usize;
 
+#[derive(Debug, Clone)]
 pub struct Template {
     fragments: Vec<String>,
     vars: Vec<(MetaVarExtract, Indent)>,

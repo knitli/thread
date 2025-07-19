@@ -4,7 +4,7 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
 
-use super::Matcher;
+use super::matcher::Matcher;
 
 use crate::language::Language;
 use crate::meta_var::MetaVarEnv;
@@ -28,7 +28,7 @@ pub enum KindMatcherError {
   InvalidKindName(String),
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct KindMatcher {
   kind: KindId,
 }

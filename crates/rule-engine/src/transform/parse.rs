@@ -11,7 +11,7 @@ use serde_yaml::from_str as yaml_from_str;
 use std::str::FromStr;
 use thiserror::Error;
 
-#[derive(Debug, Error)]
+#[derive(Error, Debug)]
 pub enum ParseTransError {
   #[error("`{0}` has syntax error.")]
   Syntax(String),

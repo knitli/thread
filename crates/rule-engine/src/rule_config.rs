@@ -27,7 +27,7 @@ use std::borrow::Cow;
 use std::ops::{Deref, DerefMut};
 use thread_utils::RapidMap;
 
-#[derive(Serialize, Deserialize, Clone, Default, JsonSchema, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug, Default, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub enum Severity {
     #[default]
@@ -43,7 +43,7 @@ pub enum Severity {
     Off,
 }
 
-#[derive(Debug, Error)]
+#[derive(Error, Debug)]
 pub enum RuleConfigError {
     #[error("Fail to parse yaml as RuleConfig")]
     Yaml(#[from] YamlError),
@@ -61,7 +61,7 @@ pub enum RuleConfigError {
     MissingPotentialKinds,
 }
 
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
+#[derive(Serialize, Deserialize, Clone, Debug, JsonSchema)]
 pub struct SerializableRewriter {
     #[serde(flatten)]
     pub core: SerializableRuleCore,
@@ -69,7 +69,7 @@ pub struct SerializableRewriter {
     pub id: String,
 }
 
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
+#[derive(Serialize, Deserialize, Clone, Debug, JsonSchema)]
 pub struct SerializableRuleConfig<L: Language> {
     #[serde(flatten)]
     pub core: SerializableRuleCore,
@@ -104,7 +104,7 @@ pub struct SerializableRuleConfig<L: Language> {
 
 /// A trivial wrapper around a FastMap to work around
 /// the limitation of `serde_yaml::Value` not implementing `JsonSchema`.
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Metadata(RapidMap<String, serde_yaml::Value>);
 
 impl JsonSchema for Metadata {
@@ -186,6 +186,7 @@ impl<L: Language> DerefMut for SerializableRuleConfig<L> {
     }
 }
 
+#[derive(Clone, Debug)]
 pub struct RuleConfig<L: Language> {
     inner: SerializableRuleConfig<L>,
     pub matcher: RuleCore,

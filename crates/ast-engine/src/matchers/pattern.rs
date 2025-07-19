@@ -4,10 +4,16 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
 
+<<<<<<< Updated upstream
+use super::Matcher;
+||||||| Stash base
+=======
+use super::matcher::Matcher;
+>>>>>>> Stashed changes
 use crate::language::Language;
 use crate::match_tree::{match_end_non_recursive, match_node_non_recursive};
-use crate::matcher::types::{Pattern, MatchStrictness, PatternBuilder, PatternError, PatternNode};
-use crate::matcher::{KindMatcher, Matcher, kind_utils};
+pub use super::types::{PatternBuilder, Pattern, PatternError, PatternNode, MatchStrictness};
+use super::kind::*;
 use crate::meta_var::{MetaVarEnv, MetaVariable};
 use crate::source::SgNode;
 use crate::{Doc, Node, Root};
@@ -15,8 +21,6 @@ use crate::{Doc, Node, Root};
 use bit_set::BitSet;
 use std::borrow::Cow;
 use thread_utils::RapidSet;
-
-
 
 impl PatternBuilder<'_> {
     pub fn build<D, F>(&self, parse: F) -> Result<Pattern, PatternError>

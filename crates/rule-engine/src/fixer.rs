@@ -19,7 +19,7 @@ use thread_utils::{RapidMap, RapidSet};
 
 /// A pattern string or fix object to auto fix the issue.
 /// It can reference metavariables appeared in rule.
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
+#[derive(Serialize, Deserialize, Clone, Debug, JsonSchema)]
 #[serde(untagged)]
 pub enum SerializableFixer {
     Str(String),
@@ -27,7 +27,7 @@ pub enum SerializableFixer {
     List(Vec<SerializableFixConfig>),
 }
 
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
+#[derive(Serialize, Deserialize, Clone, Debug, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct SerializableFixConfig {
     template: String,
@@ -39,7 +39,7 @@ pub struct SerializableFixConfig {
     title: Option<String>,
 }
 
-#[derive(Debug, Error)]
+#[derive(Error, Debug)]
 pub enum FixerError {
     #[error("Fixer template is invalid.")]
     InvalidTemplate(#[from] TemplateFixError),
@@ -51,6 +51,7 @@ pub enum FixerError {
     MissingTitle,
 }
 
+#[derive(Clone, Debug)]
 struct Expansion {
     matches: Rule,
     stop_by: StopBy,
@@ -71,6 +72,7 @@ impl Expansion {
     }
 }
 
+#[derive(Clone, Debug)]
 pub struct Fixer {
     template: TemplateFix,
     expand_start: Option<Expansion>,

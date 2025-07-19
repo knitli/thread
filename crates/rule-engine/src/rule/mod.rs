@@ -43,7 +43,7 @@ use thiserror::Error;
 /// * Composite: use logic operation all/any/not to compose the above rules to larger rules.
 ///
 /// Every rule has it's unique name so we can combine several rules in one object.
-#[derive(Serialize, Deserialize, Clone, Default, JsonSchema)]
+#[derive(Serialize, Deserialize, Clone, Debug, Default, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct SerializableRule {
   // avoid embedding AtomicRule/RelationalRule/CompositeRule with flatten here for better error message
@@ -140,7 +140,7 @@ pub struct AtomicRule {
   pub nth_child: Option<SerializableNthChild>,
   pub range: Option<SerializableRange>,
 }
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
+#[derive(Serialize, Deserialize, Clone, Debug, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub enum Strictness {
   /// all nodes are matched
@@ -185,7 +185,7 @@ impl From<Strictness> for MatchStrictness {
 
 /// A String pattern will match one single AST node according to pattern syntax.
 /// Or an object with field `context`, `selector` and optionally `strictness`.
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
+#[derive(Serialize, Deserialize, Clone, JsonSchema, Debug)]
 #[serde(untagged)]
 pub enum PatternStyle {
   Str(String),
@@ -213,6 +213,7 @@ pub struct CompositeRule {
   pub matches: Option<String>,
 }
 
+#[derive(Clone, Debug)]
 pub enum Rule {
   // atomic
   Pattern(Pattern),
@@ -350,7 +351,7 @@ fn match_and_add_label<'tree, D: Doc, M: Matcher>(
   Some(matched)
 }
 
-#[derive(Debug, Error)]
+#[derive(Error, Debug)]
 pub enum RuleSerializeError {
   #[error("Rule must have one positive matcher.")]
   MissPositiveMatcher,

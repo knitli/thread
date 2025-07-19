@@ -18,7 +18,7 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
-#[derive(Debug, Error)]
+#[derive(Error, Debug)]
 pub enum NthChildError {
   #[error("Illegal character {0} encountered")]
   IllegalCharacter(char),
@@ -29,7 +29,7 @@ pub enum NthChildError {
 }
 
 /// A string or number describing the indices of matching nodes in a list of siblings.
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
+#[derive(Serialize, Deserialize, Clone, Debug, JsonSchema)]
 #[serde(untagged)]
 pub enum NthChildSimple {
   /// A number indicating the precise element index
@@ -137,7 +137,7 @@ impl NthChildSimple {
 }
 
 /// `nthChild` accepts either a number, a string or an object.
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
+#[derive(Serialize, Deserialize, Clone, Debug, JsonSchema)]
 #[serde(untagged, rename_all = "camelCase")]
 pub enum SerializableNthChild {
   /// Simple syntax
@@ -157,6 +157,7 @@ pub enum SerializableNthChild {
 
 /// Corresponds to the CSS syntax An+B
 /// See https://developer.mozilla.org/en-US/docs/Web/CSS/:nth-child#functional_notation
+#[derive(Clone, Debug)]
 struct FunctionalPosition {
   step_size: i32,
   offset: i32,
@@ -176,6 +177,7 @@ impl FunctionalPosition {
   }
 }
 
+#[derive(Clone, Debug)]
 pub struct NthChild {
   position: FunctionalPosition,
   of_rule: Option<Box<Rule>>,

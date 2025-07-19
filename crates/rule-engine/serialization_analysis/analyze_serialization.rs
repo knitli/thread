@@ -147,7 +147,7 @@ impl SerializationAnalysisReport {
         };
 
         // Analyze each Rust file in the src directory
-        if let Ok(entries) = fs::read_dir("src") {
+        if let Ok(entries) = fs::read_dir("../src") {
             for entry in entries.flatten() {
                 if let Some(extension) = entry.path().extension() {
                     if extension == "rs" {

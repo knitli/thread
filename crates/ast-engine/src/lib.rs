@@ -20,32 +20,51 @@ pub mod source;
 mod node;
 pub use node::{Node, Position};
 pub use source::Doc;
-pub use matcher::types::{MatchStrictness, Pattern, PatternBuilder, PatternError, PatternNode};
+// pub use matcher::types::{MatchStrictness, Pattern, PatternBuilder, PatternError, PatternNode};
 
 // Feature-gated modules
 #[cfg(feature = "parsing")]
 pub mod tree_sitter;
 
+// Everything but types feature gated behind "matching" in `matchers`
+mod matchers;
+
+<<<<<<< Updated upstream
+#[cfg(feature = "matching")]
+||||||| Stash base
 #[cfg(feature = "matching")]
 pub mod matcher;
 #[cfg(feature = "matching")]
+=======
+>>>>>>> Stashed changes
 pub mod meta_var;
 #[cfg(feature = "matching")]
 pub mod ops;
 #[cfg(feature = "matching")]
 pub mod replacer;
-
+#[cfg(feature = "matching")]
+pub mod matcher;
 #[cfg(feature = "matching")]
 mod match_tree;
-
 #[doc(hidden)]
 pub mod pinned;
 
 // Re-exports
-pub use language::Language;
+
+// the bare types with no implementations
+#[cfg(not(feature = "matching"))]
+pub use matchers::{matcher::Matcher, Pattern, PatternBuilder, PatternError, PatternNode, MatchStrictness};
+
+// implemented types
+#[cfg(feature = "matching")]
+pub use matcher::{Matcher, MatcherExt, MatchAll, MatchNone, Pattern, PatternBuilder, PatternError, PatternNode, NodeMatch};
+
+pub use meta_var::MetaVarEnv;
 
 #[cfg(feature = "matching")]
-pub use matcher::{Matcher, NodeMatch};
+pub use match_tree::MatchStrictness;
+
+pub use language::Language;
 
 pub use node::Root;
 

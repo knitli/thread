@@ -4,7 +4,8 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
 
-use crate::matcher::{kind_utils, PatternNode, MatchStrictness};
+use crate::matcher::{kind_utils, PatternNode};
+pub use crate::matcher::MatchStrictness;
 use crate::meta_var::MetaVariable;
 use crate::node::Node;
 use crate::Doc;
@@ -12,6 +13,7 @@ use std::iter::Peekable;
 use std::str::FromStr;
 
 
+#[derive(Debug, Clone)]
 pub(crate) enum MatchOneNode {
   MatchedBoth,
   SkipBoth,

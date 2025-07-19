@@ -24,7 +24,7 @@ use thread_utils::RapidMap;
 
 pub use trans::Trans;
 
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
+#[derive(Serialize, Deserialize, Clone, JsonSchema, Debug)]
 #[serde(untagged)]
 pub enum Transformation {
     Simplied(String),
@@ -43,7 +43,7 @@ impl Transformation {
     }
 }
 
-#[derive(Debug, Error)]
+#[derive(Error, Debug)]
 pub enum TransformError {
     #[error("Cannot parse transform string.")]
     Parse(#[from] ParseTransError),
@@ -55,6 +55,7 @@ pub enum TransformError {
     MalformedVar(String),
 }
 
+#[derive(Clone, Debug)]
 pub struct Transform {
     transforms: Vec<(String, Trans<MetaVariable>)>,
 }

@@ -16,6 +16,7 @@ use std::borrow::Cow;
 use std::sync::{Arc, Weak};
 use thread_utils::{RapidMap, RapidSet, set_with_capacity};
 
+#[derive(Debug)]
 pub struct Registration<R>(Arc<RapidMap<String, R>>);
 
 impl<R> Clone for Registration<R> {
@@ -57,7 +58,7 @@ impl<R> Default for Registration<R> {
     }
 }
 
-#[derive(Clone, Default)]
+#[derive(Clone, Debug, Default)]
 pub struct RuleRegistration {
     /// utility rule to every RuleCore, every sub-rule has its own local utility
     local: Registration<Rule>,
@@ -125,6 +126,7 @@ impl RuleRegistration {
 
 /// RegistrationRef must use Weak pointer to avoid
 /// cyclic reference in RuleRegistration
+#[derive(Clone, Debug)]
 struct RegistrationRef {
     local: Weak<RapidMap<String, Rule>>,
     global: Weak<RapidMap<String, RuleCore>>,
@@ -142,7 +144,7 @@ impl RegistrationRef {
     }
 }
 
-#[derive(Debug, Error)]
+#[derive(Error, Debug)]
 pub enum ReferentRuleError {
     #[error("Rule `{0}` is not defined.")]
     UndefinedUtil(String),
@@ -152,6 +154,7 @@ pub enum ReferentRuleError {
     CyclicRule(String),
 }
 
+#[derive(Clone, Debug)]
 pub struct ReferentRule {
     pub(crate) rule_id: String,
     reg_ref: RegistrationRef,

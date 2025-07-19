@@ -22,7 +22,7 @@ use std::borrow::Cow;
 use std::ops::Range;
 
 // https://github.com/tree-sitter/tree-sitter/blob/e4e5ffe517ca2c668689b24cb17c51b8c6db0790/cli/src/parse.rs
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Edit<S: Content> {
   pub position: usize,
   pub deleted_length: usize,

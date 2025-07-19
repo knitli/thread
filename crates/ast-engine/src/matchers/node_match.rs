@@ -4,7 +4,7 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
 
-use super::Matcher;
+use super::matcher::Matcher;
 use crate::meta_var::MetaVarEnv;
 use crate::replacer::Replacer;
 use crate::source::Edit as E;

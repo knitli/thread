@@ -38,4 +38,33 @@ thiserror.workspace = true
 schemars.workspace = true
 
 [dev-dependencies]
+ast-grep-core = { version = "0.38.7", features = ["tree-sitter"] }
+ast-grep-config = { version = "0.38.7" }
+ast-grep-language = { version = "0.38.7", features = ["builtin-parser"] }
+criterion = { version = "0.6", features = ["html_reports"] }
+thread-ast-engine = { workspace = true, features = ["parsing", "matching"] }
+thread-language = { workspace = true, features = ["builtin-parser"] }
+tree-sitter-javascript = "0.23.1"
+tree-sitter-python = "0.23.6"
+tree-sitter-rust = "0.24.0"
 tree-sitter-typescript = "0.23.2"
+tree-sitter.workspace = true
+
+[build-dependencies]
+cc = "*"
+
+[[bench]]
+name = "simple_benchmarks"
+harness = false
+
+[[bench]]
+name = "ast_grep_comparison"
+harness = false
+
+[[bench]]
+name = "rule_engine_benchmarks"
+harness = false
+
+[[bench]]
+name = "comparison_benchmarks"
+harness = false

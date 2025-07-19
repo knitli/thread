@@ -4,7 +4,7 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
 
-use super::Matcher;
+use super::matcher::Matcher;
 use crate::meta_var::MetaVarEnv;
 use crate::Doc;
 use crate::Node;
@@ -21,7 +21,7 @@ pub enum RegexMatcherError {
   Regex(#[from] RegexError),
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct RegexMatcher {
   regex: Regex,
 }

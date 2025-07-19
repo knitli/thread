@@ -56,7 +56,7 @@ cat SERIALIZATION_ANALYSIS_REPORT.md
 npm install -g @ast-grep/cli
 
 # Run specific serialization analysis
-ast-grep --config serialization_analysis.yml scan src/
+ast-grep --config serialization_analysis.yml scan ../src/
 ```
 
 ### 4. Compile and Run the Analysis Tool
@@ -118,14 +118,14 @@ The crate is fundamentally architected around **YAML/JSON configuration input**,
 
 ```bash
 # Find all serde derives
-ast-grep --lang rust --pattern '#[derive($$$)]' src/ | grep -E 'Serialize|Deserialize'
+ast-grep --lang rust --pattern '#[derive($$$)]' ../src/ | grep -E 'Serialize|Deserialize'
 
 # Find serialization function calls
-ast-grep --lang rust --pattern 'deserialize($$$)' src/
-ast-grep --lang rust --pattern 'serialize($$$)' src/
+ast-grep --lang rust --pattern 'deserialize($$$)' ../src/
+ast-grep --lang rust --pattern 'serialize($$$)' ../src/
 
 # Find DeserializeEnv usage
-ast-grep --lang rust --pattern 'DeserializeEnv' src/
+ast-grep --lang rust --pattern 'DeserializeEnv' ../src/
 ```
 
 ### Helper Script Functions

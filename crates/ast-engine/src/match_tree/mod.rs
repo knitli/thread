@@ -9,12 +9,15 @@ mod strictness;
 
 use match_node::match_node_impl;
 use strictness::MatchOneNode;
-use crate::matcher::{Pattern};
+use crate::matcher::Pattern;
 
 use crate::meta_var::{MetaVarEnv, MetaVariable};
 use crate::{Doc, Node};
 
 use std::borrow::Cow;
+
+// re-export
+pub use strictness::MatchStrictness;
 
 trait Aggregator<'t, D: Doc> {
   fn match_terminal(&mut self, node: &Node<'t, D>) -> Option<()>;

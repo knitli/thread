@@ -1,0 +1,10 @@
+id: class-with-constructor
+message: found class with constructor
+severity: info
+language: TypeScript
+rule:
+  all:
+    - pattern: class $C { $$$ }
+    - has:
+        pattern: constructor_type($$$) { $$$ }
+        stopBy: end

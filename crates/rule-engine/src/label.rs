@@ -7,10 +7,10 @@
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::ops::Range;
-use thread_utils::RapidMap;
 use thread_ast_engine::{Doc, Node, NodeMatch};
+use thread_utils::RapidMap;
 
-#[derive(Serialize, Deserialize, Clone, JsonSchema, PartialEq, Eq, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone, JsonSchema, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub enum LabelStyle {
     /// Labels that describe the primary cause of a diagnostic.
@@ -19,7 +19,7 @@ pub enum LabelStyle {
     Secondary,
 }
 
-#[derive(Serialize, Deserialize, Clone, JsonSchema)]
+#[derive(Serialize, Deserialize, Debug, Clone, JsonSchema)]
 pub struct LabelConfig {
     pub style: LabelStyle,
     pub message: Option<String>,
@@ -29,6 +29,7 @@ pub struct LabelConfig {
 /// It is used to provide diagnostic information in LSP or CLI.
 /// 'r represents a lifetime for the message string from `rule`.
 /// 't represents a lifetime for the node from a ast `tree`.
+#[derive(Clone)]
 pub struct Label<'r, 't, D: Doc> {
     pub style: LabelStyle,
     pub message: Option<&'r str>,
