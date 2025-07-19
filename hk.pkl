@@ -52,6 +52,7 @@ local linters = new Mapping<String, Step> {
       glob = List( "*.{.yaml,yml}")
       batch = true
       check  = "yamlfmt -conf {{ workspace_indicator }} -lint {{ files }}"
+      fix = "yamlfmt -conf {{ workspace_indicator }} {{ files }}"
   }
 
 }
