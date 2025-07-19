@@ -35,10 +35,11 @@ impl TemplateFix {
         create_template(tpl, lang.meta_var_char(), trans)
     }
 
+    #[must_use]
     pub fn used_vars(&self) -> RapidSet<&str> {
         let template = match self {
-            TemplateFix::WithMetaVar(t) => t,
-            TemplateFix::Textual(_) => return get_set(),
+            Self::WithMetaVar(t) => t,
+            Self::Textual(_) => return get_set(),
         };
         template.vars.iter().map(|v| v.0.used_var()).collect()
     }
@@ -50,7 +51,7 @@ impl<D: Doc> Replacer<D> for TemplateFix {
         let indent = get_indent_at_offset::<D::Source>(leading);
         let bytes = replace_fixer(self, nm.get_env());
         let replaced = DeindentedExtract::MultiLine(&bytes, 0);
-        indent_lines::<D::Source>(indent, replaced).to_vec()
+        indent_lines::<D::Source>(indent, &replaced).to_vec()
     }
 }
 
@@ -105,7 +106,7 @@ fn replace_fixer<D: Doc>(fixer: &TemplateFix, env: &MetaVarEnv<'_, D>) -> Underl
         ret.extend_from_slice(&D::Source::decode_str(frag));
     }
     for ((var, indent), frag) in vars.zip(frags) {
-        if let Some(bytes) = maybe_get_var(env, var, indent) {
+        if let Some(bytes) = maybe_get_var(env, var, indent.to_owned()) {
             ret.extend_from_slice(&bytes);
         }
         ret.extend_from_slice(&D::Source::decode_str(frag));
@@ -116,7 +117,7 @@ fn replace_fixer<D: Doc>(fixer: &TemplateFix, env: &MetaVarEnv<'_, D>) -> Underl
 fn maybe_get_var<'e, 't, C, D>(
     env: &'e MetaVarEnv<'t, D>,
     var: &MetaVarExtract,
-    indent: &usize,
+    indent: usize,
 ) -> Option<Cow<'e, [C::Underlying]>>
 where
     C: Content + 'e,
@@ -127,8 +128,8 @@ where
             // transformed source does not have range, directly return bytes
             let source = env.get_transformed(name)?;
             let de_intended = DeindentedExtract::MultiLine(source, 0);
-            let bytes = indent_lines::<D::Source>(*indent, de_intended);
-            return Some(bytes);
+            let bytes = indent_lines::<D::Source>(indent, &de_intended);
+            return Some(Cow::Owned(bytes.into()));
         }
         MetaVarExtract::Single(name) => {
             let replaced = env.get_match(name)?;
@@ -151,8 +152,8 @@ where
         }
     };
     let extracted = extract_with_deindent(source, range);
-    let bytes = indent_lines::<D::Source>(*indent, extracted);
-    Some(bytes)
+    let bytes = indent_lines::<D::Source>(indent, &extracted);
+    Some(Cow::Owned(bytes.into()))
 }
 
 // replace meta_var in template string, e.g. "Hello $NAME" -> "Hello World"

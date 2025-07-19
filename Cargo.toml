@@ -95,11 +95,11 @@ inherits = "dev"
 codegen-backend = "cranelift"
 
 [profile.release]
-lto = true        # Link-time optimization
+lto = true          # Link-time optimization
 codegen-units = 1
 incremental = false
-panic = "abort"   # Smaller binary size
-opt-level = 3     # Maximum optimization
+panic = "abort"     # Smaller binary size
+opt-level = 3       # Maximum optimization
 
 [profile.release-dev]
 inherits = "release"

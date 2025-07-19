@@ -6,6 +6,11 @@
 [package]
 name = "xtask"
 version = "0.1.0"
+publish = false
+description = "Xtask for thread. Primarily used for Wasm builds."
+keywords = ["xtask", "build", "wasm"]
+categories = ["build-scripts"]
+readme = "README.md"
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true

@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+# SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 # Serialization Separation Helper Script
 # This script provides practical tools for separating serialization logic
 # from core functionality in the thread-rule-engine crate

@@ -4,16 +4,14 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
 
-<<<<<<< Updated upstream
-use super::Matcher;
-||||||| Stash base
-=======
+use super::kind::{
+    KindMatcher,
+    kind_utils,
+};
 use super::matcher::Matcher;
->>>>>>> Stashed changes
+pub use super::types::{MatchStrictness, Pattern, PatternBuilder, PatternError, PatternNode};
 use crate::language::Language;
 use crate::match_tree::{match_end_non_recursive, match_node_non_recursive};
-pub use super::types::{PatternBuilder, Pattern, PatternError, PatternNode, MatchStrictness};
-use super::kind::*;
 use crate::meta_var::{MetaVarEnv, MetaVariable};
 use crate::source::SgNode;
 use crate::{Doc, Node, Root};
@@ -50,7 +48,7 @@ impl PatternBuilder<'_> {
 
     fn contextual<D: Doc>(&self, root: &Root<D>, selector: &str) -> Result<Pattern, PatternError> {
         let goal = root.root();
-        let kind_matcher = KindMatcher::try_new(selector, root.lang().clone())?;
+        let kind_matcher = KindMatcher::try_new(selector, root.lang())?;
         let Some(node) = goal.find(&kind_matcher) else {
             return Err(PatternError::NoSelectorInContext {
                 context: self.src.to_string(),
@@ -59,7 +57,7 @@ impl PatternBuilder<'_> {
         };
         Ok(Pattern {
             root_kind: Some(node.kind_id()),
-            node: convert_node_to_pattern(node.get_node().clone()),
+            node: convert_node_to_pattern(node.get_node()),
             strictness: MatchStrictness::Smart,
         })
     }
@@ -67,18 +65,21 @@ impl PatternBuilder<'_> {
 
 impl PatternNode {
     // for skipping trivial nodes in goal after ellipsis
-    pub fn is_trivial(&self) -> bool {
+    #[must_use]
+    pub const fn is_trivial(&self) -> bool {
         match self {
-            PatternNode::Terminal { is_named, .. } => !*is_named,
+            Self::Terminal { is_named, .. } => !*is_named,
             _ => false,
         }
     }
 
+    #[inline]
+    #[must_use]
     pub fn fixed_string(&self) -> Cow<'_, str> {
         match &self {
-            PatternNode::Terminal { text, .. } => Cow::Borrowed(text),
-            PatternNode::MetaVar { .. } => Cow::Borrowed(""),
-            PatternNode::Internal { children, .. } => children
+            Self::Terminal { text, .. } => Cow::Borrowed(text),
+            Self::MetaVar { .. } => Cow::Borrowed(""),
+            Self::Internal { children, .. } => children
                 .iter()
                 .map(|n| n.fixed_string())
                 .fold(Cow::Borrowed(""), |longest, curr| {
@@ -93,22 +94,22 @@ impl PatternNode {
 }
 impl<'r, D: Doc> From<Node<'r, D>> for PatternNode {
     fn from(node: Node<'r, D>) -> Self {
-        convert_node_to_pattern(node)
+        convert_node_to_pattern(&node)
     }
 }
 
 impl<'r, D: Doc> From<Node<'r, D>> for Pattern {
     fn from(node: Node<'r, D>) -> Self {
         Self {
-            node: convert_node_to_pattern(node),
+            node: convert_node_to_pattern(&node),
             root_kind: None,
             strictness: MatchStrictness::Smart,
         }
     }
 }
 
-fn convert_node_to_pattern<D: Doc>(node: Node<'_, D>) -> PatternNode {
-    if let Some(meta_var) = extract_var_from_node(&node) {
+fn convert_node_to_pattern<D: Doc>(node: &Node<'_, D>) -> PatternNode {
+    if let Some(meta_var) = extract_var_from_node(node) {
         PatternNode::MetaVar { meta_var }
     } else if node.is_leaf() {
         PatternNode::Terminal {
@@ -139,7 +140,6 @@ fn extract_var_from_node<D: Doc>(goal: &Node<'_, D>) -> Option<MetaVariable> {
     goal.lang().extract_meta_var(&key)
 }
 
-
 #[inline]
 fn is_single_node<'r, N: SgNode<'r>>(n: &N) -> bool {
     match n.children().len() {
@@ -154,9 +154,10 @@ fn is_single_node<'r, N: SgNode<'r>>(n: &N) -> bool {
     }
 }
 impl Pattern {
-    pub fn has_error(&self) -> bool {
+    #[must_use]
+    pub const fn has_error(&self) -> bool {
         let kind = match &self.node {
-            PatternNode::Terminal { kind_id, .. } => *kind_id,
+            PatternNode::Terminal { kind_id, .. } |
             PatternNode::Internal { kind_id, .. } => *kind_id,
             PatternNode::MetaVar { .. } => match self.root_kind {
                 Some(k) => k,
@@ -166,12 +167,14 @@ impl Pattern {
         kind_utils::is_error_kind(kind)
     }
 
+    #[must_use]
     pub fn fixed_string(&self) -> Cow<'_, str> {
         self.node.fixed_string()
     }
 
     /// Get all defined variables in the pattern.
     /// Used for validating rules and report undefined variables.
+    #[must_use]
     pub fn defined_vars(&self) -> RapidSet<&str> {
         let mut vars = RapidSet::default();
         collect_vars(&self.node, &mut vars);
@@ -182,9 +185,9 @@ impl Pattern {
 fn meta_var_name(meta_var: &MetaVariable) -> Option<&str> {
     use MetaVariable as MV;
     match meta_var {
-        MV::Capture(name, _) => Some(name),
+        MV::Capture(name, _) |
         MV::MultiCapture(name) => Some(name),
-        MV::Dropped(_) => None,
+        MV::Dropped(_) |
         MV::Multiple => None,
     }
 }
@@ -208,7 +211,7 @@ fn collect_vars<'p>(p: &'p PatternNode, vars: &mut RapidSet<&'p str>) {
 }
 
 impl Pattern {
-    pub fn try_new<L: Language>(src: &str, lang: L) -> Result<Self, PatternError> {
+    pub fn try_new<L: Language>(src: &str, lang: &L) -> Result<Self, PatternError> {
         let processed = lang.pre_process_pattern(src);
         let builder = PatternBuilder {
             selector: None,
@@ -217,11 +220,12 @@ impl Pattern {
         lang.build_pattern(&builder)
     }
 
-    pub fn new<L: Language>(src: &str, lang: L) -> Self {
+    pub fn new<L: Language>(src: &str, lang: &L) -> Self {
         Self::try_new(src, lang).unwrap()
     }
 
-    pub fn with_strictness(mut self, strictness: MatchStrictness) -> Self {
+    #[must_use]
+    pub const fn with_strictness(mut self, strictness: MatchStrictness) -> Self {
         self.strictness = strictness;
         self
     }
@@ -229,7 +233,7 @@ impl Pattern {
     pub fn contextual<L: Language>(
         context: &str,
         selector: &str,
-        lang: L,
+        lang: &L,
     ) -> Result<Self, PatternError> {
         let processed = lang.pre_process_pattern(context);
         let builder = PatternBuilder {
@@ -290,7 +294,7 @@ impl Matcher for Pattern {
 
     fn get_match_len<D: Doc>(&self, node: Node<'_, D>) -> Option<usize> {
         let start = node.range().start;
-        let end = match_end_non_recursive(self, node)?;
+        let end = match_end_non_recursive(self, &node)?;
         Some(end - start)
     }
 }

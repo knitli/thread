@@ -8,10 +8,12 @@
 #[cfg(feature = "hashers")]
 mod hash_help;
 #[cfg(feature = "hashers")]
-pub use hash_help::{RapidMap, RapidSet, get_map, get_set, map_with_capacity, set_with_capacity,
-    hash_file, hash_file_with_seed, hash_bytes, hash_bytes_with_seed};
+pub use hash_help::{
+    RapidMap, RapidSet, RapidInlineHasher,get_map, get_set, hash_bytes, hash_bytes_with_seed, hash_file,
+    hash_file_with_seed, map_with_capacity, set_with_capacity,
+};
 
 #[cfg(feature = "simd")]
 mod simd;
 #[cfg(feature = "simd")]
-pub use simd::{is_ascii_simd, get_char_column_simd};
+pub use simd::{get_char_column_simd, is_ascii_simd};

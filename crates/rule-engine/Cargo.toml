@@ -6,8 +6,10 @@
 name = "thread-rule-engine"
 description = "Rule-based scanning and transformation engine for Thread"
 keywords = ["ast", "pattern", "codemod", "search", "rewrite", "rules"]
+categories = ["command-line-utilities", "development-tools", "parsing"]
 version = "0.1.0"
 license = "AGPL-3.0-or-later AND MIT"
+readme = "README.md"
 authors = [
   "Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>",
   "Knitli Inc <knitli@knit.li>",
@@ -27,7 +29,10 @@ fixing = ["thread-ast-engine/matching"]
 
 [dependencies]
 thread-ast-engine = { workspace = true, default-features = false }
-thread-utils = { workspace = true, default-features = false, features = ["hashers", "simd"] }
+thread-utils = { workspace = true, default-features = false, features = [
+  "hashers",
+  "simd",
+] }
 bit-set.workspace = true
 globset = "0.4.16"
 regex.workspace = true
@@ -51,7 +56,7 @@ tree-sitter-typescript = "0.23.2"
 tree-sitter.workspace = true
 
 [build-dependencies]
-cc = "*"
+cc = "1.2.30"
 
 [[bench]]
 name = "simple_benchmarks"

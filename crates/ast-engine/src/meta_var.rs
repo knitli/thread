@@ -10,7 +10,9 @@ use crate::matcher::Matcher;
 use crate::source::Content;
 use crate::{Doc, Node};
 use std::borrow::Cow;
-use thread_utils::{RapidMap, map_with_capacity};
+use std::collections::HashMap;
+use std::hash::BuildHasherDefault;
+use thread_utils::{map_with_capacity, RapidInlineHasher, RapidMap};
 
 use crate::replacer::formatted_slice;
 
@@ -28,6 +30,7 @@ pub struct MetaVarEnv<'tree, D: Doc> {
 }
 
 impl<'t, D: Doc> MetaVarEnv<'t, D> {
+    #[must_use]
     pub fn new() -> Self {
         Self {
             single_matched: RapidMap::default(),
@@ -73,16 +76,17 @@ impl<'t, D: Doc> MetaVarEnv<'t, D> {
             None
         }
     }
-
+    #[must_use]
     pub fn get_match(&self, var: &str) -> Option<&'_ Node<'t, D>> {
         self.single_matched.get(var)
     }
-
+    #[must_use]
     pub fn get_multiple_matches(&self, var: &str) -> Vec<Node<'t, D>> {
         self.multi_matched.get(var).cloned().unwrap_or_default()
     }
 
     /// Returns a reference to multiple matches without cloning
+    #[must_use]
     pub fn get_multiple_matches_ref(&self, var: &str) -> Option<&Vec<Node<'t, D>>> {
         self.multi_matched.get(var)
     }
@@ -93,49 +97,11 @@ impl<'t, D: Doc> MetaVarEnv<'t, D> {
             .or_default()
             .push(node);
     }
-
+    #[must_use]
     pub fn get_labels(&self, label: &str) -> Option<&Vec<Node<'t, D>>> {
         self.multi_matched.get(label)
     }
 
-<<<<<<< Updated upstream
-    pub fn get_matched_variables(&self) -> impl Iterator<Item = MetaVariable> + use<'_, 't, D> {
-        let single = self
-            .single_matched
-            .keys()
-            .map(|n| MetaVariable::Capture(n.clone(), false));
-        let transformed = self
-            .transformed_var
-            .keys()
-            .map(|n| MetaVariable::Capture(n.clone(), false));
-        let multi = self
-            .multi_matched
-            .keys()
-            .map(|n| MetaVariable::MultiCapture(n.clone()));
-        single.chain(multi).chain(transformed)
-    }
-
-    fn match_variable(&self, id: &str, candidate: &Node<'t, D>) -> bool {
-        if let Some(m) = self.single_matched.get(id) {
-            return does_node_match_exactly(m, candidate);
-        }
-        true
-    }
-||||||| Stash base
-    true
-  }
-  fn match_multi_var(&self, id: &str, cands: &[Node<'t, D>]) -> bool {
-    let Some(nodes) = self.multi_matched.get(id) else {
-      return true;
-    };
-    let mut named_nodes = nodes.iter().filter(|n| n.is_named());
-    let mut named_cands = cands.iter().filter(|n| n.is_named());
-    loop {
-      if let Some(node) = named_nodes.next() {
-        let Some(cand) = named_cands.next() else {
-          // cand is done but node is not
-          break false;
-=======
     #[cfg(feature = "matching")]
     pub fn get_matched_variables(&self) -> impl Iterator<Item = MetaVariable> + use<'_, 't, D> {
         let single = self
@@ -160,7 +126,6 @@ impl<'t, D: Doc> MetaVarEnv<'t, D> {
         true
     }
     #[cfg(feature = "matching")]
->>>>>>> Stashed changes
     fn match_multi_var(&self, id: &str, cands: &[Node<'t, D>]) -> bool {
         let Some(nodes) = self.multi_matched.get(id) else {
             return true;
@@ -186,20 +151,7 @@ impl<'t, D: Doc> MetaVarEnv<'t, D> {
         }
     }
 
-<<<<<<< Updated upstream
-||||||| Stash base
-  pub fn match_constraints<M: Matcher>(
-    &mut self,
-    var_matchers: &RapidMap<MetaVariableID, M>,
-  ) -> bool {
-    let mut env = Cow::Borrowed(self);
-    for (var_id, candidate) in &self.single_matched {
-      if let Some(m) = var_matchers.get(var_id) {
-        if m.match_node_with_env(candidate.clone(), &mut env).is_none() {
-          return false;
-=======
     #[cfg(feature = "matching")]
->>>>>>> Stashed changes
     pub fn match_constraints<M: Matcher>(
         &mut self,
         var_matchers: &RapidMap<MetaVariableID, M>,
@@ -231,10 +183,11 @@ impl<'t, D: Doc> MetaVarEnv<'t, D> {
         };
         self.transformed_var.insert(name.to_string(), deindented);
     }
-
+    #[must_use]
     pub fn get_transformed(&self, var: &str) -> Option<&Underlying<D>> {
         self.transformed_var.get(var)
     }
+    #[must_use]
     pub fn get_var_bytes<'s>(
         &'s self,
         var: &MetaVariable,
@@ -244,18 +197,18 @@ impl<'t, D: Doc> MetaVarEnv<'t, D> {
 }
 
 impl<D: Doc> MetaVarEnv<'_, D> {
-    /// internal for readopt NodeMatch in pinned.rs
+    /// internal for readopt `NodeMatch` in pinned.rs
     /// readopt node and env when sending them to other threads
     pub(crate) fn visit_nodes<F>(&mut self, mut f: F)
     where
         F: FnMut(&mut Node<'_, D>),
     {
         for n in self.single_matched.values_mut() {
-            f(n)
+            f(n);
         }
         for ns in self.multi_matched.values_mut() {
             for n in ns {
-                f(n)
+                f(n);
             }
         }
     }
@@ -316,8 +269,8 @@ pub enum MetaVariable {
 }
 
 pub(crate) fn extract_meta_var(src: &str, meta_char: char) -> Option<MetaVariable> {
-    use MetaVariable::*;
-    let ellipsis: String = std::iter::repeat(meta_char).take(3).collect();
+    use MetaVariable::{Capture, Dropped, MultiCapture, Multiple};
+    let ellipsis: String = std::iter::repeat_n(meta_char, 3).collect();
     if src == ellipsis {
         return Some(Multiple);
     }
@@ -327,9 +280,8 @@ pub(crate) fn extract_meta_var(src: &str, meta_char: char) -> Option<MetaVariabl
         }
         if trimmed.starts_with('_') {
             return Some(Multiple);
-        } else {
-            return Some(MultiCapture(trimmed.to_owned()));
         }
+        return Some(MultiCapture(trimmed.to_owned()));
     }
     if !src.starts_with(meta_char) {
         return None;
@@ -354,19 +306,22 @@ pub(crate) fn extract_meta_var(src: &str, meta_char: char) -> Option<MetaVariabl
 }
 
 #[inline]
-fn is_valid_first_char(c: char) -> bool {
+const fn is_valid_first_char(c: char) -> bool {
     matches!(c, 'A'..='Z' | '_')
 }
 
 #[inline]
-pub(crate) fn is_valid_meta_var_char(c: char) -> bool {
+pub(crate) const fn is_valid_meta_var_char(c: char) -> bool {
     is_valid_first_char(c) || c.is_ascii_digit()
 }
 
-impl<'tree, D: Doc> From<MetaVarEnv<'tree, D>> for RapidMap<String, String> {
+impl<'tree, D: Doc> From<MetaVarEnv<'tree, D>> for HashMap<String, String, BuildHasherDefault<RapidInlineHasher>>
+where
+    D::Source: Content,
+{
     fn from(env: MetaVarEnv<'tree, D>) -> Self {
-        let mut ret = map_with_capacity(
-            env.single_matched.len() + env.multi_matched.len() + env.transformed_var.len(),
+        let mut ret: Self = map_with_capacity(
+            env.single_matched.len() + env.multi_matched.len() + env.transformed_var.len()
         );
         for (id, node) in env.single_matched {
             ret.insert(id, node.text().into());

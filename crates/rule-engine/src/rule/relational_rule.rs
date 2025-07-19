@@ -146,14 +146,17 @@ impl Matcher for Has {
                     .find_map(|n| self.inner.match_node_with_env(n, env)),
                 StopBy::Rule(matcher) => {
                     // TODO: use Pre traversal to reduce stack allocation
-                    self.inner.match_node_with_env(child_node.clone(), env).or_else(|| {
-                        if child_node.matches(matcher) {
-                            None
-                        } else {
-                            child_node.children()
-                                .find_map(|n| self.inner.match_node_with_env(n, env))
-                        }
-                    })
+                    self.inner
+                        .match_node_with_env(child_node.clone(), env)
+                        .or_else(|| {
+                            if child_node.matches(matcher) {
+                                None
+                            } else {
+                                child_node
+                                    .children()
+                                    .find_map(|n| self.inner.match_node_with_env(n, env))
+                            }
+                        })
                 }
             };
         }

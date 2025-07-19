@@ -1,3 +1,9 @@
+// SPDX-FileCopyrightText: 2025 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+// SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+// SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
+
 //! Memory profiling utilities for performance analysis
 
 use std::alloc::{GlobalAlloc, Layout, System};
@@ -21,7 +27,12 @@ unsafe impl GlobalAlloc for MemoryProfiler {
             // Update peak usage
             let mut peak = PEAK_USAGE.load(Ordering::Relaxed);
             while current_usage > peak {
-                match PEAK_USAGE.compare_exchange_weak(peak, current_usage, Ordering::Relaxed, Ordering::Relaxed) {
+                match PEAK_USAGE.compare_exchange_weak(
+                    peak,
+                    current_usage,
+                    Ordering::Relaxed,
+                    Ordering::Relaxed,
+                ) {
                     Ok(_) => break,
                     Err(x) => peak = x,
                 }
@@ -77,7 +88,10 @@ macro_rules! profile_memory {
         let end_stats = $crate::profiling::MemoryStats::current();
 
         println!("{} - Memory Usage:", $name);
-        println!("  Allocated: {} bytes", end_stats.allocated - start_stats.allocated);
+        println!(
+            "  Allocated: {} bytes",
+            end_stats.allocated - start_stats.allocated
+        );
         println!("  Peak Usage: {} bytes", end_stats.peak_usage);
         println!("  Current Usage: {} bytes", end_stats.current_usage);
 

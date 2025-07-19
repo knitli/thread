@@ -15,7 +15,7 @@ use std::path::Path;
 /// * pre process the Pattern code.
 pub trait Language: Clone + 'static {
     /// normalize pattern code before matching
-    /// e.g. remove expression_statement, or prefer parsing {} to object over block
+    /// e.g. remove `expression_statement`, or prefer parsing {} to object over block
     fn pre_process_pattern<'q>(&self, query: &'q str) -> Cow<'q, str> {
         Cow::Borrowed(query)
     }
@@ -29,14 +29,14 @@ pub trait Language: Clone + 'static {
 
     /// Some language does not accept $ as the leading char for identifiers.
     /// We need to change $ to other char at run-time to make parser happy, thus the name expando.
-    /// By default this is the same as meta_var char so replacement is done at runtime.
+    /// By default this is the same as `meta_var` char so replacement is done at runtime.
     #[inline]
     fn expando_char(&self) -> char {
         self.meta_var_char()
     }
 
-    /// extract MetaVariable from a given source string
-    /// At runtime we need to use expand_char
+    /// extract `MetaVariable` from a given source string
+    /// At runtime we need to use `expand_char`
     fn extract_meta_var(&self, source: &str) -> Option<MetaVariable> {
         extract_meta_var(source, self.expando_char())
     }

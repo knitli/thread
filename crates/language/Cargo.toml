@@ -7,6 +7,8 @@ name = "thread-language"
 description = "Language definitions and parsers for Thread"
 keywords = ["ast", "pattern", "codemod", "search", "rewrite", "languages"]
 license = "AGPL-3.0-or-later AND MIT"
+readme = "README.md"
+categories = ["ast", "pattern", "codemod", "search", "rewrite",]
 version = "0.1.0"
 authors = [
   "Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>",
@@ -19,11 +21,13 @@ rust-version.workspace = true
 include.workspace = true
 
 [build-dependencies]
-cc = "*"
+cc = "1.2.30"
 
 [dependencies]
 thread-ast-engine = { workspace = true, features = ["parsing"] }
-thread-utils = { workspace = true, default-features = false, features = ["hashers"] }
+thread-utils = { workspace = true, default-features = false, features = [
+  "hashers",
+] }
 ignore.workspace = true
 serde.workspace = true
 tree-sitter.workspace = true
@@ -88,7 +92,7 @@ default = ["builtin-parser"]
 
 [dev-dependencies]
 criterion = { version = "0.6", features = ["html_reports"] }
-thread-ast-engine = { workspace = true, features = ["matching", "parsing"]}
+thread-ast-engine = { workspace = true, features = ["matching", "parsing"] }
 
 [[bench]]
 name = "performance"

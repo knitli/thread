@@ -5,14 +5,13 @@
 //!
 //! This module provides a series of SIMD optimized functions for string processing.
 //! Its operations use the `simdeez` crate, along with `memchr` for strong SIMD support.
-//! Both libraries provide SIMD support for wasm32, x86_64/x86, and aarch64 and can find
+//! Both libraries provide SIMD support for wasm32, `x86_64/x86`, and aarch64 and can find
 //! optimal instruction sets at runtime.
 //! If no SIMD support is available, they will fall back to scalar operations.
 
-use simdeez::{prelude::*, simd_runtime_generate};
 use memchr::memmem::FinderRev;
+use simdeez::{prelude::*, simd_runtime_generate};
 use std::sync::OnceLock;
-
 
 static REV_LINE_FINDER: OnceLock<FinderRev> = OnceLock::new();
 
@@ -23,7 +22,7 @@ simd_runtime_generate!(
         let len = bytes.len();
 
         // reinterpret u8 as i8 slice (safe because underlying bits match)
-        let bytes_i8 = unsafe { std::slice::from_raw_parts(bytes.as_ptr() as *const i8, len) };
+        let bytes_i8 = unsafe { std::slice::from_raw_parts(bytes.as_ptr().cast::<i8>(), len) };
 
         let mut remainder = bytes_i8;
 
@@ -58,7 +57,8 @@ simd_runtime_generate!(
         if is_eol {
             // Special case for newline, use cached finder
             // Use into_owned() to ensure the FinderRev outlives the reference to its needle (it doesn't need after it's constructed)
-            let line_finder = REV_LINE_FINDER.get_or_init(|| {FinderRev::new(&[needle]).into_owned()});
+            let line_finder =
+                REV_LINE_FINDER.get_or_init(|| FinderRev::new(&[needle]).into_owned());
             return line_finder.rfind(haystack);
         }
         let bound_needle = &[needle];
@@ -78,17 +78,15 @@ simd_runtime_generate!(
         }
 
         // Convert to i8 for SIMD operations
-        let bytes_i8 = unsafe {
-            std::slice::from_raw_parts(bytes.as_ptr() as *const i8, len)
-        };
+        let bytes_i8 = unsafe { std::slice::from_raw_parts(bytes.as_ptr().cast::<i8>(), len) };
 
         let mut remainder = bytes_i8;
         let mut char_count = 0;
 
         // UTF-8 continuation bytes have pattern 10xxxxxx (0x80-0xBF)
         // We want to count bytes that are NOT continuation bytes
-        let continuation_pattern = S::Vi8::set1(0b10000000u8 as i8);
-        let mask_pattern = S::Vi8::set1(0b11000000u8 as i8);
+        let continuation_pattern = S::Vi8::set1(0b1000_0000_u8 as i8);
+        let mask_pattern = S::Vi8::set1(0b1100_0000_u8 as i8);
 
         // Process in SIMD chunks
         while remainder.len() >= S::Vi8::WIDTH {
@@ -110,7 +108,7 @@ simd_runtime_generate!(
 
         // Handle remaining bytes
         for &byte in remainder {
-            if (byte as u8) & 0b11000000 != 0b10000000 {
+            if (byte as u8) & 0b1100_0000 != 0b1000_0000 {
                 char_count += 1;
             }
         }
@@ -127,7 +125,7 @@ simd_runtime_generate!(
 /// must use [`count_utf8_chars_simd`] to count non-continuation bytes.
 /// All operations are highly optimized with full SIMD support.
 #[inline]
-pub fn get_char_column_simd(text: &str, offset: usize) -> usize {
+#[must_use] pub fn get_char_column_simd(text: &str, offset: usize) -> usize {
     if offset == 0 {
         return 0;
     }
@@ -207,7 +205,9 @@ mod tests {
         assert!(!is_ascii_simd("Привет")); // Russian
         assert!(!is_ascii_simd("مرحبا")); // Arabic
         // all together for fun
-        assert!(!is_ascii_simd("café مرحبا こんにちは 🚀 Привет résumé naïve"));
+        assert!(!is_ascii_simd(
+            "café مرحبا こんにちは 🚀 Привет résumé naïve"
+        ));
     }
 
     #[test]
@@ -375,7 +375,7 @@ mod tests {
         assert_eq!(find_last_byte_simd(haystack, b'l', false), Some(15)); // Last 'l'
         assert_eq!(find_last_byte_simd(haystack, b'h', false), Some(12)); // Last 'h'
         assert_eq!(find_last_byte_simd(haystack, b'o', false), Some(16)); // Last 'o'
-        assert_eq!(find_last_byte_simd(haystack, b'x', false), None);     // Not found
+        assert_eq!(find_last_byte_simd(haystack, b'x', false), None); // Not found
     }
 
     #[test]
@@ -422,24 +422,12 @@ mod tests {
 
     #[test]
     fn test_count_utf8_chars_consistency() {
-        let test_strings = vec![
-            "Hello",
-            "café",
-            "🚀",
-            "Hello, 世界!",
-            "résumé",
-            "测试",
-            "",
-        ];
+        let test_strings = vec!["Hello", "café", "🚀", "Hello, 世界!", "résumé", "测试", ""];
 
         for test_str in test_strings {
             let simd_count = count_utf8_chars_simd(test_str.as_bytes());
             let std_count = test_str.chars().count();
-            assert_eq!(
-                simd_count, std_count,
-                "Mismatch for string: {:?}",
-                test_str
-            );
+            assert_eq!(simd_count, std_count, "Mismatch for string: {:?}", test_str);
         }
     }
 
@@ -457,13 +445,13 @@ mod tests {
         let text = "line1\nline2\nline3";
 
         // Position at start of each line
-        assert_eq!(get_char_column_simd(text, 0), 0);  // Start of "line1"
-        assert_eq!(get_char_column_simd(text, 6), 0);  // Start of "line2"
+        assert_eq!(get_char_column_simd(text, 0), 0); // Start of "line1"
+        assert_eq!(get_char_column_simd(text, 6), 0); // Start of "line2"
         assert_eq!(get_char_column_simd(text, 12), 0); // Start of "line3"
 
         // Positions within lines
-        assert_eq!(get_char_column_simd(text, 3), 3);  // "lin|e1"
-        assert_eq!(get_char_column_simd(text, 9), 3);  // "lin|e2"
+        assert_eq!(get_char_column_simd(text, 3), 3); // "lin|e1"
+        assert_eq!(get_char_column_simd(text, 9), 3); // "lin|e2"
         assert_eq!(get_char_column_simd(text, 15), 3); // "lin|e3"
     }
 
@@ -476,7 +464,7 @@ mod tests {
         assert_eq!(get_char_column_simd(text, 2), 2);
 
         // Position at start of second line after newline
-        assert_eq!(get_char_column_simd(text, 6), 0);  // Start of "naïve"
+        assert_eq!(get_char_column_simd(text, 6), 0); // Start of "naïve"
 
         // Position within second line: "na|ïve" = position 2 (after 'n', 'a')
         assert_eq!(get_char_column_simd(text, 8), 2);

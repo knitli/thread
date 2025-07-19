@@ -47,8 +47,8 @@ macro_rules! into_napi_lang {
     };
 }
 
-use thread_ast_engine::tree_sitter::TSLanguage;
 use std::sync::OnceLock;
+use thread_ast_engine::tree_sitter::TSLanguage;
 
 // Cached language instances for zero-cost repeated access
 static BASH_LANG: OnceLock<TSLanguage> = OnceLock::new();
@@ -76,7 +76,9 @@ static TYPESCRIPT_LANG: OnceLock<TSLanguage> = OnceLock::new();
 static YAML_LANG: OnceLock<TSLanguage> = OnceLock::new();
 
 pub fn language_bash() -> TSLanguage {
-    BASH_LANG.get_or_init(|| into_lang!(tree_sitter_bash)).clone()
+    BASH_LANG
+        .get_or_init(|| into_lang!(tree_sitter_bash))
+        .clone()
 }
 
 pub fn language_c() -> TSLanguage {
@@ -88,15 +90,21 @@ pub fn language_cpp() -> TSLanguage {
 }
 
 pub fn language_c_sharp() -> TSLanguage {
-    CSHARP_LANG.get_or_init(|| into_lang!(tree_sitter_c_sharp)).clone()
+    CSHARP_LANG
+        .get_or_init(|| into_lang!(tree_sitter_c_sharp))
+        .clone()
 }
 
 pub fn language_css() -> TSLanguage {
-    CSS_LANG.get_or_init(|| into_napi_lang!(tree_sitter_css::LANGUAGE)).clone()
+    CSS_LANG
+        .get_or_init(|| into_napi_lang!(tree_sitter_css::LANGUAGE))
+        .clone()
 }
 
 pub fn language_elixir() -> TSLanguage {
-    ELIXIR_LANG.get_or_init(|| into_lang!(tree_sitter_elixir)).clone()
+    ELIXIR_LANG
+        .get_or_init(|| into_lang!(tree_sitter_elixir))
+        .clone()
 }
 
 pub fn language_go() -> TSLanguage {
@@ -104,27 +112,39 @@ pub fn language_go() -> TSLanguage {
 }
 
 pub fn language_haskell() -> TSLanguage {
-    HASKELL_LANG.get_or_init(|| into_lang!(tree_sitter_haskell)).clone()
+    HASKELL_LANG
+        .get_or_init(|| into_lang!(tree_sitter_haskell))
+        .clone()
 }
 
 pub fn language_html() -> TSLanguage {
-    HTML_LANG.get_or_init(|| into_napi_lang!(tree_sitter_html::LANGUAGE)).clone()
+    HTML_LANG
+        .get_or_init(|| into_napi_lang!(tree_sitter_html::LANGUAGE))
+        .clone()
 }
 
 pub fn language_java() -> TSLanguage {
-    JAVA_LANG.get_or_init(|| into_lang!(tree_sitter_java)).clone()
+    JAVA_LANG
+        .get_or_init(|| into_lang!(tree_sitter_java))
+        .clone()
 }
 
 pub fn language_javascript() -> TSLanguage {
-    JAVASCRIPT_LANG.get_or_init(|| into_napi_lang!(tree_sitter_javascript::LANGUAGE)).clone()
+    JAVASCRIPT_LANG
+        .get_or_init(|| into_napi_lang!(tree_sitter_javascript::LANGUAGE))
+        .clone()
 }
 
 pub fn language_json() -> TSLanguage {
-    JSON_LANG.get_or_init(|| into_lang!(tree_sitter_json)).clone()
+    JSON_LANG
+        .get_or_init(|| into_lang!(tree_sitter_json))
+        .clone()
 }
 
 pub fn language_kotlin() -> TSLanguage {
-    KOTLIN_LANG.get_or_init(|| into_lang!(tree_sitter_kotlin)).clone()
+    KOTLIN_LANG
+        .get_or_init(|| into_lang!(tree_sitter_kotlin))
+        .clone()
 }
 
 pub fn language_lua() -> TSLanguage {
@@ -132,37 +152,55 @@ pub fn language_lua() -> TSLanguage {
 }
 
 pub fn language_php() -> TSLanguage {
-    PHP_LANG.get_or_init(|| into_lang!(tree_sitter_php, LANGUAGE_PHP_ONLY)).clone()
+    PHP_LANG
+        .get_or_init(|| into_lang!(tree_sitter_php, LANGUAGE_PHP_ONLY))
+        .clone()
 }
 
 pub fn language_python() -> TSLanguage {
-    PYTHON_LANG.get_or_init(|| into_lang!(tree_sitter_python)).clone()
+    PYTHON_LANG
+        .get_or_init(|| into_lang!(tree_sitter_python))
+        .clone()
 }
 
 pub fn language_ruby() -> TSLanguage {
-    RUBY_LANG.get_or_init(|| into_lang!(tree_sitter_ruby)).clone()
+    RUBY_LANG
+        .get_or_init(|| into_lang!(tree_sitter_ruby))
+        .clone()
 }
 
 pub fn language_rust() -> TSLanguage {
-    RUST_LANG.get_or_init(|| into_lang!(tree_sitter_rust)).clone()
+    RUST_LANG
+        .get_or_init(|| into_lang!(tree_sitter_rust))
+        .clone()
 }
 
 pub fn language_scala() -> TSLanguage {
-    SCALA_LANG.get_or_init(|| into_lang!(tree_sitter_scala)).clone()
+    SCALA_LANG
+        .get_or_init(|| into_lang!(tree_sitter_scala))
+        .clone()
 }
 
 pub fn language_swift() -> TSLanguage {
-    SWIFT_LANG.get_or_init(|| into_lang!(tree_sitter_swift)).clone()
+    SWIFT_LANG
+        .get_or_init(|| into_lang!(tree_sitter_swift))
+        .clone()
 }
 
 pub fn language_tsx() -> TSLanguage {
-    TSX_LANG.get_or_init(|| into_napi_lang!(tree_sitter_typescript::LANGUAGE_TSX)).clone()
+    TSX_LANG
+        .get_or_init(|| into_napi_lang!(tree_sitter_typescript::LANGUAGE_TSX))
+        .clone()
 }
 
 pub fn language_typescript() -> TSLanguage {
-    TYPESCRIPT_LANG.get_or_init(|| into_napi_lang!(tree_sitter_typescript::LANGUAGE_TYPESCRIPT)).clone()
+    TYPESCRIPT_LANG
+        .get_or_init(|| into_napi_lang!(tree_sitter_typescript::LANGUAGE_TYPESCRIPT))
+        .clone()
 }
 
 pub fn language_yaml() -> TSLanguage {
-    YAML_LANG.get_or_init(|| into_lang!(tree_sitter_yaml)).clone()
+    YAML_LANG
+        .get_or_init(|| into_lang!(tree_sitter_yaml))
+        .clone()
 }

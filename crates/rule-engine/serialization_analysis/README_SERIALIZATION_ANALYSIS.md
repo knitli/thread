@@ -1,3 +1,10 @@
+<!--
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+
+SPDX-License-Identifier: MIT OR Apache-2.0
+-->
+
 # Serialization Dependency Analysis Tools
 
 This directory contains a comprehensive analysis of serialization dependencies in the `thread-rule-engine` crate and tools to help with the separation effort.

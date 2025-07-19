@@ -10,7 +10,7 @@ use thread_ast_engine::language::Language;
 use thread_ast_engine::matcher::{Matcher, MatcherExt};
 use thread_ast_engine::{AstGrep, Doc, Node, NodeMatch};
 
-use thread_utils::{map_with_capacity, RapidMap, RapidSet};
+use thread_utils::{RapidMap, RapidSet, map_with_capacity};
 
 pub struct ScanResult<'t, 'r, D: Doc, L: Language> {
     pub diffs: Vec<(&'r RuleConfig<L>, NodeMatch<'t, D>)>,

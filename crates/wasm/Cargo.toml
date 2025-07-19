@@ -6,6 +6,10 @@
 [package]
 name = "thread-wasm"
 description = "WASM bindings for Thread. Deploy Thread to the web!"
+readme = "README.md"
+keywords = ["wasm", "webassembly", "thread", "bindings"]
+categories = ["webassembly"]
+publish = true
 version = "0.0.1"
 edition.workspace = true
 rust-version.workspace = true
@@ -31,7 +35,9 @@ console_error_panic_hook = { version = "0.1.7", optional = true }
 
 rayon = { workspace = true, features = ["web_spin_lock"], optional = true }
 
-thread-utils = { workspace = true, default-features = false, features = ["hashers"] }
+thread-utils = { workspace = true, default-features = false, features = [
+  "hashers",
+] }
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.50"
@@ -46,7 +52,7 @@ path = "src/lib.rs"
 
 [features]
 default = ["worker"]
-worker = ["web-sys/console"]  # single-threaded worker deployment
+worker = ["web-sys/console"]                   # single-threaded worker deployment
 browser = ["multi-threading", "serialization"]
 # TODO: wasi = [ ]
 

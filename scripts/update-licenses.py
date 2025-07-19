@@ -44,7 +44,7 @@ ALLOWED_DIRS = [
         not d.name.startswith(".")
         or d.name in {".github", ".vscode", ".roo", ".claude"}
     )
-    and d.name not in ["target", "debug", "release", "dist", "LICENSES"]
+    and (d.name not in ["target", "debug", "release", "dist", "LICENSES", ".git", ".jj"] or not any(d for d in {"/target/", "/debug/", "/release/", "/dist/", "/LICENSES/"} if d in str(d)))
 ]
 
 

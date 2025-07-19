@@ -109,10 +109,7 @@ fn replace_one<'n, D: Doc>(
     rules: &[&RuleCore],
     ctx: &Ctx<'_, 'n, D>,
 ) -> Vec<Edit<D::Source>> {
-    let mut edits = Vec::new();
-
-    // Pre-allocate edits vector with estimated capacity to reduce allocations
-    edits.reserve(16); // reasonable estimate for most cases
+    let mut edits = Vec::with_capacity(16); // pre-allocate to avoid reallocations
 
     for child in node.dfs() {
         for rule in rules {

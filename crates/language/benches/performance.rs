@@ -1,8 +1,14 @@
-use criterion::{criterion_group, criterion_main, Criterion};
+// SPDX-FileCopyrightText: 2025 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+// SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+// SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
+
+use criterion::{Criterion, criterion_group, criterion_main};
 use std::hint::black_box;
 use std::path::Path;
-use thread_language::*;
 use std::str::FromStr;
+use thread_language::*;
 
 fn bench_pre_process_pattern(c: &mut Criterion) {
     let patterns = [
@@ -12,7 +18,7 @@ fn bench_pre_process_pattern(c: &mut Criterion) {
         "import $MODULE from '$PATH'",
         "const $VAR = $VALUE;",
         "if ($CONDITION) { $THEN } else { $ELSE }",
-        "$$$A", // Anonymous multiple
+        "$$$A",            // Anonymous multiple
         "no dollars here", // No processing needed
     ];
 
@@ -28,8 +34,20 @@ fn bench_pre_process_pattern(c: &mut Criterion) {
 
 fn bench_from_str(c: &mut Criterion) {
     let languages = [
-        "rust", "rs", "javascript", "js", "typescript", "ts",
-        "python", "py", "java", "cpp", "c", "go", "html", "css"
+        "rust",
+        "rs",
+        "javascript",
+        "js",
+        "typescript",
+        "ts",
+        "python",
+        "py",
+        "java",
+        "cpp",
+        "c",
+        "go",
+        "html",
+        "css",
     ];
 
     c.bench_function("from_str", |b| {
@@ -43,9 +61,20 @@ fn bench_from_str(c: &mut Criterion) {
 
 fn bench_from_extension(c: &mut Criterion) {
     let files = [
-        "main.rs", "app.js", "index.ts", "script.tsx", "main.py",
-        "App.java", "main.cpp", "main.c", "main.go", "index.html",
-        "style.css", "config.json", "data.yaml", "rare.scala"
+        "main.rs",
+        "app.js",
+        "index.ts",
+        "script.tsx",
+        "main.py",
+        "App.java",
+        "main.cpp",
+        "main.c",
+        "main.go",
+        "index.html",
+        "style.css",
+        "config.json",
+        "data.yaml",
+        "rare.scala",
     ];
 
     c.bench_function("from_extension", |b| {

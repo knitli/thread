@@ -106,7 +106,7 @@ impl ExecutionContext for MemoryContext {
         self.content
             .get(source)
             .cloned()
-            .ok_or_else(|| ServiceError::Execution(format!("Source not found: {}", source)))
+            .ok_or_else(|| ServiceError::Execution(format!("Source not found: {source}")))
     }
 
     fn write_content(&self, _destination: &str, _content: &str) -> Result<(), ServiceError> {

@@ -2,19 +2,18 @@
 // SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-use criterion::{criterion_group, criterion_main, Criterion, BenchmarkId};
+use criterion::{BenchmarkId, Criterion, criterion_group, criterion_main};
 use std::hint::black_box;
-use thread_language::{SupportLang};
+use thread_language::SupportLang;
 
-use thread_rule_engine::{
-    from_yaml_string, GlobalRules,
-};
+use thread_rule_engine::{GlobalRules, from_yaml_string};
 
 // Benchmark data
 struct BenchmarkData {
     simple_patterns: Vec<&'static str>,
     complex_rules: Vec<&'static str>,
-    test_code: &'static str,}
+    test_code: &'static str,
+}
 
 impl BenchmarkData {
     fn new() -> Self {
@@ -71,16 +70,12 @@ rule:
             i, pattern
         );
 
-        group.bench_with_input(
-            BenchmarkId::new("simple_rule", i),
-            &yaml,
-            |b, yaml| {
-                b.iter(|| {
-                    let _rule = from_yaml_string::<SupportLang>(black_box(yaml), &globals)
-                        .expect("should parse");
-                });
-            },
-        );
+        group.bench_with_input(BenchmarkId::new("simple_rule", i), &yaml, |b, yaml| {
+            b.iter(|| {
+                let _rule = from_yaml_string::<SupportLang>(black_box(yaml), &globals)
+                    .expect("should parse");
+            });
+        });
     }
 
     // Benchmark complex rule parsing

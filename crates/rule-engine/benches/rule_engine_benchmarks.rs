@@ -2,15 +2,12 @@
 // SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-use criterion::{criterion_group, criterion_main, Criterion, BenchmarkId};
+use criterion::{BenchmarkId, Criterion, criterion_group, criterion_main};
 use std::hint::black_box;
 
 use thread_language::{LanguageExt, SupportLang};
 
-
-use thread_rule_engine::{
-    from_yaml_string, GlobalRules, RuleCollection, CombinedScan,
-};
+use thread_rule_engine::{CombinedScan, GlobalRules, RuleCollection, from_yaml_string};
 
 pub type BenchLanguage = SupportLang;
 
@@ -72,8 +69,14 @@ rule:
 "#,
             ],
             code_samples: vec![
-                ("typescript", include_str!("../test_data/sample_typescript.ts")),
-                ("javascript", include_str!("../test_data/sample_javascript.js")),
+                (
+                    "typescript",
+                    include_str!("../test_data/sample_typescript.ts"),
+                ),
+                (
+                    "javascript",
+                    include_str!("../test_data/sample_javascript.js"),
+                ),
                 ("python", include_str!("../test_data/sample_python.py")),
                 ("rust", include_str!("../test_data/sample_rust.rs")),
             ],
@@ -101,16 +104,12 @@ rule:
             i, pattern
         );
 
-        group.bench_with_input(
-            BenchmarkId::new("simple_rule", i),
-            &yaml,
-            |b, yaml| {
-                b.iter(|| {
-                    let _rule = from_yaml_string::<BenchLanguage>(black_box(yaml), &globals)
-                        .expect("should parse");
-                });
-            },
-        );
+        group.bench_with_input(BenchmarkId::new("simple_rule", i), &yaml, |b, yaml| {
+            b.iter(|| {
+                let _rule = from_yaml_string::<BenchLanguage>(black_box(yaml), &globals)
+                    .expect("should parse");
+            });
+        });
     }
 
     // Benchmark complex rule parsing
@@ -159,10 +158,10 @@ rule:
         stopBy: end
 "#;
 
-    let simple_rules = from_yaml_string::<BenchLanguage>(simple_rule_yaml, &globals)
-        .expect("should parse");
-    let complex_rules = from_yaml_string::<BenchLanguage>(complex_rule_yaml, &globals)
-        .expect("should parse");
+    let simple_rules =
+        from_yaml_string::<BenchLanguage>(simple_rule_yaml, &globals).expect("should parse");
+    let complex_rules =
+        from_yaml_string::<BenchLanguage>(complex_rule_yaml, &globals).expect("should parse");
 
     // Test against sample code
     for (lang_name, code) in &data.code_samples {
@@ -175,7 +174,8 @@ rule:
                 |b, (grep, rules)| {
                     b.iter(|| {
                         let root = grep.root();
-                        let matches: Vec<_> = rules.iter()
+                        let matches: Vec<_> = rules
+                            .iter()
                             .flat_map(|rule| root.find_all(&rule.matcher))
                             .collect();
                         black_box(matches);
@@ -288,7 +288,8 @@ transform:
 "#;
 
     let rule = from_yaml_string::<BenchLanguage>(transform_rule_yaml, &globals)
-        .expect("should parse")[0].clone();
+        .expect("should parse")[0]
+        .clone();
 
     let test_code = r#"
 function test() {

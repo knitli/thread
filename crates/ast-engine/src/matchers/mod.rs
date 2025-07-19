@@ -2,6 +2,7 @@
 // SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later
+#![allow(clippy::redundant_pub_crate)]
 //! Module imports for pattern matching. Feature gated except for unimplemented `types` module.
 //!
 //! ## Implementation Notes
@@ -24,26 +25,6 @@
 //! From an API perspective, nothing changed -- `matcher` is still the main entry point for pattern matching (if the feature is enabled).
 
 #[cfg(feature = "matching")]
-<<<<<<< Updated upstream
-use crate::matcher::Matcher;
-
-#[cfg(feature = "matching")]
-pub(crate) mod pattern;
-
-#[cfg(feature = "matching")]
-pub(crate) mod kind;
-
-#[cfg(feature = "matching")]
-pub(crate) mod node_match;
-
-#[cfg(feature = "matching")]
-pub(crate) mod text;
-
-pub(crate) mod types;
-#[cfg(not(feature = "matching"))]
-pub use types::*;
-||||||| Stash base
-=======
 pub(crate) mod pattern;
 
 #[cfg(feature = "matching")]
@@ -62,4 +43,3 @@ pub use types::*;
 pub(crate) mod matcher {
     pub use super::types::Matcher;
 }
->>>>>>> Stashed changes

@@ -14,7 +14,7 @@ use thread_utils::is_ascii_simd;
 use regex::Regex;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use std::sync::{OnceLock};
+use std::sync::OnceLock;
 
 use string_case::{Separator, StringCase};
 
@@ -24,7 +24,6 @@ fn get_text_from_env<D: Doc>(var: &MetaVariable, ctx: &mut Ctx<'_, '_, D>) -> Op
     let bytes = ctx.env.get_var_bytes(var)?;
     Some(<D::Source as Content>::encode_bytes(bytes).into_owned())
 }
-
 
 /// Extracts a substring from the meta variable's text content.
 ///
@@ -64,8 +63,8 @@ impl Substring<MetaVariable> {
     #[inline]
     fn compute_ascii(&self, text: &str) -> Option<String> {
         let len = text.len() as i32;
-        let start = resolve_char(&self.start_char, 0, len) as usize;
-        let end = resolve_char(&self.end_char, len, len) as usize;
+        let start = resolve_char(&self.start_char, 0, len);
+        let end = resolve_char(&self.end_char, len, len);
 
         if start > end || start >= text.len() || end > text.len() {
             return Some(String::new());
@@ -87,13 +86,17 @@ impl Substring<MetaVariable> {
 
         // Use char_indices for efficient boundary detection
         let mut char_indices = text.char_indices();
-        let start_byte = char_indices.nth(start_idx).map(|(i, _)| i).unwrap_or(text.len());
+        let start_byte = char_indices
+            .nth(start_idx)
+            .map(|(i, _)| i)
+            .unwrap_or(text.len());
 
         if end_idx >= char_count as usize {
             return Some(text[start_byte..].to_string());
         }
 
-        let end_byte = char_indices.nth(end_idx - start_idx - 1)
+        let end_byte = char_indices
+            .nth(end_idx - start_idx - 1)
             .map(|(i, _)| i)
             .unwrap_or(text.len());
 
@@ -149,9 +152,9 @@ impl<T> Replace<T> {
     /// Get the cached compiled regex, compiling it if necessary
     #[inline]
     fn get_regex(&self) -> Option<&Regex> {
-        let result = self.compiled_regex.get_or_init(|| {
-            Regex::new(&self.replace).map_err(|e| e.to_string())
-        });
+        let result = self
+            .compiled_regex
+            .get_or_init(|| Regex::new(&self.replace).map_err(|e| e.to_string()));
         result.as_ref().ok()
     }
 }

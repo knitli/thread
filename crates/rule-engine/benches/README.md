@@ -1,3 +1,10 @@
+<!--
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+
+SPDX-License-Identifier: MIT OR Apache-2.0
+-->
+
 # Rule Engine Benchmarks
 
 This directory contains performance benchmarks for the `thread-rule-engine` crate.

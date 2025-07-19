@@ -7,6 +7,7 @@ name = "thread-ast-engine"
 description = "Core AST engine for Thread - parsing, matching, and transforming code using AST patterns. Forked from ast-grep-core."
 keywords = ["ast", "pattern", "codemod", "search", "rewrite"]
 categories = ["command-line-utilities", "development-tools", "parsing"]
+readme = "README.md"
 license = "AGPL-3.0-or-later AND MIT"
 version = "0.1.0"
 authors = [
@@ -22,7 +23,10 @@ rust-version.workspace = true
 include.workspace = true
 
 [dependencies]
-thread-utils = { workspace = true, default-features = false, features = ["hashers", "simd"] }
+thread-utils = { workspace = true, default-features = false, features = [
+  "hashers",
+  "simd",
+] }
 thiserror.workspace = true
 
 # Tree-sitter required for parsing
@@ -40,7 +44,7 @@ matching = ["dep:regex", "dep:bit-set"]
 
 [dev-dependencies]
 tree-sitter-typescript = "0.23.2"
-thread-language = { workspace = true, features = ["builtin-parser"]}
+thread-language = { workspace = true, features = ["builtin-parser"] }
 criterion = { version = "0.6.0", features = ["html_reports"] }
 
 [[bench]]
@@ -48,7 +52,7 @@ name = "performance_improvements"
 harness = false
 
 [build-dependencies]
-cc = "*"
+cc = "1.2.30"
 
 [lints]
 # Enable linting for the crate
