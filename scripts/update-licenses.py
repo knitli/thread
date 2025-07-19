@@ -1,5 +1,9 @@
-#!/usr/bin/env python3
-
+#!/usr/bin/env -S uv run --all-extras -s
+# /// script
+# requires-python = ">=3.11"
+# dependencies = ["rignore", "cyclopts"]
+# ///
+# sourcery skip: avoid-global-variables
 # SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
 # SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
 #
@@ -8,55 +12,43 @@
 """Update licenses for files in the repository."""
 
 import subprocess
-from argparse import ArgumentParser, Namespace
+import sys
 from pathlib import Path
+from functools import cache, partial
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
+from typing import Annotated, NamedTuple
 
+import rignore
+from cyclopts import App, Parameter, validators
 
-def parse_args() -> Namespace:
-    """Parse command line arguments."""
-    parser = ArgumentParser(
-        description="Update licenses for files in the repository.")
-    parser.add_argument(
-        "--files",
-        nargs="+",
-        default=[],
-        type=list[Path],
-        help="List of files to update licenses for.",
-    )
-    parser.add_argument(
-        "--contributor",
-        default=["Adam Poulemanos <adam@knit.li>"],
-        type=list,
-        help="Name and email of the contributor(s) to add.",
-        nargs="+",
-        action="append"
-    )
-    return parser.parse_args()
+BASE_PATH = Path(__file__).parent.parent
 
+__version__ = "0.1.0"
 
-ALLOWED_DIRS = [
-    d
-    for d in Path.cwd().iterdir()
-    if d.is_dir()
-    and (
-        not d.name.startswith(".")
-        or d.name in {".github", ".vscode", ".roo", ".claude"}
-    )
-    and (d.name not in ["target", "debug", "release", "dist", "LICENSES", ".git", ".jj"] or not any(d for d in {"/target/", "/debug/", "/release/", "/dist/", "/LICENSES/"} if d in str(d)))
-]
+CONTRIBUTORS = Parameter(
+    "-c",
+    "--contributor",
+    consume_multiple=True,
+    help="Name and email of the contributor(s) to add. May be provided multiple times, or as a json list.",
+    json_list=True,
+)
 
+app = App(
+    name="Thread License Updater",
+    version=__version__,
+    default_command="add",
+    help = "Update licenses for files in the repository using Reuse. Respects .gitignore.",
+    help_on_error=True,
+)
 
-def is_allowed_path(path: Path) -> bool:
-    """Check if the path is allowed based on the allowed directories."""
-    if (
-        any(path.is_relative_to(allowed_dir) for allowed_dir in ALLOWED_DIRS)
-        and path.is_file()
-    ):
-        return path in files if (files := parse_args().files) else True
-    return False
-
+def run_command(cmd: list[str], paths: list[Path]) -> None:
+    """Run a command with the given paths."""
+    if not paths:
+        return
+    cmds = [cmd + [str(path)] for path in paths]
+    with ThreadPoolExecutor() as executor:
+        executor.map(subprocess.run, cmds)
 
 def years() -> str:
     """
@@ -67,12 +59,11 @@ def years() -> str:
     else:
         return "2025"
 
-
 BASE_CMD = [
     "reuse",
     "annotate",
     "--year",
-    str(datetime.now().year),
+    years(),
     "--copyright",
     "Knitli Inc. <knitli@knit.li>",
     "--fallback-dot-license",
@@ -80,47 +71,6 @@ BASE_CMD = [
     "--skip-existing"
 ]
 
-
-AST_GREP_COPYRIGHT = (
-    "Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>"
-)
-
-AST_GREP_PATHS = [
-    path
-    for path in (
-        list((Path.cwd() / "crates" / "ast-engine").rglob("*.rs"))
-        + list((Path.cwd() / "crates" / "language").rglob("*.rs"))
-        + list((Path.cwd() / "crates" / "rule-engine").rglob("*.rs"))
-    )
-    if path.is_file() and is_allowed_path(path)
-]
-
-CODE_EXTS = {
-    "rs",
-    "sh",
-    "py",
-    "js",
-    "ts",
-    "tsx",
-    "jsx",
-    "java",
-    "go",
-    "c",
-    "cpp",
-    "h",
-    "hpp",
-    "html",
-    "css",
-    "svelte",
-    "vue",
-}
-
-CODE_PATHS = [
-    path
-    for ext in CODE_EXTS
-    for path in Path.cwd().rglob(f"*.{ext}")
-    if path.is_file() and path not in AST_GREP_PATHS and is_allowed_path(path)
-]
 # Collect non-code paths that are not in the AST-Grep or code paths
 # Some of these are shell scripts, so technically code, but we treat them as non-code for license purposes.
 NON_CODE_EXTS = {
@@ -183,45 +133,146 @@ NON_CODE_EXTS = {
     "zshenv",
     "zshrc",
 }
-NON_CODE_PATHS = [
-    p
-    for ext in NON_CODE_EXTS
-    for p in Path.cwd().rglob(f"*.{ext}")
-    if p.is_file() and p not in AST_GREP_PATHS and is_allowed_path(p)
-]
-print(
-    f"Found {len(AST_GREP_PATHS)} AST-Grep paths, {len(CODE_PATHS)} code paths, and {
-        len(NON_CODE_PATHS)
-    } non-code paths."
+
+DEFAULT_CONTRIBUTORS = ["Adam Poulemanos <adam@knit.li>"]
+
+AST_GREP_COPYRIGHT = (
+    "Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>"
 )
 
 
-def run_command(cmd: list[str], paths: list[Path]) -> None:
-    """Run a command with the given paths."""
-    if not paths:
-        return
-    cmds = [cmd + [str(path)] for path in paths]
-    with ThreadPoolExecutor() as executor:
-        executor.map(subprocess.run, cmds)
+class PathsForProcessing(NamedTuple):
+    """Paths for processing."""
+    ast_grep_paths: list[Path]
+    code_paths: list[Path]
+    non_code_paths: list[Path]
 
+    @classmethod
+    def from_paths(cls, paths: tuple[list[Path], list[Path], list[Path]]) -> "PathsForProcessing":
+        """Create an instance from a tuple of paths."""
+        if len(paths) != 3:
+            raise ValueError("Expected a tuple of three lists: (ast_grep_paths, code_paths, non_code_paths)")
+        return cls(
+            ast_grep_paths=paths[0],
+            code_paths=paths[1],
+            non_code_paths=paths[2],
+        )
+
+    def process_with_cmd(self, cmd: list[str]) -> None:
+        """Run a command with the paths."""
+        if not self.ast_grep_paths and not self.code_paths and not self.non_code_paths:
+            return
+        cmds = []
+        if self.ast_grep_paths:
+            ast_grep_cmd = cmd + ["-c", AST_GREP_COPYRIGHT, "-l", "AGPL-3.0-or-later AND MIT"]
+            cmds.append((ast_grep_cmd, self.ast_grep_paths))
+        if self.code_paths:
+            code_cmd = cmd + ["-l", "AGPL-3.0-or-later"]
+            cmds.append((code_cmd, self.code_paths))
+        if self.non_code_paths:
+            non_code_cmd = cmd + ["-l", "MIT OR Apache-2.0"]
+            cmds.append((non_code_cmd, self.non_code_paths))
+        for cmd, paths in cmds:
+            run_command(cmd, paths)
+
+AST_GREP_CRATES = ["crates/ast-engine", "crates/language", "crates/rule-engine"]
+
+def get_staged_files() -> list[Path]:
+    """Get the list of staged files in the git repository."""
+    try:
+        result = subprocess.run(
+            ["git", "diff", "--cached", "--name-only"],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        print(result.stdout.strip())
+        staged_files = result.stdout.strip().splitlines()
+
+        return [(BASE_PATH / file) for file in staged_files]
+    except subprocess.CalledProcessError as e:
+        print(f"Error getting staged files: {e}")
+        return []
+
+@cache
+def filter_path(paths: tuple[Path] | None = None, path: Path | None = None) -> bool:
+    """Check if a path is in the provided list of paths."""
+    if not path:
+        return False
+    if paths is None:
+        return path.is_file() and not path.is_symlink()
+    return path in paths and path.is_file() and not path.is_symlink()
+
+def get_empty_lists() -> tuple[list, list, list]:
+    """Get empty lists for AST-Grep paths, code paths, and non-code paths."""
+    return [], [], []
+
+def sort_paths(paths: list[Path] | None = None, base_dir: Path = BASE_PATH) -> PathsForProcessing:
+    """Sort paths by their string representation."""
+    base_dir = base_dir or Path.cwd()
+    ast_grep_paths, code_paths, non_code_paths = get_empty_lists()
+    entry_filter = partial(filter_path, tuple(paths) if paths else None)
+    for p in rignore.walk(base_dir, ignore_hidden = False, read_git_ignore=True, read_ignore_files=True, same_file_system=True):
+        path = Path(p)
+        if not entry_filter(path):
+            continue
+        if any(
+            p
+            for p in AST_GREP_CRATES
+            if p in str(path) and p.suffix not in NON_CODE_EXTS
+        ):
+            ast_grep_paths.append(path)
+        elif path.suffix in NON_CODE_EXTS:
+            non_code_paths.append(path)
+        else:
+            code_paths.append(path)
+    return PathsForProcessing.from_paths((ast_grep_paths, code_paths, non_code_paths))
+
+def process_contributors(contributors: list[str]) -> list[str]:
+    """Process contributors to ensure they are in the correct format."""
+    processed = (item for contributor in contributors for item in ["--contributor", contributor])
+    return list(processed)
+
+@app.command(help="Update all licenses in the repository. Will check every file in the repository and add license information if it's missing.")
+def update_all(*, contributors: Annotated[list[str], CONTRIBUTORS] = DEFAULT_CONTRIBUTORS) -> None:
+    """Update all licenses in the repository."""
+    path_obj = sort_paths()
+    BASE_CMD.extend(process_contributors(contributors))
+    try:
+        path_obj.process_with_cmd(BASE_CMD)
+    except Exception as e:
+        print(f"Error updating licenses: {e}")
+
+@app.command(help="Update licenses for staged files in the repository. Will only check files that are staged for commit.")
+def staged(*, contributors: Annotated[list[str], CONTRIBUTORS] = DEFAULT_CONTRIBUTORS) -> None:
+    """Update licenses for staged files in the repository."""
+    staged_files = get_staged_files()
+    if not staged_files:
+        print("No staged files found.")
+        sys.exit(0)
+    path_obj = sort_paths(staged_files)
+    BASE_CMD.extend(process_contributors(contributors))
+    try:
+        path_obj.process_with_cmd(BASE_CMD)
+    except Exception as e:
+        print(f"Error updating licenses: {e}")
+
+@app.command(help="Add licenses for specific files in the repository. Will only check the files provided. May be provided as a space separated list, or as a json list. If a file already has a license, it will be skipped.")
+def add(files: Annotated[list[Path], Parameter(validator=validators.Path(exists=True), required=True, consume_multiple=True, json_list=True)], *, contributors: Annotated[list[str], CONTRIBUTORS] = DEFAULT_CONTRIBUTORS) -> None:
+    """Update licenses for specific files in the repository."""
+    if not files:
+        print("No files provided.")
+        sys.exit(0)
+    path_obj = sort_paths(files)
+    BASE_CMD.extend(process_contributors(contributors))
+    try:
+        path_obj.process_with_cmd(BASE_CMD)
+    except Exception as e:
+        print(f"Error updating licenses: {e}")
 
 def main() -> None:
     """Main function to update licenses."""
-    print("Updating licenses for code files...")
-    if contributors := parse_args().contributor:
-        for contributor in contributors:
-            BASE_CMD.extend(["--contributor", contributor])
-    if not AST_GREP_PATHS and not CODE_PATHS and not NON_CODE_PATHS:
-        return
-    if AST_GREP_PATHS:
-        ast_grep_cmd = BASE_CMD + ["-c", AST_GREP_COPYRIGHT, "-l", "AGPL-3.0-or-later AND MIT"]
-        run_command(ast_grep_cmd, AST_GREP_PATHS)
-    if CODE_PATHS:
-        code_cmd = BASE_CMD + ["-l", "AGPL-3.0-or-later"]
-        run_command(code_cmd, CODE_PATHS)
-    if NON_CODE_PATHS:
-        non_code_cmd = BASE_CMD + ["-l", "MIT OR Apache-2.0"]
-        run_command(non_code_cmd, NON_CODE_PATHS)
+    app()
 
 if __name__ == "__main__":
     main()

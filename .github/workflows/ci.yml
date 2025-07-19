@@ -2,12 +2,14 @@
 # SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
 #
 # SPDX-License-Identifier: MIT OR Apache-2.0
+# ! GitHub Action to run the CI pipeline for Rust projects
+# ! This action is triggered on pushes and pull requests to the main and staging branches.
 name: CI
 on:
   push:
-    branches: [main, develop]
+    branches: [main, staging]
   pull_request:
-    branches: [main, develop]
+    branches: [main, staging]
 env:
   CARGO_TERM_COLOR: always
 jobs:
@@ -55,6 +57,7 @@ jobs:
       - name: Run hk ci workflow
         run: >
           "$HOME/.local/bin/mise" run ci
+
   security_audit:
     name: Security Audit
     runs-on: ubuntu-latest
