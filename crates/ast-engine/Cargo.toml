@@ -28,11 +28,11 @@ thread-utils = { workspace = true, default-features = false, features = [
   "simd",
 ] }
 thiserror.workspace = true
+bit-set.workspace = true
 
 # Tree-sitter required for parsing
 tree-sitter = { workspace = true, optional = true }
-# Bit-set and regex required for pattern matching
-bit-set = { workspace = true, optional = true }
+# regex required for pattern matching
 regex = { workspace = true, optional = true }
 
 [features]
@@ -40,7 +40,7 @@ default = ["parsing", "matching"]
 # The 'parsing' feature enables the tree-sitter backend
 parsing = ["dep:tree-sitter"]
 # The 'matching' feature enables the pattern matching engine
-matching = ["dep:regex", "dep:bit-set"]
+matching = ["dep:regex"]
 
 [dev-dependencies]
 tree-sitter-typescript = "0.23.2"

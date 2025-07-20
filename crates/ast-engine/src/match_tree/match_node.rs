@@ -243,11 +243,11 @@ mod test {
     use super::*;
     use crate::language::Tsx;
     use crate::matcher::KindMatcher;
-    use crate::matcher::types::Pattern;
+    use crate::matcher::Pattern;
     use crate::{Matcher, Root, meta_var::MetaVarEnv};
     use std::borrow::Cow;
     fn match_tree(p: &str, n: &str, strictness: MatchStrictness) -> MatchOneNode {
-        let pattern = Pattern::new(p, Tsx);
+        let pattern = Pattern::new(p, &Tsx);
         let kind = pattern.potential_kinds().expect("should have kind");
         let kind = KindMatcher::from_id(kind.into_iter().next().expect("should have kind") as u16);
         let n = Root::str(n, Tsx);

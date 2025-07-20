@@ -6,13 +6,51 @@
 
 use super::pre_process_pattern;
 use thread_ast_engine::Language;
+#[cfg(feature = "matching")]
 use thread_ast_engine::matcher::{Pattern, PatternBuilder, PatternError};
-use thread_ast_engine::tree_sitter::{LanguageExt, StrDoc, TSLanguage, TSRange};
-use thread_ast_engine::{Doc, Node, matcher::KindMatcher};
+#[cfg(feature = "matching")]
+use thread_ast_engine::tree_sitter::{StrDoc, TSRange};
+use thread_ast_engine::tree_sitter::{LanguageExt, TSLanguage};
+#[cfg(feature = "matching")]
+use thread_ast_engine::matcher::KindMatcher;
+#[cfg(feature = "matching")]
+use thread_ast_engine::{Doc, Node};
+#[cfg(feature = "html-embedded")]
 use thread_utils::RapidMap;
 
-// tree-sitter-html uses locale dependent iswalnum for tagName
-// https://github.com/tree-sitter/tree-sitter-html/blob/b5d9758e22b4d3d25704b72526670759a9e4d195/src/scanner.c#L194
+/// HTML language implementation with language injection capabilities.
+///
+/// Uses `z` as the expando character for metavariables since HTML attributes
+/// and tag names have specific character restrictions.
+///
+/// ## Language Injection
+///
+/// Automatically detects and extracts embedded languages:
+/// - **JavaScript** in `<script>` elements (default when no `lang` attribute)
+/// - **CSS** in `<style>` elements (default when no `lang` attribute)
+/// - **Other languages** when specified via `lang` attribute
+///
+/// ## Examples
+///
+/// ```rust
+/// use thread_language::Html;
+/// use thread_ast_engine::{Language, LanguageExt};
+///
+/// let html = Html;
+/// let source = r#"
+/// <script>console.log('hello');</script>
+/// <style>.class { color: red; }</style>
+/// <script lang="ts">const x: number = 42;</script>
+/// "#;
+///
+/// let tree = html.ast_grep(source);
+/// let injections = html.extract_injections(tree.root());
+/// // injections contains JavaScript, CSS, and TypeScript ranges
+/// ```
+///
+/// ## Note
+/// tree-sitter-html uses locale-dependent `iswalnum` for tag names.
+/// See: <https://github.com/tree-sitter/tree-sitter-html/blob/b5d9758e22b4d3d25704b72526670759a9e4d195/src/scanner.c#L194>
 #[derive(Clone, Copy, Debug)]
 pub struct Html;
 impl Language for Html {
@@ -30,6 +68,7 @@ impl Language for Html {
             .field_id_for_name(field)
             .map(|f| f.get())
     }
+    #[cfg(feature = "matching")]
     fn build_pattern(&self, builder: &PatternBuilder) -> Result<Pattern, PatternError> {
         builder.build(|src| StrDoc::try_new(src, *self))
     }
@@ -41,6 +80,7 @@ impl LanguageExt for Html {
     fn injectable_languages(&self) -> Option<&'static [&'static str]> {
         Some(&["css", "js", "ts", "tsx", "scss", "less", "stylus", "coffee"])
     }
+    #[cfg(feature = "html-embedded")]
     fn extract_injections<L: LanguageExt>(
         &self,
         root: Node<StrDoc<L>>,
@@ -118,6 +158,7 @@ impl LanguageExt for Html {
     }
 }
 
+#[cfg(feature = "html-embedded")]
 fn find_lang<D: Doc>(node: &Node<D>) -> Option<String> {
     let html = node.lang();
     let attr_matcher = KindMatcher::new("attribute", html);
@@ -132,7 +173,7 @@ fn find_lang<D: Doc>(node: &Node<D>) -> Option<String> {
         Some(val.text().to_string())
     })
 }
-
+#[cfg(feature = "matching")]
 fn node_to_range<D: Doc>(node: &Node<D>) -> TSRange {
     let r = node.range();
     let start = node.start_pos();

@@ -56,39 +56,71 @@ tree-sitter-typescript = { version = "0.23.2", optional = true }
 tree-sitter-yaml = { version = "0.7.1", optional = true }
 
 [features]
+default = ["builtin-parser"]
+matching = ["thread-ast-engine/matching"]
 
+# Individual language features
+bash = ["tree-sitter-bash"]
+c = ["tree-sitter-c"]
+cpp = ["tree-sitter-cpp"]
+csharp = ["tree-sitter-c-sharp"]
+css = ["tree-sitter-css"]
+elixir = ["tree-sitter-elixir"]
+go = ["tree-sitter-go"]
+haskell = ["tree-sitter-haskell"]
+html = ["tree-sitter-html"]
+html-embedded = ["html", "css", "matching", "typescript", "tsx", "javascript"]
+java = ["tree-sitter-java"]
+javascript = ["tree-sitter-javascript"]
+json = ["tree-sitter-json"]
+kotlin = ["tree-sitter-kotlin"]
+lua = ["tree-sitter-lua"]
+php = ["tree-sitter-php"]
+python = ["tree-sitter-python"]
+ruby = ["tree-sitter-ruby"]
+rust = ["tree-sitter-rust"]
+scala = ["tree-sitter-scala"]
+swift = ["tree-sitter-swift"]
+typescript = ["tree-sitter-typescript"]
+tsx = ["tree-sitter-typescript"]
+yaml = ["tree-sitter-yaml"]
+
+# Language groups
 builtin-parser = [
-  "tree-sitter-bash",
-  "tree-sitter-c",
-  "tree-sitter-cpp",
-  "tree-sitter-c-sharp",
-  "tree-sitter-css",
-  "tree-sitter-elixir",
-  "tree-sitter-go",
-  "tree-sitter-haskell",
-  "tree-sitter-html",
-  "tree-sitter-java",
-  "tree-sitter-javascript",
-  "tree-sitter-json",
-  "tree-sitter-kotlin",
-  "tree-sitter-lua",
-  "tree-sitter-php",
-  "tree-sitter-python",
-  "tree-sitter-ruby",
-  "tree-sitter-rust",
-  "tree-sitter-scala",
-  "tree-sitter-swift",
-  "tree-sitter-typescript",
-  "tree-sitter-yaml",
+  "bash",
+  "c",
+  "cpp",
+  "csharp",
+  "css",
+  "elixir",
+  "go",
+  "haskell",
+  "html",
+  "html-embedded",
+  "java",
+  "javascript",
+  "json",
+  "kotlin",
+  "lua",
+  "php",
+  "python",
+  "ruby",
+  "rust",
+  "scala",
+  "swift",
+  "typescript",
+  "tsx",
+  "yaml",
 ]
 napi-lang = [
-  "tree-sitter-css",
-  "tree-sitter-html",
-  "tree-sitter-javascript",
-  "tree-sitter-typescript",
+  "css",
+  "html",
+  "html-embedded",
+  "javascript",
+  "typescript",
+  "tsx",
 ]
 profiling = []
-default = ["builtin-parser"]
 
 [dev-dependencies]
 criterion = { version = "0.6", features = ["html_reports"] }

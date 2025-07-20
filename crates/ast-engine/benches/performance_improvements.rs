@@ -10,7 +10,7 @@
 use criterion::{Criterion, criterion_group, criterion_main};
 use std::hint::black_box;
 use thread_ast_engine::{Pattern, Root};
-use thread_language::Tsx;
+use thread_language::{Tsx};
 use thread_utils::RapidMap;
 
 fn bench_pattern_conversion(c: &mut Criterion) {
@@ -34,7 +34,7 @@ fn bench_pattern_conversion(c: &mut Criterion) {
 
     c.bench_function("pattern_conversion_optimized", |b| {
         b.iter(|| {
-            let pattern = Pattern::new(black_box(pattern_str), Tsx);
+            let pattern = Pattern::new(black_box(pattern_str), &Tsx);
             let root = Root::str(black_box(source_code), Tsx);
             let node = root.root();
             let matches: Vec<_> = node.find_all(&pattern).collect();
@@ -49,8 +49,8 @@ fn bench_meta_var_env_conversion(c: &mut Criterion) {
 
     c.bench_function("meta_var_env_conversion", |b| {
         b.iter(|| {
-            let pattern = Pattern::new(black_box(pattern_str), Tsx);
-            let root = Root::str(black_box(source_code), Tsx);
+            let pattern = Pattern::new(black_box(pattern_str), &Tsx);
+            let root = Root::str(black_box(source_code), &Tsx);
             let matches: Vec<_> = root.root().find_all(&pattern).collect();
 
             // Test the optimized string concatenation
@@ -76,7 +76,7 @@ fn bench_pattern_children_collection(c: &mut Criterion) {
     c.bench_function("pattern_children_collection", |b| {
         b.iter(|| {
             let root = Root::str(black_box(source_code), Tsx);
-            let pattern = Pattern::new("class $NAME { $$$METHODS }", Tsx);
+            let pattern = Pattern::new("class $NAME { $$$METHODS }", &Tsx);
             let matches: Vec<_> = root.root().find_all(&pattern).collect();
             black_box(matches);
         })

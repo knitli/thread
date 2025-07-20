@@ -4,6 +4,44 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
 
+//! # AST Node Kind Matching
+//!
+//! Provides matchers that filter AST nodes based on their syntactic type (kind).
+//! Every AST node has a "kind" that describes what syntax element it represents
+//! (e.g., "function_declaration", "identifier", "string_literal").
+//!
+//! ## Core Types
+//!
+//! - [`KindMatcher`] - Matches nodes of a specific syntactic type
+//! - [`KindMatcherError`] - Errors when creating matchers with invalid kinds
+//! - [`kind_utils`] - Utilities for working with node kinds
+//!
+//! ## Example Usage
+//!
+//! ```rust,ignore
+//! use thread_ast_engine::matchers::KindMatcher;
+//! use thread_ast_engine::matcher::MatcherExt;
+//!
+//! // Match all function declarations
+//! let matcher = KindMatcher::new("function_declaration", &language);
+//! let functions: Vec<_> = root.find_all(&matcher).collect();
+//!
+//! // Match parsing errors in source code
+//! let error_matcher = KindMatcher::error_matcher();
+//! let errors: Vec<_> = root.find_all(&error_matcher).collect();
+//! ```
+//!
+//! ## Node Kind Concepts
+//!
+//! - **Named nodes** - Represent actual language constructs (functions, variables, etc.)
+//! - **Anonymous nodes** - Represent punctuation and keywords (`{`, `}`, `let`, etc.)
+//! - **Error nodes** - Represent unparsable syntax (syntax errors)
+//!
+//! Kind matching is useful for:
+//! - Finding all nodes of a specific type (all functions, all classes, etc.)
+//! - Detecting syntax errors in source code
+//! - Building language-specific analysis tools
+
 use super::matcher::Matcher;
 
 use crate::language::Language;
@@ -22,14 +60,50 @@ use thiserror::Error;
 const TS_BUILTIN_SYM_END: KindId = 0;
 const TS_BUILTIN_SYM_ERROR: KindId = 65535;
 
+/// Errors that can occur when creating a [`KindMatcher`].
 #[derive(Debug, Error)]
 pub enum KindMatcherError {
+    /// The specified node kind name doesn't exist in the language grammar.
+    ///
+    /// This happens when you try to match a node type that isn't defined
+    /// in the tree-sitter grammar for the language.
     #[error("Kind `{0}` is invalid.")]
     InvalidKindName(String),
 }
 
+/// Matcher that finds AST nodes based on their syntactic type (kind).
+///
+/// `KindMatcher` is the simplest type of matcher - it matches nodes whose
+/// type matches a specific string. Every AST node has a "kind" that describes
+/// what syntax element it represents.
+///
+/// # Examples
+///
+/// ```rust,ignore
+/// // Match all function declarations
+/// let matcher = KindMatcher::new("function_declaration", &language);
+/// let functions: Vec<_> = root.find_all(&matcher).collect();
+///
+/// // Match all identifiers
+/// let id_matcher = KindMatcher::new("identifier", &language);
+/// let identifiers: Vec<_> = root.find_all(&id_matcher).collect();
+///
+/// // Find syntax errors in code
+/// let error_matcher = KindMatcher::error_matcher();
+/// let errors: Vec<_> = root.find_all(&error_matcher).collect();
+/// ```
+///
+/// # Common Node Kinds
+///
+/// The exact node kinds depend on the language, but common examples include:
+/// - `"function_declaration"` - Function definitions
+/// - `"identifier"` - Variable/function names
+/// - `"string_literal"` - String values
+/// - `"number"` - Numeric literals
+/// - `"ERROR"` - Syntax errors
 #[derive(Debug, Clone)]
 pub struct KindMatcher {
+    /// The numeric ID of the node kind to match
     kind: KindId,
 }
 

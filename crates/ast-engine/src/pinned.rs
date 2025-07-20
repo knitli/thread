@@ -4,7 +4,46 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
 
+//! # Lifetime Extension for AST Nodes Across Thread and FFI Boundaries
+//!
+//! Enables safe passing of AST nodes across threads and FFI boundaries by extending
+//! their lifetimes beyond the normal borrow checker constraints.
+//!
+//! ## The Problem
+//!
+//! Normally, AST nodes have lifetimes tied to their root document:
+//! ```rust,ignore
+//! let root = parse_code("let x = 42;");
+//! let node = root.find("$VAR").unwrap(); // node lifetime tied to root
+//! // Can't send node to another thread without root
+//! ```
+//!
+//! ## The Solution
+//!
+//! [`PinnedNodeData`] keeps the root alive while allowing nodes to have `'static` lifetimes:
+//! ```rust,ignore
+//! let pinned = PinnedNodeData::new(root, |static_root| {
+//!     static_root.find("$VAR").unwrap() // Now has 'static lifetime
+//! });
+//! // Can safely send `pinned` across threads
+//! ```
+//!
+//! ## Safety
+//!
+//! This module uses unsafe code to extend lifetimes, but maintains safety by:
+//! - Keeping the root document alive as long as nodes exist
+//! - Re-adopting nodes when accessing them to ensure validity
+//! - Using tree-sitter's heap-allocated node pointers which remain stable
+//!
+//! ## Use Cases
+//!
+//! - **Threading**: Send AST analysis results between threads
+//! - **FFI**: Pass nodes to JavaScript (NAPI) or Python (PyO3)
+//! - **Async**: Store nodes across await points
+//! - **Caching**: Keep processed nodes in long-lived data structures
+
 use crate::Doc;
+#[cfg(feature = "matching")]
 use crate::NodeMatch;
 use crate::node::{Node, Root};
 
@@ -23,18 +62,56 @@ use crate::node::{Node, Root};
 // https://github.com/tree-sitter/tree-sitter/blob/20924fa4cdeb10d82ac308481e39bf8519334e55/lib/src/tree.c#L37-L39
 // https://tree-sitter.github.io/tree-sitter/using-parsers#concurrency
 //
-// So **as long as Root is not dropped, the Tree will not be freed. And Node will be valid.**
-//
-// PinnedNodeData provides a systematical way to keep Root live and `T` can be anything containing valid Nodes.
-// Nodes' lifetime is 'static, meaning the Node is not borrow checked instead of living throughout the program.
-// There are two ways to use PinnedNodeData
-// 1. use it by borrowing. PinnedNodeData guarantees Root is alive and Node in T is valid.
-//    Notable example is sending Node across threads.
-// 2. take its ownership. Users should take extra care to keep Root alive.
-//    Notable example is sending Root to JavaScript/Python heap.
+/// Container that extends AST node lifetimes by keeping their root document alive.
+///
+/// `PinnedNodeData` solves the problem of passing AST nodes across thread boundaries
+/// or FFI interfaces where normal lifetime constraints are too restrictive. It combines
+/// a root document with data containing nodes, ensuring the nodes remain valid.
+///
+/// # Type Parameters
+///
+/// - `D: Doc` - The document type (e.g., `StrDoc<Language>`)
+/// - `T` - Data containing nodes with `'static` lifetimes
+///
+/// # Safety Model
+///
+/// The container uses unsafe code to extend node lifetimes, but maintains safety by:
+/// - Keeping the root document alive to prevent tree deallocation
+/// - Re-adopting nodes when accessed to ensure they point to valid memory
+/// - Leveraging tree-sitter's stable heap-allocated node pointers
+///
+/// # Usage Patterns
+///
+/// ## 1. Borrowing Pattern (Recommended)
+/// Use through references to guarantee safety:
+/// ```rust,ignore
+/// let pinned = PinnedNodeData::new(root, |static_root| {
+///     static_root.find("pattern").unwrap()
+/// });
+/// let node = pinned.get_data(); // Safe access
+/// ```
+///
+/// ## 2. Ownership Pattern (Advanced)
+/// Take ownership but ensure root stays alive:
+/// ```rust,ignore
+/// let (root, node_data) = pinned.into_raw();
+/// // You must keep `root` alive while using `node_data`
+/// ```
+///
+/// # Thread Safety
+///
+/// Safe to send across threads as long as the contained data is `Send`:
+/// ```rust,ignore
+/// std::thread::spawn(move || {
+///     let node = pinned.get_data();
+///     // Process node in background thread
+/// });
+/// ```
 #[doc(hidden)]
 pub struct PinnedNodeData<D: Doc, T> {
+    /// Root document kept alive to ensure node validity
     pin: Root<D>,
+    /// Data containing nodes with extended lifetimes
     data: T,
 }
 
@@ -89,6 +166,7 @@ unsafe impl<D: Doc> NodeData<D> for Node<'static, D> {
     }
 }
 
+#[cfg(feature = "matching")]
 unsafe impl<D: Doc> NodeData<D> for NodeMatch<'static, D> {
     type Data = Self;
     fn get_data(&self) -> &Self::Data {
@@ -106,6 +184,7 @@ unsafe impl<D: Doc> NodeData<D> for NodeMatch<'static, D> {
     }
 }
 
+#[cfg(feature = "matching")]
 unsafe impl<D: Doc> NodeData<D> for Vec<NodeMatch<'static, D>> {
     type Data = Self;
     fn get_data(&self) -> &Self::Data {

@@ -456,7 +456,7 @@ mod test {
     }
     impl TsxMatcher for &str {
         fn t(self) -> Pattern {
-            Pattern::new(self, Tsx)
+            Pattern::new(self, &Tsx)
         }
     }
 

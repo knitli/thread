@@ -4,10 +4,41 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
 
+//! # AST Node Representation and Navigation
+//!
+//! Core types for representing and navigating Abstract Syntax Tree nodes.
+//!
+//! ## Key Types
+//!
+//! - [`Node`] - A single AST node with navigation and matching capabilities
+//! - [`Root`] - The root of an AST tree, owns the source code and tree structure
+//! - [`Position`] - Represents a position in source code (line/column)
+//!
+//! ## Usage
+//!
+//! ```rust,no_run
+//! # use thread_ast_engine::Language;
+//! # use thread_ast_engine::tree_sitter::LanguageExt;
+//! # use thread_ast_engine::MatcherExt;
+//! let ast = Language::Tsx.ast_grep("function foo() { return 42; }");
+//! let root_node = ast.root();
+//!
+//! // Navigate the tree
+//! for child in root_node.children() {
+//!     println!("Child kind: {}", child.kind());
+//! }
+//!
+//! // Find specific patterns
+//! if let Some(func) = root_node.find("function $NAME() { $$$BODY }") {
+//!     println!("Found function: {}", func.get_env().get_match("NAME").unwrap().text());
+//! }
+//! ```
+
 use crate::Doc;
 use crate::Language;
 #[cfg(feature = "matching")]
 use crate::matcher::{Matcher, MatcherExt, NodeMatch};
+#[cfg(feature = "matching")]
 use crate::replacer::Replacer;
 use crate::source::{Content, Edit as E, SgNode};
 
@@ -15,30 +46,49 @@ type Edit<D> = E<<D as Doc>::Source>;
 
 use std::borrow::Cow;
 
-/// Represents a position in the source code.
+/// Represents a position in source code.
 ///
-/// The line and column are zero-based, character offsets.
-/// It is different from tree-sitter's position which is zero-based `byte` offsets.
-/// Note, accessing `column` is O(n) operation.
+/// Positions use zero-based line and column numbers, where line 0 is the first line
+/// and column 0 is the first character. Unlike tree-sitter's internal positions,
+/// these are character-based rather than byte-based for easier human consumption.
+///
+/// # Note
+///
+/// Computing the character column from byte positions is an O(n) operation,
+/// so avoid calling [`Position::column`] in performance-critical loops.
+///
+/// # Example
+///
+/// ```rust,no_run
+/// # use thread_ast_engine::Language;
+/// # use thread_ast_engine::tree_sitter::LanguageExt;
+/// let ast = Language::Tsx.ast_grep("let x = 42;\nlet y = 24;");
+/// let root = ast.root();
+///
+/// let start_pos = root.start_pos();
+/// assert_eq!(start_pos.line(), 0);
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Position {
-    /// zero-based line offset. Text encoding does not matter.
+    /// Zero-based line number (line 0 = first line)
     line: usize,
-    /// zero-based BYTE offset instead of character offset
+    /// Zero-based byte offset within the line
     byte_column: usize,
-    /// byte offset of this position
+    /// Absolute byte offset from start of file
     byte_offset: usize,
 }
 
 impl Position {
-    #[must_use] pub const fn new(line: usize, byte_column: usize, byte_offset: usize) -> Self {
+    #[must_use]
+    pub const fn new(line: usize, byte_column: usize, byte_offset: usize) -> Self {
         Self {
             line,
             byte_column,
             byte_offset,
         }
     }
-    #[must_use] pub const fn line(&self) -> usize {
+    #[must_use]
+    pub const fn line(&self) -> usize {
         self.line
     }
     /// Returns the column in terms of characters.
@@ -47,13 +97,35 @@ impl Position {
         let source = node.get_doc().get_source();
         source.get_char_column(self.byte_column, self.byte_offset)
     }
-    #[must_use] pub const fn byte_point(&self) -> (usize, usize) {
+    #[must_use]
+    pub const fn byte_point(&self) -> (usize, usize) {
         (self.line, self.byte_column)
     }
 }
 
-/// Represents [`tree_sitter::Tree`] and owns source string
-/// Note: Root is generic against [`Language`](crate::language::Language)
+/// Root of an AST tree that owns the source code and parsed tree structure.
+///
+/// Root acts as the entry point for all AST operations. It manages the document
+/// (source code + parsed tree) and provides methods to get the root node and
+/// perform tree-wide operations like replacements.
+///
+/// # Generic Parameters
+///
+/// - `D: Doc` - The document type that holds source code and language information
+///
+/// # Example
+///
+/// ```rust,no_run
+/// # use thread_ast_engine::Language;
+/// # use thread_ast_engine::tree_sitter::LanguageExt;
+/// # use thread_ast_engine::MatcherExt;
+/// let mut ast = Language::Tsx.ast_grep("let x = 42;");
+/// let root_node = ast.root();
+///
+/// // Perform tree-wide replacements
+/// ast.replace("let $VAR = $VALUE", "const $VAR = $VALUE");
+/// println!("{}", ast.generate());
+/// ```
 #[derive(Clone, Debug)]
 pub struct Root<D: Doc> {
     pub(crate) doc: D,
@@ -81,6 +153,7 @@ impl<D: Doc> Root<D> {
         Ok(self)
     }
 
+    #[cfg(feature = "matching")]
     pub fn replace<M: Matcher, R: Replacer<D>>(
         &mut self,
         pattern: M,
@@ -97,7 +170,7 @@ impl<D: Doc> Root<D> {
     }
 
     /// Adopt the `tree_sitter` as the descendant of the root and return the wrapped sg Node.
-    /// It assumes `inner` is the under the root and will panic at dev build if wrong node is used.
+    /// It assumes `inner` is under the root and will panic at dev build if wrong node is used.
     pub fn adopt<'r>(&'r self, inner: D::Node<'r>) -> Node<'r, D> {
         debug_assert!(self.check_lineage(&inner));
         Node { inner, root: self }
@@ -119,13 +192,48 @@ impl<D: Doc> Root<D> {
     }
 }
 
-// why we need one more content? https://github.com/ast-grep/ast-grep/issues/1951
-/// 'r represents root lifetime
+/// A single node in an Abstract Syntax Tree.
+///
+/// Node represents a specific element in the parsed AST, such as a function declaration,
+/// variable assignment, or expression. Each node knows its position in the source code,
+/// its type (kind), and provides methods for navigation and pattern matching.
+///
+/// # Lifetime
+///
+/// The lifetime `'r` ties the node to its root AST, ensuring memory safety.
+/// Nodes cannot outlive the Root that owns the underlying tree structure.
+///
+/// # Example
+///
+/// ```rust,no_run
+/// # use thread_ast_engine::Language;
+/// # use thread_ast_engine::tree_sitter::LanguageExt;
+/// # use thread_ast_engine::matcher::MatcherExt;
+/// let ast = Language::Tsx.ast_grep("function hello() { return 'world'; }");
+/// let root_node = ast.root();
+///
+/// // Check the node type
+/// println!("Root kind: {}", root_node.kind());
+///
+/// // Navigate to children
+/// for child in root_node.children() {
+///     println!("Child: {} at {}:{}", child.kind(),
+///         child.start_pos().line(), child.start_pos().column(&child));
+/// }
+///
+/// // Find specific patterns
+/// if let Some(return_stmt) = root_node.find("return $VALUE") {
+///     let value = return_stmt.get_env().get_match("VALUE").unwrap();
+///     println!("Returns: {}", value.text());
+/// }
+/// ```
 #[derive(Clone, Debug)]
 pub struct Node<'r, D: Doc> {
     pub(crate) inner: D::Node<'r>,
     pub(crate) root: &'r Root<D>,
 }
+
+/// Identifier for different AST node types (e.g., "function_declaration", "identifier")
 pub type KindId = u16;
 
 /// APIs for Node inspection
@@ -198,6 +306,7 @@ impl<'r, D: Doc> Node<'r, D> {
 /**
  * Corresponds to inside/has/precedes/follows
  */
+#[cfg(feature = "matching")]
 impl<D: Doc> Node<'_, D> {
     pub fn matches<M: Matcher>(&self, m: M) -> bool {
         m.match_node(self.clone()).is_some()
@@ -323,11 +432,11 @@ impl<'r, D: Doc> Node<'r, D> {
         })
     }
 
-    #[must_use]
+    #[cfg(feature = "matching")]
     pub fn find<M: Matcher>(&self, pat: M) -> Option<NodeMatch<'r, D>> {
         pat.find_node(self.clone())
     }
-
+    #[cfg(feature = "matching")]
     pub fn find_all<'s, M: Matcher + 's>(
         &'s self,
         pat: M,
@@ -346,6 +455,7 @@ impl<'r, D: Doc> Node<'r, D> {
 
 /// Tree manipulation API
 impl<D: Doc> Node<'_, D> {
+    #[cfg(feature = "matching")]
     pub fn replace<M: Matcher, R: Replacer<D>>(&self, matcher: M, replacer: R) -> Option<Edit<D>> {
         let matched = matcher.find_node(self.clone())?;
         let edit = matched.make_edit(&matcher, &replacer);

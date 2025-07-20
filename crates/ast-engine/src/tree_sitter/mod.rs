@@ -4,32 +4,113 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
 
+//! # Tree-sitter Integration and AST Backend
+//!
+//! Core integration layer between thread-ast-engine and the tree-sitter parsing library.
+//! Provides the foundational types and functionality for parsing source code into ASTs,
+//! editing trees incrementally, and bridging tree-sitter concepts with thread-ast-engine APIs.
+//!
+//! ## Key Components
+//!
+//! - [`StrDoc`] - Document type that combines source code with parsed tree-sitter trees
+//! - [`LanguageExt`] - Extension trait for languages that work with tree-sitter
+//! - [`TSParseError`] - Error types for tree-sitter parsing failures
+//! - Tree editing and incremental parsing support
+//! - Language injection support for multi-language documents
+//!
+//! ## Core Concepts
+//!
+//! ### Documents and Parsing
+//!
+//! [`StrDoc`] represents a parsed document containing both source code and its tree-sitter AST.
+//! It handles incremental parsing when the source is modified, automatically updating the tree
+//! structure while preserving unchanged portions for performance.
+//!
+//! ### Language Extensions
+//!
+//! [`LanguageExt`] extends the base [`Language`] trait with tree-sitter specific functionality:
+//! - Getting tree-sitter language objects for parsing
+//! - Creating AST-grep instances
+//! - Handling language injections (like JavaScript in HTML)
+//!
+//! ### Tree Editing
+//!
+//! Supports incremental tree editing through tree-sitter's edit API, allowing efficient
+//! updates when source code changes without full re-parsing.
+//!
+//! ## Example Usage
+//!
+//! ```rust,no_run
+//! # use thread_ast_engine::tree_sitter::{StrDoc, LanguageExt};
+//! # use thread_ast_engine::Language;
+//! # struct Tsx;
+//! # impl Language for Tsx {
+//! #     fn kind_to_id(&self, _: &str) -> u16 { 0 }
+//! #     fn field_to_id(&self, _: &str) -> Option<u16> { None }
+//! #     fn build_pattern(&self, _: &thread_ast_engine::PatternBuilder) -> Result<thread_ast_engine::Pattern, thread_ast_engine::PatternError> { todo!() }
+//! # }
+//! # impl LanguageExt for Tsx {
+//! #     fn get_ts_language(&self) -> thread_ast_engine::tree_sitter::TSLanguage { todo!() }
+//! # }
+//!
+//! // Create a document from source code
+//! let doc = StrDoc::new("let x = 42;", Tsx);
+//!
+//! // Access the parsed tree
+//! let root = doc.root_node();
+//! println!("Root kind: {}", root.kind());
+//!
+//! // Create an AST-grep instance for pattern matching
+//! let ast_grep = Tsx.ast_grep("function foo() { return 42; }");
+//! let root_node = ast_grep.root();
+//! ```
+
 pub mod traversal;
 
 use crate::node::Root;
+
+use crate::AstGrep;
+#[cfg(feature = "matching")]
+use crate::Matcher;
+#[cfg(feature = "matching")]
 use crate::replacer::Replacer;
 use crate::source::{Content, Doc, Edit, SgNode};
-use crate::{AstGrep, Matcher};
 use crate::{Language, Position, node::KindId};
 use std::borrow::Cow;
 use std::num::NonZero;
 use thiserror::Error;
+#[cfg(feature = "matching")]
 use thread_utils::RapidMap;
 pub use traversal::{TsPre, Visitor};
 pub use tree_sitter::Language as TSLanguage;
 use tree_sitter::{InputEdit, LanguageError, Node, Parser, Point, Tree};
 pub use tree_sitter::{Point as TSPoint, Range as TSRange};
 
-/// Represents tree-sitter related error
+/// Errors that can occur during tree-sitter parsing operations.
+///
+/// Tree-sitter parsing can fail for several reasons, from language compatibility
+/// issues to timeout problems. These errors provide information about what
+/// went wrong during the parsing process.
 #[derive(Debug, Error)]
 pub enum TSParseError {
+    /// The language grammar is incompatible with the parser.
+    ///
+    /// Occurs when trying to assign a language that the parser can't handle,
+    /// typically due to version mismatches between the tree-sitter library
+    /// and the language grammar.
     #[error("incompatible `Language` is assigned to a `Parser`.")]
     Language(#[from] LanguageError),
-    /// A general error when tree sitter fails to parse in time. It can be caused by
-    /// the following reasons but tree-sitter does not provide error detail.
-    /// * The timeout set with [`Parser::set_timeout_micros`] expired
-    /// * The cancellation flag set with [`Parser::set_cancellation_flag`] was flipped
-    /// * The parser has not yet had a language assigned with [`Parser::set_language`]
+
+    /// Tree-sitter failed to parse the input within the configured constraints.
+    ///
+    /// Can be caused by several conditions:
+    /// * Parsing timeout exceeded (see [`Parser::set_timeout_micros`])
+    /// * Cancellation flag was triggered (see [`Parser::set_cancellation_flag`])
+    /// * No language was assigned to the parser (see [`Parser::set_language`])
+    /// * The input was too complex or malformed for the parser to handle
+    ///
+    /// Tree-sitter doesn't provide detailed error information, so this covers
+    /// all general parsing failures.
     #[error("general error when tree-sitter fails to parse.")]
     TreeUnavailable,
 }
@@ -48,10 +129,41 @@ fn parse_lang(
     }
 }
 
+/// Document type that combines source code with its parsed tree-sitter AST.
+///
+/// `StrDoc` represents a complete parsed document, holding both the original
+/// source code and the tree-sitter AST. It supports incremental parsing,
+/// meaning when edits are made to the source, only the affected parts of
+/// the tree are re-parsed for better performance.
+///
+/// # Type Parameters
+///
+/// - `L: LanguageExt` - The language implementation that provides tree-sitter integration
+///
+/// # Example
+///
+/// ```rust,no_run
+/// # use thread_ast_engine::tree_sitter::StrDoc;
+/// # struct JavaScript;
+/// # impl thread_ast_engine::Language for JavaScript {
+/// #     fn kind_to_id(&self, _: &str) -> u16 { 0 }
+/// #     fn field_to_id(&self, _: &str) -> Option<u16> { None }
+/// #     fn build_pattern(&self, _: &thread_ast_engine::PatternBuilder) -> Result<thread_ast_engine::Pattern, thread_ast_engine::PatternError> { todo!() }
+/// # }
+/// # impl thread_ast_engine::tree_sitter::LanguageExt for JavaScript {
+/// #     fn get_ts_language(&self) -> thread_ast_engine::tree_sitter::TSLanguage { todo!() }
+/// # }
+/// let doc = StrDoc::new("const x = 42;", JavaScript);
+/// let root = doc.root_node();
+/// println!("AST root: {}", root.kind());
+/// ```
 #[derive(Clone, Debug)]
 pub struct StrDoc<L: LanguageExt> {
+    /// The source code text
     pub src: String,
+    /// Language implementation for parsing and node operations
     pub lang: L,
+    /// The parsed tree-sitter AST
     pub tree: Tree,
 }
 
@@ -269,25 +381,103 @@ pub fn perform_edit<S: ContentExt>(tree: &mut Tree, input: &mut S, edit: &Edit<S
     edit
 }
 
-/// tree-sitter specific language trait
+/// Extension trait for languages that integrate with tree-sitter parsing.
+///
+/// `LanguageExt` extends the base [`Language`] trait with tree-sitter specific
+/// functionality. Languages implementing this trait can be used with tree-sitter
+/// parsers to create ASTs, handle language injections, and work with the
+/// thread-ast-engine ecosystem.
+///
+/// # Key Capabilities
+///
+/// - **AST Creation**: Convenient methods to create AST-grep instances
+/// - **Tree-sitter Integration**: Access to underlying tree-sitter language objects
+/// - **Language Injection**: Support for multi-language documents (e.g., JavaScript in HTML)
+/// - **Parsing**: Direct parsing of source code into [`StrDoc`] instances
+///
+/// # Example Implementation
+///
+/// ```rust,ignore
+/// use thread_ast_engine::tree_sitter::{LanguageExt, TSLanguage};
+/// use thread_ast_engine::Language;
+///
+/// #[derive(Clone)]
+/// struct JavaScript;
+///
+/// impl Language for JavaScript {
+///     // ... base Language implementation
+/// }
+///
+/// impl LanguageExt for JavaScript {
+///     fn get_ts_language(&self) -> TSLanguage {
+///         tree_sitter_javascript::LANGUAGE.into()
+///     }
+/// }
+/// ```
 pub trait LanguageExt: Language {
-    /// Create an [`AstGrep`] instance for the language
+    /// Create an [`AstGrep`] instance for parsing and pattern matching.
+    ///
+    /// Convenience method that parses the source code and returns an [`AstGrep`]
+    /// instance ready for pattern matching and tree manipulation.
+    ///
+    /// # Parameters
+    ///
+    /// - `source` - Source code to parse
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// let ast = JavaScript.ast_grep("const x = 42;");
+    /// let root = ast.root();
+    /// ```
     fn ast_grep<S: AsRef<str>>(&self, source: S) -> AstGrep<StrDoc<Self>> {
         AstGrep::new(source, self.clone())
     }
 
-    /// tree sitter language to parse the source
+    /// Get the tree-sitter language object for parsing.
+    ///
+    /// Returns the tree-sitter language grammar that this language uses
+    /// for parsing source code. This is the core integration point between
+    /// thread-ast-engine and tree-sitter.
+    ///
+    /// # Returns
+    ///
+    /// The tree-sitter [`TSLanguage`] object for this language
     fn get_ts_language(&self) -> TSLanguage;
 
+    /// List of languages that can be injected into this language.
+    ///
+    /// For languages that support embedding other languages (like HTML with CSS/JavaScript),
+    /// returns the names of languages that can be injected. Returns `None` if this
+    /// language doesn't support injections.
+    ///
+    /// # Returns
+    ///
+    /// Array of injectable language names, or `None` if no injections supported
     fn injectable_languages(&self) -> Option<&'static [&'static str]> {
         None
     }
 
-    /// get injected language regions in the root document. e.g. get `JavaScripts` in HTML
-    /// it will return a list of tuples of (language, regions).
-    /// The first item is the embedded region language, e.g. javascript
-    /// The second item is a list of regions in `tree_sitter`.
-    /// [also see](https://tree-sitter.github.io/tree-sitter/using-parsers#multi-language-documents)
+    /// Extract language injection regions from a parsed document.
+    ///
+    /// Analyzes the AST to find regions where other languages are embedded.
+    /// For example, finds JavaScript code blocks within HTML `<script>` tags
+    /// or CSS within `<style>` tags.
+    ///
+    /// Returns a map where keys are language names and values are lists of
+    /// byte ranges in the source where that language appears.
+    ///
+    /// See [tree-sitter documentation](https://tree-sitter.github.io/tree-sitter/using-parsers#multi-language-documents)
+    /// for more details on language injection.
+    ///
+    /// # Parameters
+    ///
+    /// - `root` - The root node of the document to analyze
+    ///
+    /// # Returns
+    ///
+    /// Map of language names to their byte ranges in the document
+    #[cfg(feature = "matching")]
     fn extract_injections<L: LanguageExt>(
         &self,
         _root: crate::Node<StrDoc<L>>,
@@ -359,7 +549,7 @@ impl<L: LanguageExt> Root<StrDoc<L>> {
     pub fn get_text(&self) -> &str {
         &self.doc.src
     }
-
+    #[cfg(feature = "matching")]
     pub fn get_injections<F: Fn(&str) -> Option<L>>(&self, get_lang: F) -> Vec<Self> {
         let root = self.root();
         let range = self.lang().extract_injections(root);
@@ -442,6 +632,7 @@ impl<'r, L: LanguageExt> crate::Node<'r, StrDoc<L>> {
         }
     }
 
+    #[cfg(feature = "matching")]
     pub fn replace_all<M: Matcher, R: Replacer<StrDoc<L>>>(
         &self,
         matcher: M,
@@ -463,7 +654,7 @@ mod test {
     use tree_sitter::Point;
 
     fn parse(src: &str) -> Result<Tree, TSParseError> {
-        parse_lang(|p| p.parse(src, None), Tsx.get_ts_language())
+        parse_lang(|p| p.parse(src, None), &Tsx.get_ts_language())
     }
 
     #[test]
@@ -526,7 +717,7 @@ mod test {
                 inserted_text: " * b".into(),
             },
         );
-        let tree2 = parse_lang(|p| p.parse(&src, Some(&tree)), Tsx.get_ts_language())?;
+        let tree2 = parse_lang(|p| p.parse(&src, Some(&tree)), &Tsx.get_ts_language())?;
         assert_eq!(
             tree.root_node().to_sexp(),
             "(program (expression_statement (binary_expression left: (identifier) right: (identifier))))"

@@ -300,13 +300,13 @@ mod test {
     }
 
     fn make_rule(target: &str, relation: Rule) -> impl Matcher {
-        o::All::new(vec![Rule::Pattern(Pattern::new(target, TS::Tsx)), relation])
+        o::All::new(vec![Rule::Pattern(Pattern::new(target, &TS::Tsx)), relation])
     }
 
     #[test]
     fn test_precedes_operator() {
         let precedes = Precedes {
-            later: Rule::Pattern(Pattern::new("var a = 1", TS::Tsx)),
+            later: Rule::Pattern(Pattern::new("var a = 1", &TS::Tsx)),
             stop_by: StopBy::End,
         };
         let rule = make_rule("var b = 2", Rule::Precedes(Box::new(precedes)));
@@ -334,7 +334,7 @@ mod test {
     #[test]
     fn test_precedes_immediate() {
         let precedes = Precedes {
-            later: Rule::Pattern(Pattern::new("var a = 1", TS::Tsx)),
+            later: Rule::Pattern(Pattern::new("var a = 1", &TS::Tsx)),
             stop_by: StopBy::Neighbor,
         };
         let rule = make_rule("var b = 2", Rule::Precedes(Box::new(precedes)));
@@ -363,7 +363,7 @@ mod test {
     #[test]
     fn test_follows_operator() {
         let follows = Follows {
-            former: Rule::Pattern(Pattern::new("var b = 2", TS::Tsx)),
+            former: Rule::Pattern(Pattern::new("var b = 2", &TS::Tsx)),
             stop_by: StopBy::End,
         };
         let rule = make_rule("var a = 1", Rule::Follows(Box::new(follows)));
@@ -394,7 +394,7 @@ mod test {
     #[test]
     fn test_follows_immediate() {
         let follows = Follows {
-            former: Rule::Pattern(Pattern::new("var b = 2", TS::Tsx)),
+            former: Rule::Pattern(Pattern::new("var b = 2", &TS::Tsx)),
             stop_by: StopBy::Neighbor,
         };
         let rule = make_rule("var a = 1", Rule::Follows(Box::new(follows)));
@@ -426,7 +426,7 @@ mod test {
     fn test_has_rule() {
         let has = Has {
             stop_by: StopBy::End,
-            inner: Rule::Pattern(Pattern::new("var a = 1", TS::Tsx)),
+            inner: Rule::Pattern(Pattern::new("var a = 1", &TS::Tsx)),
             field: None,
         };
         let rule = make_rule("function test() { $$$ }", Rule::Has(Box::new(has)));
@@ -455,9 +455,9 @@ mod test {
         let has = Has {
             stop_by: StopBy::Rule(Rule::Kind(KindMatcher::new(
                 "function_declaration",
-                TS::Tsx,
+                &TS::Tsx,
             ))),
-            inner: Rule::Pattern(Pattern::new("var a = 1", TS::Tsx)),
+            inner: Rule::Pattern(Pattern::new("var a = 1", &TS::Tsx)),
             field: None,
         };
         let rule = make_rule("function test() { $$$ }", Rule::Has(Box::new(has)));
@@ -482,9 +482,9 @@ mod test {
         let has = Has {
             stop_by: StopBy::Rule(Rule::Kind(KindMatcher::new(
                 "function_declaration",
-                TS::Tsx,
+                &TS::Tsx,
             ))),
-            inner: Rule::Pattern(Pattern::new("function inner() {$$$}", TS::Tsx)),
+            inner: Rule::Pattern(Pattern::new("function inner() {$$$}", &TS::Tsx)),
             field: None,
         };
         let rule = make_rule("function test() { $$$ }", Rule::Has(Box::new(has)));
@@ -509,13 +509,13 @@ mod test {
     fn test_has_immediate() {
         let has = Has {
             stop_by: StopBy::Neighbor,
-            inner: Rule::Pattern(Pattern::new("var a = 1", TS::Tsx)),
+            inner: Rule::Pattern(Pattern::new("var a = 1", &TS::Tsx)),
             field: None,
         };
         let rule = o::All::new(vec![
-            Rule::Pattern(Pattern::new("{ $$$ }", TS::Tsx)),
+            Rule::Pattern(Pattern::new("{ $$$ }", &TS::Tsx)),
             Rule::Inside(Box::new(Inside {
-                outer: Rule::Pattern(Pattern::new("function test() { $$$ }", TS::Tsx)),
+                outer: Rule::Pattern(Pattern::new("function test() { $$$ }", &TS::Tsx)),
                 stop_by: StopBy::Neighbor,
                 field: None,
             })),
@@ -546,7 +546,7 @@ mod test {
     fn test_inside_rule() {
         let inside = Inside {
             stop_by: StopBy::End,
-            outer: Rule::Pattern(Pattern::new("function test() { $$$ }", TS::Tsx)),
+            outer: Rule::Pattern(Pattern::new("function test() { $$$ }", &TS::Tsx)),
             field: None,
         };
         let rule = make_rule("var a = 1", Rule::Inside(Box::new(inside)));
@@ -575,9 +575,9 @@ mod test {
         let inside = Inside {
             stop_by: StopBy::Rule(Rule::Kind(KindMatcher::new(
                 "function_declaration",
-                TS::Tsx,
+                &TS::Tsx,
             ))),
-            outer: Rule::Pattern(Pattern::new("function test() { $$$ }", TS::Tsx)),
+            outer: Rule::Pattern(Pattern::new("function test() { $$$ }", &TS::Tsx)),
             field: None,
         };
         let rule = make_rule("var a = 1", Rule::Inside(Box::new(inside)));
@@ -606,9 +606,9 @@ mod test {
         let inside = Inside {
             stop_by: StopBy::Neighbor,
             outer: Rule::All(o::All::new(vec![
-                Rule::Pattern(Pattern::new("{ $$$ }", TS::Tsx)),
+                Rule::Pattern(Pattern::new("{ $$$ }", &TS::Tsx)),
                 Rule::Inside(Box::new(Inside {
-                    outer: Rule::Pattern(Pattern::new("function test() { $$$ }", TS::Tsx)),
+                    outer: Rule::Pattern(Pattern::new("function test() { $$$ }", &TS::Tsx)),
                     stop_by: StopBy::Neighbor,
                     field: None,
                 })),
@@ -641,7 +641,7 @@ mod test {
     fn test_inside_field() {
         let inside = Inside {
             stop_by: StopBy::End,
-            outer: Rule::Kind(KindMatcher::new("for_statement", TS::Tsx)),
+            outer: Rule::Kind(KindMatcher::new("for_statement", &TS::Tsx)),
             field: TS::Tsx.field_to_id("condition"),
         };
         let rule = make_rule("a = 1", Rule::Inside(Box::new(inside)));
@@ -653,11 +653,11 @@ mod test {
     fn test_has_field() {
         let has = Has {
             stop_by: StopBy::End,
-            inner: Rule::Pattern(Pattern::new("a = 1", TS::Tsx)),
+            inner: Rule::Pattern(Pattern::new("a = 1", &TS::Tsx)),
             field: TS::Tsx.field_to_id("condition"),
         };
         let rule = o::All::new(vec![
-            Rule::Kind(KindMatcher::new("for_statement", TS::Tsx)),
+            Rule::Kind(KindMatcher::new("for_statement", &TS::Tsx)),
             Rule::Has(Box::new(has)),
         ]);
         test_found(&["for (;a = 1;) {}"], &rule);
@@ -683,24 +683,24 @@ mod test {
     #[test]
     fn test_defined_vars() {
         let precedes = Precedes {
-            later: Rule::Pattern(Pattern::new("var a = $A", TS::Tsx)),
-            stop_by: StopBy::Rule(Rule::Pattern(Pattern::new("var b = $B", TS::Tsx))),
+            later: Rule::Pattern(Pattern::new("var a = $A", &TS::Tsx)),
+            stop_by: StopBy::Rule(Rule::Pattern(Pattern::new("var b = $B", &TS::Tsx))),
         };
         assert_eq!(precedes.defined_vars(), ["A", "B"].into_iter().collect());
         let follows = Follows {
-            former: Rule::Pattern(Pattern::new("var a = 123", TS::Tsx)),
-            stop_by: StopBy::Rule(Rule::Pattern(Pattern::new("var b = $B", TS::Tsx))),
+            former: Rule::Pattern(Pattern::new("var a = 123", &TS::Tsx)),
+            stop_by: StopBy::Rule(Rule::Pattern(Pattern::new("var b = $B", &TS::Tsx))),
         };
         assert_eq!(follows.defined_vars(), ["B"].into_iter().collect());
         let inside = Inside {
-            stop_by: StopBy::Rule(Rule::Pattern(Pattern::new("var $C", TS::Tsx))),
-            outer: Rule::Pattern(Pattern::new("var a = $A", TS::Tsx)),
+            stop_by: StopBy::Rule(Rule::Pattern(Pattern::new("var $C", &TS::Tsx))),
+            outer: Rule::Pattern(Pattern::new("var a = $A", &TS::Tsx)),
             field: TS::Tsx.field_to_id("condition"),
         };
         assert_eq!(inside.defined_vars(), ["A", "C"].into_iter().collect());
         let has = Has {
-            stop_by: StopBy::Rule(Rule::Kind(KindMatcher::new("for_statement", TS::Tsx))),
-            inner: Rule::Pattern(Pattern::new("var a = $A", TS::Tsx)),
+            stop_by: StopBy::Rule(Rule::Kind(KindMatcher::new("for_statement", &TS::Tsx))),
+            inner: Rule::Pattern(Pattern::new("var a = $A", &TS::Tsx)),
             field: TS::Tsx.field_to_id("condition"),
         };
         assert_eq!(has.defined_vars(), ["A"].into_iter().collect());

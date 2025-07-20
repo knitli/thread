@@ -3,7 +3,34 @@
 // SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
-
+//! # Language Abstraction for AST Parsing
+//!
+//! This module defines the [`Language`](crates/ast-engine/src/language.rs:16) trait, which abstracts over language-specific details for AST parsing and pattern matching.
+//!
+//! ## Purpose
+//!
+//! - **Meta-variable Handling:** Configure how meta-variables (e.g., `$A`) are recognized and processed for different languages.
+//! - **Pattern Preprocessing:** Normalize pattern code before matching, adapting to language-specific quirks.
+//! - **Tree-sitter Integration:** Map node kinds and fields to tree-sitter IDs for efficient AST traversal.
+//! - **Extensibility:** Support custom language implementations (see [`Tsx`](crates/ast-engine/src/language.rs:63) for TypeScript/TSX).
+//!
+//! ## Key Components
+//!
+//! - [`Language`](crates/ast-engine/src/language.rs:16): Core trait for language-specific AST operations.
+//! - [`Tsx`](crates/ast-engine/src/language.rs:63): Example implementation for TypeScript/TSX.
+//! - Meta-variable extraction and normalization utilities.
+//!
+//! ## Example
+//!
+//! ```rust,no_run
+//! use thread_ast_engine::language::Language;
+//!
+//! let lang = Tsx {};
+//! let pattern = lang.pre_process_pattern("var $A = $B");
+//! let meta_var = lang.extract_meta_var("$A");
+//! ```
+#[allow(unused_imports)]
+#[cfg(feature = "matching")]
 use super::{Pattern, PatternBuilder, PatternError};
 use crate::meta_var::{MetaVariable, extract_meta_var};
 use std::borrow::Cow;
@@ -48,6 +75,7 @@ pub trait Language: Clone + 'static {
 
     fn kind_to_id(&self, kind: &str) -> u16;
     fn field_to_id(&self, field: &str) -> Option<u16>;
+    #[cfg(feature = "matching")]
     fn build_pattern(&self, builder: &PatternBuilder) -> Result<Pattern, PatternError>;
 }
 

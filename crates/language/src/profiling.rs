@@ -5,6 +5,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
 
 //! Memory profiling utilities for performance analysis
+//!
+//! This module is behind the "profiling" feature.
+//! It's not intended for external use.
+//! It's not in 'benches` because it needs access to the private API.
+//!
 
 use std::alloc::{GlobalAlloc, Layout, System};
 use std::sync::atomic::{AtomicUsize, Ordering};

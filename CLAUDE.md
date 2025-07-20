@@ -1,156 +1,247 @@
-<!--
-SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
-SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
-
-SPDX-License-Identifier: MIT OR Apache-2.0
--->
-
 # CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
 
-Thread is a Rust code analysis engine designed to generate intelligent context for AI assistants. The core goal is to parse code into a queryable graph that can provide exactly the right context when an AI asks about specific functions, dependencies, or code relationships.
+Thread is a safe, fast, flexible code analysis and parsing library built in Rust. It provides powerful AST-based pattern matching and transformation capabilities using tree-sitter parsers. The project is forked from ast-grep and enhanced for production use as a code analysis engine for AI context generation.
 
-**Current Status**: Day 2 of 30-day implementation plan. Basic scaffolding exists, but most crates contain placeholder code from earlier architectural iterations.
+## Architecture
 
-## Simplified Architecture
+Thread follows a modular architecture with six main crates:
 
-Thread follows a single-representation approach:
+### Core Crates
 
-```plaintext
-File → ast-grep (parsing) → petgraph (analysis) → Content store (dedup) → API
-```
+- **`thread-ast-engine`** - Core AST parsing, pattern matching, and transformation engine (forked from ast-grep-core)
+- **`thread-rule-engine`** - Rule-based scanning and transformation system with YAML configuration support
+- **`thread-language`** - Language definitions and tree-sitter parser integrations (supports 20+ languages)
+- **`thread-utils`** - Shared utilities including SIMD optimizations and hash functions
+- **`thread-services`** - High-level service interfaces and API abstractions
+- **`thread-wasm`** - WebAssembly bindings for browser and edge deployment
 
-### Core Components
+### Build System
 
-- **ast-grep**: Parsing orchestrator with tree-sitter integration and language detection
-- **petgraph**: Single source of truth for code structure (nodes = functions/classes, edges = calls/imports)
-- **Content-addressable storage**: Deduplication using rapidhash
-- **fmmap**: Memory mapping for large files
-- **thread-fs**: Filesystem operations (separated for WASM compatibility)
-
-## Idiomatic Crate Structure
-
-The workspace follows Rust conventions with core types separated from implementations:
-
-- `thread-core/` - Core traits, types, and error definitions only
-- `thread-engine/` - Main analysis implementation using petgraph
-- `thread-parse/` - ast-grep integration and language detection
-- `thread-store/` - Content-addressable storage + memory mapping
-- `thread-fs/` - Filesystem operations (WASM-compatible abstraction)
-- `thread-diff/` - Vendored difftastic diff algorithms
-- `thread-cli/` - Command line interface
-- `thread-wasm/` - WebAssembly bindings
-- `xtask/` - Build automation for WASM targets
-
-### Design Rationale
-
-This structure follows the pattern used by `serde` (core traits) vs `serde_json` (implementation):
-
-- `thread-core` defines `LanguageParser` trait, `CodeElement` types, `Result` types
-- `thread-engine` implements the actual analysis logic and graph building
-- Other crates can depend on `thread-core` for types without pulling in the full engine
+- **`xtask`** - Custom build tasks, primarily for WASM compilation with optimization
 
 ## Development Commands
 
-### Build Commands
+### Building
 
-- `mise run build` or `mise run b` - Build all crates (except WASM)
-- `mise run build-release` or `mise run br` - Release build
-- `mise run build-wasm` or `mise run bw` - Build WASM for development (single-threaded)
-- `mise run build-wasm-release` or `mise run bwr` - Build WASM for production
+```bash
+# Build everything (except WASM)
+mise run build
+# or: cargo build --workspace
 
-### WASM Build Options
+# Build in release mode
+mise run build-release
+# or: cargo build --workspace --release --features inline
 
-- `cargo run -p xtask build-wasm` - Basic WASM build
-- `cargo run -p xtask build-wasm --multi-threading` - Multi-threaded for browsers
-- `cargo run -p xtask build-wasm --release` - Production optimized
-- `cargo run -p xtask build-wasm --profiling` - With profiling enabled
+# Build WASM for development
+mise run build-wasm
+# or: cargo run -p xtask build-wasm
+
+# Build WASM in release mode
+mise run build-wasm-release
+# or: cargo run -p xtask build-wasm --release
+```
 
 ### Testing and Quality
 
-- `mise run test` or `mise run t` - Run tests with `cargo nextest`
-- `mise run lint` or `mise run c` - Full linting via `hk run check`
-- `mise run fix` or `mise run f` - Auto-fix formatting and linting
-- `mise run ci` - Run all CI checks (build + lint + test)
+```bash
+# Run all tests
+mise run test
+# or: hk run test
+# or: cargo nextest run --all-features --no-fail-fast -j 1
 
-### Development Setup
+# Full linting
+mise run lint
+# or: hk run check
 
-- `mise run install` - Install dev tools and git hooks
-- `mise run update` - Update all dev tools
-- `mise run clean` - Clean build artifacts and caches
+# Auto-fix formatting and linting issues
+mise run fix
+# or: hk fix
 
-## Implementation Plan Context
+# Run CI pipeline locally
+mise run ci
+```
 
-### Current Sprint (Week 1)
+### Single Test Execution
 
-- **Day 1**: ✅ Project cleanup and setup
-- **Day 2**: 🔄 Basic ast-grep integration (current focus)
-- **Day 3**: Petgraph integration
-- **Day 4**: End-to-end MVP
-- **Day 5**: Content-addressable storage
-- **Day 6**: Basic CLI interface
-- **Day 7**: Week 1 demo and testing
+```bash
+# Run specific test
+cargo nextest run --manifest-path Cargo.toml test_name --all-features
 
-### Near-term Goals
+# Run tests for specific crate
+cargo nextest run -p thread-ast-engine --all-features
 
-The immediate target is a working `analyze_rust_file()` function that:
+# Run benchmarks
+cargo bench -p thread-rule-engine
+```
 
-1. Parses Rust code with ast-grep
-2. Extracts functions, calls, and imports
-3. Builds a petgraph representation
-4. Provides basic graph queries
+### Utility Commands
 
-### MVP Definition
+```bash
+# Update dependencies
+mise run update
+# or: cargo update && cargo update --workspace
 
-A CLI tool that can analyze Rust files and generate AI-friendly context showing:
+# Clean build artifacts
+mise run clean
 
-- Function definitions with line numbers
-- Call relationships (what calls what)
-- Import dependencies
-- Context-relevant code snippets for AI assistants
+# Update license headers
+mise run update-licenses
+# or: ./scripts/update-licenses.py
+```
 
-## Key Design Decisions
+## Key Language Support
 
-### What to Skip for MVP
+The `thread-language` crate provides built-in support for major programming languages via tree-sitter:
 
-- ❌ type-sitter (build complexity)
-- ❌ tree-sitter-graph (memory management complexity)
-- ❌ ropey (incremental editing - add later)
-- ❌ Multi-language support initially (Rust first)
+**Tier 1 Languages** (primary focus):
 
-### What to Keep
+- Rust, JavaScript/TypeScript, Python, Go, Java
 
-- ✅ ast-grep (mature parsing with language detection)
-- ✅ petgraph (single source of truth)
-- ✅ Content-addressable storage (essential for deduplication)
-- ✅ Memory mapping (critical for large repos)
+**Tier 2 Languages** (full support):
 
-## Testing Strategy
+- C/C++, C#, PHP, Ruby, Swift, Kotlin, Scala
 
-- Uses `cargo nextest` for parallel test execution
-- Single-threaded execution (`-j 1`) to prevent race conditions
-- `--no-fail-fast` for development, `--fail-fast` for CI
-- Full backtraces enabled (`RUST_BACKTRACE=1`)
+**Tier 3 Languages** (basic support):
 
-## WASM Considerations
+- Bash, CSS, HTML, JSON, YAML, Lua, Elixir, Haskell
 
-- Default build is single-threaded for Cloudflare Workers
-- Multi-threaded builds available for browser environments
-- Core logic separated from filesystem operations for portability
-- Uses `wasm-opt` for size and performance optimization
+## Pattern Matching System
 
-## Context Generation Goal
+Thread's core strength is AST-based pattern matching using meta-variables:
 
-When an AI asks: "How does the `parse` function work in Thread?"
+### Meta-Variable Syntax
 
-Thread should provide:
+- `$VAR` - Captures a single AST node
+- `$$$ITEMS` - Captures multiple consecutive nodes (ellipsis)
+- `$_` - Matches any node without capturing
 
-1. **Function location**: Exact file and line numbers
-2. **Dependencies**: What functions `parse` calls
-3. **Usage**: What functions call `parse`
-4. **Context**: Related code snippets with line numbers
+### Example Usage
 
-This enables AI assistants to get precisely the context they need without dumping entire files.
+```rust
+// Find function declarations
+root.find("function $NAME($$$PARAMS) { $$$BODY }")
+
+// Find variable assignments
+root.find_all("let $VAR = $VALUE")
+
+// Complex pattern matching
+root.find("if ($COND) { $$$THEN } else { $$$ELSE }")
+```
+
+## Rule System
+
+The `thread-rule-engine` supports YAML-based rule definitions for code analysis:
+
+```yaml
+id: no-var-declarations
+message: "Use 'let' or 'const' instead of 'var'"
+language: JavaScript
+rule:
+  pattern: "var $NAME = $VALUE"
+fix: "let $NAME = $VALUE"
+```
+
+## Performance Considerations
+
+### Optimization Features
+
+- SIMD optimizations in `thread-utils` for fast string operations
+- Parallel processing capabilities with rayon
+- Memory-efficient AST representation
+- Content-addressable storage for deduplication
+
+### Build Profiles
+
+- **dev**: Fast compilation with basic optimizations
+- **dev-debug**: Cranelift backend for faster debug builds
+- **release**: Full LTO optimization
+- **wasm-release**: Size-optimized for WebAssembly
+
+## WASM Deployment
+
+Thread compiles to WebAssembly for edge deployment:
+
+```bash
+# Basic WASM build (for Cloudflare Workers)
+cargo run -p xtask build-wasm
+
+# Multi-threading WASM (for browsers)
+cargo run -p xtask build-wasm --multi-threading
+
+# Optimized release build
+cargo run -p xtask build-wasm --release
+```
+
+## Testing Infrastructure
+
+### Test Organization
+
+- Unit tests: In each crate's `src/` directory
+- Integration tests: In `tests/` directories
+- Benchmarks: In `benches/` directories
+- Test data: In `test_data/` directories
+
+### Quality Tooling
+
+- **cargo-nextest**: Parallel test execution
+- **hk**: Git hooks and linting orchestration
+- **mise**: Development environment management
+- **typos**: Spell checking
+- **reuse**: License compliance
+
+## Dependencies
+
+### Core Dependencies
+
+- `tree-sitter`: AST parsing foundation
+- `regex`: Pattern matching support
+- `serde`: Configuration serialization
+- `bit-set`: Efficient set operations
+- `rayon`: Parallel processing
+
+### Performance Dependencies
+
+- `rapidhash`: Fast non-cryptographic hashing
+- `memchr`: SIMD string searching
+- `simdeez`: SIMD abstractions
+
+## Contributing Workflow
+
+1. Run `mise run install-tools` to set up development environment
+2. Make changes following existing patterns
+3. Run `mise run fix` to apply formatting and linting
+4. Run `mise run test` to verify functionality
+5. Use `mise run ci` to run full CI pipeline locally
+
+## License Structure
+
+- Main codebase: AGPL-3.0-or-later
+- Forked ast-grep components: AGPL-3.0-or-later AND MIT
+- Documentation and config: MIT OR Apache-2.0
+- See `VENDORED.md` files for specific attribution
+
+---
+
+## Tools for AI Assistants
+
+The library provides multiple tools to help me AI assistants more efficient:
+
+- MCP Tools:
+  - You always have access to `sequential-thinking`. Use this to plan out tasks before executing and document things you learn along the way. Regularly refer back to it.
+  - `context7` provides a library of up-to-date code examples and API documentation for almost any library.
+- The `llm-edit.sh` script:
+  - Script in `scripts/llm-edit.sh` gives you an easy interface for providing multiple file edits in one go.
+  Full details on how to use it are in `scripts/README-llm-edit.md`
+
+### Multi-File Output System (llm-edit)
+
+- When the user mentions "multi-file output", "generate files as json", or similar requests for bundled file generation, use the multi-file output system
+- Execute using: `./llm-edit.sh <json_file>`
+- Provide output as a single JSON object following the schema in `./README-llm-edit.md`
+- The JSON must include an array of files, each with file_name, file_type, and file_content fields
+- For binary files, encode content as base64 and set file_type to "binary"
+- NEVER include explanatory text or markdown outside the JSON structure

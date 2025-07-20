@@ -39,7 +39,6 @@ local linters = new Mapping<String, Step> {
         fix = "./scripts/update-licenses.py add {{ files }}"
     }
 
-
     // check hk.pkl (and any others)
     ["pkl"] = new Step {
         glob = "*.pkl"

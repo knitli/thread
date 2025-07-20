@@ -4,17 +4,104 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
 
+//! # Structural Code Replacement Engine
+//!
+//! Generates replacement code by traversing replacement templates and substituting
+//! meta-variables with captured content from pattern matches.
+//!
+//! ## Core Concept
+//!
+//! Structural replacement uses AST-based templates rather than simple string substitution.
+//! The replacement template is parsed into an AST, then meta-variables in that AST
+//! are replaced with content captured during pattern matching.
+//!
+//! ## Process Overview
+//!
+//! 1. **Parse replacement template** - Convert replacement string to AST
+//! 2. **Traverse AST nodes** - Visit each node in the replacement template
+//! 3. **Identify meta-variables** - Find nodes that match meta-variable patterns
+//! 4. **Substitute content** - Replace meta-variables with captured content
+//! 5. **Generate output** - Combine unchanged and replaced content into final result
+//!
+//! ## Example
+//!
+//! **Pattern:** `function $NAME($$$PARAMS) { $$$BODY }`
+//! **Replacement template:** `async function $NAME($$$PARAMS) { $$$BODY }`
+//! **Captured variables:**
+//! - `$NAME` → `"calculateSum"`
+//! - `$$$PARAMS` → `"a, b"`
+//! - `$$$BODY` → `"return a + b;"`
+//!
+//! **Result:** `async function calculateSum(a, b) { return a + b; }`
+//!
+//! ## Key Functions
+//!
+//! - [`gen_replacement`] - Main entry point for generating replacement content
+//! - [`collect_edits`] - Traverse replacement template and collect substitution edits
+//! - [`merge_edits_to_vec`] - Combine original content with edits to produce final result
+//!
+//! ## Algorithm Details
+//!
+//! Uses a post-order depth-first traversal to visit all nodes in the replacement
+//! template. When a meta-variable is found, it's replaced with the corresponding
+//! captured content. The traversal stops at nodes that match meta-variables to
+//! avoid processing their children unnecessarily.
+//!
+//! ## Advantages
+//!
+//! - **Syntax-aware** - Respects language syntax and structure
+//! - **Precise** - Only replaces intended meta-variables, not similar text
+//! - **Efficient** - Single-pass traversal with minimal memory allocation
+//! - **Language-agnostic** - Works with any language that has AST support
+
 use super::{Edit, Underlying};
 use crate::language::Language;
 use crate::meta_var::MetaVarEnv;
 use crate::source::{Content, SgNode};
 use crate::{Doc, Node, NodeMatch, Root};
 
+/// Generate replacement content by substituting meta-variables in a template AST.
+///
+/// Takes a replacement template (parsed as an AST) and substitutes any meta-variables
+/// found in it with content captured during pattern matching.
+///
+/// # Parameters
+///
+/// - `root` - The replacement template parsed as an AST
+/// - `nm` - Node match containing captured meta-variables
+///
+/// # Returns
+///
+/// Raw bytes representing the final replacement content
+///
+/// # Example
+///
+/// ```rust,ignore
+/// // Template: "async function $NAME() { $$$BODY }"
+/// // Variables: $NAME="test", $$$BODY="return 42;"
+/// // Result: "async function test() { return 42; }"
+/// let replacement = gen_replacement(&template_root, &node_match);
+/// ```
 pub fn gen_replacement<D: Doc>(root: &Root<D>, nm: &NodeMatch<D>) -> Underlying<D> {
     let edits = collect_edits(root, nm.get_env(), nm.lang());
     merge_edits_to_vec(edits, root)
 }
 
+/// Traverse the replacement template AST and collect edits for meta-variable substitution.
+///
+/// Performs a post-order depth-first traversal of the replacement template,
+/// identifying nodes that represent meta-variables and creating edit operations
+/// to replace them with captured content.
+///
+/// # Parameters
+///
+/// - `root` - Root of the replacement template AST
+/// - `env` - Meta-variable environment with captured content
+/// - `lang` - Language implementation for meta-variable extraction
+///
+/// # Returns
+///
+/// Vector of edit operations to apply for meta-variable substitution
 fn collect_edits<D: Doc>(root: &Root<D>, env: &MetaVarEnv<D>, lang: &D::Lang) -> Vec<Edit<D>> {
     let mut node = root.root();
     let root_id = node.node_id();

@@ -13,6 +13,8 @@ cargo-binstall = "latest"
 "cargo:cargo-edit" = "latest"
 "cargo:cargo-generate" = "latest"
 "cargo:cargo-nextest" = "latest"
+"cargo:cargo-release" = "latest"
+"cargo:cargo-smart-release" = "latest"
 "cargo:cargo-watch" = "latest"
 gh = "latest"
 gitsign = "latest"
@@ -20,6 +22,7 @@ hk = "latest"
 node = "24"
 "npm:wasm-opt" = "latest"
 "npm:wasm-pack" = "latest"
+"pipx:SuperClaude" = "latest"
 "pipx:reuse" = "latest"
 pkl = "latest"
 ripgrep = "latest"
@@ -44,6 +47,9 @@ chmod +x scripts/* &>/dev/null &&
 mise run activate &&
 mise run install-tools &&
 mise run update-tools
+alias jj='jj --no-pager'
+alias git='git --no-pager'
+alias claude='claude --dangerously-skip-permissions'
 """
 # deactivate/unhook when you leave
 leave = """eval "$(mise deactivate)" &/dev/null"""

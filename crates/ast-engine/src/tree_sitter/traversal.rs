@@ -4,44 +4,146 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
 
-//! # Traverse Node AST
+//! # AST Tree Traversal Algorithms
 //!
-//! ast-grep supports common tree traversal algorithms, including
-//! * Pre order traversal
-//! * Post order traversal
-//! * Level order traversal
+//! Efficient tree traversal implementations for navigating and processing AST nodes.
+//! Provides multiple traversal strategies optimized for different use cases, with
+//! built-in support for pattern matching and reentrancy control.
 //!
-//! Note tree traversal can also be used with Matcher. A traversal with Matcher will
-//! produce a [`NodeMatch`] sequence where all items satisfies the Matcher.
+//! ## Traversal Algorithms
 //!
-//! It is also possible to specify the reentrancy of a traversal.
-//! That is, we can control whether a matching node should be visited when it is nested within another match.
-//! For example, suppose we want to find all usages of calling `foo` in the source `foo(foo())`.
-//! The code has two matching calls and we can configure a traversal
-//! to report only the inner one, only the outer one or both.
+//! - **Pre-order**: Visit parent before children (useful for top-down processing)
+//! - **Post-order**: Visit children before parent (useful for bottom-up processing)
+//! - **Level-order**: Visit nodes level by level (breadth-first search)
 //!
-//! Pre and Post order traversals in this module are implemented using tree-sitter's cursor API without extra heap allocation.
-//! It is recommended to use traversal instead of tree recursion to avoid stack overflow and memory overhead.
-//! Level order is also included for completeness and should be used sparingly.
+//! ## Key Features
+//!
+//! ### Pattern-Based Traversal
+//!
+//! Combine traversal with pattern matching to find specific nodes efficiently:
+//!
+//! ```rust,no_run
+//! # use thread_ast_engine::tree_sitter::traversal::Visitor;
+//! # use thread_ast_engine::Language;
+//! # use thread_ast_engine::tree_sitter::LanguageExt;
+//! # struct Tsx;
+//! # impl thread_ast_engine::Language for Tsx {
+//! #     fn kind_to_id(&self, _: &str) -> u16 { 0 }
+//! #     fn field_to_id(&self, _: &str) -> Option<u16> { None }
+//! #     fn build_pattern(&self, _: &thread_ast_engine::PatternBuilder) -> Result<thread_ast_engine::Pattern, thread_ast_engine::PatternError> { todo!() }
+//! # }
+//! # impl LanguageExt for Tsx {
+//! #     fn get_ts_language(&self) -> thread_ast_engine::tree_sitter::TSLanguage { todo!() }
+//! # }
+//! let ast = Tsx.ast_grep("function foo() { foo(); }");
+//! let root = ast.root();
+//!
+//! // Find all function calls
+//! for call in Visitor::new("$FUNC()").visit(root) {
+//!     println!("Found call: {}", call.get_node().text());
+//! }
+//! ```
+//!
+//! ### Reentrancy Control
+//!
+//! Control whether nested matches should be reported. For example, when finding
+//! function calls in `foo(bar(baz()))`, you can choose to find:
+//! - Only outer calls: `foo(...)`
+//! - Only inner calls: `bar(...)`, `baz()`
+//! - All calls: `foo(...)`, `bar(...)`, `baz()`
+//!
+//! ```rust,no_run
+//! # use thread_ast_engine::tree_sitter::traversal::Visitor;
+//! # use thread_ast_engine::Language;
+//! # use thread_ast_engine::tree_sitter::LanguageExt;
+//! # struct Tsx;
+//! # impl thread_ast_engine::Language for Tsx {
+//! #     fn kind_to_id(&self, _: &str) -> u16 { 0 }
+//! #     fn field_to_id(&self, _: &str) -> Option<u16> { None }
+//! #     fn build_pattern(&self, _: &thread_ast_engine::PatternBuilder) -> Result<thread_ast_engine::Pattern, thread_ast_engine::PatternError> { todo!() }
+//! # }
+//! # impl LanguageExt for Tsx {
+//! #     fn get_ts_language(&self) -> thread_ast_engine::tree_sitter::TSLanguage { todo!() }
+//! # }
+//! let ast = Tsx.ast_grep("foo(bar())");
+//! let root = ast.root();
+//!
+//! // Non-reentrant: only finds outer matches
+//! let outer_only: Vec<_> = Visitor::new("$FUNC($$$)")
+//!     .reentrant(false)
+//!     .visit(root)
+//!     .collect();
+//!
+//! // Reentrant: finds all matches including nested ones
+//! let all_matches: Vec<_> = Visitor::new("$FUNC($$$)")
+//!     .reentrant(true)
+//!     .visit(root)
+//!     .collect();
+//! ```
+//!
+//! ## Performance
+//!
+//! - **Pre/Post-order**: Use tree-sitter's cursor API with O(1) memory overhead
+//! - **Level-order**: Uses a queue with O(width) memory, use sparingly for large trees
+//! - **Stack-safe**: All traversals avoid recursion to prevent stack overflow
+//!
+//! Prefer traversal over manual recursion for performance and safety.
 
 use super::StrDoc;
-use crate::matcher::{Matcher, MatcherExt};
 use crate::tree_sitter::LanguageExt;
-use crate::{Doc, Node, NodeMatch, Root};
+#[cfg(feature = "matching")]
+use crate::{MatcherExt, NodeMatch};
+use crate::{Doc, Matcher, Node, Root};
 
 use tree_sitter as ts;
 
 use std::collections::VecDeque;
 use std::marker::PhantomData;
 
+/// Configurable tree visitor that combines traversal algorithms with pattern matching.
+///
+/// `Visitor` allows you to traverse an AST while filtering nodes based on patterns.
+/// It supports different traversal algorithms and provides fine-grained control
+/// over matching behavior through reentrancy and node type filtering.
+///
+/// # Type Parameters
+///
+/// - `M: Matcher` - The pattern matcher to filter nodes
+/// - `A` - The traversal algorithm (defaults to [`PreOrder`])
+///
+/// # Example
+///
+/// ```rust,no_run
+/// # use thread_ast_engine::tree_sitter::traversal::Visitor;
+/// # use thread_ast_engine::Language;
+/// # use thread_ast_engine::tree_sitter::LanguageExt;
+/// # struct Tsx;
+/// # impl thread_ast_engine::Language for Tsx {
+/// #     fn kind_to_id(&self, _: &str) -> u16 { 0 }
+/// #     fn field_to_id(&self, _: &str) -> Option<u16> { None }
+/// #     fn build_pattern(&self, _: &thread_ast_engine::PatternBuilder) -> Result<thread_ast_engine::Pattern, thread_ast_engine::PatternError> { todo!() }
+/// # }
+/// # impl LanguageExt for Tsx {
+/// #     fn get_ts_language(&self) -> thread_ast_engine::tree_sitter::TSLanguage { todo!() }
+/// # }
+/// let ast = Tsx.ast_grep("let x = foo(); let y = bar();");
+/// let root = ast.root();
+///
+/// // Find all identifiers, visiting only named nodes
+/// let identifiers: Vec<_> = Visitor::new("$ID")
+///     .named_only(true)
+///     .reentrant(false)
+///     .visit(root)
+///     .collect();
+/// ```
 pub struct Visitor<M, A = PreOrder> {
-    /// Whether a node will match if it contains or is contained in another match.
+    /// Whether nested matches should be reported (true) or skipped (false)
     reentrant: bool,
-    /// Whether visit named node only
+    /// Whether to visit only named AST nodes, skipping anonymous syntax tokens
     named_only: bool,
-    /// optional matcher to filter nodes
+    /// Pattern matcher used to filter nodes during traversal
     matcher: M,
-    /// The algorithm to traverse the tree, can be pre/post/level order
+    /// Traversal algorithm type marker (pre-order, post-order, level-order)
     algorithm: PhantomData<A>,
 }
 
@@ -99,6 +201,7 @@ where
     }
 }
 
+#[cfg_attr(not(feature = "matching"), allow(dead_code))]
 pub struct Visit<'t, D, T, M> {
     reentrant: bool,
     named: bool,
@@ -112,7 +215,8 @@ where
     T: Traversal<'t, D>,
     M: Matcher,
 {
-    #[inline]
+    #[cfg_attr(feature = "matching", inline)]
+    #[cfg_attr(not(feature = "matching"), allow(dead_code))]
     fn mark_match(&mut self, depth: Option<usize>) {
         if !self.reentrant {
             self.traversal.calibrate_for_match(depth);
@@ -120,11 +224,12 @@ where
     }
 }
 
+#[cfg(feature = "matching")]
 impl<'t, D, T, M> Iterator for Visit<'t, D, T, M>
 where
     D: Doc + 't,
     T: Traversal<'t, D>,
-    M: Matcher,
+    M: Matcher + MatcherExt,
 {
     type Item = NodeMatch<'t, D>;
     fn next(&mut self) -> Option<Self::Item> {
@@ -142,19 +247,43 @@ where
     }
 }
 
+/// Trait for tree traversal algorithms.
+///
+/// Defines how to create traversal iterators for different algorithms
+/// (pre-order, post-order, level-order). Each algorithm has its own
+/// traversal implementation with specific visiting order and performance
+/// characteristics.
 pub trait Algorithm {
+    /// The specific traversal iterator type for this algorithm
     type Traversal<'t, L: LanguageExt>: Traversal<'t, StrDoc<L>>;
+
+    /// Create a traversal iterator starting from the given node
     fn traverse<L: LanguageExt>(node: Node<'_, StrDoc<L>>) -> Self::Traversal<'_, L>;
 }
 
+/// Pre-order traversal algorithm.
+///
+/// Visits parent nodes before their children. Useful for top-down processing
+/// where you need to process a node before its descendants.
+///
+/// **Visit order**: Root → Left subtree → Right subtree
 pub struct PreOrder;
+
 impl Algorithm for PreOrder {
     type Traversal<'t, L: LanguageExt> = Pre<'t, L>;
     fn traverse<L: LanguageExt>(node: Node<'_, StrDoc<L>>) -> Self::Traversal<'_, L> {
         Pre::new(&node)
     }
 }
+
+/// Post-order traversal algorithm.
+///
+/// Visits children before their parent. Useful for bottom-up processing
+/// where you need to process all descendants before the node itself.
+///
+/// **Visit order**: Left subtree → Right subtree → Root
 pub struct PostOrder;
+
 impl Algorithm for PostOrder {
     type Traversal<'t, L: LanguageExt> = Post<'t, L>;
     fn traverse<L: LanguageExt>(node: Node<'_, StrDoc<L>>) -> Self::Traversal<'_, L> {
@@ -162,18 +291,42 @@ impl Algorithm for PostOrder {
     }
 }
 
-/// Traversal can iterate over node by using traversal algorithm.
+/// Core trait for tree traversal implementations.
 ///
-/// The `next` method should only handle normal, reentrant iteration.
-/// If reentrancy is not desired, traversal should mutate cursor in `calibrate_for_match`.
-/// Visit will maintain the matched node depth so traversal does not need to use extra field.
+/// Provides the interface for iterating over AST nodes using different algorithms.
+/// Supports both reentrant and non-reentrant traversal through calibration methods.
+///
+/// # Reentrancy Control
+///
+/// The traversal can be configured to skip nested matches when a pattern is found.
+/// The `calibrate_for_match` method is called to adjust the cursor position when
+/// matches are found, allowing non-reentrant behavior.
+///
+/// # Implementation Notes
+///
+/// - The `next` method handles normal iteration over all nodes
+/// - Depth tracking enables proper calibration for non-reentrant traversal
+/// - Root node is at depth 0, children are at depth 1, etc.
 pub trait Traversal<'t, D: Doc + 't>: Iterator<Item = Node<'t, D>> {
-    /// Calibrate cursor position to skip overlapping matches.
-    /// node depth will be passed if matched, otherwise None.
+    /// Adjust cursor position to implement non-reentrant matching behavior.
+    ///
+    /// Called by [`Visit`] to skip overlapping matches when reentrancy is disabled.
+    /// If a node matches a pattern, this method can skip its descendants to avoid
+    /// finding nested matches.
+    ///
+    /// # Parameters
+    ///
+    /// - `depth` - Depth of the matched node if a match was found, `None` otherwise
     fn calibrate_for_match(&mut self, depth: Option<usize>);
-    /// Returns the current depth of cursor depth.
-    /// Cursor depth is incremented by 1 when moving from parent to child.
-    /// Cursor depth at Root node is 0.
+
+    /// Get the current depth in the tree traversal.
+    ///
+    /// Depth increases by 1 when moving from parent to child nodes.
+    /// The root node has depth 0.
+    ///
+    /// # Returns
+    ///
+    /// Current traversal depth (0 = root, 1 = root's children, etc.)
     fn get_current_depth(&self) -> usize;
 }
 

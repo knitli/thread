@@ -118,7 +118,7 @@ mod tests {
     #[test]
     fn test_get_labels_from_config_single() {
         let doc = TypeScript::Tsx.ast_grep("let foo = 42;");
-        let pattern = Pattern::try_new("let $A = $B;", TypeScript::Tsx).unwrap();
+        let pattern = Pattern::try_new("let $A = $B;", &TypeScript::Tsx).unwrap();
         let m = doc.root().find(pattern).unwrap();
         let mut config = thread_utils::RapidMap::default();
         config.insert(
@@ -137,7 +137,7 @@ mod tests {
     #[test]
     fn test_get_labels_from_config_multiple() {
         let doc = TypeScript::Tsx.ast_grep("let foo = 42, bar = 99;");
-        let pattern = Pattern::try_new("let $A = $B, $C = $D;", TypeScript::Tsx).unwrap();
+        let pattern = Pattern::try_new("let $A = $B, $C = $D;", &TypeScript::Tsx).unwrap();
         let m = doc.root().find(pattern).unwrap();
         let mut config = thread_utils::RapidMap::default();
         config.insert(
@@ -155,7 +155,7 @@ mod tests {
     #[test]
     fn test_get_default_labels() {
         let doc = TypeScript::Tsx.ast_grep("let foo = 42;");
-        let pattern = Pattern::try_new("let $A = $B;", TypeScript::Tsx).unwrap();
+        let pattern = Pattern::try_new("let $A = $B;", &TypeScript::Tsx).unwrap();
         let m = doc.root().find(pattern).unwrap();
         let labels = get_default_labels(&m);
         assert!(!labels.is_empty());

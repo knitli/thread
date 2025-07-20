@@ -3,26 +3,63 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #![allow(clippy::redundant_pub_crate)]
-//! Module imports for pattern matching. Feature gated except for unimplemented `types` module.
+//! # Pattern Matching Module Organization
 //!
-//! ## Implementation Notes
+//! Conditional module imports for pattern matching functionality with feature flag support.
 //!
-//! We changed the structure here from Ast-Grep, which uses a pattern like what's still
-//! in [`crate::replacer`], where the root `parent.rs` module contains all
-//! the submodules.
+//! ## Module Structure
 //!
-//! ### Why this structure?
+//! This module organizes pattern matching components with conditional compilation:
+//! - **Core types** (always available) - Pattern definitions and interfaces
+//! - **Implementations** (feature-gated) - Actual matching logic and algorithms
 //!
-//! We needed to access the type definitions without the `matching` feature flag, so we:
-//! - Moved type definitions to `types.rs` (which we created).
-//! - renamed the directory from `matcher` to `matchers`
-//! - Created this `mod.rs` to import the submodules conditionally based on the `matching` feature flag.
-//! - Kept trait implementations behind the feature flag.
-//! - Moved [`types::MatchStrictness`] to `types.rs` in this module from `crate::match_tree::strictness` (not the implementation, just the type definition).
+//! ## Feature Flag Design
 //!
-//! #### Practical Implications
+//! The `matching` feature flag controls access to pattern matching implementations:
+//! - **With `matching`** - Full pattern matching capabilities available
+//! - **Without `matching`** - Only type definitions for API compatibility
 //!
-//! From an API perspective, nothing changed -- `matcher` is still the main entry point for pattern matching (if the feature is enabled).
+//! ## Available Components
+//!
+//! ### Always Available
+//! - [`types`] - Core pattern matching types and traits
+//!        - exported here if `matching` feature is not enabled
+//!        - exported in `matcher.rs` if `matching` feature is enabled
+//!        - Types **always** available from lib.rs:
+//!             ```rust,ignore
+//!            use thread_ast_engine::{
+//!              Matcher, MatcherExt, Pattern, MatchStrictness,
+//!              NodeMatch, PatternNode, PatternBuilder, PatternError,
+//!              };
+//!             ```
+//! - [`Matcher`] trait - Interface for all pattern matchers
+//!
+//! ### Feature-Gated (`matching` feature)
+//! - [`pattern`] - Structural pattern matching from source code strings
+//! - [`kind`] - AST node type matching
+//! - [`text`] - Regex-based text content matching
+//!
+//! ## Architecture Benefits
+//!
+//! - **Reduced compilation** - Skip complex matching logic when not needed
+//! - **API stability** - Type definitions remain available for library interfaces
+//! - **Modular usage** - Enable only required pattern matching features
+//!
+//! ## Usage
+//!
+//! ```toml
+//! # In Cargo.toml - enable full pattern matching
+//! thread-ast-engine = { version = "...", features = ["matching"] }
+//! ```
+//!
+//! ```rust,ignore
+//! // Types always available
+//! use thread_ast_engine::matchers::types::{Matcher, Pattern};
+//!
+//! // Implementations require 'matching' feature
+//! #[cfg(feature = "matching")]
+//! use thread_ast_engine::matchers::pattern::Pattern;
+//! ```
 
 #[cfg(feature = "matching")]
 pub(crate) mod pattern;
@@ -31,15 +68,14 @@ pub(crate) mod pattern;
 pub(crate) mod kind;
 
 #[cfg(feature = "matching")]
-pub(crate) mod node_match;
-
-#[cfg(feature = "matching")]
 pub(crate) mod text;
 
 pub(crate) mod types;
 #[cfg(not(feature = "matching"))]
-pub use types::*;
+pub use types::{
+    MatchStrictness, Pattern, PatternBuilder, PatternError, PatternNode
+};
 
 pub(crate) mod matcher {
-    pub use super::types::Matcher;
+    pub use super::types::{Matcher, MatcherExt, NodeMatch};
 }

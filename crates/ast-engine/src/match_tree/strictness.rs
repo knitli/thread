@@ -4,6 +4,40 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
 
+//! # Pattern Matching Strictness Implementation
+//!
+//! Implements the logic for different levels of pattern matching strictness,
+//! controlling how precisely patterns must match AST structure.
+//!
+//! ## Strictness Levels
+//!
+//! - **CST (Concrete Syntax Tree)** - Exact matching including all punctuation
+//! - **Smart** - Ignores unnamed tokens but matches all named nodes
+//! - **AST (Abstract Syntax Tree)** - Matches only named/structural nodes
+//! - **Relaxed** - AST matching while ignoring comments
+//! - **Signature** - Matches structure only, ignoring text content
+//!
+//! ## Core Types
+//!
+//! - [`MatchOneNode`] - Result of comparing a single pattern node to a candidate
+//! - [`MatchStrictness`] - Enum defining strictness levels (re-exported)
+//!
+//! ## Usage
+//!
+//! This module is primarily used internally by the pattern matching engine.
+//! Users typically interact with strictness through pattern configuration:
+//!
+//! ```rust,ignore
+//! let pattern = Pattern::new("function $NAME() {}", language)
+//!     .with_strictness(MatchStrictness::Relaxed);
+//! ```
+//!
+//! The strictness level determines:
+//! - Which nodes in the AST are considered for matching
+//! - Whether whitespace and punctuation must match exactly
+//! - How comments are handled during matching
+//! - Whether text content is compared or just structure
+
 use crate::Doc;
 pub use crate::matcher::MatchStrictness;
 use crate::matcher::{PatternNode, kind_utils};
@@ -12,12 +46,22 @@ use crate::node::Node;
 use std::iter::Peekable;
 use std::str::FromStr;
 
+/// Result of comparing a single pattern node against a candidate AST node.
+///
+/// Represents the different outcomes when the matching algorithm compares
+/// one element of a pattern against one AST node, taking into account
+/// the current strictness level.
 #[derive(Debug, Clone)]
 pub enum MatchOneNode {
+    /// Both pattern and candidate node match - continue with next elements
     MatchedBoth,
+    /// Skip both pattern and candidate (e.g., both are unnamed tokens in AST mode)
     SkipBoth,
+    /// Skip the pattern element (e.g., unnamed token in pattern during AST matching)
     SkipGoal,
+    /// Skip the candidate node (e.g., unnamed token in candidate during AST matching)
     SkipCandidate,
+    /// No match possible - pattern fails
     NoMatch,
 }
 
