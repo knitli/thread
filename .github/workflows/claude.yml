@@ -160,6 +160,7 @@ jobs:
               - Implement the fix and test it thoroughly.
               - If the fix might affect core functionality, update or add tests focused on that functionality.
               - Run all pre-commit lint checks and ensure everything is formatted correctly ('hk check', 'hk fix').
+              - Use conventional commits format.
               - Copy your planning file into your PR and then delete it before submitting.
               - Submit your changes in a pull request:
                 - Document your changes and the reasoning behind them.
