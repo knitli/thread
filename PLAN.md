@@ -30,7 +30,7 @@ Here's how the pieces actually fit together:
 ```
 File → ast-grep (parsing) → petgraph (analysis) → Content store (dedup) → API
                       ↓
-                   ropey (editing) → incremental updates
+                   lasso (editing) → incremental updates
 ```
 
 **That's it.** No type-sitter, no tree-sitter-graph, no redundant representations.
@@ -51,7 +51,7 @@ Let me explain each piece in plain terms:
 - **Why you need it**: Fast queries, graph algorithms, memory-efficient storage
 - **This is your primary data structure** - everything else feeds into or reads from this
 
-### ropey: Your Text Editor
+### lasso: Your Text Editor
 
 - **What it does**: Efficient text editing with line/column tracking
 - **Why you need it**: When code changes, you can update specific parts without reparsing everything
@@ -152,7 +152,7 @@ thread/
 │   ├── thread-core/        # Main analysis engine + petgraph
 │   ├── thread-parse/       # ast-grep integration
 │   ├── thread-store/       # Content-addressable storage + fmmap
-│   ├── thread-edit/        # ropey integration for live updates
+│   ├── thread-edit/        # lasso integration for live updates
 │   ├── thread-diff/        # difftastic algorithms (vendored)
 │   ├── thread-cli/         # Command line interface
 │   └── thread-wasm/        # WASM bindings
@@ -171,7 +171,7 @@ You're right to question some of the complexity. Here's what to **skip** for you
 - **type-sitter**: Adds build complexity and compile-time dependency management for marginal benefit
 - **tree-sitter-graph**: Complicates WASM builds and memory management; petgraph is more flexible
 - **difftastic parsing**: Only vendor their diff algorithms, use ast-grep for parsing
-- **ropey for now**: Start with simple string replacement, add incremental editing later
+- **lasso for now**: Start with simple string replacement, add incremental editing later
 
 ### ✅ Keep These (Core Value)
 
@@ -321,7 +321,7 @@ fn parse(&self, content: &str) -> Result<Vec<Element>, Error> {
 
 You can add these features incrementally:
 - **Week 2**: Memory mapping for large files
-- **Week 3**: Incremental updates with ropey
+- **Week 3**: Incremental updates with lasso
 - **Week 4**: WASM compilation
 - **Week 5**: Difftastic integration for change tracking
 

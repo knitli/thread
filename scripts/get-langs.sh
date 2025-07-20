@@ -113,7 +113,7 @@ error_exit() {
 # Get URL for languages in misc. repositories (REPO array)
 get_repo() {
     local lang="$1"
-    local repo="${REPO[$lang]}"
+    local repo="${REPO[lang]}"
     if [[ -z "$repo" ]]; then
         error_exit "No repository found for language: $lang"
     fi
@@ -190,7 +190,7 @@ main() {
             continue
         fi
         repo_url=$(get_repo "$lang")
-        branch=${BRANCH[$lang]:-main}
+        branch=${BRANCH[lang]:-main}
         cmd=$(get_cmd "$lang" "$repo_url" "$ARG" "$branch")
         echo "executing command: $cmd"
         eval "$cmd" || {

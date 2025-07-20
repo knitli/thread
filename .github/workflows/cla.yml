@@ -138,7 +138,7 @@ jobs:
           path-to-document: 'https://github.com/knitli/thread/blob/main/CONTRIBUTORS_LICENSE_AGREEMENT.md'
           branch: 'staging'
           allowlist: >
-            bashandbone,codegen-sh[bot],dependabot[bot],github-actions[bot],actions-user,changeset-bot
+            bashandbone,codegen-sh[bot],dependabot[bot],github-actions[bot],actions-user,changeset-bot,claude
 
           create-file-commit-message: 'Adding file for tracking CLA signatures'
           signed-commit-message: >
