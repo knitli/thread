@@ -32,11 +32,12 @@ use crate::match_tree::does_node_match_exactly;
 use crate::matcher::Matcher;
 use crate::source::Content;
 use crate::{Doc, Node};
+#[cfg(feature = "matching")]
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::hash::BuildHasherDefault;
-use thread_utils::{map_with_capacity, RapidInlineHasher, RapidMap};
-
+use thread_utils::{RapidInlineHasher, RapidMap, map_with_capacity};
+#[cfg(feature = "matching")]
 use crate::replacer::formatted_slice;
 
 pub type MetaVariableID = String;
@@ -62,6 +63,7 @@ impl<'t, D: Doc> MetaVarEnv<'t, D> {
         }
     }
 
+    #[cfg(feature = "matching")]
     pub fn insert(&mut self, id: &str, ret: Node<'t, D>) -> Option<&mut Self> {
         if self.match_variable(id, &ret) {
             self.single_matched.insert(id.to_string(), ret);
@@ -71,6 +73,7 @@ impl<'t, D: Doc> MetaVarEnv<'t, D> {
         }
     }
 
+    #[cfg(feature = "matching")]
     pub fn insert_multi(&mut self, id: &str, ret: Vec<Node<'t, D>>) -> Option<&mut Self> {
         if self.match_multi_var(id, &ret) {
             self.multi_matched.insert(id.to_string(), ret);
@@ -81,6 +84,7 @@ impl<'t, D: Doc> MetaVarEnv<'t, D> {
     }
 
     /// Insert without cloning the key if it's already owned
+    #[cfg(feature = "matching")]
     pub fn insert_owned(&mut self, id: String, ret: Node<'t, D>) -> Option<&mut Self> {
         if self.match_variable(&id, &ret) {
             self.single_matched.insert(id, ret);
@@ -91,6 +95,7 @@ impl<'t, D: Doc> MetaVarEnv<'t, D> {
     }
 
     /// Insert multi without cloning the key if it's already owned
+    #[cfg(feature = "matching")]
     pub fn insert_multi_owned(&mut self, id: String, ret: Vec<Node<'t, D>>) -> Option<&mut Self> {
         if self.match_multi_var(&id, &ret) {
             self.multi_matched.insert(id, ret);
@@ -142,6 +147,8 @@ impl<'t, D: Doc> MetaVarEnv<'t, D> {
         single.chain(multi).chain(transformed)
     }
 
+    #[cfg(feature = "matching")]
+    #[must_use]
     fn match_variable(&self, id: &str, candidate: &Node<'t, D>) -> bool {
         if let Some(m) = self.single_matched.get(id) {
             return does_node_match_exactly(m, candidate);
@@ -193,6 +200,7 @@ impl<'t, D: Doc> MetaVarEnv<'t, D> {
         true
     }
 
+    #[cfg(feature = "matching")]
     pub fn insert_transformation(&mut self, var: &MetaVariable, name: &str, slice: Underlying<D>) {
         let node = match var {
             MetaVariable::Capture(v, _) => self.single_matched.get(v),
@@ -219,6 +227,7 @@ impl<'t, D: Doc> MetaVarEnv<'t, D> {
     }
 }
 
+#[cfg(feature = "matching")]
 impl<D: Doc> MetaVarEnv<'_, D> {
     /// internal for readopt `NodeMatch` in pinned.rs
     /// readopt node and env when sending them to other threads
@@ -338,13 +347,14 @@ pub(crate) const fn is_valid_meta_var_char(c: char) -> bool {
     is_valid_first_char(c) || c.is_ascii_digit()
 }
 
-impl<'tree, D: Doc> From<MetaVarEnv<'tree, D>> for HashMap<String, String, BuildHasherDefault<RapidInlineHasher>>
+impl<'tree, D: Doc> From<MetaVarEnv<'tree, D>>
+    for HashMap<String, String, BuildHasherDefault<RapidInlineHasher>>
 where
     D::Source: Content,
 {
     fn from(env: MetaVarEnv<'tree, D>) -> Self {
         let mut ret: Self = map_with_capacity(
-            env.single_matched.len() + env.multi_matched.len() + env.transformed_var.len()
+            env.single_matched.len() + env.multi_matched.len() + env.transformed_var.len(),
         );
         for (id, node) in env.single_matched {
             ret.insert(id, node.text().into());

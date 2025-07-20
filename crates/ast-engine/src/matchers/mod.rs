@@ -27,18 +27,16 @@
 //!        - exported in `matcher.rs` if `matching` feature is enabled
 //!        - Types **always** available from lib.rs:
 //!             ```rust,ignore
-//!            use thread_ast_engine::matchers::types::{
-//!              Matcher, Pattern, MatchStrictness,
-//!              PatternNode, PatternBuilder, PatternError,
+//!            use thread_ast_engine::{
+//!              Matcher, MatcherExt, Pattern, MatchStrictness,
+//!              NodeMatch, PatternNode, PatternBuilder, PatternError,
 //!              };
 //!             ```
-//! `use thread_ast_engine::{Pattern, Matcher, NodeMatch, MatchStrictness, PatternNode, PatternBuilder, PatternError}`
 //! - [`Matcher`] trait - Interface for all pattern matchers
 //!
 //! ### Feature-Gated (`matching` feature)
 //! - [`pattern`] - Structural pattern matching from source code strings
 //! - [`kind`] - AST node type matching
-//! - [`node_match`] - Pattern match results with meta-variables
 //! - [`text`] - Regex-based text content matching
 //!
 //! ## Architecture Benefits
@@ -70,15 +68,14 @@ pub(crate) mod pattern;
 pub(crate) mod kind;
 
 #[cfg(feature = "matching")]
-pub(crate) mod node_match;
-
-#[cfg(feature = "matching")]
 pub(crate) mod text;
 
 pub(crate) mod types;
 #[cfg(not(feature = "matching"))]
-pub use types::*;
+pub use types::{
+    MatchStrictness, Pattern, PatternBuilder, PatternError, PatternNode
+};
 
 pub(crate) mod matcher {
-    pub use super::types::Matcher;
+    pub use super::types::{Matcher, MatcherExt, NodeMatch};
 }

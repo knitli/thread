@@ -68,13 +68,18 @@
 pub mod traversal;
 
 use crate::node::Root;
+
+use crate::AstGrep;
+#[cfg(feature = "matching")]
+use crate::Matcher;
+#[cfg(feature = "matching")]
 use crate::replacer::Replacer;
 use crate::source::{Content, Doc, Edit, SgNode};
-use crate::{AstGrep, Matcher};
 use crate::{Language, Position, node::KindId};
 use std::borrow::Cow;
 use std::num::NonZero;
 use thiserror::Error;
+#[cfg(feature = "matching")]
 use thread_utils::RapidMap;
 pub use traversal::{TsPre, Visitor};
 pub use tree_sitter::Language as TSLanguage;
@@ -472,6 +477,7 @@ pub trait LanguageExt: Language {
     /// # Returns
     ///
     /// Map of language names to their byte ranges in the document
+    #[cfg(feature = "matching")]
     fn extract_injections<L: LanguageExt>(
         &self,
         _root: crate::Node<StrDoc<L>>,
@@ -543,7 +549,7 @@ impl<L: LanguageExt> Root<StrDoc<L>> {
     pub fn get_text(&self) -> &str {
         &self.doc.src
     }
-
+    #[cfg(feature = "matching")]
     pub fn get_injections<F: Fn(&str) -> Option<L>>(&self, get_lang: F) -> Vec<Self> {
         let root = self.root();
         let range = self.lang().extract_injections(root);
@@ -626,6 +632,7 @@ impl<'r, L: LanguageExt> crate::Node<'r, StrDoc<L>> {
         }
     }
 
+    #[cfg(feature = "matching")]
     pub fn replace_all<M: Matcher, R: Replacer<StrDoc<L>>>(
         &self,
         matcher: M,

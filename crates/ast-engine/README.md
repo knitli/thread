@@ -109,8 +109,7 @@ Abstract interface for different programming languages via tree-sitter grammars.
 ## Feature Flags
 
 - **`parsing`** - Enables tree-sitter parsing (includes tree-sitter dependency)
-- **`matching`** - Enables pattern matching engine (no tree-sitter dependency)
-- **`replacing`** - Enables code replacement features (requires `matching`)
+- **`matching`** - Enables pattern matching and node transformation engine.
 
 Use `default-features = false` to opt out of all features and enable only what you need:
 

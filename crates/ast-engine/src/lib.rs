@@ -27,7 +27,7 @@
 //! Add to your `Cargo.toml`:
 //! ```toml
 //! [dependencies]
-//! thread-ast-engine = { version = "0.1.0", features = ["parsing", "matching", "replacing"] }
+//! thread-ast-engine = { version = "0.1.0", features = ["parsing", "matching"] }
 //! ```
 //!
 //! ### Basic Example: Find and Replace Variables
@@ -110,8 +110,7 @@
 //! ## Feature Flags
 //!
 //! - **`parsing`** - Enables tree-sitter parsing (includes tree-sitter dependency)
-//! - **`matching`** - Enables pattern matching engine (no tree-sitter dependency)
-//! - **`replacing`** - Enables code replacement features (requires `matching`)
+//! - **`matching`** - Enables pattern matching and node replacement/transformation engine.
 //!
 //! Use `default-features = false` to opt out of all features and enable only what you need:
 //!
@@ -173,7 +172,6 @@
 //!
 //! See [`VENDORED.md`](crates/ast-engine/VENDORED.md) for more information on our fork, changes, and reasons.
 
-
 pub mod language;
 pub mod source;
 
@@ -199,7 +197,7 @@ pub mod meta_var;
 pub mod ops;
 #[doc(hidden)]
 pub mod pinned;
-#[cfg(feature = "replacing")]
+#[cfg(feature = "matching")]
 pub mod replacer;
 
 // Re-exports
@@ -207,7 +205,8 @@ pub mod replacer;
 // the bare types with no implementations
 #[cfg(not(feature = "matching"))]
 pub use matchers::{
-    MatchStrictness, Pattern, PatternBuilder, PatternError, PatternNode, matcher::Matcher,
+    MatchStrictness, Pattern, PatternBuilder, PatternError, PatternNode,
+    matcher::{Matcher, MatcherExt, NodeMatch},
 };
 
 // implemented types

@@ -3,7 +3,7 @@
 // SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
-
+#![allow(dead_code, reason = "Some fields report they're dead if the `matching` feature is not enabled.")]
 //! # Core Pattern Matching Types
 //!
 //! Fundamental types and traits for AST pattern matching operations.
@@ -22,8 +22,7 @@
 //! implementation dependencies.
 
 use crate::Doc;
-use crate::MetaVarEnv;
-use crate::meta_var::MetaVariable;
+use crate::meta_var::{MetaVariable, MetaVarEnv};
 use crate::node::Node;
 use bit_set::BitSet;
 use std::borrow::Cow;
@@ -43,7 +42,7 @@ use thiserror::Error;
 /// # Example Implementation
 ///
 /// ```rust,ignore
-/// use thread_ast_engine::matchers::types::Matcher;
+/// use thread_ast_engine::Matcher;
 ///
 /// struct SimpleKindMatcher {
 ///     target_kind: String,
@@ -115,6 +114,70 @@ pub trait Matcher {
         None
     }
 }
+
+/// Extension trait providing convenient utility methods for [`Matcher`] implementations.
+///
+/// Automatically implemented for all types that implement [`Matcher`]. Provides
+/// higher-level operations like finding nodes and working with meta-variable environments.
+///
+/// # Important
+///
+/// You should not implement this trait manually - it's automatically implemented
+/// for all [`Matcher`] types.
+///
+/// # Example
+///
+/// ```rust,no_run
+/// # use thread_ast_engine::Language;
+/// # use thread_ast_engine::tree_sitter::LanguageExt;
+/// # use thread_ast_engine::MatcherExt;
+/// let ast = Language::Tsx.ast_grep("const x = 42;");
+/// let root = ast.root();
+///
+/// // Use MatcherExt methods
+/// if let Some(node_match) = root.find("const $VAR = $VALUE") {
+///     println!("Found constant declaration");
+/// }
+/// ```
+pub trait MatcherExt: Matcher {
+    fn match_node<'tree, D: Doc>(&self, node: Node<'tree, D>) -> Option<NodeMatch<'tree, D>>;
+
+    fn find_node<'tree, D: Doc>(&self, node: Node<'tree, D>) -> Option<NodeMatch<'tree, D>>;
+}
+
+/// Result of a successful pattern match containing the matched node and captured variables.
+///
+/// `NodeMatch` combines an AST node with the meta-variables captured during
+/// pattern matching. It acts like a regular [`Node`] (through [`Deref`]) while
+/// also providing access to captured variables through [`get_env`].
+///
+/// # Lifetime
+///
+/// The lifetime `'t` ties the match to its source document, ensuring memory safety.
+///
+/// # Usage Patterns
+///
+/// ```rust,ignore
+/// // Use as a regular node
+/// let text = node_match.text();
+/// let position = node_match.start_pos();
+///
+/// // Access captured meta-variables
+/// let env = node_match.get_env();
+/// let captured_name = env.get_match("VAR_NAME").unwrap();
+///
+/// // Generate replacement code
+/// let edit = node_match.replace_by("new code with $VAR_NAME");
+/// ```
+///
+/// # Type Parameters
+///
+/// - `'t` - Lifetime tied to the source document
+/// - `D: Doc` - Document type containing the source and language info
+#[derive(Clone)]
+#[cfg_attr(not(feature = "matching"), allow(dead_code))]
+pub struct NodeMatch<'t, D: Doc>(pub(crate) Node<'t, D>, pub(crate) MetaVarEnv<'t, D>);
+
 
 /// Controls how precisely patterns must match AST structure.
 ///

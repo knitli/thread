@@ -90,9 +90,10 @@
 //! Prefer traversal over manual recursion for performance and safety.
 
 use super::StrDoc;
-use crate::matcher::{Matcher, MatcherExt};
 use crate::tree_sitter::LanguageExt;
-use crate::{Doc, Node, NodeMatch, Root};
+#[cfg(feature = "matching")]
+use crate::{MatcherExt, NodeMatch};
+use crate::{Doc, Matcher, Node, Root};
 
 use tree_sitter as ts;
 
@@ -200,6 +201,7 @@ where
     }
 }
 
+#[cfg_attr(not(feature = "matching"), allow(dead_code))]
 pub struct Visit<'t, D, T, M> {
     reentrant: bool,
     named: bool,
@@ -213,7 +215,8 @@ where
     T: Traversal<'t, D>,
     M: Matcher,
 {
-    #[inline]
+    #[cfg_attr(feature = "matching", inline)]
+    #[cfg_attr(not(feature = "matching"), allow(dead_code))]
     fn mark_match(&mut self, depth: Option<usize>) {
         if !self.reentrant {
             self.traversal.calibrate_for_match(depth);
@@ -221,11 +224,12 @@ where
     }
 }
 
+#[cfg(feature = "matching")]
 impl<'t, D, T, M> Iterator for Visit<'t, D, T, M>
 where
     D: Doc + 't,
     T: Traversal<'t, D>,
-    M: Matcher,
+    M: Matcher + MatcherExt,
 {
     type Item = NodeMatch<'t, D>;
     fn next(&mut self) -> Option<Self::Item> {

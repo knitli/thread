@@ -10,7 +10,7 @@
 use criterion::{Criterion, criterion_group, criterion_main};
 use std::hint::black_box;
 use thread_ast_engine::{Pattern, Root};
-use thread_language::{Tsx, language_tsx};
+use thread_language::{Tsx};
 use thread_utils::RapidMap;
 
 fn bench_pattern_conversion(c: &mut Criterion) {
@@ -49,8 +49,7 @@ fn bench_meta_var_env_conversion(c: &mut Criterion) {
 
     c.bench_function("meta_var_env_conversion", |b| {
         b.iter(|| {
-            let tsx =
-            let pattern = Pattern::new(black_box(pattern_str), &Tsx.clone());
+            let pattern = Pattern::new(black_box(pattern_str), &Tsx);
             let root = Root::str(black_box(source_code), &Tsx);
             let matches: Vec<_> = root.root().find_all(&pattern).collect();
 

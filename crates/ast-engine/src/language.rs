@@ -29,7 +29,8 @@
 //! let pattern = lang.pre_process_pattern("var $A = $B");
 //! let meta_var = lang.extract_meta_var("$A");
 //! ```
-
+#[allow(unused_imports)]
+#[cfg(feature = "matching")]
 use super::{Pattern, PatternBuilder, PatternError};
 use crate::meta_var::{MetaVariable, extract_meta_var};
 use std::borrow::Cow;
@@ -74,6 +75,7 @@ pub trait Language: Clone + 'static {
 
     fn kind_to_id(&self, kind: &str) -> u16;
     fn field_to_id(&self, field: &str) -> Option<u16>;
+    #[cfg(feature = "matching")]
     fn build_pattern(&self, builder: &PatternBuilder) -> Result<Pattern, PatternError>;
 }
 

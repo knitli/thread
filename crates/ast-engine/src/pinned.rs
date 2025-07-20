@@ -43,6 +43,7 @@
 //! - **Caching**: Keep processed nodes in long-lived data structures
 
 use crate::Doc;
+#[cfg(feature = "matching")]
 use crate::NodeMatch;
 use crate::node::{Node, Root};
 
@@ -165,6 +166,7 @@ unsafe impl<D: Doc> NodeData<D> for Node<'static, D> {
     }
 }
 
+#[cfg(feature = "matching")]
 unsafe impl<D: Doc> NodeData<D> for NodeMatch<'static, D> {
     type Data = Self;
     fn get_data(&self) -> &Self::Data {
@@ -182,6 +184,7 @@ unsafe impl<D: Doc> NodeData<D> for NodeMatch<'static, D> {
     }
 }
 
+#[cfg(feature = "matching")]
 unsafe impl<D: Doc> NodeData<D> for Vec<NodeMatch<'static, D>> {
     type Data = Self;
     fn get_data(&self) -> &Self::Data {
