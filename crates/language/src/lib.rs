@@ -107,6 +107,12 @@ use thread_utils::RapidMap;
 pub use thread_ast_engine::language::Language;
 pub use thread_ast_engine::tree_sitter::LanguageExt;
 
+const BASH_EXTENSION_PATTERN: [&str; 19] = [
+    "bash", "bats", "sh", ".bashrc", "bash_aliases", "bats", "cgi", "command", "env",
+    "fcgi", "ksh", "tmux", "tool", "zsh", "bash_logout", "bash_profile", "profile",
+    "login", "logout"
+];
+
 /// Implements standard [`Language`] and [`LanguageExt`] traits for languages that accept `$` in identifiers.
 ///
 /// Used for languages like JavaScript, Python, and Rust where `$` can appear in variable names
@@ -781,7 +787,7 @@ macro_rules! execute_lang_method {
       S::Scala => Scala.$method($($pname,)*),
         #[cfg(feature = "swift")]
       S::Swift => Swift.$method($($pname,)*),
-        #[cfg(feature = "typescript")]
+        #[cfg(feature = "tsx")]
       S::Tsx => Tsx.$method($($pname,)*),
         #[cfg(feature = "typescript")]
       S::TypeScript => TypeScript.$method($($pname,)*),
@@ -835,9 +841,7 @@ const fn extensions(lang: SupportLang) -> &'static [&'static str] {
     use SupportLang::*;
     match lang {
         #[cfg(feature = "bash")]
-        Bash => &[
-            "bash", "bats", "cgi", "command", "env", "fcgi", "ksh", "sh", "tmux", "tool", "zsh",
-        ],
+        Bash => &BASH_EXTENSION_PATTERN,
         #[cfg(feature = "c")]
         C => &["c", "h"],
         #[cfg(feature = "cpp")]
@@ -890,16 +894,15 @@ const fn extensions(lang: SupportLang) -> &'static [&'static str] {
 /// N.B do not confuse it with `FromStr` trait. This function is to guess language from file extension.
 fn from_extension(path: &Path) -> Option<SupportLang> {
     let ext = path.extension()?.to_str()?;
-
+    #[cfg(feature = "bash")]
+    if BASH_EXTENSION_PATTERN.contains(&ext) {
+        return Some(SupportLang::Bash)
+    }
     // Fast path: try most common extensions first
     match ext {
-        #[cfg(feature = "bash")]
-        "bash" | "sh" | ".bashrc" | "bash_aliases" | "bats" | "cgi" | "command" | "env" | "fcgi" | "ksh" | "tmux" | "tool" | "zsh" | "bash_logout" | "bash_profile" | "profile" | "login" | "logout" => {
-            return Some(SupportLang::Bash)
-        }
         #[cfg(feature = "c")]
         "c" | "h" => return Some(SupportLang::C),
-        #[cfg(feature = "csharp")]
+        #[cfg(feature = "cpp")]
         "cpp" | "cc" | "cxx" => return Some(SupportLang::Cpp),
         #[cfg(feature = "css")]
         "css" => return Some(SupportLang::Css),
