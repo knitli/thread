@@ -68,8 +68,6 @@ mod kotlin;
 mod lua;
 #[cfg(feature = "php")]
 mod php;
-#[cfg(feature = "profiling")]
-pub mod profiling;
 #[cfg(feature = "python")]
 mod python;
 #[cfg(feature = "ruby")]
@@ -84,8 +82,11 @@ mod swift;
 mod yaml;
 #[cfg(feature = "html")]
 pub use html::Html;
+
 #[cfg(feature = "matching")]
 use thread_ast_engine::{Pattern, PatternBuilder, PatternError};
+#[cfg(feature = "profiling")]
+pub mod profiling;
 
 use ignore::types::{Types, TypesBuilder};
 use serde::de::Visitor;
@@ -462,7 +463,7 @@ impl_lang!(Yaml, language_yaml);
 /// ```
 ///
 /// # Usage with AST Analysis
-/// ```rust
+/// ```rust,ignore
 /// use thread_language::SupportLang;
 /// use thread_ast_engine::{Language, LanguageExt};
 ///

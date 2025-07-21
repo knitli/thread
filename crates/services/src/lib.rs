@@ -1,21 +1,111 @@
 // SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
 // SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
 // SPDX-License-Identifier: AGPL-3.0-or-later
-/*!
-This module defines the service layer interfaces for Thread.
 
-It provides abstract traits and execution contexts that decouple the core
-functionality from specific I/O, configuration, and execution environments.
-This allows the same core logic to be used in CLI tools, WASM environments,
-cloud services, and other contexts.
-*/
+//! # Thread Service Layer
+//!
+//! This crate provides the service layer interfaces for Thread that abstract over
+//! ast-grep functionality while preserving all its powerful capabilities.
+//!
+//! ## Core Philosophy
+//!
+//! The service layer acts as **abstraction glue** that:
+//! - **Preserves Power**: All ast-grep capabilities (Matcher, Replacer, Position) remain accessible
+//! - **Bridges Levels**: Connects file-level AST operations to codebase-level relational intelligence  
+//! - **Enables Execution**: Abstracts over different execution environments (rayon, cloud workers)
+//! - **Commercial Ready**: Clear boundaries for commercial extensions
+//!
+//! ## Architecture
+//!
+//! Thread pushes ast-grep from file-level to codebase-level analysis:
+//! - **File Level**: ast-grep provides powerful AST pattern matching and replacement
+//! - **Codebase Level**: Thread adds graph intelligence and cross-file relationships
+//! - **Service Layer**: Abstracts and coordinates both levels seamlessly
+//!
+//! ## Key Components
+//!
+//! - [`types`] - Language-agnostic types that wrap ast-grep functionality
+//! - [`traits`] - Service interfaces for parsing, analysis, and storage
+//! - [`error`] - Comprehensive error handling with recovery strategies
+//! - Execution contexts for different environments (CLI, cloud, WASM)
+//!
+//! ## Examples
+//!
+//! ### Basic Usage - Preserving ast-grep Power
+//! ```rust,no_run
+//! use thread_services::types::ParsedDocument;
+//! use thread_services::traits::CodeAnalyzer;
+//!
+//! async fn analyze_code(document: &ParsedDocument<impl thread_ast_engine::source::Doc>) {
+//!     // Access underlying ast-grep functionality directly
+//!     let root = document.ast_grep_root();
+//!     let matches = root.root().find_all("fn $NAME($$$PARAMS) { $$$BODY }");
+//!     
+//!     // Plus codebase-level metadata
+//!     let symbols = document.metadata().defined_symbols.keys();
+//!     println!("Found symbols: {:?}", symbols.collect::<Vec<_>>());
+//! }
+//! ```
+//!
+//! ### Codebase-Level Intelligence
+//! ```rust,no_run
+//! use thread_services::traits::CodeAnalyzer;
+//! use thread_services::types::{AnalysisContext, ExecutionScope};
+//!
+//! async fn codebase_analysis(
+//!     analyzer: &dyn CodeAnalyzer,
+//!     documents: &[thread_services::types::ParsedDocument<impl thread_ast_engine::source::Doc>]
+//! ) -> Result<(), Box<dyn std::error::Error>> {
+//!     let mut context = AnalysisContext::default();
+//!     context.scope = ExecutionScope::Codebase;
+//!     
+//!     // Analyze relationships across entire codebase
+//!     let relationships = analyzer.analyze_cross_file_relationships(documents, &context).await?;
+//!     
+//!     // This builds on ast-grep's file-level power to create codebase intelligence
+//!     for rel in relationships {
+//!         println!("Cross-file relationship: {:?} -> {:?}", rel.source_file, rel.target_file);
+//!     }
+//!     Ok(())
+//! }
+//! ```
+
+// Core modules
+pub mod types;
+pub mod error;
+pub mod traits;
+pub mod conversion;
+
+// Re-export key types for convenience
+pub use types::{
+    ParsedDocument, CodeMatch, AnalysisContext, 
+    ExecutionScope, AnalysisDepth, CrossFileRelationship,
+    // Re-export ast-grep types for compatibility
+    AstPosition, AstRoot, AstNode, AstNodeMatch,
+    SupportLang, SupportLangErr,
+};
+
+pub use error::{
+    ServiceError, ParseError, AnalysisError, 
+    ServiceResult, ContextualError, ContextualResult,
+    ErrorContextExt, RecoverableError,
+};
+
+pub use traits::{
+    CodeParser, CodeAnalyzer, ParserCapabilities, AnalyzerCapabilities,
+};
+
+// Storage traits (commercial boundary)
+#[cfg(feature = "storage-traits")]
+pub use traits::{StorageService, CacheService};
 
 use std::path::Path;
 use thiserror::Error;
 
-/// Error types for service operations
+/// Legacy error type for backwards compatibility
 #[derive(Error, Debug)]
-pub enum ServiceError {
+#[deprecated(since = "0.1.0", note = "Use ServiceError instead")]
+pub enum LegacyServiceError {
     #[error("IO error: {0}")]
     Io(#[from] std::io::Error),
     #[error("Configuration error: {0}")]
@@ -25,6 +115,10 @@ pub enum ServiceError {
 }
 
 /// Abstract execution context that can provide code from various sources
+///
+/// This trait provides a generic interface for accessing source code from
+/// different sources (filesystem, memory, network, etc.) to support
+/// different execution environments.
 pub trait ExecutionContext {
     /// Read content from a source (could be file, memory, network, etc.)
     fn read_content(&self, source: &str) -> Result<String, ServiceError>;
@@ -120,8 +214,20 @@ impl ExecutionContext for MemoryContext {
     }
 }
 
-// Service trait definitions will be added here in future iterations
-// For example:
-// pub trait ScanService { ... }
-// pub trait FixService { ... }
-// pub trait RuleValidationService { ... }
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::path::PathBuf;
+
+    #[test]
+    fn test_memory_context() {
+        let mut ctx = MemoryContext::new();
+        ctx.add_content("test.rs".to_string(), "fn main() {}".to_string());
+        
+        let content = ctx.read_content("test.rs").unwrap();
+        assert_eq!(content, "fn main() {}");
+        
+        let sources = ctx.list_sources().unwrap();
+        assert_eq!(sources, vec!["test.rs"]);
+    }
+}
