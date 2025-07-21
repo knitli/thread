@@ -43,6 +43,7 @@
 //! - [`impl_lang!`] - Standard languages accepting `$` in identifiers
 //! - [`impl_lang_expando!`] - Languages requiring custom expando characters for metavariables
 pub mod parsers;
+pub mod extension_matcher;
 
 #[cfg(feature = "bash")]
 mod bash;
@@ -838,7 +839,7 @@ impl LanguageExt for SupportLang {
     }
 }
 
-const fn extensions(lang: SupportLang) -> &'static [&'static str] {
+pub const fn extensions(lang: SupportLang) -> &'static [&'static str] {
     use SupportLang::*;
     match lang {
         #[cfg(feature = "bash")]
@@ -893,13 +894,14 @@ const fn extensions(lang: SupportLang) -> &'static [&'static str] {
 /// Guess which programming language a file is written in
 /// Adapt from `<https://github.com/Wilfred/difftastic/blob/master/src/parse/guess_language.rs>`
 /// N.B do not confuse it with `FromStr` trait. This function is to guess language from file extension.
-fn from_extension(path: &Path) -> Option<SupportLang> {
+/// 
+/// This function uses a hybrid optimization strategy:
+/// 1. Fast path: hardcoded matches for most common extensions
+/// 2. Optimized fallback: character-based bucketing + aho-corasick for comprehensive matching
+pub fn from_extension(path: &Path) -> Option<SupportLang> {
     let ext = path.extension()?.to_str()?;
-    #[cfg(feature = "bash")]
-    if BASH_EXTENSION_PATTERN.contains(&ext) {
-        return Some(SupportLang::Bash)
-    }
-    // Fast path: try most common extensions first
+    
+    // Fast path: try most common extensions first (preserves existing optimization)
     match ext {
         #[cfg(feature = "c")]
         "c" | "h" => return Some(SupportLang::C),
@@ -930,11 +932,9 @@ fn from_extension(path: &Path) -> Option<SupportLang> {
         _ => {}
     }
 
-    // Fallback: comprehensive search for less common extensions
-    SupportLang::all_langs()
-        .iter()
-        .copied()
-        .find(|&l| extensions(l).contains(&ext))
+    // Optimized fallback: use hybrid character bucketing + aho-corasick matching
+    // This replaces the inefficient O(n*m) iteration through all languages
+    extension_matcher::match_extension_optimized(ext)
 }
 
 fn add_custom_file_type<'b>(
@@ -1016,6 +1016,80 @@ mod test {
     fn test_guess_by_extension() {
         let path = Path::new("foo.rs");
         assert_eq!(from_extension(path), Some(SupportLang::Rust));
+    }
+
+    #[test]
+    fn test_optimized_extension_matching() {
+        // Test that the optimized implementation produces the same results as the original
+        let test_cases = [
+            ("main.rs", Some(SupportLang::Rust)),
+            ("app.js", Some(SupportLang::JavaScript)),
+            ("index.html", Some(SupportLang::Html)),
+            ("data.json", Some(SupportLang::Json)),
+            ("script.py", Some(SupportLang::Python)),
+            ("main.go", Some(SupportLang::Go)),
+            ("style.css", Some(SupportLang::Css)),
+            ("component.tsx", Some(SupportLang::Tsx)),
+            ("build.gradle.kts", Some(SupportLang::Kotlin)),
+            ("config.yml", Some(SupportLang::Yaml)),
+            ("script.sh", Some(SupportLang::Bash)),
+            ("app.swift", Some(SupportLang::Swift)),
+            ("main.cpp", Some(SupportLang::Cpp)),
+            ("header.hpp", Some(SupportLang::Cpp)),
+            ("style.scss", Some(SupportLang::Css)),
+            ("script.rb", Some(SupportLang::Ruby)),
+            ("main.scala", Some(SupportLang::Scala)),
+            ("app.kt", Some(SupportLang::Kotlin)),
+            // Case insensitive tests
+            ("Main.RS", Some(SupportLang::Rust)),
+            ("App.JS", Some(SupportLang::JavaScript)),
+            ("Config.YML", Some(SupportLang::Yaml)),
+            // Non-existent extensions
+            ("file.xyz", None),
+            ("test.unknown", None),
+        ];
+
+        for (filename, expected) in test_cases {
+            let path = Path::new(filename);
+            let result = from_extension(path);
+            assert_eq!(result, expected, "Failed for {}", filename);
+            
+            // Also test the direct extension matching
+            if let Some(ext) = path.extension().and_then(|e| e.to_str()) {
+                let direct_result = extension_matcher::match_extension_optimized(ext);
+                assert_eq!(direct_result, expected, "Direct matching failed for {}", ext);
+            }
+        }
+    }
+
+    #[test]
+    fn test_extension_matcher_stats() {
+        let stats = extension_matcher::get_optimization_stats();
+        
+        // Verify basic statistics make sense
+        assert!(stats.total_extensions > 0);
+        assert!(stats.total_char_buckets > 0);
+        assert!(stats.total_length_buckets > 0);
+        assert!(stats.aho_corasick_patterns > 0);
+        assert_eq!(stats.total_extensions, stats.aho_corasick_patterns);
+        
+        // Verify character bucket distribution
+        assert!(stats.single_language_char_buckets > 0);
+        assert!(stats.multi_language_char_buckets > 0);
+        assert_eq!(
+            stats.single_language_char_buckets + stats.multi_language_char_buckets,
+            stats.total_char_buckets
+        );
+        
+        // Verify length bucket distribution
+        assert!(stats.single_language_length_buckets > 0);
+        assert!(stats.multi_language_length_buckets > 0);
+        assert_eq!(
+            stats.single_language_length_buckets + stats.multi_language_length_buckets,
+            stats.total_length_buckets
+        );
+        
+        println!("Extension matching optimization stats: {:#?}", stats);
     }
 
     // TODO: add test for file_types
