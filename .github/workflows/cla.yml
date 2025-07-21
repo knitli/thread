@@ -98,7 +98,7 @@ jobs:
             echo "EV_EMAIL=$email" >> "$GITHUB_ENV"
           fi
           response=$(curl -s -o /dev/null -w "%{http_code}" \
-            -H "Authorization: Bearer \"${{ secrets.GITHUB_TOKEN }}\"" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             "https://api.github.com/orgs/knitli/members/$author")
           if [ "$response" == "204" ]; then
             echo "is_member=true" >> "$GITHUB_OUTPUT"
