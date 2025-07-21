@@ -118,6 +118,30 @@ fn bench_aho_corasick_matching(c: &mut Criterion) {
     });
 }
 
+fn bench_length_bucket_matching(c: &mut Criterion) {
+    let test_cases = get_test_cases();
+    
+    c.bench_function("length_bucket_matching", |b| {
+        b.iter(|| {
+            for (_, ext) in &test_cases {
+                black_box(extension_matcher::match_by_length_bucket(ext));
+            }
+        })
+    });
+}
+
+fn bench_combined_bucket_matching(c: &mut Criterion) {
+    let test_cases = get_test_cases();
+    
+    c.bench_function("combined_bucket_matching", |b| {
+        b.iter(|| {
+            for (_, ext) in &test_cases {
+                black_box(extension_matcher::match_by_combined_buckets(ext));
+            }
+        })
+    });
+}
+
 fn bench_hybrid_matching(c: &mut Criterion) {
     let test_cases = get_test_cases();
     
@@ -219,6 +243,8 @@ criterion_group!(
     benches,
     bench_original_implementation,
     bench_char_bucket_matching,
+    bench_length_bucket_matching,
+    bench_combined_bucket_matching,
     bench_aho_corasick_matching,
     bench_hybrid_matching,
     bench_new_from_extension,

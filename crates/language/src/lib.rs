@@ -1069,15 +1069,24 @@ mod test {
         // Verify basic statistics make sense
         assert!(stats.total_extensions > 0);
         assert!(stats.total_char_buckets > 0);
+        assert!(stats.total_length_buckets > 0);
         assert!(stats.aho_corasick_patterns > 0);
         assert_eq!(stats.total_extensions, stats.aho_corasick_patterns);
         
-        // Verify bucket distribution
-        assert!(stats.single_language_buckets > 0);
-        assert!(stats.multi_language_buckets > 0);
+        // Verify character bucket distribution
+        assert!(stats.single_language_char_buckets > 0);
+        assert!(stats.multi_language_char_buckets > 0);
         assert_eq!(
-            stats.single_language_buckets + stats.multi_language_buckets,
+            stats.single_language_char_buckets + stats.multi_language_char_buckets,
             stats.total_char_buckets
+        );
+        
+        // Verify length bucket distribution
+        assert!(stats.single_language_length_buckets > 0);
+        assert!(stats.multi_language_length_buckets > 0);
+        assert_eq!(
+            stats.single_language_length_buckets + stats.multi_language_length_buckets,
+            stats.total_length_buckets
         );
         
         println!("Extension matching optimization stats: {:#?}", stats);
