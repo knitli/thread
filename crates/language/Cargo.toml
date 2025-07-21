@@ -28,6 +28,7 @@ thread-ast-engine = { workspace = true, features = ["parsing"] }
 thread-utils = { workspace = true, default-features = false, features = [
   "hashers",
 ] }
+aho-corasick.workspace = true
 ignore.workspace = true
 serde.workspace = true
 tree-sitter.workspace = true

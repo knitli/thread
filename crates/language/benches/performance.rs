@@ -81,7 +81,7 @@ fn bench_from_extension(c: &mut Criterion) {
         b.iter(|| {
             for file in &files {
                 let path = Path::new(black_box(file));
-                black_box(SupportLang::from_path(path));
+                black_box(from_extension(path));
             }
         })
     });
