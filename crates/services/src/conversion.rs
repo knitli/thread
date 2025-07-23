@@ -17,12 +17,15 @@ use crate::types::{
 };
 use crate::error::{ServiceResult, AnalysisError};
 
-use thread_ast_engine::{Root, Node, NodeMatch, Position};
-use thread_ast_engine::source::Doc;
-use thread_language::SupportLang;
+cfg_if::cfg_if!(
+    if #[cfg(feature = "ast-grep-backend")] {
+        use thread_ast_engine::{Doc, Root, MatcherExt, Node, NodeMatch, Position};
+        use thread_language::SupportLang;
+    } else  {
+        use crate::types::{Doc, Root, MatcherExt, Node, NodeMatch, Position};
+    }
+);
 
-#[cfg(feature = "matching")]
-use thread_ast_engine::matcher::MatcherExt;
 
 /// Convert ast-grep NodeMatch to service layer CodeMatch
 ///
@@ -194,7 +197,7 @@ fn extract_function_calls<D: Doc>(root_node: &Node<D>) -> ServiceResult<Vec<Call
             for node_match in matches {
                 if let Some(func_node) = node_match.get_env().get_match("FUNC")
                     .or_else(|| node_match.get_env().get_match("METHOD")) {
-                    
+
                     let call_info = CallInfo {
                         function_name: func_node.text().to_string(),
                         position: Position::new(
@@ -248,9 +251,12 @@ pub fn create_symbol_info(
 }
 
 /// Extract content hash for deduplication
-pub fn compute_content_hash(content: &str) -> u64 {
-    use thread_utils::hash_help::rapid_hash;
-    rapid_hash(content.as_bytes())
+pub fn compute_content_hash(content: &str, seed: Option<u64>) -> u64 {
+    if let Some(deterministic_seed) = seed {
+        thread_utils::hash_bytes_with_seed(content.as_bytes(), deterministic_seed)
+    } else {
+        thread_utils::hash_bytes(content.as_bytes())
+    }
 }
 
 // Conversion functions for common patterns
@@ -295,12 +301,12 @@ mod tests {
     #[test]
     fn test_compute_content_hash() {
         let content = "fn main() {}";
-        let hash1 = compute_content_hash(content);
-        let hash2 = compute_content_hash(content);
+        let hash1 = compute_content_hash(content, None);
+        let hash2 = compute_content_hash(content, None);
         assert_eq!(hash1, hash2);
 
         let different_content = "fn test() {}";
-        let hash3 = compute_content_hash(different_content);
+        let hash3 = compute_content_hash(different_content, None);
         assert_ne!(hash1, hash3);
     }
 
@@ -335,7 +341,7 @@ mod tests {
             SymbolKind::Function,
             pos
         );
-        
+
         assert_eq!(info.name, "test_function");
         assert_eq!(info.kind, SymbolKind::Function);
         assert_eq!(info.position, pos);

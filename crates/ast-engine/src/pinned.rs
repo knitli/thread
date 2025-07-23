@@ -121,7 +121,11 @@ impl<T, D: Doc + 'static> PinnedNodeData<D, T> {
     where
         F: FnOnce(&'static Root<D>) -> T,
     {
-        // TODO: explain why unsafe works here and what guarantee it needs
+        // SAFETY: We're creating a 'static reference to `pin`, which is safe because:
+        // 1. This struct owns `pin` and keeps it alive for the container's entire lifetime
+        // 2. Tree-sitter nodes are heap-allocated with stable pointers
+        // 3. We re-adopt nodes on each access to ensure they point to valid memory
+        // The 'static lifetime is a "lie" to the type system - nodes live as long as this container
         let reference = unsafe { &*(&raw const pin) as &'static Root<D> };
         let data = func(reference);
         Self { pin, data }
@@ -144,7 +148,9 @@ where
 }
 
 /// # Safety
-/// TODO: explain unsafe trait
+/// This trait is unsafe because implementors must ensure that `visit_nodes` calls
+/// the provided function on all nodes contained within the data structure.
+/// Failure to do so will result in stale node pointers that may reference freed memory.
 pub unsafe trait NodeData<D: Doc> {
     type Data;
     fn get_data(&self) -> &Self::Data;

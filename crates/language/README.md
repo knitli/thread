@@ -69,8 +69,8 @@ These languages accept `$` in identifiers and use standard pattern processing:
 
 #### Parser Groups
 
-- **`builtin-parser`** (default) - Includes all language parsers
-- **`napi-lang`** - Includes only NAPI-compatible (WASM for Node.js environments) parsers (CSS, HTML, JavaScript, TypeScript)
+- **`all-parsers`** (default) - Includes all language parsers
+- **`napi-environment`** - Includes only NAPI-compatible (WASM for Node.js environments) parsers (CSS, HTML, JavaScript, TypeScript)
 
 #### Individual Languages
 

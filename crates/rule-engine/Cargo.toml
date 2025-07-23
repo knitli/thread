@@ -20,15 +20,10 @@ repository.workspace = true
 rust-version.workspace = true
 include.workspace = true
 
-[features]
-default = ["scanning", "fixing"]
-# The 'scanning' feature enables finding code via rules
-scanning = ["thread-ast-engine/matching"]
-# The 'fixing' feature enables transforming code via rules
-fixing = ["thread-ast-engine/matching"]
+# [features] # we need to separate serialization, but that's a big job, and ideally rework ast-engine to allow narrower featuring
 
 [dependencies]
-thread-ast-engine = { workspace = true, default-features = false }
+thread-ast-engine = { workspace = true, features = ["parsing", "matching"] }
 thread-utils = { workspace = true, default-features = false, features = [
   "hashers",
   "simd",
@@ -43,12 +38,12 @@ thiserror.workspace = true
 schemars.workspace = true
 
 [dev-dependencies]
-ast-grep-core = { version = "0.38.7", features = ["tree-sitter"] }
-ast-grep-config = { version = "0.38.7" }
-ast-grep-language = { version = "0.38.7", features = ["builtin-parser"] }
+ast-grep-core = { version = "0.39.1", features = ["tree-sitter"] }
+ast-grep-config = { version = "0.39.1" }
+ast-grep-language = { version = "0.39.1", features = ["builtin-parser"] }
 criterion = { version = "0.6", features = ["html_reports"] }
 thread-ast-engine = { workspace = true, features = ["parsing", "matching"] }
-thread-language = { workspace = true, features = ["builtin-parser"] }
+thread-language = { workspace = true, features = ["all-parsers"] }
 tree-sitter-javascript = "0.23.1"
 tree-sitter-python = "0.23.6"
 tree-sitter-rust = "0.24.0"

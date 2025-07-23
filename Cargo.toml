@@ -2,7 +2,6 @@
 # SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
 #
 # SPDX-License-Identifier: MIT OR Apache-2.0
-cargo-features = ["codegen-backend"]
 
 # =========================================================
 #*               THREAD - Workspace
@@ -64,8 +63,8 @@ macro_rules_attribute = { version = "0.2.2" }
 async-trait = { version = "0.1.88" }
 
 bit-set = { version = "0.8.0" }
-ignore = { version = "0.4.22" }
-regex = { version = "1.10" }
+ignore = { version = "0.4.23" }
+regex = { version = "1.11.1" }
 thiserror = { version = "2.0.12" }
 
 # The center of it all

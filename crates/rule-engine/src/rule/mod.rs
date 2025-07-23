@@ -258,7 +258,7 @@ impl Rule {
             Rule::All(sub) => sub.inner().iter().flat_map(|r| r.defined_vars()).collect(),
             Rule::Any(sub) => sub.inner().iter().flat_map(|r| r.defined_vars()).collect(),
             Rule::Not(sub) => sub.inner().defined_vars(),
-            // TODO: this is not correct, we are collecting util vars else where
+            // TODO: this is not correct, we are collecting util vars elsewhere
             Rule::Matches(_r) => RapidSet::default(),
         }
     }

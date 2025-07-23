@@ -128,7 +128,20 @@ impl StopBy {
 }
 
 impl StopBy {
-    // TODO: document this monster method
+    /// Searches for nodes using different stopping strategies based on the StopBy variant.
+    ///
+    /// The search behavior depends on the StopBy variant:
+    /// - `Neighbor`: Calls `once()` to get a single node and applies `finder` to it
+    /// - `End`: Uses `multi()` to get an iterator and searches through all nodes until `finder` returns Some
+    /// - `Rule`: Uses `multi()` but stops searching when the stop rule matches a node (inclusive)
+    ///
+    /// # Parameters
+    /// - `once`: Function that returns a single node for neighbor-based searching
+    /// - `multi`: Function that returns an iterator of nodes for broader searching
+    /// - `finder`: Function that processes each node and returns Some if a match is found
+    ///
+    /// # Returns
+    /// The first node where `finder` returns Some, or None if no matches are found
     pub(crate) fn find<'t, O, M, I, F, D>(
         &self,
         once: O,

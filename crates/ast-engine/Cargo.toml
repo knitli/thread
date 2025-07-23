@@ -44,7 +44,7 @@ matching = ["dep:regex"]
 
 [dev-dependencies]
 tree-sitter-typescript = "0.23.2"
-thread-language = { workspace = true, features = ["builtin-parser"] }
+thread-language = { workspace = true, features = ["all-parsers"] }
 criterion = { version = "0.6.0", features = ["html_reports"] }
 
 [[bench]]

@@ -363,6 +363,6 @@ if (true) {
 
     #[test]
     fn test_nested_matching_replace() {
-        // TODO impossible, we don't support nested replacement
+        // TODO we don't support nested replacement yet
     }
 }

@@ -13,6 +13,12 @@ use memchr::memmem::FinderRev;
 use simdeez::{prelude::*, simd_runtime_generate};
 use std::sync::OnceLock;
 
+/// UTF-8 continuation bytes have pattern 10xxxxxx (0x80-0xBF)
+const UTF_8_CONTINUATION_PATTERN: i8 = 0b1000_0000_u8 as i8;
+/// We want to count bytes that are NOT continuation bytes
+/// So we mask out the continuation pattern
+/// Non-continuation bytes have pattern 11xxxxxx (0xC0-0xFF)
+const NON_UTF_8_CONTINUATION_PATTERN: i8 = 0b1100_0000_u8 as i8;
 static REV_LINE_FINDER: OnceLock<FinderRev> = OnceLock::new();
 
 // Checks if a string is all ascii.
@@ -83,10 +89,8 @@ simd_runtime_generate!(
         let mut remainder = bytes_i8;
         let mut char_count = 0;
 
-        // UTF-8 continuation bytes have pattern 10xxxxxx (0x80-0xBF)
-        // We want to count bytes that are NOT continuation bytes
-        let continuation_pattern = S::Vi8::set1(0b1000_0000_u8 as i8);
-        let mask_pattern = S::Vi8::set1(0b1100_0000_u8 as i8);
+        let continuation_pattern = S::Vi8::set1(UTF_8_CONTINUATION_PATTERN);
+        let mask_pattern = S::Vi8::set1(NON_UTF_8_CONTINUATION_PATTERN);
 
         // Process in SIMD chunks
         while remainder.len() >= S::Vi8::WIDTH {
@@ -108,7 +112,7 @@ simd_runtime_generate!(
 
         // Handle remaining bytes
         for &byte in remainder {
-            if (byte as u8) & 0b1100_0000 != 0b1000_0000 {
+            if (byte as u8) & NON_UTF_8_CONTINUATION_PATTERN as u8 != UTF_8_CONTINUATION_PATTERN as u8 {
                 char_count += 1;
             }
         }

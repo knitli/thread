@@ -42,46 +42,86 @@
 //! Languages are implemented using two macros:
 //! - [`impl_lang!`] - Standard languages accepting `$` in identifiers
 //! - [`impl_lang_expando!`] - Languages requiring custom expando characters for metavariables
-pub mod parsers;
-pub mod extension_matcher;
 
-#[cfg(feature = "bash")]
+pub mod constants;
+pub mod ext_iden;
+#[cfg(any(
+    feature = "all-parsers",
+    feature = "napi-environment",
+    feature = "napi-compatible",
+    feature = "bash",
+    feature = "c",
+    feature = "cpp",
+    feature = "csharp",
+    feature = "css",
+    feature = "elixir",
+    feature = "go",
+    feature = "haskell",
+    feature = "html",
+    feature = "java",
+    feature = "javascript",
+    feature = "json",
+    feature = "kotlin",
+    feature = "lua",
+    feature = "php",
+    feature = "python",
+    feature = "ruby",
+    feature = "rust",
+    feature = "scala",
+    feature = "swift",
+    feature = "tsx",
+    feature = "typescript",
+    feature = "yaml"
+))]
+pub mod parsers;
+
+#[cfg(any(feature = "bash", feature = "all-parsers"))]
 mod bash;
-#[cfg(feature = "cpp")]
+#[cfg(any(feature = "cpp", feature = "all-parsers"))]
 mod cpp;
-#[cfg(feature = "csharp")]
+#[cfg(any(feature = "csharp", feature = "all-parsers"))]
 mod csharp;
-#[cfg(feature = "css")]
+#[cfg(any(feature = "css", feature = "all-parsers", feature = "css-napi", feature = "napi-compatible"))]
 mod css;
-#[cfg(feature = "elixir")]
+#[cfg(any(feature = "elixir", feature = "all-parsers"))]
 mod elixir;
-#[cfg(feature = "go")]
+#[cfg(any(feature = "go", feature = "all-parsers"))]
 mod go;
 #[cfg(feature = "haskell")]
 mod haskell;
-#[cfg(feature = "html")]
+#[cfg(any(
+    feature = "html",
+    feature = "all-parsers",
+    feature = "html-napi",
+    feature = "napi-compatible"
+))]
 mod html;
-#[cfg(feature = "json")]
+#[cfg(any(feature = "json", feature = "all-parsers"))]
 mod json;
-#[cfg(feature = "kotlin")]
+#[cfg(any(feature = "kotlin", feature = "all-parsers"))]
 mod kotlin;
-#[cfg(feature = "lua")]
+#[cfg(any(feature = "lua", feature = "all-parsers"))]
 mod lua;
-#[cfg(feature = "php")]
+#[cfg(any(feature = "php", feature = "all-parsers"))]
 mod php;
-#[cfg(feature = "python")]
+#[cfg(any(feature = "python", feature = "all-parsers"))]
 mod python;
-#[cfg(feature = "ruby")]
+#[cfg(any(feature = "ruby", feature = "all-parsers"))]
 mod ruby;
-#[cfg(feature = "rust")]
+#[cfg(any(feature = "rust", feature = "all-parsers"))]
 mod rust;
-#[cfg(feature = "scala")]
+#[cfg(any(feature = "scala", feature = "all-parsers"))]
 mod scala;
-#[cfg(feature = "swift")]
+#[cfg(any(feature = "swift", feature = "all-parsers"))]
 mod swift;
-#[cfg(feature = "yaml")]
+#[cfg(any(feature = "yaml", feature = "all-parsers"))]
 mod yaml;
-#[cfg(feature = "html")]
+#[cfg(any(
+    feature = "html",
+    feature = "all-parsers",
+    feature = "html-napi",
+    feature = "napi-compatible"
+))]
 pub use html::Html;
 
 #[cfg(feature = "matching")]
@@ -100,20 +140,43 @@ use std::str::FromStr;
 #[cfg(feature = "matching")]
 use thread_ast_engine::Node;
 use thread_ast_engine::meta_var::MetaVariable;
-use thread_ast_engine::tree_sitter::TSLanguage;
 #[cfg(feature = "matching")]
 use thread_ast_engine::tree_sitter::{StrDoc, TSRange};
 #[cfg(feature = "matching")]
 use thread_utils::RapidMap;
-
-pub use thread_ast_engine::language::Language;
-pub use thread_ast_engine::tree_sitter::LanguageExt;
-
-const BASH_EXTENSION_PATTERN: [&str; 19] = [
-    "bash", "bats", "sh", ".bashrc", "bash_aliases", "bats", "cgi", "command", "env",
-    "fcgi", "ksh", "tmux", "tool", "zsh", "bash_logout", "bash_profile", "profile",
-    "login", "logout"
-];
+#[cfg(any(
+    feature = "all-parsers",
+    feature = "napi-compatible",
+    feature = "css-napi",
+    feature = "html-napi",
+    feature = "javascript-napi",
+    feature = "typescript-napi",
+    feature = "tsx-napi",
+    feature = "bash",
+    feature = "c",
+    feature = "cpp",
+    feature = "csharp",
+    feature = "css",
+    feature = "elixir",
+    feature = "go",
+    feature = "haskell",
+    feature = "html",
+    feature = "java",
+    feature = "javascript",
+    feature = "json",
+    feature = "kotlin",
+    feature = "lua",
+    feature = "php",
+    feature = "python",
+    feature = "ruby",
+    feature = "rust",
+    feature = "scala",
+    feature = "swift",
+    feature = "tsx",
+    feature = "typescript",
+    feature = "yaml"
+))]
+pub use thread_ast_engine::{{language::Language}, tree_sitter::{LanguageExt, TSLanguage}};
 
 /// Implements standard [`Language`] and [`LanguageExt`] traits for languages that accept `$` in identifiers.
 ///
@@ -129,7 +192,22 @@ const BASH_EXTENSION_PATTERN: [&str; 19] = [
 /// - Map node kinds and field names to tree-sitter IDs
 /// - Build patterns using the language's parser
 /// - Use default metavariable processing (no expando character substitution)
-#[allow(unused_macros)]
+#[cfg(any(
+    feature = "all-parsers",
+    feature = "napi-compatible",
+    feature = "bash",
+    feature = "java",
+    feature = "javascript",
+    feature = "javascript-napi",
+    feature = "json",
+    feature = "lua",
+    feature = "scala",
+    feature = "tsx",
+    feature = "tsx-napi",
+    feature = "typescript",
+    feature = "typescript-napi",
+    feature = "yaml",
+))]
 macro_rules! impl_lang {
     ($lang: ident, $func: ident) => {
         #[derive(Clone, Copy, Debug)]
@@ -271,6 +349,25 @@ fn pre_process_pattern(expando: char, query: &str) -> std::borrow::Cow<'_, str> 
 /// let processed = python.pre_process_pattern(pattern);
 /// assert_eq!(processed, "def µFUNC(µARG): pass");
 /// ```
+#[cfg(any(
+    feature = "all-parsers",
+    feature = "napi-compatible",
+    feature = "c",
+    feature = "cpp",
+    feature = "csharp",
+    feature = "css",
+    feature = "css-napi",
+    feature = "elixir",
+    feature = "go",
+    feature = "haskell",
+    feature = "html",
+    feature = "html-napi",
+    feature = "kotlin",
+    feature = "php",
+    feature = "python",
+    feature = "ruby",
+    feature = "rust",
+))]
 macro_rules! impl_lang_expando {
     ($lang: ident, $func: ident, $char: expr) => {
         #[derive(Clone, Copy, Debug)]
@@ -310,6 +407,39 @@ pub trait Alias: Display {
 
 /// Implements the `ALIAS` associated constant for the given lang, which is
 /// then used to define the `alias` const fn and a `Deserialize` impl.
+#[cfg(all(any(
+    feature = "all-parsers",
+    feature = "napi-compatible",
+    feature = "css-napi",
+    feature = "html-napi",
+    feature = "javascript-napi",
+    feature = "typescript-napi",
+    feature = "tsx-napi",
+    feature = "bash",
+    feature = "c",
+    feature = "cpp",
+    feature = "csharp",
+    feature = "css",
+    feature = "elixir",
+    feature = "go",
+    feature = "haskell",
+    feature = "html",
+    feature = "java",
+    feature = "javascript",
+    feature = "json",
+    feature = "kotlin",
+    feature = "lua",
+    feature = "php",
+    feature = "python",
+    feature = "ruby",
+    feature = "rust",
+    feature = "scala",
+    feature = "swift",
+    feature = "tsx",
+    feature = "typescript",
+    feature = "yaml"
+), not(feature = "no-enabled-langs")
+))]
 macro_rules! impl_alias {
     ($lang:ident => $as:expr) => {
         impl Alias for $lang {
@@ -344,6 +474,39 @@ macro_rules! impl_alias {
 }
 /// Generates as convenience conversions between the lang types
 /// and `SupportedType`.
+#[cfg(all(any(
+    feature = "all-parsers",
+    feature = "napi-compatible",
+    feature = "css-napi",
+    feature = "html-napi",
+    feature = "javascript-napi",
+    feature = "typescript-napi",
+    feature = "tsx-napi",
+    feature = "bash",
+    feature = "c",
+    feature = "cpp",
+    feature = "csharp",
+    feature = "css",
+    feature = "elixir",
+    feature = "go",
+    feature = "haskell",
+    feature = "html",
+    feature = "java",
+    feature = "javascript",
+    feature = "json",
+    feature = "kotlin",
+    feature = "lua",
+    feature = "php",
+    feature = "python",
+    feature = "ruby",
+    feature = "rust",
+    feature = "scala",
+    feature = "swift",
+    feature = "tsx",
+    feature = "typescript",
+    feature = "yaml"),
+    not(feature = "no-enabled-langs")
+))]
 macro_rules! impl_aliases {
   ($($lang:ident, $feature:literal => $as:expr),* $(,)?) => {
     $(#[cfg(feature = $feature)]
@@ -364,28 +527,28 @@ macro_rules! impl_aliases {
 // https://en.cppreference.com/w/cpp/language/identifiers
 // Due to some issues in the tree-sitter parser, it is not possible to use
 // unicode literals in identifiers for C/C++ parsers
-#[cfg(feature = "c")]
+#[cfg(any(feature = "c", feature = "all-parsers"))]
 impl_lang_expando!(C, language_c, 'µ');
-#[cfg(feature = "cpp")]
+#[cfg(any(feature = "cpp", feature = "all-parsers"))]
 impl_lang_expando!(Cpp, language_cpp, 'µ');
 
 // https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/lexical-structure#643-identifiers
 // all letter number is accepted
 // https://www.compart.com/en/unicode/category/Nl
-#[cfg(feature = "csharp")]
+#[cfg(any(feature = "csharp", feature = "all-parsers"))]
 impl_lang_expando!(CSharp, language_c_sharp, 'µ');
 
 // https://www.w3.org/TR/CSS21/grammar.html#scanner
-#[cfg(feature = "css")]
+#[cfg(any(feature = "css", feature = "all-parsers", feature = "css-napi", feature = "napi-compatible"))]
 impl_lang_expando!(Css, language_css, '_');
 
 // https://github.com/elixir-lang/tree-sitter-elixir/blob/a2861e88a730287a60c11ea9299c033c7d076e30/grammar.js#L245
-#[cfg(feature = "elixir")]
+#[cfg(any(feature = "elixir", feature = "all-parsers"))]
 impl_lang_expando!(Elixir, language_elixir, 'µ');
 
 // we can use any Unicode code point categorized as "Letter"
 // https://go.dev/ref/spec#letter
-#[cfg(feature = "go")]
+#[cfg(any(feature = "go", feature = "all-parsers"))]
 impl_lang_expando!(Go, language_go, 'µ');
 
 // GHC supports Unicode syntax per
@@ -395,52 +558,63 @@ impl_lang_expando!(Go, language_go, 'µ');
 impl_lang_expando!(Haskell, language_haskell, 'µ');
 
 // https://github.com/fwcd/tree-sitter-kotlin/pull/93
-#[cfg(feature = "kotlin")]
+#[cfg(any(feature = "kotlin", feature = "all-parsers"))]
 impl_lang_expando!(Kotlin, language_kotlin, 'µ');
 
 // PHP accepts unicode to be used as some name not var name though
-#[cfg(feature = "php")]
+#[cfg(any(feature = "php", feature = "all-parsers"))]
 impl_lang_expando!(Php, language_php, 'µ');
 
 // we can use any char in unicode range [:XID_Start:]
 // https://docs.python.org/3/reference/lexical_analysis.html#identifiers
 // see also [PEP 3131](https://peps.python.org/pep-3131/) for further details.
-#[cfg(feature = "python")]
+#[cfg(any(feature = "python", feature = "all-parsers"))]
 impl_lang_expando!(Python, language_python, 'µ');
 
 // https://github.com/tree-sitter/tree-sitter-ruby/blob/f257f3f57833d584050336921773738a3fd8ca22/grammar.js#L30C26-L30C78
-#[cfg(feature = "ruby")]
+#[cfg(any(feature = "ruby", feature = "all-parsers"))]
 impl_lang_expando!(Ruby, language_ruby, 'µ');
 
 // we can use any char in unicode range [:XID_Start:]
 // https://doc.rust-lang.org/reference/identifiers.html
-#[cfg(feature = "rust")]
+#[cfg(any(feature = "rust", feature = "all-parsers"))]
 impl_lang_expando!(Rust, language_rust, 'µ');
 
 //https://docs.swift.org/swift-book/documentation/the-swift-programming-language/lexicalstructure/#Identifiers
-#[cfg(feature = "swift")]
+#[cfg(any(feature = "swift", feature = "all-parsers"))]
 impl_lang_expando!(Swift, language_swift, 'µ');
 
 // Stub Language without preprocessing
 // Language Name, tree-sitter-name, alias, extension
-#[cfg(feature = "bash")]
+#[cfg(any(feature = "bash", feature = "all-parsers"))]
 impl_lang!(Bash, language_bash);
-#[cfg(feature = "java")]
+#[cfg(any(feature = "java", feature = "all-parsers"))]
 impl_lang!(Java, language_java);
-#[cfg(feature = "javascript")]
+#[cfg(any(
+    feature = "javascript",
+    feature = "all-parsers",
+    feature = "javascript-napi",
+    feature = "napi-compatible"
+))]
 impl_lang!(JavaScript, language_javascript);
-#[cfg(feature = "json")]
+#[cfg(any(feature = "json", feature = "all-parsers"))]
 impl_lang!(Json, language_json);
-#[cfg(feature = "lua")]
+#[cfg(any(feature = "lua", feature = "all-parsers"))]
 impl_lang!(Lua, language_lua);
-#[cfg(feature = "scala")]
+#[cfg(any(feature = "scala", feature = "all-parsers"))]
 impl_lang!(Scala, language_scala);
-#[cfg(feature = "tsx")]
+#[cfg(any(feature = "tsx", feature = "all-parsers", feature = "tsx-napi", feature = "napi-compatible"))]
 impl_lang!(Tsx, language_tsx);
-#[cfg(feature = "typescript")]
+#[cfg(any(
+    feature = "typescript",
+    feature = "all-parsers",
+    feature = "typescript-napi",
+    feature = "napi-compatible"
+))]
 impl_lang!(TypeScript, language_typescript);
-#[cfg(feature = "yaml")]
+#[cfg(any(feature = "yaml", feature = "all-parsers"))]
 impl_lang!(Yaml, language_yaml);
+
 // See ripgrep for extensions
 // https://github.com/BurntSushi/ripgrep/blob/master/crates/ignore/src/default_types.rs
 
@@ -474,104 +648,200 @@ impl_lang!(Yaml, language_yaml);
 /// ```
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Hash)]
 pub enum SupportLang {
-    #[cfg(feature = "bash")]
+    #[cfg(any(feature = "bash", feature = "all-parsers"))]
     Bash,
-    #[cfg(feature = "c")]
+    #[cfg(any(feature = "c", feature = "all-parsers"))]
     C,
-    #[cfg(feature = "cpp")]
+    #[cfg(any(feature = "cpp", feature = "all-parsers"))]
     Cpp,
-    #[cfg(feature = "csharp")]
+    #[cfg(any(feature = "csharp", feature = "all-parsers"))]
     CSharp,
-    #[cfg(feature = "css")]
+    #[cfg(any(feature = "css", feature = "all-parsers", feature = "css-napi", feature = "napi-compatible"))]
     Css,
-    #[cfg(feature = "go")]
+    #[cfg(any(feature = "go", feature = "all-parsers"))]
     Go,
-    #[cfg(feature = "elixir")]
+    #[cfg(any(feature = "elixir", feature = "all-parsers"))]
     Elixir,
     #[cfg(feature = "haskell")]
     Haskell,
-    #[cfg(feature = "html")]
+    #[cfg(any(
+        feature = "html",
+        feature = "all-parsers",
+        feature = "html-napi",
+        feature = "napi-compatible"
+    ))]
     Html,
-    #[cfg(feature = "java")]
+    #[cfg(any(feature = "java", feature = "all-parsers"))]
     Java,
-    #[cfg(feature = "javascript")]
+    #[cfg(any(
+        feature = "javascript",
+        feature = "all-parsers",
+        feature = "javascript-napi",
+        feature = "napi-compatible"
+    ))]
     JavaScript,
-    #[cfg(feature = "json")]
+    #[cfg(any(feature = "json", feature = "all-parsers"))]
     Json,
-    #[cfg(feature = "kotlin")]
+    #[cfg(any(feature = "kotlin", feature = "all-parsers"))]
     Kotlin,
-    #[cfg(feature = "lua")]
+    #[cfg(any(feature = "lua", feature = "all-parsers"))]
     Lua,
-    #[cfg(feature = "php")]
+    #[cfg(any(feature = "php", feature = "all-parsers"))]
     Php,
-    #[cfg(feature = "python")]
+    #[cfg(any(feature = "python", feature = "all-parsers"))]
     Python,
-    #[cfg(feature = "ruby")]
+    #[cfg(any(feature = "ruby", feature = "all-parsers"))]
     Ruby,
-    #[cfg(feature = "rust")]
+    #[cfg(any(feature = "rust", feature = "all-parsers"))]
     Rust,
-    #[cfg(feature = "scala")]
+    #[cfg(any(feature = "scala", feature = "all-parsers"))]
     Scala,
-    #[cfg(feature = "swift")]
+    #[cfg(any(feature = "swift", feature = "all-parsers"))]
     Swift,
-    #[cfg(feature = "tsx")]
+    #[cfg(any(feature = "tsx", feature = "all-parsers", feature = "tsx-napi", feature = "napi-compatible"))]
     Tsx,
-    #[cfg(feature = "typescript")]
+    #[cfg(any(
+        feature = "typescript",
+        feature = "all-parsers",
+        feature = "typescript-napi",
+        feature = "napi-compatible"
+    ))]
     TypeScript,
-    #[cfg(feature = "yaml")]
+    #[cfg(any(feature = "yaml", feature = "all-parsers"))]
     Yaml,
+    #[cfg(not(any(
+        feature = "all-parsers",
+        feature = "napi-compatible",
+        feature = "css-napi",
+        feature = "html-napi",
+        feature = "javascript-napi",
+        feature = "typescript-napi",
+        feature = "tsx-napi",
+        feature = "bash",
+        feature = "c",
+        feature = "cpp",
+        feature = "csharp",
+        feature = "css",
+        feature = "elixir",
+        feature = "go",
+        feature = "haskell",
+        feature = "html",
+        feature = "java",
+        feature = "javascript",
+        feature = "json",
+        feature = "kotlin",
+        feature = "lua",
+        feature = "php",
+        feature = "python",
+        feature = "ruby",
+        feature = "rust",
+        feature = "scala",
+        feature = "swift",
+        feature = "tsx",
+        feature = "typescript",
+        feature = "yaml"
+    )))]
+    NoEnabledLangs,
 }
 
 impl SupportLang {
     pub const fn all_langs() -> &'static [SupportLang] {
         use SupportLang::*;
         &[
-            #[cfg(feature = "bash")]
+            #[cfg(any(feature = "bash", feature = "all-parsers"))]
             Bash,
-            #[cfg(feature = "c")]
+            #[cfg(any(feature = "c", feature = "all-parsers"))]
             C,
-            #[cfg(feature = "cpp")]
+            #[cfg(any(feature = "cpp", feature = "all-parsers"))]
             Cpp,
-            #[cfg(feature = "csharp")]
+            #[cfg(any(feature = "csharp", feature = "all-parsers"))]
             CSharp,
-            #[cfg(feature = "css")]
+            #[cfg(any(feature = "css", feature = "all-parsers", feature = "css-napi", feature = "napi-compatible"))]
             Css,
-            #[cfg(feature = "elixir")]
+            #[cfg(any(feature = "elixir", feature = "all-parsers"))]
             Elixir,
-            #[cfg(feature = "go")]
+            #[cfg(any(feature = "go", feature = "all-parsers"))]
             Go,
             #[cfg(feature = "haskell")]
             Haskell,
-            #[cfg(feature = "html")]
+            #[cfg(any(
+                feature = "html",
+                feature = "all-parsers",
+                feature = "html-napi",
+                feature = "napi-compatible"
+            ))]
             Html,
-            #[cfg(feature = "java")]
+            #[cfg(any(feature = "java", feature = "all-parsers"))]
             Java,
-            #[cfg(feature = "javascript")]
+            #[cfg(any(
+                feature = "javascript",
+                feature = "all-parsers",
+                feature = "javascript-napi",
+                feature = "napi-compatible"
+            ))]
             JavaScript,
-            #[cfg(feature = "json")]
+            #[cfg(any(feature = "json", feature = "all-parsers"))]
             Json,
-            #[cfg(feature = "kotlin")]
+            #[cfg(any(feature = "kotlin", feature = "all-parsers"))]
             Kotlin,
-            #[cfg(feature = "lua")]
+            #[cfg(any(feature = "lua", feature = "all-parsers"))]
             Lua,
-            #[cfg(feature = "php")]
+            #[cfg(any(feature = "php", feature = "all-parsers"))]
             Php,
-            #[cfg(feature = "python")]
+            #[cfg(any(feature = "python", feature = "all-parsers"))]
             Python,
-            #[cfg(feature = "ruby")]
+            #[cfg(any(feature = "ruby", feature = "all-parsers"))]
             Ruby,
-            #[cfg(feature = "rust")]
+            #[cfg(any(feature = "rust", feature = "all-parsers"))]
             Rust,
-            #[cfg(feature = "scala")]
+            #[cfg(any(feature = "scala", feature = "all-parsers"))]
             Scala,
-            #[cfg(feature = "swift")]
+            #[cfg(any(feature = "swift", feature = "all-parsers"))]
             Swift,
-            #[cfg(feature = "tsx")]
+            #[cfg(any(feature = "tsx", feature = "all-parsers", feature = "tsx-napi", feature = "napi-compatible"))]
             Tsx,
-            #[cfg(feature = "typescript")]
+            #[cfg(any(
+                feature = "typescript",
+                feature = "all-parsers",
+                feature = "typescript-napi",
+                feature = "napi-compatible"
+            ))]
             TypeScript,
-            #[cfg(feature = "yaml")]
+            #[cfg(any(feature = "yaml", feature = "all-parsers"))]
             Yaml,
+            #[cfg(not(any(
+                feature = "all-parsers",
+                feature = "napi-compatible",
+                feature = "css-napi",
+                feature = "html-napi",
+                feature = "javascript-napi",
+                feature = "typescript-napi",
+                feature = "tsx-napi",
+                feature = "bash",
+                feature = "c",
+                feature = "cpp",
+                feature = "csharp",
+                feature = "css",
+                feature = "elixir",
+                feature = "go",
+                feature = "haskell",
+                feature = "html",
+                feature = "java",
+                feature = "javascript",
+                feature = "json",
+                feature = "kotlin",
+                feature = "lua",
+                feature = "php",
+                feature = "python",
+                feature = "ruby",
+                feature = "rust",
+                feature = "scala",
+                feature = "swift",
+                feature = "tsx",
+                feature = "typescript",
+                feature = "yaml"
+            )))]
+            NoEnabledLangs,
         ]
     }
 
@@ -589,7 +859,7 @@ impl fmt::Display for SupportLang {
 #[derive(Debug)]
 pub enum SupportLangErr {
     LanguageNotSupported(String),
-    LanguageNotEnabled(String)
+    LanguageNotEnabled(String),
 }
 
 impl Display for SupportLangErr {
@@ -597,13 +867,48 @@ impl Display for SupportLangErr {
         use SupportLangErr::*;
         match self {
             LanguageNotSupported(lang) => write!(f, "{lang} is not supported!"),
-            LanguageNotEnabled(lang) => write!(f, "{lang} is available but not enabled. You need to enable the feature flag for this language.")
+            LanguageNotEnabled(lang) => write!(
+                f,
+                "{lang} is available but not enabled. You need to enable the feature flag for this language."
+            ),
         }
     }
 }
 
 impl std::error::Error for SupportLangErr {}
 
+#[cfg(any(
+    feature = "all-parsers",
+    feature = "napi-compatible",
+    feature = "css-napi",
+    feature = "html-napi",
+    feature = "javascript-napi",
+    feature = "typescript-napi",
+    feature = "tsx-napi",
+    feature = "bash",
+    feature = "c",
+    feature = "cpp",
+    feature = "csharp",
+    feature = "css",
+    feature = "elixir",
+    feature = "go",
+    feature = "haskell",
+    feature = "html",
+    feature = "java",
+    feature = "javascript",
+    feature = "json",
+    feature = "kotlin",
+    feature = "lua",
+    feature = "php",
+    feature = "python",
+    feature = "ruby",
+    feature = "rust",
+    feature = "scala",
+    feature = "swift",
+    feature = "tsx",
+    feature = "typescript",
+    feature = "yaml"
+))]
 impl<'de> Deserialize<'de> for SupportLang {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
@@ -615,6 +920,38 @@ impl<'de> Deserialize<'de> for SupportLang {
 
 struct SupportLangVisitor;
 
+#[cfg(any(
+    feature = "all-parsers",
+    feature = "napi-compatible",
+    feature = "css-napi",
+    feature = "html-napi",
+    feature = "javascript-napi",
+    feature = "typescript-napi",
+    feature = "tsx-napi",
+    feature = "bash",
+    feature = "c",
+    feature = "cpp",
+    feature = "csharp",
+    feature = "css",
+    feature = "elixir",
+    feature = "go",
+    feature = "haskell",
+    feature = "html",
+    feature = "java",
+    feature = "javascript",
+    feature = "json",
+    feature = "kotlin",
+    feature = "lua",
+    feature = "php",
+    feature = "python",
+    feature = "ruby",
+    feature = "rust",
+    feature = "scala",
+    feature = "swift",
+    feature = "tsx",
+    feature = "typescript",
+    feature = "yaml"
+))]
 impl Visitor<'_> for SupportLangVisitor {
     type Value = SupportLang;
 
@@ -629,10 +966,42 @@ impl Visitor<'_> for SupportLangVisitor {
         v.parse().map_err(de::Error::custom)
     }
 }
+
 struct AliasVisitor {
     aliases: &'static [&'static str],
 }
-
+#[cfg(any(
+    feature = "all-parsers",
+    feature = "napi-compatible",
+    feature = "css-napi",
+    feature = "html-napi",
+    feature = "javascript-napi",
+    feature = "typescript-napi",
+    feature = "tsx-napi",
+    feature = "bash",
+    feature = "c",
+    feature = "cpp",
+    feature = "csharp",
+    feature = "css",
+    feature = "elixir",
+    feature = "go",
+    feature = "haskell",
+    feature = "html",
+    feature = "java",
+    feature = "javascript",
+    feature = "json",
+    feature = "kotlin",
+    feature = "lua",
+    feature = "php",
+    feature = "python",
+    feature = "ruby",
+    feature = "rust",
+    feature = "scala",
+    feature = "swift",
+    feature = "tsx",
+    feature = "typescript",
+    feature = "yaml"
+))]
 impl Visitor<'_> for AliasVisitor {
     type Value = &'static str;
 
@@ -651,7 +1020,38 @@ impl Visitor<'_> for AliasVisitor {
             .ok_or_else(|| de::Error::invalid_value(de::Unexpected::Str(v), &self))
     }
 }
-
+#[cfg(any(
+    feature = "all-parsers",
+    feature = "napi-compatible",
+    feature = "css-napi",
+    feature = "html-napi",
+    feature = "javascript-napi",
+    feature = "typescript-napi",
+    feature = "tsx-napi",
+    feature = "bash",
+    feature = "c",
+    feature = "cpp",
+    feature = "csharp",
+    feature = "css",
+    feature = "elixir",
+    feature = "go",
+    feature = "haskell",
+    feature = "html",
+    feature = "java",
+    feature = "javascript",
+    feature = "json",
+    feature = "kotlin",
+    feature = "lua",
+    feature = "php",
+    feature = "python",
+    feature = "ruby",
+    feature = "rust",
+    feature = "scala",
+    feature = "swift",
+    feature = "tsx",
+    feature = "typescript",
+    feature = "yaml"
+))]
 impl_aliases! {
   Bash, "bash" => &["bash"],
   C, "c" => &["c"],
@@ -676,129 +1076,275 @@ impl_aliases! {
   TypeScript, "typescript" => &["ts", "typescript"],
   Tsx, "tsx" => &["tsx"],
   Yaml, "yaml" => &["yaml", "yml"],
+  NoEnabledLangs, "no-enabled-langs" => &["no-enabled-langs"],
 }
 
 /// Implements the language names and aliases.
 impl FromStr for SupportLang {
     type Err = SupportLangErr;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        // Fast path: try exact matches first (most common case)
-        match s {
-            #[cfg(feature = "bash")]
-            "bash" => return Ok(SupportLang::Bash),
-            #[cfg(feature = "c")]
-            "c" => return Ok(SupportLang::C),
-            #[cfg(feature = "cpp")]
-            "cpp" | "c++" => return Ok(SupportLang::Cpp),
-            #[cfg(feature = "csharp")]
-            "cs" | "csharp" => return Ok(SupportLang::CSharp),
-            #[cfg(feature = "css")]
-            "css" => return Ok(SupportLang::Css),
-            #[cfg(feature = "elixir")]
-            "elixir" | "ex" => return Ok(SupportLang::Elixir),
-            #[cfg(feature = "go")]
-            "go" | "golang" => return Ok(SupportLang::Go),
+        let mut str_matcher = s.trim().to_string();
+        str_matcher.make_ascii_lowercase();
+        match str_matcher.as_str() {
+            #[cfg(any(feature = "bash", feature = "all-parsers"))]
+            "bash" => Ok(SupportLang::Bash),
+            #[cfg(any(feature = "c", feature = "all-parsers"))]
+            "c" => Ok(SupportLang::C),
+            #[cfg(any(feature = "cpp", feature = "all-parsers"))]
+            "cpp" | "c++" => Ok(SupportLang::Cpp),
+            #[cfg(any(feature = "csharp", feature = "all-parsers"))]
+            "cs" | "csharp" => Ok(SupportLang::CSharp),
+            #[cfg(any(feature = "css", feature = "all-parsers", feature = "css-napi", feature = "napi-compatible"))]
+            "css" => Ok(SupportLang::Css),
+            #[cfg(any(feature = "elixir", feature = "all-parsers"))]
+            "elixir" | "ex" => Ok(SupportLang::Elixir),
+            #[cfg(any(feature = "go", feature = "all-parsers"))]
+            "go" | "golang" => Ok(SupportLang::Go),
             #[cfg(feature = "haskell")]
-            "haskell" | "hs" => return Ok(SupportLang::Haskell),
-            #[cfg(feature = "html")]
-            "html" => return Ok(SupportLang::Html),
-            #[cfg(feature = "java")]
-            "java" => return Ok(SupportLang::Java),
-            #[cfg(feature = "javascript")]
-            "javascript" | "js" => return Ok(SupportLang::JavaScript),
-            #[cfg(feature = "json")]
-            "json" => return Ok(SupportLang::Json),
-            #[cfg(feature = "kotlin")]
-            "kotlin" | "kt" => return Ok(SupportLang::Kotlin),
-            #[cfg(feature = "lua")]
-            "lua" => return Ok(SupportLang::Lua),
-            #[cfg(feature = "php")]
-            "php" => return Ok(SupportLang::Php),
-            #[cfg(feature = "python")]
-            "python" | "py" => return Ok(SupportLang::Python),
-            #[cfg(feature = "ruby")]
-            "ruby" | "rb" => return Ok(SupportLang::Ruby),
-            #[cfg(feature = "rust")]
-            "rust" | "rs" => return Ok(SupportLang::Rust),
-            #[cfg(feature = "scala")]
-            "scala" => return Ok(SupportLang::Scala),
-            #[cfg(feature = "swift")]
-            "swift" => return Ok(SupportLang::Swift),
-            #[cfg(feature = "typescript")]
-            "typescript" | "ts" => return Ok(SupportLang::TypeScript),
-            #[cfg(feature = "tsx")]
-            "tsx" => return Ok(SupportLang::Tsx),
-            #[cfg(feature = "yaml")]
-            "yaml" | "yml" => return Ok(SupportLang::Yaml),
-            _ => {} // Fall through to case-insensitive search
-        }
+            "haskell" | "hs" => Ok(SupportLang::Haskell),
+            #[cfg(any(
+                feature = "html",
+                feature = "all-parsers",
+                feature = "html-napi",
+                feature = "napi-compatible"
+            ))]
+            "html" => Ok(SupportLang::Html),
+            #[cfg(any(feature = "java", feature = "all-parsers"))]
+            "java" => Ok(SupportLang::Java),
+            #[cfg(any(
+                feature = "javascript",
+                feature = "all-parsers",
+                feature = "javascript-napi",
+                feature = "napi-compatible"
+            ))]
+            "javascript" | "js" => Ok(SupportLang::JavaScript),
+            #[cfg(any(feature = "json", feature = "all-parsers"))]
+            "json" => Ok(SupportLang::Json),
+            #[cfg(any(feature = "kotlin", feature = "all-parsers"))]
+            "kotlin" | "kt" => Ok(SupportLang::Kotlin),
+            #[cfg(any(feature = "lua", feature = "all-parsers"))]
+            "lua" => Ok(SupportLang::Lua),
+            #[cfg(any(feature = "php", feature = "all-parsers"))]
+            "php" => Ok(SupportLang::Php),
+            #[cfg(any(feature = "python", feature = "all-parsers"))]
+            "python" | "py" => Ok(SupportLang::Python),
+            #[cfg(any(feature = "ruby", feature = "all-parsers"))]
+            "ruby" | "rb" => Ok(SupportLang::Ruby),
+            #[cfg(any(feature = "rust", feature = "all-parsers"))]
+            "rust" | "rs" => Ok(SupportLang::Rust),
+            #[cfg(any(feature = "scala", feature = "all-parsers"))]
+            "scala" => Ok(SupportLang::Scala),
+            #[cfg(any(feature = "swift", feature = "all-parsers"))]
+            "swift" => Ok(SupportLang::Swift),
+            #[cfg(any(
+                feature = "typescript",
+                feature = "all-parsers",
+                feature = "typescript-napi",
+                feature = "napi-compatible"
+            ))]
+            "typescript" | "ts" => Ok(SupportLang::TypeScript),
+            #[cfg(any(feature = "tsx", feature = "all-parsers", feature = "tsx-napi", feature = "napi-compatible"))]
+            "tsx" => Ok(SupportLang::Tsx),
+            #[cfg(any(feature = "yaml", feature = "all-parsers"))]
+            "yaml" | "yml" => Ok(SupportLang::Yaml),
+            #[cfg(not(any(
+                feature = "all-parsers",
+                feature = "napi-compatible",
+                feature = "css-napi",
+                feature = "html-napi",
+                feature = "javascript-napi",
+                feature = "typescript-napi",
+                feature = "tsx-napi",
+                feature = "bash",
+                feature = "c",
+                feature = "cpp",
+                feature = "csharp",
+                feature = "css",
+                feature = "elixir",
+                feature = "go",
+                feature = "haskell",
+                feature = "html",
+                feature = "java",
+                feature = "javascript",
+                feature = "json",
+                feature = "kotlin",
+                feature = "lua",
+                feature = "php",
+                feature = "python",
+                feature = "ruby",
+                feature = "rust",
+                feature = "scala",
+                feature = "swift",
+                feature = "tsx",
+                feature = "typescript",
+                feature = "yaml"
+            )))]
+            "no-enabled-langs" => Ok(SupportLang::NoEnabledLangs),
 
-        // Slow path: case-insensitive search for less common aliases
-        for &lang in Self::all_langs() {
-            for moniker in alias(lang) {
-                if s.eq_ignore_ascii_case(moniker) {
-                    return Ok(lang);
+            _ => {
+                if constants::ALL_SUPPORTED_LANGS.contains(&str_matcher.as_str()) {
+                    Err(SupportLangErr::LanguageNotEnabled(format!("language {} was detected, but it is not enabled by feature flags. If you want to parse this kind of file, enable the flag in `thread-language`", &str_matcher)))
+                }
+                else {
+                    Err(SupportLangErr::LanguageNotSupported(format!("language {} is not supported", &str_matcher)))
                 }
             }
-        }
-        Err(SupportLangErr::LanguageNotSupported(s.to_string()))
-    }
+    }}
 }
-
+#[cfg(any(
+    feature = "all-parsers",
+    feature = "napi-compatible",
+    feature = "css-napi",
+    feature = "html-napi",
+    feature = "javascript-napi",
+    feature = "typescript-napi",
+    feature = "tsx-napi",
+    feature = "bash",
+    feature = "c",
+    feature = "cpp",
+    feature = "csharp",
+    feature = "css",
+    feature = "elixir",
+    feature = "go",
+    feature = "haskell",
+    feature = "html",
+    feature = "java",
+    feature = "javascript",
+    feature = "json",
+    feature = "kotlin",
+    feature = "lua",
+    feature = "php",
+    feature = "python",
+    feature = "ruby",
+    feature = "rust",
+    feature = "scala",
+    feature = "swift",
+    feature = "tsx",
+    feature = "typescript",
+    feature = "yaml"
+))]
 macro_rules! execute_lang_method {
   ($me: path, $method: ident, $($pname:tt),*) => {
     use SupportLang as S;
     match $me {
-      #[cfg(feature = "bash")]
-      S::Bash => Bash.$method($($pname,)*),
-      #[cfg(feature = "c")]
-      S::C => C.$method($($pname,)*),
-        #[cfg(feature = "cpp")]
-      S::Cpp => Cpp.$method($($pname,)*),
-        #[cfg(feature = "csharp")]
-      S::CSharp => CSharp.$method($($pname,)*),
-        #[cfg(feature = "css")]
-      S::Css => Css.$method($($pname,)*),
-        #[cfg(feature = "elixir")]
-      S::Elixir => Elixir.$method($($pname,)*),
-        #[cfg(feature = "go")]
-      S::Go => Go.$method($($pname,)*),
+        #[cfg(any(feature = "bash", feature = "all-parsers"))]
+        S::Bash => Bash.$method($($pname,)*),
+        #[cfg(any(feature = "c", feature = "all-parsers"))]
+        S::C => C.$method($($pname,)*),
+        #[cfg(any(feature = "cpp", feature = "all-parsers"))]
+        S::Cpp => Cpp.$method($($pname,)*),
+        #[cfg(any(feature = "csharp", feature = "all-parsers"))]
+        S::CSharp => CSharp.$method($($pname,)*),
+        #[cfg(any(feature = "css", feature = "all-parsers", feature = "css-napi", feature = "napi-compatible"))]
+        S::Css => Css.$method($($pname,)*),
+        #[cfg(any(feature = "elixir", feature = "all-parsers"))]
+        S::Elixir => Elixir.$method($($pname,)*),
+        #[cfg(any(feature = "go", feature = "all-parsers"))]
+        S::Go => Go.$method($($pname,)*),
         #[cfg(feature = "haskell")]
-      S::Haskell => Haskell.$method($($pname,)*),
-        #[cfg(feature = "html")]
-      S::Html => Html.$method($($pname,)*),
-        #[cfg(feature = "json")]
-      S::Java => Java.$method($($pname,)*),
-        #[cfg(feature = "javascript")]
-      S::JavaScript => JavaScript.$method($($pname,)*),
-        #[cfg(feature = "json")]
-      S::Json => Json.$method($($pname,)*),
-        #[cfg(feature = "kotlin")]
-      S::Kotlin => Kotlin.$method($($pname,)*),
-        #[cfg(feature = "lua")]
-      S::Lua => Lua.$method($($pname,)*),
-        #[cfg(feature = "php")]
-      S::Php => Php.$method($($pname,)*),
-        #[cfg(feature = "python")]
-      S::Python => Python.$method($($pname,)*),
-        #[cfg(feature = "ruby")]
-      S::Ruby => Ruby.$method($($pname,)*),
-        #[cfg(feature = "rust")]
-      S::Rust => Rust.$method($($pname,)*),
-        #[cfg(feature = "scala")]
-      S::Scala => Scala.$method($($pname,)*),
-        #[cfg(feature = "swift")]
-      S::Swift => Swift.$method($($pname,)*),
-        #[cfg(feature = "tsx")]
-      S::Tsx => Tsx.$method($($pname,)*),
-        #[cfg(feature = "typescript")]
-      S::TypeScript => TypeScript.$method($($pname,)*),
-        #[cfg(feature = "yaml")]
-      S::Yaml => Yaml.$method($($pname,)*),
+        S::Haskell => Haskell.$method($($pname,)*),
+        #[cfg(any(feature = "html", feature = "all-parsers", feature = "html-napi", feature = "napi-compatible"))]
+        S::Html => Html.$method($($pname,)*),
+        #[cfg(any(feature = "json", feature = "all-parsers"))]
+        S::Java => Java.$method($($pname,)*),
+        #[cfg(any(feature = "javascript", feature = "all-parsers", feature = "javascript-napi", feature = "napi-compatible"))]
+        S::JavaScript => JavaScript.$method($($pname,)*),
+        #[cfg(any(feature = "json", feature = "all-parsers"))]
+        S::Json => Json.$method($($pname,)*),
+        #[cfg(any(feature = "kotlin", feature = "all-parsers"))]
+        S::Kotlin => Kotlin.$method($($pname,)*),
+        #[cfg(any(feature = "lua", feature = "all-parsers"))]
+        S::Lua => Lua.$method($($pname,)*),
+        #[cfg(any(feature = "php", feature = "all-parsers"))]
+        S::Php => Php.$method($($pname,)*),
+        #[cfg(any(feature = "python", feature = "all-parsers"))]
+        S::Python => Python.$method($($pname,)*),
+        #[cfg(any(feature = "ruby", feature = "all-parsers"))]
+        S::Ruby => Ruby.$method($($pname,)*),
+        #[cfg(any(feature = "rust", feature = "all-parsers"))]
+        S::Rust => Rust.$method($($pname,)*),
+        #[cfg(any(feature = "scala", feature = "all-parsers"))]
+        S::Scala => Scala.$method($($pname,)*),
+        #[cfg(any(feature = "swift", feature = "all-parsers"))]
+        S::Swift => Swift.$method($($pname,)*),
+        #[cfg(any(feature = "tsx", feature = "all-parsers", feature = "tsx-napi", feature = "napi-compatible"))]
+        S::Tsx => Tsx.$method($($pname,)*),
+        #[cfg(any(feature = "typescript", feature = "all-parsers", feature = "typescript-napi", feature = "napi-compatible"))]
+        S::TypeScript => TypeScript.$method($($pname,)*),
+        #[cfg(any(feature = "yaml", feature = "all-parsers"))]
+        S::Yaml => Yaml.$method($($pname,)*),
+        #[cfg(not(any(
+            feature = "all-parsers",
+            feature = "napi-compatible",
+            feature = "css-napi",
+            feature = "html-napi",
+            feature = "javascript-napi",
+            feature = "typescript-napi",
+            feature = "tsx-napi",
+            feature = "bash",
+            feature = "c",
+            feature = "cpp",
+            feature = "csharp",
+            feature = "css",
+            feature = "elixir",
+            feature = "go",
+            feature = "haskell",
+            feature = "html",
+            feature = "java",
+            feature = "javascript",
+            feature = "json",
+            feature = "kotlin",
+            feature = "lua",
+            feature = "php",
+            feature = "python",
+            feature = "ruby",
+            feature = "rust",
+            feature = "scala",
+            feature = "swift",
+            feature = "tsx",
+            feature = "typescript",
+            feature = "yaml"
+        )))]
+        S::NoEnabledLangs => {
+            return Err(SupportLangErr::LanguageNotEnabled(
+                "no-enabled-langs".to_string(),
+            ))
+        }
     }
   }
 }
-
+#[cfg(any(
+    feature = "all-parsers",
+    feature = "napi-compatible",
+    feature = "css-napi",
+    feature = "javascript-napi",
+    feature = "html-napi",
+    feature = "typescript-napi",
+    feature = "tsx-napi",
+    feature = "bash",
+    feature = "c",
+    feature = "cpp",
+    feature = "csharp",
+    feature = "css",
+    feature = "elixir",
+    feature = "go",
+    feature = "haskell",
+    feature = "html",
+    feature = "java",
+    feature = "javascript",
+    feature = "json",
+    feature = "kotlin",
+    feature = "lua",
+    feature = "php",
+    feature = "python",
+    feature = "ruby",
+    feature = "rust",
+    feature = "scala",
+    feature = "swift",
+    feature = "tsx",
+    feature = "typescript",
+    feature = "yaml"
+))]
 macro_rules! impl_lang_method {
   ($method: ident, ($($pname:tt: $ptype:ty),*) => $return_type: ty) => {
     #[inline]
@@ -807,13 +1353,41 @@ macro_rules! impl_lang_method {
     }
   };
 }
+#[cfg(all(feature = "matching",
+    any(
+    feature = "all-parsers",
+    feature = "napi-environment",
+    feature = "napi-compatible",
+    feature = "bash",
+    feature = "c",
+    feature = "cpp",
+    feature = "csharp",
+    feature = "css",
+    feature = "elixir",
+    feature = "go",
+    feature = "haskell",
+    feature = "html",
+    feature = "java",
+    feature = "javascript",
+    feature = "json",
+    feature = "kotlin",
+    feature = "lua",
+    feature = "php",
+    feature = "python",
+    feature = "ruby",
+    feature = "rust",
+    feature = "scala",
+    feature = "swift",
+    feature = "tsx",
+    feature = "typescript",
+    feature = "yaml"
+)))]
 impl Language for SupportLang {
     impl_lang_method!(kind_to_id, (kind: &str) => u16);
     impl_lang_method!(field_to_id, (field: &str) => Option<u16>);
     impl_lang_method!(meta_var_char, () => char);
     impl_lang_method!(expando_char, () => char);
     impl_lang_method!(extract_meta_var, (source: &str) => Option<MetaVariable>);
-    #[cfg(feature = "matching")]
     impl_lang_method!(build_pattern, (builder: &PatternBuilder) => Result<Pattern, PatternError>);
     fn pre_process_pattern<'q>(&self, query: &'q str) -> Cow<'q, str> {
         execute_lang_method! { self, pre_process_pattern, query }
@@ -823,7 +1397,40 @@ impl Language for SupportLang {
     }
 }
 
-#[cfg(feature = "matching")]
+#[cfg(all(feature = "matching",
+    any(
+    feature = "all-parsers",
+    feature = "napi-compatible",
+    feature = "css-napi",
+    feature = "html-napi",
+    feature = "javascript-napi",
+    feature = "typescript-napi",
+    feature = "tsx-napi",
+    feature = "bash",
+    feature = "c",
+    feature = "cpp",
+    feature = "csharp",
+    feature = "css",
+    feature = "elixir",
+    feature = "go",
+    feature = "haskell",
+    feature = "html",
+    feature = "java",
+    feature = "javascript",
+    feature = "json",
+    feature = "kotlin",
+    feature = "lua",
+    feature = "php",
+    feature = "python",
+    feature = "ruby",
+    feature = "rust",
+    feature = "scala",
+    feature = "swift",
+    feature = "tsx",
+    feature = "typescript",
+    feature = "yaml"
+    )
+))]
 impl LanguageExt for SupportLang {
     impl_lang_method!(get_ts_language, () => TSLanguage);
     impl_lang_method!(injectable_languages, () => Option<&'static [&'static str]>);
@@ -842,99 +1449,167 @@ impl LanguageExt for SupportLang {
 pub const fn extensions(lang: SupportLang) -> &'static [&'static str] {
     use SupportLang::*;
     match lang {
-        #[cfg(feature = "bash")]
-        Bash => &BASH_EXTENSION_PATTERN,
-        #[cfg(feature = "c")]
-        C => &["c", "h"],
-        #[cfg(feature = "cpp")]
-        Cpp => &["cc", "hpp", "cpp", "c++", "hh", "cxx", "cu", "ino"],
-        #[cfg(feature = "csharp")]
-        CSharp => &["cs"],
-        #[cfg(feature = "css")]
-        Css => &["css", "scss"],
-        #[cfg(feature = "elixir")]
-        Elixir => &["ex", "exs"],
-        #[cfg(feature = "go")]
-        Go => &["go"],
+        #[cfg(any(feature = "bash", feature = "all-parsers"))]
+        Bash => &constants::BASH_EXTS,
+        #[cfg(any(feature = "c", feature = "all-parsers"))]
+        C => &constants::C_EXTS,
+        #[cfg(any(feature = "cpp", feature = "all-parsers"))]
+        Cpp => &constants::CPP_EXTS,
+        #[cfg(any(feature = "csharp", feature = "all-parsers"))]
+        CSharp => &constants::CSHARP_EXTS,
+        #[cfg(any(
+            feature = "css",
+            feature = "all-parsers",
+            feature = "css-napi",
+            feature = "napi-compatible"
+        ))]
+        Css => &constants::CSS_EXTS,
+        #[cfg(any(feature = "elixir", feature = "all-parsers"))]
+        Elixir => &constants::ELIXIR_EXTS,
+        #[cfg(any(feature = "go", feature = "all-parsers"))]
+        Go => &constants::GO_EXTS,
         #[cfg(feature = "haskell")]
-        Haskell => &["hs"],
-        #[cfg(feature = "html")]
-        Html => &["html", "htm", "xhtml"],
-        #[cfg(feature = "java")]
-        Java => &["java"],
-        #[cfg(feature = "javascript")]
-        JavaScript => &["cjs", "js", "mjs", "jsx"],
-        #[cfg(feature = "json")]
-        Json => &["json"],
-        #[cfg(feature = "kotlin")]
-        Kotlin => &["kt", "ktm", "kts"],
-        #[cfg(feature = "lua")]
-        Lua => &["lua"],
-        #[cfg(feature = "php")]
-        Php => &["php"],
-        #[cfg(feature = "python")]
-        Python => &["py", "py3", "pyi", "bzl"],
-        #[cfg(feature = "ruby")]
-        Ruby => &["rb", "rbw", "gemspec"],
-        #[cfg(feature = "rust")]
-        Rust => &["rs"],
-        #[cfg(feature = "scala")]
-        Scala => &["scala", "sc", "sbt"],
-        #[cfg(feature = "swift")]
-        Swift => &["swift"],
-        #[cfg(feature = "typescript")]
-        TypeScript => &["ts", "cts", "mts"],
-        #[cfg(feature = "tsx")]
-        Tsx => &["tsx"],
-        #[cfg(feature = "yaml")]
-        Yaml => &["yaml", "yml"],
+        Haskell => &constants::HASKELL_EXTS,
+        #[cfg(any(
+            feature = "html",
+            feature = "all-parsers",
+            feature = "html-napi",
+            feature = "napi-compatible"
+        ))]
+        Html => &constants::HTML_EXTS,
+        #[cfg(any(feature = "java", feature = "all-parsers"))]
+        Java => &constants::JAVA_EXTS,
+        #[cfg(any(
+            feature = "javascript",
+            feature = "all-parsers",
+            feature = "javascript-napi",
+            feature = "napi-compatible"
+        ))]
+        JavaScript => &constants::JAVASCRIPT_EXTS,
+        #[cfg(any(feature = "json", feature = "all-parsers"))]
+        Json => &constants::JSON_EXTS,
+        #[cfg(any(feature = "kotlin", feature = "all-parsers"))]
+        Kotlin => &constants::KOTLIN_EXTS,
+        #[cfg(any(feature = "lua", feature = "all-parsers"))]
+        Lua => &constants::LUA_EXTS,
+        #[cfg(any(feature = "php", feature = "all-parsers"))]
+        Php => &constants::PHP_EXTS,
+        #[cfg(any(feature = "python", feature = "all-parsers"))]
+        Python => &constants::PYTHON_EXTS,
+        #[cfg(any(feature = "ruby", feature = "all-parsers"))]
+        Ruby => &constants::RUBY_EXTS,
+        #[cfg(any(feature = "rust", feature = "all-parsers"))]
+        Rust => &constants::RUST_EXTS,
+        #[cfg(any(feature = "scala", feature = "all-parsers"))]
+        Scala => &constants::SCALA_EXTS,
+        #[cfg(any(feature = "swift", feature = "all-parsers"))]
+        Swift => &constants::SWIFT_EXTS,
+        #[cfg(any(
+            feature = "typescript",
+            feature = "all-parsers",
+            feature = "typescript-napi",
+            feature = "napi-compatible"
+        ))]
+        TypeScript => &constants::TYPESCRIPT_EXTS,
+        #[cfg(any(
+            feature = "tsx",
+            feature = "all-parsers",
+            feature = "tsx-napi",
+            feature = "napi-compatible"
+        ))]
+        Tsx => &constants::TSX_EXTS,
+        #[cfg(any(feature = "yaml", feature = "all-parsers"))]
+        Yaml => &constants::YAML_EXTS,
+        #[cfg(not(any(
+            feature = "all-parsers",
+            feature = "napi-environment",
+            feature = "napi-compatible",
+            feature = "css-napi",
+            feature = "html-napi",
+            feature = "javascript-napi",
+            feature = "typescript-napi",
+            feature = "tsx-napi",
+            feature = "bash",
+            feature = "c",
+            feature = "cpp",
+            feature = "csharp",
+            feature = "css",
+            feature = "elixir",
+            feature = "go",
+            feature = "haskell",
+            feature = "html",
+            feature = "java",
+            feature = "javascript",
+            feature = "json",
+            feature = "kotlin",
+            feature = "lua",
+            feature = "php",
+            feature = "python",
+            feature = "ruby",
+            feature = "rust",
+            feature = "scala",
+            feature = "swift",
+            feature = "tsx",
+            feature = "typescript",
+            feature = "yaml"
+        )))]
+        NoEnabledLangs => &[],
     }
 }
 
 /// Guess which programming language a file is written in
 /// Adapt from `<https://github.com/Wilfred/difftastic/blob/master/src/parse/guess_language.rs>`
 /// N.B do not confuse it with `FromStr` trait. This function is to guess language from file extension.
-/// 
-/// This function uses a hybrid optimization strategy:
-/// 1. Fast path: hardcoded matches for most common extensions
-/// 2. Optimized fallback: character-based bucketing + aho-corasick for comprehensive matching
+///
+/// We check against the most common file types and extensions first.
+/// These are hardcoded matches
+#[inline]
 pub fn from_extension(path: &Path) -> Option<SupportLang> {
-    let ext = path.extension()?.to_str()?;
-    
-    // Fast path: try most common extensions first (preserves existing optimization)
-    match ext {
-        #[cfg(feature = "c")]
-        "c" | "h" => return Some(SupportLang::C),
-        #[cfg(feature = "cpp")]
-        "cpp" | "cc" | "cxx" => return Some(SupportLang::Cpp),
-        #[cfg(feature = "css")]
-        "css" => return Some(SupportLang::Css),
-        #[cfg(feature = "go")]
-        "go" => return Some(SupportLang::Go),
-        #[cfg(feature = "html")]
-        "html" | "htm" => return Some(SupportLang::Html),
-        #[cfg(feature = "java")]
-        "java" => return Some(SupportLang::Java),
-        #[cfg(feature = "javascript")]
-        "js" | "mjs" | "cjs" => return Some(SupportLang::JavaScript),
-        #[cfg(feature = "json")]
-        "json" => return Some(SupportLang::Json),
-        #[cfg(feature = "python")]
-        "py" | "py3" | "pyi" => return Some(SupportLang::Python),
-        #[cfg(feature = "rust")]
-        "rs" => return Some(SupportLang::Rust),
-        #[cfg(feature = "typescript")]
-        "ts" | "cts" | "mts" => return Some(SupportLang::TypeScript),
-        #[cfg(feature = "tsx")]
-        "tsx" => return Some(SupportLang::Tsx),
-        #[cfg(feature = "yaml")]
-        "yaml" | "yml" => return Some(SupportLang::Yaml),
-        _ => {}
-    }
+    let ext = path.extension()?.to_str()?.to_ascii_lowercase();
+    from_extension_str(&ext)
+}
 
-    // Optimized fallback: use hybrid character bucketing + aho-corasick matching
-    // This replaces the inefficient O(n*m) iteration through all languages
-    extension_matcher::match_extension_optimized(ext)
+#[inline]
+pub fn from_extension_str(ext: &str) -> Option<SupportLang> {
+    let ext = ext.to_ascii_lowercase();
+    // TODO: Add shebang check if no ext
+    if ext.is_empty() {
+        return None;
+    }
+    match ext.as_str() {
+        #[cfg(any(feature = "python", feature = "all-parsers"))]
+        "py" => Some(SupportLang::Python),
+        #[cfg(any(
+            feature = "javascript",
+            feature = "all-parsers",
+            feature = "javascript-napi",
+            feature = "napi-compatible"
+        ))]
+        "js" => Some(SupportLang::JavaScript),
+        #[cfg(any(
+            feature = "typescript",
+            feature = "all-parsers",
+            feature = "typescript-napi",
+            feature = "napi-compatible"
+        ))]
+        "ts" => Some(SupportLang::TypeScript),
+        #[cfg(any(feature = "java", feature = "all-parsers"))]
+        "java" => Some(SupportLang::Java),
+        #[cfg(any(feature = "go", feature = "all-parsers"))]
+        "go" => Some(SupportLang::Go),
+        #[cfg(any(feature = "cpp", feature = "all-parsers"))]
+        "cpp" => Some(SupportLang::Cpp),
+        #[cfg(any(feature = "rust", feature = "all-parsers"))]
+        "rs" => Some(SupportLang::Rust),
+        #[cfg(any(feature = "c", feature = "all-parsers"))]
+        "c" => Some(SupportLang::C),
+        // json and yaml are the most common config formats
+        #[cfg(any(feature = "json", feature = "all-parsers"))]
+        "json" => Some(SupportLang::Json),
+        #[cfg(any(feature = "yaml", feature = "all-parsers"))]
+        "yaml" | "yml" => Some(SupportLang::Yaml),
+        _ => ext_iden::match_by_aho_corasick(&ext),
+    }
 }
 
 fn add_custom_file_type<'b>(
@@ -1053,43 +1728,17 @@ mod test {
             let path = Path::new(filename);
             let result = from_extension(path);
             assert_eq!(result, expected, "Failed for {}", filename);
-            
+
             // Also test the direct extension matching
             if let Some(ext) = path.extension().and_then(|e| e.to_str()) {
-                let direct_result = extension_matcher::match_extension_optimized(ext);
-                assert_eq!(direct_result, expected, "Direct matching failed for {}", ext);
+                let direct_result = ext_iden::match_by_aho_corasick(ext);
+                assert_eq!(
+                    direct_result, expected,
+                    "Direct matching failed for {}",
+                    ext
+                );
             }
         }
-    }
-
-    #[test]
-    fn test_extension_matcher_stats() {
-        let stats = extension_matcher::get_optimization_stats();
-        
-        // Verify basic statistics make sense
-        assert!(stats.total_extensions > 0);
-        assert!(stats.total_char_buckets > 0);
-        assert!(stats.total_length_buckets > 0);
-        assert!(stats.aho_corasick_patterns > 0);
-        assert_eq!(stats.total_extensions, stats.aho_corasick_patterns);
-        
-        // Verify character bucket distribution
-        assert!(stats.single_language_char_buckets > 0);
-        assert!(stats.multi_language_char_buckets > 0);
-        assert_eq!(
-            stats.single_language_char_buckets + stats.multi_language_char_buckets,
-            stats.total_char_buckets
-        );
-        
-        // Verify length bucket distribution
-        assert!(stats.single_language_length_buckets > 0);
-        assert!(stats.multi_language_length_buckets > 0);
-        assert_eq!(
-            stats.single_language_length_buckets + stats.multi_language_length_buckets,
-            stats.total_length_buckets
-        );
-        
-        println!("Extension matching optimization stats: {:#?}", stats);
     }
 
     // TODO: add test for file_types
