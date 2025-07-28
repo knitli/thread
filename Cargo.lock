@@ -30,12 +30,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "ast-grep-core"
+version = "0.39.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "14deaa3db5c47c733b4d154b8a8c46d54c4f5273a8799ab058300d2a3a0cb215"
+dependencies = [
+ "bit-set",
+ "regex",
+ "thiserror",
+ "tree-sitter",
+]
+
+[[package]]
 name = "ast-grep-dynamic"
 version = "0.38.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bf7ff88b95e38a49522827c9a94835d427fc29b41397fa3cca1b8b627a2a55c0"
 dependencies = [
- "ast-grep-core",
+ "ast-grep-core 0.38.6",
  "ignore",
  "libloading",
  "serde",
@@ -46,11 +58,11 @@ dependencies = [
 
 [[package]]
 name = "ast-grep-language"
-version = "0.38.6"
+version = "0.39.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0e32f2833a0fbfdb66e8fbb4de26c89384ab3d6616d2cf00ce3db1fd4de08c5e"
+checksum = "afee51e0a175f5b2ecc1e42cfde9facafbd9b24cce1c6c4de1578893f1ff6641"
 dependencies = [
- "ast-grep-core",
+ "ast-grep-core 0.39.2",
  "ignore",
  "serde",
  "tree-sitter",
@@ -68,11 +80,13 @@ dependencies = [
  "tree-sitter-json",
  "tree-sitter-kotlin-sg",
  "tree-sitter-lua",
+ "tree-sitter-nix",
  "tree-sitter-php",
  "tree-sitter-python",
  "tree-sitter-ruby",
  "tree-sitter-rust",
  "tree-sitter-scala",
+ "tree-sitter-solidity",
  "tree-sitter-swift",
  "tree-sitter-typescript",
  "tree-sitter-yaml",
@@ -496,7 +510,7 @@ version = "0.0.1"
 name = "thread-core"
 version = "0.0.1"
 dependencies = [
- "ast-grep-core",
+ "ast-grep-core 0.38.6",
  "ast-grep-dynamic",
  "ast-grep-language",
 ]
@@ -527,7 +541,7 @@ version = "0.1.0"
 name = "thread-parser"
 version = "0.0.1"
 dependencies = [
- "ast-grep-core",
+ "ast-grep-core 0.38.6",
  "ast-grep-dynamic",
  "ast-grep-language",
 ]
@@ -712,6 +726,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "tree-sitter-nix"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4952a9733f3a98f6683a0ccd1035d84ab7a52f7e84eeed58548d86765ad92de3"
+dependencies = [
+ "cc",
+ "tree-sitter-language",
+]
+
+[[package]]
 name = "tree-sitter-php"
 version = "0.23.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -756,6 +780,16 @@ name = "tree-sitter-scala"
 version = "0.24.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7516aeb3d1f40ede8e3045b163e86993b3434514dd06c34c0b75e782d9a0b251"
+dependencies = [
+ "cc",
+ "tree-sitter-language",
+]
+
+[[package]]
+name = "tree-sitter-solidity"
+version = "1.2.12"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "92f0b44ef36f0779873ec118f2cbad31cfc18d6ae7ba48ce75d5ce09870884d1"
 dependencies = [
  "cc",
  "tree-sitter-language",

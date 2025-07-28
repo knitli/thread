@@ -13,7 +13,7 @@ authors.workspace = true
 
 ast-grep-core = { version = "0.38.6" } # core library for AST manipulation
 ast-grep-dynamic = { version = "0.38.6" } # dynamic language loading at runtime
-ast-grep-language = { version = "0.38.6" } # for language-specific AST manipulation
+ast-grep-language = { version = "0.39.2" } # for language-specific AST manipulation
 
 [lints]
 workspace = true
