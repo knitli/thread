@@ -30,12 +30,24 @@ dependencies = [
 ]
 
 [[package]]
-name = "ast-grep-dynamic"
-version = "0.38.6"
+name = "ast-grep-core"
+version = "0.39.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bf7ff88b95e38a49522827c9a94835d427fc29b41397fa3cca1b8b627a2a55c0"
+checksum = "14deaa3db5c47c733b4d154b8a8c46d54c4f5273a8799ab058300d2a3a0cb215"
 dependencies = [
- "ast-grep-core",
+ "bit-set",
+ "regex",
+ "thiserror",
+ "tree-sitter",
+]
+
+[[package]]
+name = "ast-grep-dynamic"
+version = "0.39.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "78ff76319281f36492f2e6e20ffa913e442c4e77189c50524c952d42bb77cd93"
+dependencies = [
+ "ast-grep-core 0.39.2",
  "ignore",
  "libloading",
  "serde",
@@ -50,7 +62,7 @@ version = "0.38.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0e32f2833a0fbfdb66e8fbb4de26c89384ab3d6616d2cf00ce3db1fd4de08c5e"
 dependencies = [
- "ast-grep-core",
+ "ast-grep-core 0.38.6",
  "ignore",
  "serde",
  "tree-sitter",
@@ -496,7 +508,7 @@ version = "0.0.1"
 name = "thread-core"
 version = "0.0.1"
 dependencies = [
- "ast-grep-core",
+ "ast-grep-core 0.38.6",
  "ast-grep-dynamic",
  "ast-grep-language",
 ]
@@ -527,7 +539,7 @@ version = "0.1.0"
 name = "thread-parser"
 version = "0.0.1"
 dependencies = [
- "ast-grep-core",
+ "ast-grep-core 0.38.6",
  "ast-grep-dynamic",
  "ast-grep-language",
 ]
