@@ -24,7 +24,7 @@ serde.workspace = true
 # code size when deploying.
 console_error_panic_hook = { version = "0.1.7", optional = true }
 
-rayon = { version = "1.10.0", features = ["web_spin_lock"], optional = true }
+rayon = { version = "1.11.0", features = ["web_spin_lock"], optional = true }
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.34"

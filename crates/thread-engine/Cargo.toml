@@ -26,4 +26,4 @@ serde.workspace = true
 petgraph = "0.6"
 
 # Performance
-rayon = "1.10"
+rayon = "1.11"
