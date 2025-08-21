@@ -11,7 +11,7 @@ authors.workspace = true
 
 [dependencies]
 # TODO: Add compile-for-os support as a universal binary (i.e. for moonrepo)
-dlmalloc = { version = "0.2.9", features = ["global"] }
+dlmalloc = { version = "0.2.11", features = ["global"] }
 js-sys = { version = "0.3.77" }
 wasm-bindgen = { version = "0.2.100" }
 web-sys = { version = "0.3.77" }
