@@ -1,6 +1,16 @@
+# SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+# SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
 [package]
 name = "xtask"
 version = "0.1.0"
+publish = false
+description = "Xtask for thread. Primarily used for Wasm builds."
+keywords = ["xtask", "build", "wasm"]
+categories = ["build-scripts"]
+readme = "README.md"
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true

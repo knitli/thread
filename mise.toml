@@ -1,23 +1,32 @@
+# SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+# SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
 [tools]
 act = "latest"
+ast-grep = "latest"
+bun = "latest"
 cargo-binstall = "latest"
 "cargo:cargo-audit" = "latest"
 "cargo:cargo-deny" = "latest"
 "cargo:cargo-edit" = "latest"
 "cargo:cargo-generate" = "latest"
 "cargo:cargo-nextest" = "latest"
+"cargo:cargo-release" = "latest"
+"cargo:cargo-smart-release" = "latest"
 "cargo:cargo-watch" = "latest"
-"cargo:tree-sitter-cli" = "latest"
 gh = "latest"
 gitsign = "latest"
 hk = "latest"
 node = "24"
 "npm:wasm-opt" = "latest"
 "npm:wasm-pack" = "latest"
+"pipx:SuperClaude" = "latest"
 "pipx:reuse" = "latest"
 pkl = "latest"
 ripgrep = "latest"
-rust = "1.88"
+rust = "nightly"
 taplo = "latest"
 typos = "latest"
 uv = "latest"
@@ -32,77 +41,110 @@ HK_MISE = 1
 idiomatic_version_file_enable_tools = []
 
 [hooks]
-# runs when you enter the repo
-enter = "eval \"$(mise activate)\" && mise run install -y --silent && mise run update --silent -y && mise env -qy"
+enter = """
+#!/usr/bin/bash
+chmod +x scripts/* &>/dev/null &&
+mise run activate &&
+mise run install-tools &&
+mise run update-tools
+alias jj='jj --no-pager'
+alias git='git --no-pager'
+alias claude='claude --dangerously-skip-permissions'
+"""
 # deactivate/unhook when you leave
-leave = "eval \"$(mise deactivate)\""
+leave = """eval "$(mise deactivate)" &/dev/null"""
 
 # Tasks are run by using `mise run taskname`, like `mise run build`
 # run tasks run as simple shell commands
 
 #** -------------------- Tool and Setup Tasks --------------------
-[tasks.update]
+[tasks.update-tools]
 description = "update all dev tools and mise"
-run = "mise upgrade -yq && mise self-update -yq && mise reshim -yq && mise prune -yq"
+run = """
+#!/usr/bin/bash
+mise upgrade -yq &&
+mise self-update -yq &&
+mise reshim -yq &&
+mise prune -yq
+"""
 
-[tasks.install]
+[tasks.activate]
+description = "activate mise"
+run = """eval "$(mise activate)" &>/dev/null"""
+hide = true
+
+[tasks.install-tools]
 description = "setup dev tooling and development hooks"
-run = "eval \"$(mise activate)\" && mise trust -yq && mise install && mise reshim && hk install --mise"
+run = """
+#!/usr/bin/bash
+mise trust -yq &&
+mise install -yq &&
+mise reshim -yq &&
+hk run installhooks &>/dev/null
+"""
 
 [tasks.installhooks]
 description = "only install development hooks"
 run = "hk install --mise"
+
+[tasks.update]
+description = "update dependencies"
+run = "cargo update && cargo update --workspace"
 
 #** -------------------- Cleaning Tasks --------------------
 
 [tasks.cleancache]
 description = "delete the cache"
 run = "rm -rf .cache && mise prune -yq"
-hide = true   # hide this task from the list
+hide = true                             # hide this task from the list
 
 [tasks.clean]
 depends = ['cleancache']
 description = "Removes caches and build artifacts."
-run = "cargo clean && rm -r crates/thread-wasm/pkg &>/dev/null"
+run = "cargo clean && rm -rf crates/thread-wasm/pkg &>/dev/null"
 
 #** -------------------- Build Tasks --------------------
 
 [tasks.build]
 description = 'Build everything (except wasm)'
-run = "cargo build"
-alias = 'b'                      # `mise run b` = build
+run = "cargo build --workspace"
+alias = 'b'                                    # `mise run b` = build
 
 [tasks.build-release]
 description = 'Build everything in release mode (except wasm)'
-run = "cargo build --release"
-alias = 'br'                   # `mise run br` = build release
+run = "cargo build --workspace --release --features inline"
+alias = 'br'                                                   # `mise run br` = build release
 
 [tasks.build-wasm]
 description = 'Build WASM target for development'
 run = "cargo run -p xtask build-wasm"
-alias = 'bw'                   # `mise run bw` = build wasm
+alias = 'bw'                                      # `mise run bw` = build wasm
 
 [tasks.build-wasm-browser-dev]
 description = 'Build WASM target for browser development' # we don't use the browser target, so currently this is just for testing purposes
 run = "cargo run -p xtask build-wasm --multi-threading"
-alias = 'bwd'                  # `mise run bwd` = build wasm browser dev
+alias = 'bwd'                                             # `mise run bwd` = build wasm browser dev
 
 [tasks.build-wasm-profile]
 description = 'Build WASM target with profiling'
 run = "cargo run -p xtask build-wasm --profiling"
-alias = 'bwp'                  # `mise run bwp` = build wasm profiling
+alias = 'bwp'                                     # `mise run bwp` = build wasm profiling
 
 [tasks.build-wasm-browser-profile]
 description = 'Build WASM target for browser to profile'
 run = "cargo run -p xtask build-wasm --profiling --multi-threading"
-alias = 'bwpd'                  # `mise run bwpd` = build wasm browser prod
+alias = 'bwpd'                                                      # `mise run bwpd` = build wasm browser prod
 
 [tasks.build-wasm-release]
 description = 'Build WASM target in release mode.'
 run = "cargo run -p xtask build-wasm --release"
-alias = 'bwr'                  # `mise run bwr` = build wasm release
+alias = 'bwr'                                      # `mise run bwr` = build wasm release
 
 #** -------------------- Testing/Linting/Formatting Tasks --------------------
+
+[tasks.update-licenses]
+description = "Update license headers for all files"
+run = "./scripts/update-licenses.py"
 
 [tasks.test]
 description = 'Run automated tests'

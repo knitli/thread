@@ -1,0 +1,1305 @@
+SPDXVersion: SPDX-2.1
+DataLicense: CC0-1.0
+SPDXID: SPDXRef-DOCUMENT
+DocumentName: thread
+DocumentNamespace: http://spdx.org/spdxdocs/spdx-v2.1-57b0f83e-8b15-4b0f-966d-445319e3f8c0
+Creator: Person: Adam Poulemanos ()
+Creator: Organization: Knitli Inc. ()
+Creator: Tool: reuse-5.0.2
+Created: 2025-07-19T20:22:05Z
+CreatorComment: <text>This document was created automatically using available reuse information consistent with REUSE.</text>
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-07e72f6ebe551d6b95993c9c9a521efd
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-c54a7e1da625b12bea9d5d2e49d246ca
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-be45515061eb2b0ca15134f996f70d05
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-f97dbf2efbcd421cf45c55fdb45ac4c6
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-cc7a2a5256f01f6b53ffbf2c91d8816d
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-c8f20abbd94580a0c18d89b6dd006e95
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-2a025576974c7d06cd76b3e6f9a03eb2
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-bb3756cee51bf678543b049afb283a49
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-30a1d7c15b8accb80dd84e03cfbac958
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-b40d0890d8726673b522cad1983fa61d
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-470aec490d4744118f0e42c8e2440f45
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-b52bef1803120595f4b2a7829dcbb9ff
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-78c5a17a25c0fbe9a485604f75a75a88
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-7c64483b50d50057e9bf774832a41335
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-bfa8b0f656a6947307a8a9ee5571b8d4
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-3b4809ddb478fee87ed9acc56cd80263
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-c16667d35b7d7d38b7560050130cd6aa
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-7383628c997a024f664b4622800b3266
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-b8aca7d6890642118a77e49b86db1b02
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-2a39efeba1882ae4dea0a92c6ca89dc7
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-a1e1f4aabd2e746a94db5b19ceab994b
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-5824608efe5377128ba30a46450c059b
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-da4f36c220bf6db4007063fdd168f1f7
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-10d5611a1e0c8e3e02bd3d4b6324160e
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-0617cdfaf5e8a6a2fbc107f258595637
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-511280701d0ea20f85dc8a0164648145
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-ec6b164aa3b721341d579b6978719839
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-6f3e55dd5b25c4af7dbd70921c9abd52
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-9e78a25e26d11febe57b342f5650eb32
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-b2f41e5acab68a9ce200ea2ee88723d8
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-143d447ff55195e81166cd9f44ba8244
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-9fc7f2e7b5aada08f2b3557fed51a3ff
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-991c6b69c972b880a69ad024f0c07311
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-cc42a83a476dead4a95ad10c60c332a8
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-01713a9784b65de30ec6e463ae5cb2a8
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-b1621c440e11b332e6a1c7cea66d04d1
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-82236b51eee80388f254120dde3e41b3
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-d21244bb838c7d9a2e5de8619a6377fd
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-28b06523c48f3ba2a481874bcf9f78e9
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-c375f56ad1017c32d8cd14b6bb931155
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-26feb5cd4a18c478407544ca536efbe6
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-d6903737be443edab488390cde72ef44
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-8a5a7f1116a67058386473b2917e3764
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-01e2dccd15ff532c7ffc6fde1f9d610a
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-d44b27a20b1566215674619b967ea82f
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-378498ea06c3736f1e80991eb40e05f7
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-e556605ef942814f1aa6257de95a6f55
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-09f48fed9cb0332237f44fa8dfa5ebe0
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-ec9301d771546992ab95448a1b9f6c4e
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-6f08941627643ff7977c7a9a5310735c
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-1dbadf0d5f299a87e67e13e50912ea46
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-6a7d9b1bf74e92a66496575c971496c9
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-93cc0cca6ac0a415a8e94ed725ee0ac6
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-9adcbf86a0c18c69d64450486315c9c3
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-8ce21b9450fb9727e9e910389d6eccb0
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-fe05fb9fad746d3907eea8f5ebf0e52e
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-84dd26a32e71e8598737af625401f1c9
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-4755e858a3ddf7999bf59f40c48821c6
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-87aabc808822ef9f16e6eb7ec57c4225
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-62bef916fc2e3aca8bc6f2582e01a3cb
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-9242e18eec18fbbe46872b994d521352
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-1f3ad30e3477c1e63ce14c2b0491f134
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-4679e2fb2736dfbe261dbc7014925aaa
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-9f316d46be3893ad33252a9f85f0cd69
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-1a0b0ab05a8a32eb52ae983d7993792b
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-03dbb7df859510a45820e8afcb4db8b8
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-cc74a7e5dcaa4e3e6e59af5747b774c8
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-5f68a60d241551b9478e8da4e1947f32
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-5cf6bde490d11af95e99fe591950a539
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-4e5549d97f78322abe3bf02fa034442f
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-88ddbbb712f12d1ad192aee361c9f00b
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-c2ece0178066fe3eb3590b9967240cc9
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-4f4f1b13f17307595fe3fe7d84552320
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-c63352adae2e4c79a3b366b724c62636
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-44e3265b570a8ea06c6de3c1c19a88e8
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-f0bcf2e352906ea7e459f2904978e7e1
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-5d82d5b7b5fcb8e574ff8f9e9f6cd950
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-72421e01ae5225be857aec8880eff7ff
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-4344b19edab200ad510e59f6f65d9e67
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-6b093b0c4568d88fbe435cb2d5f8a6cf
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-b4984edc7c211bd6548a399e64225b7c
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-69b1eaf75e7587a9ff31c790e499773f
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-8c69dae73521d0cae6103c91eca41537
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-78ba32a9a61842d00cd60c7aa7b53870
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-d84cd3748a1af00f29c0574be5dbf285
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-84b279b1a28794e6812ca95ba3c3b32b
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-755c900c2c113574ce12387662134517
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-5b1d40119bd22e0bdda07ff21d0bfcb4
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-71503a120709919546f858fabb02fef5
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-3b391b3b3ace0233c17487d0c8c59bc3
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-4ff01a81cb40fa09167b85fcdb7d717c
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-aaeebd3424e75edc252e0fc0f9c40357
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-16c322de0974dc8ede200f764998850d
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-c8716e9c443b191bdda41f18123231bc
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-c20e2a59852c3e934e7c5219f37f164d
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-84c5799fc4644e42e9377609b1a0d8ba
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-d4e5aee67a46f52b20e9ddc3cbf7f8a1
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-66c8e5b8b74181dab0efa93fedf04775
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-3e20833918d83e1501367c81f699cd28
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-43b6916f4130a2f307648cbd8780c6ca
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-2a1b8523c7ed302d1ae757565e9833ba
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-f8fc8dfa9cd986e616d1261fa6e3b60b
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-78101a273943c2ee663817abf1cec511
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-9fb9f55a41c065aac1ce6ce1c46a6548
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-46d9043e3c5e09e750583361293dc3e3
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-387aea8823d88cdf386814687489a8a9
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-67c0c3ec0d27bbefa006f4f6b4435aaa
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-2ec964f49a3ef9ff1163a8f86f6abd52
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-8f82799968b369568ab71617b47acae1
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-1186548580f204803d45c200407cf83e
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-fbc59c602fbeb91a3ad6eb814d67fcbe
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-ab578ef52433772de1a1ac40c24c5dd7
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-7f63724cdb7306f17cb7ebb13b9696cf
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-2f42843e8bad608efebd3fe792506733
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-cf45e0b9fb205344b522fc26a8298235
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-5ee3f66b8956f2ce1eff477aa68edd88
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-d979566a50fe94181ba534401c2c62b1
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-3c88c068e0fd6eb9b98ec09e04413a5b
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-4e5f3eee8ceebc5edde78a3911cfdb49
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-402f57903a72a929777f9ecb50757632
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-7b2801debffe14ddad59a2b912c1b3d1
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-c4c348a439df60cdf4aff38a25210bc1
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-a25112f597e8755c458099641b73386d
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-a52bee01e6a3136dfb1aa4c5801ca671
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-cd66635fb95e3bdc6e6138501afb03cc
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-ba1acab5d40bff5ac621372263b6d331
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-b6ae9ad907495912115b7c8f9d53809e
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-2c0d6c272508977525c03e1c21ab05dc
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-a2d59c457404f3e2c7adf8057a6e3767
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-9f2ead9ce46a115b43f8e59e3f8daf88
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-7d9220e1bfa8d6cd26e5486c4d0116d1
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-2b3c6dc79aaa8ab187f18575424cec72
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-b0c7afe8a516b792025a21fac26f330d
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-00ab9cf365c27b94b2da4a73ab9274ba
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-fd90e7c132390ec22cac057ad5f86804
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-2a14fe7d658a46cff7436cfe88998325
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-4939545db8b1a8a0b923d19c81ab970d
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-29201f21040fd5b280c7cd4c8a504dda
+
+FileName: ./.gitattributes
+SPDXID: SPDXRef-07e72f6ebe551d6b95993c9c9a521efd
+FileChecksum: SHA1: 6456f547856c9ccc390f83394754d1318932b448
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./.github/actionlint.yml
+SPDXID: SPDXRef-c54a7e1da625b12bea9d5d2e49d246ca
+FileChecksum: SHA1: 2be288649886e73b96f3e60f9f9f3b9dc04fde19
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./.github/chatmodes/analyze.chatmode.md
+SPDXID: SPDXRef-be45515061eb2b0ca15134f996f70d05
+FileChecksum: SHA1: fc16b6888e7fefccbdb7130836fd7170eb5fd0e7
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./.github/dependabot.yml
+SPDXID: SPDXRef-f97dbf2efbcd421cf45c55fdb45ac4c6
+FileChecksum: SHA1: 2169a4f3f33aca28f9128fdd26c0ceb9ae703cf9
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./.github/dontusefornow.md
+SPDXID: SPDXRef-cc7a2a5256f01f6b53ffbf2c91d8816d
+FileChecksum: SHA1: 913bfb2bf1a0d1b58b67df69b68c70e915a1a9ca
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./.github/workflows/ci.yml
+SPDXID: SPDXRef-c8f20abbd94580a0c18d89b6dd006e95
+FileChecksum: SHA1: b790dad3a272abeede72eeb7668ceb6761de8afc
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./.github/workflows/cla.yml
+SPDXID: SPDXRef-2a025576974c7d06cd76b3e6f9a03eb2
+FileChecksum: SHA1: 49de827f0cbe38e4d48c753281faa497bf1a9a26
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./.gitignore
+SPDXID: SPDXRef-bb3756cee51bf678543b049afb283a49
+FileChecksum: SHA1: 4075a806092f7757ec209c0e234028b2c91a6cc9
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./.mcp.json
+SPDXID: SPDXRef-30a1d7c15b8accb80dd84e03cfbac958
+FileChecksum: SHA1: cf461167ff1250468324e5cd024c03d7cbcf1c97
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./.vscode/settings.json
+SPDXID: SPDXRef-b40d0890d8726673b522cad1983fa61d
+FileChecksum: SHA1: 9b31788fc27afb2274b52ca4f6cfa207f64774b9
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./.yamlfmt.yml
+SPDXID: SPDXRef-470aec490d4744118f0e42c8e2440f45
+FileChecksum: SHA1: e12c7340cebc58a4a60beeac59e2c0aa610f6186
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./CLAUDE.md
+SPDXID: SPDXRef-b52bef1803120595f4b2a7829dcbb9ff
+FileChecksum: SHA1: 1f88065390da4f46a8361fa1ee17dec735b01d0e
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./CONTRIBUTORS_LICENSE_AGREEMENT.md
+SPDXID: SPDXRef-78c5a17a25c0fbe9a485604f75a75a88
+FileChecksum: SHA1: 2dde379d01d323ebbf4fd94ace8f68f08f62471c
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./Cargo.lock
+SPDXID: SPDXRef-7c64483b50d50057e9bf774832a41335
+FileChecksum: SHA1: f062c7049a6dfc29818c3007d8d4e47851839a0e
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./Cargo.toml
+SPDXID: SPDXRef-bfa8b0f656a6947307a8a9ee5571b8d4
+FileChecksum: SHA1: ba77c3c6e4b8be699267b760e210530a76820234
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./PLAN.md
+SPDXID: SPDXRef-3b4809ddb478fee87ed9acc56cd80263
+FileChecksum: SHA1: 444991826f65bc3a719dc43e8d7b0c219fa5b4ed
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./README.md
+SPDXID: SPDXRef-c16667d35b7d7d38b7560050130cd6aa
+FileChecksum: SHA1: cefb1614025e52e89680215c1ed5198f8d35d07f
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./VENDORED.md
+SPDXID: SPDXRef-7383628c997a024f664b4622800b3266
+FileChecksum: SHA1: baed3674028cf40f19e04ecf0f8c3db3f6eebc08
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./_typos.toml
+SPDXID: SPDXRef-b8aca7d6890642118a77e49b86db1b02
+FileChecksum: SHA1: 62cd32ccdbfbe23cb82baed05b12cf0fce04a4c0
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./_unused.toml
+SPDXID: SPDXRef-2a39efeba1882ae4dea0a92c6ca89dc7
+FileChecksum: SHA1: 21ad928a9262fdb2b1dc3ba408aa702694c4833c
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/ast-engine/Cargo.toml
+SPDXID: SPDXRef-a1e1f4aabd2e746a94db5b19ceab994b
+FileChecksum: SHA1: 6fc3aad9796b65042b08f54b76dbbb2dfb46fb75
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/ast-engine/README.md
+SPDXID: SPDXRef-5824608efe5377128ba30a46450c059b
+FileChecksum: SHA1: 435d13dbfedf1660d5d2ec6dc842517e79247876
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/ast-engine/VENDORED.md
+SPDXID: SPDXRef-da4f36c220bf6db4007063fdd168f1f7
+FileChecksum: SHA1: baed3674028cf40f19e04ecf0f8c3db3f6eebc08
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/ast-engine/benches/performance_improvements.rs
+SPDXID: SPDXRef-10d5611a1e0c8e3e02bd3d4b6324160e
+FileChecksum: SHA1: 61ae466bb6ecbc71d7d26cdd837a5fba2f744d1e
+LicenseConcluded: AGPL-3.0-or-later
+LicenseInfoInFile: AGPL-3.0-or-later
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/ast-engine/src/language.rs
+SPDXID: SPDXRef-0617cdfaf5e8a6a2fbc107f258595637
+FileChecksum: SHA1: f4b2a189dd277fa0277fdca20e73cca36e3e51ed
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/ast-engine/src/lib.rs
+SPDXID: SPDXRef-511280701d0ea20f85dc8a0164648145
+FileChecksum: SHA1: 7f17156e3c72e7cb869a03ec0f4df11683dc973a
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/ast-engine/src/match_tree/match_node.rs
+SPDXID: SPDXRef-ec6b164aa3b721341d579b6978719839
+FileChecksum: SHA1: b94adcabaff30b55e024df24c86cdf0a72d0012e
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/ast-engine/src/match_tree/mod.rs
+SPDXID: SPDXRef-6f3e55dd5b25c4af7dbd70921c9abd52
+FileChecksum: SHA1: 14c60649c88759a2cfc0d17c559f5f3b158fbd3d
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/ast-engine/src/match_tree/strictness.rs
+SPDXID: SPDXRef-9e78a25e26d11febe57b342f5650eb32
+FileChecksum: SHA1: b722fc3717e4971bfcf5ed1702c179e86e5fdbfe
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/ast-engine/src/matcher.rs
+SPDXID: SPDXRef-b2f41e5acab68a9ce200ea2ee88723d8
+FileChecksum: SHA1: cb61df836b9eb4df491995a37c519b9d9c414a8f
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/ast-engine/src/matchers/kind.rs
+SPDXID: SPDXRef-143d447ff55195e81166cd9f44ba8244
+FileChecksum: SHA1: c86a66f7a3758c7460e4d2a891f942a1d06d385c
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/ast-engine/src/matchers/mod.rs
+SPDXID: SPDXRef-9fc7f2e7b5aada08f2b3557fed51a3ff
+FileChecksum: SHA1: 1e3a28399ef3ea31826ba5cf811a83e8cf8df067
+LicenseConcluded: AGPL-3.0-or-later
+LicenseInfoInFile: AGPL-3.0-or-later
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/ast-engine/src/matchers/node_match.rs
+SPDXID: SPDXRef-991c6b69c972b880a69ad024f0c07311
+FileChecksum: SHA1: 0b1ed8fbdd0ba2809c6436572ccafed574a53f12
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/ast-engine/src/matchers/pattern.rs
+SPDXID: SPDXRef-cc42a83a476dead4a95ad10c60c332a8
+FileChecksum: SHA1: 6bd4e09da650b62c4811231d8fbe1fb5710c9ca7
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/ast-engine/src/matchers/text.rs
+SPDXID: SPDXRef-01713a9784b65de30ec6e463ae5cb2a8
+FileChecksum: SHA1: 3961bdef1fe8816e77be7fc99f020d014c6a4250
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/ast-engine/src/matchers/types.rs
+SPDXID: SPDXRef-b1621c440e11b332e6a1c7cea66d04d1
+FileChecksum: SHA1: 37fe02f426016e4407a682d5b5136a39ef79fce3
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/ast-engine/src/meta_var.rs
+SPDXID: SPDXRef-82236b51eee80388f254120dde3e41b3
+FileChecksum: SHA1: 61b1e099ca5826bba0ea5dec4453bc88dbd5e885
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/ast-engine/src/node.rs
+SPDXID: SPDXRef-d21244bb838c7d9a2e5de8619a6377fd
+FileChecksum: SHA1: aa0e9a9f6f52c69040b75ecc07508e2365f7e4ee
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/ast-engine/src/ops.rs
+SPDXID: SPDXRef-28b06523c48f3ba2a481874bcf9f78e9
+FileChecksum: SHA1: 745443b40b1c0ee5482d263fecfb36c3e2ffa99b
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/ast-engine/src/pinned.rs
+SPDXID: SPDXRef-c375f56ad1017c32d8cd14b6bb931155
+FileChecksum: SHA1: 8cab1668d6f88f5ff9af57030f6c9ffd258a24ec
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/ast-engine/src/replacer.rs
+SPDXID: SPDXRef-26feb5cd4a18c478407544ca536efbe6
+FileChecksum: SHA1: 4a244a268c7b4f4128ae4607c62918c53e0ece9c
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/ast-engine/src/replacer/indent.rs
+SPDXID: SPDXRef-d6903737be443edab488390cde72ef44
+FileChecksum: SHA1: 1feca68b1a3a43c7c72ba60b0f1295f87b6a0ee8
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/ast-engine/src/replacer/structural.rs
+SPDXID: SPDXRef-8a5a7f1116a67058386473b2917e3764
+FileChecksum: SHA1: 2cde4c088be5f128f1833a0329349f115d2c8b6e
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/ast-engine/src/replacer/template.rs
+SPDXID: SPDXRef-01e2dccd15ff532c7ffc6fde1f9d610a
+FileChecksum: SHA1: ea927fc52f716c1b7440cc847a174d794ec8a923
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/ast-engine/src/source.rs
+SPDXID: SPDXRef-d44b27a20b1566215674619b967ea82f
+FileChecksum: SHA1: a646365ec895b187e18a08f8acb494651c1ca6b0
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/ast-engine/src/tree_sitter/mod.rs
+SPDXID: SPDXRef-378498ea06c3736f1e80991eb40e05f7
+FileChecksum: SHA1: cb8a97a5e7f2a2c45ed4660599b8108ef7c6ea7a
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/ast-engine/src/tree_sitter/traversal.rs
+SPDXID: SPDXRef-e556605ef942814f1aa6257de95a6f55
+FileChecksum: SHA1: 1712ce876b9f51e7f5047a477a3436caed3cacab
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/language/Cargo.toml
+SPDXID: SPDXRef-09f48fed9cb0332237f44fa8dfa5ebe0
+FileChecksum: SHA1: 51afc75835902170180785253d188cc07551d5bb
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/language/README.md
+SPDXID: SPDXRef-ec9301d771546992ab95448a1b9f6c4e
+FileChecksum: SHA1: 435d13dbfedf1660d5d2ec6dc842517e79247876
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/language/VENDORED.md
+SPDXID: SPDXRef-6f08941627643ff7977c7a9a5310735c
+FileChecksum: SHA1: baed3674028cf40f19e04ecf0f8c3db3f6eebc08
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/language/benches/performance.rs
+SPDXID: SPDXRef-1dbadf0d5f299a87e67e13e50912ea46
+FileChecksum: SHA1: e7ff347781b9b83648504b0f937865f18d7bd32d
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/language/src/bash.rs
+SPDXID: SPDXRef-6a7d9b1bf74e92a66496575c971496c9
+FileChecksum: SHA1: 8072953096f1ca0dcae055fca596159f21bc8e76
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/language/src/cpp.rs
+SPDXID: SPDXRef-93cc0cca6ac0a415a8e94ed725ee0ac6
+FileChecksum: SHA1: 10bd6ccfe574caa4dd739f734ebad4d6badb086d
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/language/src/csharp.rs
+SPDXID: SPDXRef-9adcbf86a0c18c69d64450486315c9c3
+FileChecksum: SHA1: 32f02da0da4204b0089939c940ad8e711794ba59
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/language/src/css.rs
+SPDXID: SPDXRef-8ce21b9450fb9727e9e910389d6eccb0
+FileChecksum: SHA1: 4c9ab64b4977931ea9995194cd2aa0a251a9c3fc
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/language/src/elixir.rs
+SPDXID: SPDXRef-fe05fb9fad746d3907eea8f5ebf0e52e
+FileChecksum: SHA1: 15a09881e448b5f2d56dc7c4d1bf558da0ef27a1
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/language/src/go.rs
+SPDXID: SPDXRef-84dd26a32e71e8598737af625401f1c9
+FileChecksum: SHA1: 71ac17064b16d4db11a6983ee1910992ec186228
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/language/src/haskell.rs
+SPDXID: SPDXRef-4755e858a3ddf7999bf59f40c48821c6
+FileChecksum: SHA1: ab8e3fdfba48f455fe452e85066b92bb3e9ffef8
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/language/src/html.rs
+SPDXID: SPDXRef-87aabc808822ef9f16e6eb7ec57c4225
+FileChecksum: SHA1: c49d87934ad12e94039ee59f7a000f82a71f775b
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/language/src/json.rs
+SPDXID: SPDXRef-62bef916fc2e3aca8bc6f2582e01a3cb
+FileChecksum: SHA1: bc22290cd59cbca72ebc4d7ad42101f851fb188d
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/language/src/kotlin.rs
+SPDXID: SPDXRef-9242e18eec18fbbe46872b994d521352
+FileChecksum: SHA1: 3b303f089d0c743802c0e0a653468d17ed6d4e75
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/language/src/lib.rs
+SPDXID: SPDXRef-1f3ad30e3477c1e63ce14c2b0491f134
+FileChecksum: SHA1: d8e20e50f91cb1a6792af5c4bfc2ba478303cd5b
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/language/src/lua.rs
+SPDXID: SPDXRef-4679e2fb2736dfbe261dbc7014925aaa
+FileChecksum: SHA1: 7384ddc3ee2af2941fcd15c6a7a7fee662ba10c5
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/language/src/parsers.rs
+SPDXID: SPDXRef-9f316d46be3893ad33252a9f85f0cd69
+FileChecksum: SHA1: a163dc163c7c86ad7514e5202d3c30cddd2a77e4
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/language/src/php.rs
+SPDXID: SPDXRef-1a0b0ab05a8a32eb52ae983d7993792b
+FileChecksum: SHA1: 864c85dc910714892ed2e4f060697ec4808cb6c3
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/language/src/profiling.rs
+SPDXID: SPDXRef-03dbb7df859510a45820e8afcb4db8b8
+FileChecksum: SHA1: 6d7bb03592543231f225f031b6916621386e9f97
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/language/src/python.rs
+SPDXID: SPDXRef-cc74a7e5dcaa4e3e6e59af5747b774c8
+FileChecksum: SHA1: 64a41c9190f076c447a9fa714bb7c5f11131645d
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/language/src/ruby.rs
+SPDXID: SPDXRef-5f68a60d241551b9478e8da4e1947f32
+FileChecksum: SHA1: d8216d76760e924e5cd2154c4693b6fb53bd0262
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/language/src/rust.rs
+SPDXID: SPDXRef-5cf6bde490d11af95e99fe591950a539
+FileChecksum: SHA1: bbab11a186618a91081d7dfe3236535fce3e5658
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/language/src/scala.rs
+SPDXID: SPDXRef-4e5549d97f78322abe3bf02fa034442f
+FileChecksum: SHA1: ff26a8d00beeeb1f0a1c5bf36c2b338215743e60
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/language/src/swift.rs
+SPDXID: SPDXRef-88ddbbb712f12d1ad192aee361c9f00b
+FileChecksum: SHA1: 6da351622739120e60c7d3fa2bde984ea67d3a5e
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/language/src/yaml.rs
+SPDXID: SPDXRef-c2ece0178066fe3eb3590b9967240cc9
+FileChecksum: SHA1: 87cccb3eb69636563e81e616d5f1244247e65813
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/rule-engine/Cargo.toml
+SPDXID: SPDXRef-4f4f1b13f17307595fe3fe7d84552320
+FileChecksum: SHA1: 940d954b44ec7580dd82ae67fae05f81af8b62a4
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/rule-engine/VENDORED.md
+SPDXID: SPDXRef-c63352adae2e4c79a3b366b724c62636
+FileChecksum: SHA1: baed3674028cf40f19e04ecf0f8c3db3f6eebc08
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/rule-engine/benches/README.md
+SPDXID: SPDXRef-44e3265b570a8ea06c6de3c1c19a88e8
+FileChecksum: SHA1: 1225527dd65a326592c10946e4ecbe10b92a5831
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/rule-engine/benches/ast_grep_comparison.rs
+SPDXID: SPDXRef-f0bcf2e352906ea7e459f2904978e7e1
+FileChecksum: SHA1: 892939018a7d87efac60d0a08f5ecaf49da8570c
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/rule-engine/benches/comparison_benchmarks.rs
+SPDXID: SPDXRef-5d82d5b7b5fcb8e574ff8f9e9f6cd950
+FileChecksum: SHA1: 33bb7572656b5ac35e73c90543adbebddd4632dc
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/rule-engine/benches/rule.yml
+SPDXID: SPDXRef-72421e01ae5225be857aec8880eff7ff
+FileChecksum: SHA1: 5e67b80b45f899ff3788cb5897c1d73c70a0666c
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/rule-engine/benches/rule_engine_benchmarks.rs
+SPDXID: SPDXRef-4344b19edab200ad510e59f6f65d9e67
+FileChecksum: SHA1: 714042067ff7314471d9c5755e60be86e0beef0f
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/rule-engine/benches/simple_benchmarks.rs
+SPDXID: SPDXRef-6b093b0c4568d88fbe435cb2d5f8a6cf
+FileChecksum: SHA1: a54f0749f0583d632572fea1c9b6455184aea0b0
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/rule-engine/serialization_analysis/README_SERIALIZATION_ANALYSIS.md
+SPDXID: SPDXRef-b4984edc7c211bd6548a399e64225b7c
+FileChecksum: SHA1: fbee6747ceaabff74d7f889bcf034c04d1e4aea3
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/rule-engine/serialization_analysis/SERIALIZATION_ANALYSIS_REPORT.md
+SPDXID: SPDXRef-69b1eaf75e7587a9ff31c790e499773f
+FileChecksum: SHA1: 748032a5d6360a760aa20288b339256ce10f8c4a
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/rule-engine/serialization_analysis/analyze_serialization.rs
+SPDXID: SPDXRef-8c69dae73521d0cae6103c91eca41537
+FileChecksum: SHA1: 6800ac1f36fe9fd1c362e8120fa68537e78f5fc4
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/rule-engine/serialization_analysis/separation_helper.sh
+SPDXID: SPDXRef-78ba32a9a61842d00cd60c7aa7b53870
+FileChecksum: SHA1: 96bf1a6a35c1dbbf1004fc3822fb7afb0cd11ad1
+LicenseConcluded: AGPL-3.0-or-later
+LicenseInfoInFile: AGPL-3.0-or-later
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/rule-engine/serialization_analysis/serialization_analysis.yml
+SPDXID: SPDXRef-d84cd3748a1af00f29c0574be5dbf285
+FileChecksum: SHA1: 8207a9d42e00fb6879ddb1903a048fcff095f570
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/rule-engine/serialization_analysis/serialization_analysis_report.md
+SPDXID: SPDXRef-84b279b1a28794e6812ca95ba3c3b32b
+FileChecksum: SHA1: 634c2ec44bfddca7ae800e3546e82166f77b5c84
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/rule-engine/src/check_var.rs
+SPDXID: SPDXRef-755c900c2c113574ce12387662134517
+FileChecksum: SHA1: 3098b53eb8d5c7354ca25d7b1be92e13d1a8ed80
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/rule-engine/src/combined.rs
+SPDXID: SPDXRef-5b1d40119bd22e0bdda07ff21d0bfcb4
+FileChecksum: SHA1: e4a6fe5eb3ffee7a9479ba5d894dc87731c1d7a1
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/rule-engine/src/fixer.rs
+SPDXID: SPDXRef-71503a120709919546f858fabb02fef5
+FileChecksum: SHA1: 07dbdedfc81ad0c4df220c8c98b0bff4cd7abfe6
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/rule-engine/src/label.rs
+SPDXID: SPDXRef-3b391b3b3ace0233c17487d0c8c59bc3
+FileChecksum: SHA1: 1d7f4a305c09ec5a6aba6e0afda7d7dbbe0770c8
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/rule-engine/src/lib.rs
+SPDXID: SPDXRef-4ff01a81cb40fa09167b85fcdb7d717c
+FileChecksum: SHA1: 4f896496007a9ca62f4fde23d258e688cf91103e
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/rule-engine/src/maybe.rs
+SPDXID: SPDXRef-aaeebd3424e75edc252e0fc0f9c40357
+FileChecksum: SHA1: 68c65672b6ac761ebca03d7eed41f54651222477
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/rule-engine/src/rule/deserialize_env.rs
+SPDXID: SPDXRef-16c322de0974dc8ede200f764998850d
+FileChecksum: SHA1: 93c3b5b7dbc2f0c6dcd647206916c13e9294d660
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/rule-engine/src/rule/mod.rs
+SPDXID: SPDXRef-c8716e9c443b191bdda41f18123231bc
+FileChecksum: SHA1: f0d36f0f03354b98c229b598e5be2f098ab5f488
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/rule-engine/src/rule/nth_child.rs
+SPDXID: SPDXRef-c20e2a59852c3e934e7c5219f37f164d
+FileChecksum: SHA1: dd7fd3b130a2e7ecf73e293d2cd89df9effee25b
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/rule-engine/src/rule/range.rs
+SPDXID: SPDXRef-84c5799fc4644e42e9377609b1a0d8ba
+FileChecksum: SHA1: 583ebcd5014fbf31e3d7d04ac39c63d10467fd40
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/rule-engine/src/rule/referent_rule.rs
+SPDXID: SPDXRef-d4e5aee67a46f52b20e9ddc3cbf7f8a1
+FileChecksum: SHA1: 3410d941b6caf35ae06bbceee30aeb8cf6a5fb11
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/rule-engine/src/rule/relational_rule.rs
+SPDXID: SPDXRef-66c8e5b8b74181dab0efa93fedf04775
+FileChecksum: SHA1: bba0c9184158934a041ef3e5bfd33b4b97ca5a03
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/rule-engine/src/rule/stop_by.rs
+SPDXID: SPDXRef-3e20833918d83e1501367c81f699cd28
+FileChecksum: SHA1: 6a6725ef5b74d5f31c7d31472f5670328b6a5f68
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/rule-engine/src/rule_collection.rs
+SPDXID: SPDXRef-43b6916f4130a2f307648cbd8780c6ca
+FileChecksum: SHA1: 4c76b67eb0864f671163b577a8adbc8465f0b329
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/rule-engine/src/rule_config.rs
+SPDXID: SPDXRef-2a1b8523c7ed302d1ae757565e9833ba
+FileChecksum: SHA1: 67f9fd8817f84d7bb3728efddcd3ce073f313d87
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/rule-engine/src/rule_core.rs
+SPDXID: SPDXRef-f8fc8dfa9cd986e616d1261fa6e3b60b
+FileChecksum: SHA1: 9b25ea6eaa10a0daf31a2a580ee17cba89d1edba
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/rule-engine/src/transform/mod.rs
+SPDXID: SPDXRef-78101a273943c2ee663817abf1cec511
+FileChecksum: SHA1: 3c419cb6a73997b0655c8d461d5ddf2d024f8781
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/rule-engine/src/transform/parse.rs
+SPDXID: SPDXRef-9fb9f55a41c065aac1ce6ce1c46a6548
+FileChecksum: SHA1: c393f511bc1aa4efd4713751b74c96c64f8bc95e
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/rule-engine/src/transform/rewrite.rs
+SPDXID: SPDXRef-46d9043e3c5e09e750583361293dc3e3
+FileChecksum: SHA1: 171e04949d7ca93d3775813351f47bb760e0740e
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/rule-engine/src/transform/string_case.rs
+SPDXID: SPDXRef-387aea8823d88cdf386814687489a8a9
+FileChecksum: SHA1: 92daabff413359fe9e0ce87049bbbdd63f98c918
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/rule-engine/src/transform/trans.rs
+SPDXID: SPDXRef-67c0c3ec0d27bbefa006f4f6b4435aaa
+FileChecksum: SHA1: 413ec7958fc17b88173eab82b74cd9e0b4f3206a
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/rule-engine/test_data/sample_javascript.js
+SPDXID: SPDXRef-2ec964f49a3ef9ff1163a8f86f6abd52
+FileChecksum: SHA1: d854ee84a37715307da6c512a34befb6e5476aad
+LicenseConcluded: AGPL-3.0-or-later
+LicenseInfoInFile: AGPL-3.0-or-later
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/rule-engine/test_data/sample_python.py
+SPDXID: SPDXRef-8f82799968b369568ab71617b47acae1
+FileChecksum: SHA1: 1f864a1e0c3abf6f98819594e3a1013d4409e671
+LicenseConcluded: AGPL-3.0-or-later
+LicenseInfoInFile: AGPL-3.0-or-later
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/rule-engine/test_data/sample_rust.rs
+SPDXID: SPDXRef-1186548580f204803d45c200407cf83e
+FileChecksum: SHA1: a50d6b36c13cdb2048f21dece72581b9a13bd957
+LicenseConcluded: AGPL-3.0-or-later AND MIT
+LicenseInfoInFile: AGPL-3.0-or-later
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/rule-engine/test_data/sample_typescript.ts
+SPDXID: SPDXRef-fbc59c602fbeb91a3ad6eb814d67fcbe
+FileChecksum: SHA1: 1c9a937682da21649671c999cce7c17154fdef45
+LicenseConcluded: AGPL-3.0-or-later
+LicenseInfoInFile: AGPL-3.0-or-later
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/services/Cargo.toml
+SPDXID: SPDXRef-ab578ef52433772de1a1ac40c24c5dd7
+FileChecksum: SHA1: b3d9cdc7bed48fef1637fb679b7ef8752cf724fe
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/services/README.md
+SPDXID: SPDXRef-7f63724cdb7306f17cb7ebb13b9696cf
+FileChecksum: SHA1: 435d13dbfedf1660d5d2ec6dc842517e79247876
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/services/src/lib.rs
+SPDXID: SPDXRef-2f42843e8bad608efebd3fe792506733
+FileChecksum: SHA1: 27ad6389ddf9c9d2c5f18b2bc301bb5cf7ea553e
+LicenseConcluded: AGPL-3.0-or-later
+LicenseInfoInFile: AGPL-3.0-or-later
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/utils/Cargo.toml
+SPDXID: SPDXRef-cf45e0b9fb205344b522fc26a8298235
+FileChecksum: SHA1: 914a2208eed4703895b2f6faf0e1fa88aac938a0
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/utils/README.md
+SPDXID: SPDXRef-5ee3f66b8956f2ce1eff477aa68edd88
+FileChecksum: SHA1: fb4293c22fd8b65392c8d505673b5b2728023fda
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/utils/src/hash_help.rs
+SPDXID: SPDXRef-d979566a50fe94181ba534401c2c62b1
+FileChecksum: SHA1: ba564844435251db7a3f8f818f816f9b6ffbc7e9
+LicenseConcluded: AGPL-3.0-or-later
+LicenseInfoInFile: AGPL-3.0-or-later
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/utils/src/lib.rs
+SPDXID: SPDXRef-3c88c068e0fd6eb9b98ec09e04413a5b
+FileChecksum: SHA1: fcda5df421f821dc6d46767a5a87d68b14d1bda7
+LicenseConcluded: AGPL-3.0-or-later
+LicenseInfoInFile: AGPL-3.0-or-later
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/utils/src/simd.rs
+SPDXID: SPDXRef-4e5f3eee8ceebc5edde78a3911cfdb49
+FileChecksum: SHA1: 1b2f5b34a284a426f86e155ff09988f369bd65b8
+LicenseConcluded: AGPL-3.0-or-later
+LicenseInfoInFile: AGPL-3.0-or-later
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/wasm/.appveyor.yml
+SPDXID: SPDXRef-402f57903a72a929777f9ecb50757632
+FileChecksum: SHA1: b93862a2f2a88005e06f200aae67b526c84c670a
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/wasm/.gitignore
+SPDXID: SPDXRef-7b2801debffe14ddad59a2b912c1b3d1
+FileChecksum: SHA1: 46315b956812e71a0f7525ee2e5e948647733f0d
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/wasm/.travis.yml
+SPDXID: SPDXRef-c4c348a439df60cdf4aff38a25210bc1
+FileChecksum: SHA1: bba68b8c29c494b923867326281d6733d3c13c32
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/wasm/Cargo.toml
+SPDXID: SPDXRef-a25112f597e8755c458099641b73386d
+FileChecksum: SHA1: 89f7e275a698f4d680c536bb6e4b51b3ba201999
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/wasm/README.md
+SPDXID: SPDXRef-a52bee01e6a3136dfb1aa4c5801ca671
+FileChecksum: SHA1: f83292f24277ad935144fca7e45deff9127fcc7f
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/wasm/src/lib.rs
+SPDXID: SPDXRef-cd66635fb95e3bdc6e6138501afb03cc
+FileChecksum: SHA1: ea3e48f14cd350c8deec7b46cbfc1089d23a694d
+LicenseConcluded: AGPL-3.0-or-later
+LicenseInfoInFile: AGPL-3.0-or-later
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/wasm/src/utils.rs
+SPDXID: SPDXRef-ba1acab5d40bff5ac621372263b6d331
+FileChecksum: SHA1: a289cd51675dd0c9d5619eb8dd776d23bb572164
+LicenseConcluded: AGPL-3.0-or-later
+LicenseInfoInFile: AGPL-3.0-or-later
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./crates/wasm/tests/web.rs
+SPDXID: SPDXRef-b6ae9ad907495912115b7c8f9d53809e
+FileChecksum: SHA1: f3c60e53827ea1d1b31dfd8b0f9849aaf7018597
+LicenseConcluded: AGPL-3.0-or-later
+LicenseInfoInFile: AGPL-3.0-or-later
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./deny.toml
+SPDXID: SPDXRef-2c0d6c272508977525c03e1c21ab05dc
+FileChecksum: SHA1: 4ff7f872f977d2215a579a962eb6b24f6384de95
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <https://knitli.com/></text>
+
+FileName: ./hk.pkl
+SPDXID: SPDXRef-a2d59c457404f3e2c7adf8057a6e3767
+FileChecksum: SHA1: 243a977f13a98def08e0fdd6c6eb33308fae4db4
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./info/Pattern.md
+SPDXID: SPDXRef-9f2ead9ce46a115b43f8e59e3f8daf88
+FileChecksum: SHA1: c2090d02a46224575e44348c39e40b5f34f24306
+LicenseConcluded: MIT
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2023 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com></text>
+
+FileName: ./info/ag-instruct.md
+SPDXID: SPDXRef-7d9220e1bfa8d6cd26e5486c4d0116d1
+FileChecksum: SHA1: ede6772a521abd329f6efa48f9c56fbc445e15cf
+LicenseConcluded: MIT
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./mise.toml
+SPDXID: SPDXRef-2b3c6dc79aaa8ab187f18575424cec72
+FileChecksum: SHA1: dbf5723e981b595202ce4b016878dd2080cc308f
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./scripts/get-langs.sh
+SPDXID: SPDXRef-b0c7afe8a516b792025a21fac26f330d
+FileChecksum: SHA1: ad10a77ef3d92a5b7458d768e4b56ca28a932079
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./scripts/install-mise.sh
+SPDXID: SPDXRef-00ab9cf365c27b94b2da4a73ab9274ba
+FileChecksum: SHA1: a85786553578e90814aaf33e8a8ce24815f7bcd6
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./scripts/update-licenses.py
+SPDXID: SPDXRef-fd90e7c132390ec22cac057ad5f86804
+FileChecksum: SHA1: beb16286a14d168af6112cd3a4d41718620657d1
+LicenseConcluded: AGPL-3.0-or-later
+LicenseInfoInFile: AGPL-3.0-or-later
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./xtask/Cargo.toml
+SPDXID: SPDXRef-2a14fe7d658a46cff7436cfe88998325
+FileChecksum: SHA1: ba0dcaaef669d3e8dc7accbdfdc08ed66d148362
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./xtask/README.md
+SPDXID: SPDXRef-4939545db8b1a8a0b923d19c81ab970d
+FileChecksum: SHA1: 4a26700a3c5803115c3c3ef82f46454141948047
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+
+FileName: ./xtask/src/main.rs
+SPDXID: SPDXRef-29201f21040fd5b280c7cd4c8a504dda
+FileChecksum: SHA1: 8e1c00c48a78fe252bd804ced5afbc0a80a0f07b
+LicenseConcluded: Apache-2.0 OR MIT
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: MIT
+FileCopyrightText: <text>SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li></text>
+

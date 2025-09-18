@@ -1,0 +1,187 @@
+# SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+# SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+# AST-Grep rules to analyze serialization dependencies in rule-engine crate
+# This file contains rules to find and categorize all serialization-related code
+
+rules:
+  # Rule 1: Find all serde derive macros
+  - id: serde-derive-usage
+    message: "Serde derive macro found"
+    language: rust
+    rule:
+      kind: attribute
+      has:
+        kind: meta_item
+        has:
+          any:
+            - pattern: derive($$$DERIVES$$$)
+            - pattern: serde($$$ARGS$$$)
+    transform:
+      DERIVES_TEXT:
+        source: $DERIVES
+      ARGS_TEXT:
+        source: $ARGS
+
+  # Rule 2: Find all struct/enum definitions with Serialize/Deserialize
+  - id: serializable-types
+    message: "Type with Serialize/Deserialize traits"
+    language: rust
+    rule:
+      any:
+        - kind: struct_item
+        - kind: enum_item
+      has:
+        kind: attribute
+        has:
+          kind: meta_item
+          has:
+            pattern: derive($$$DERIVES$$$)
+            regex: "(Serialize|Deserialize)"
+    transform:
+      TYPE_NAME:
+        source: $TYPE_NAME
+      DERIVES_LIST:
+        source: $DERIVES
+
+  # Rule 3: Find serde imports
+  - id: serde-imports
+    message: "Serde import statement"
+    language: rust
+    rule:
+      kind: use_declaration
+      has:
+        any:
+          - pattern: use serde::$$$
+          - pattern: use serde_yaml::$$$
+          - pattern: use serde_json::$$$
+          - pattern: use schemars::$$$
+
+  # Rule 4: Find serialization/deserialization function calls
+  - id: serde-function-calls
+    message: "Serialization/Deserialization function call"
+    language: rust
+    rule:
+      kind: call_expression
+      has:
+        field: function
+        any:
+          - pattern: deserialize
+          - pattern: serialize
+          - pattern: from_str
+          - pattern: to_string
+          - pattern: serde_yaml::from_str
+          - pattern: serde_yaml::to_string
+          - pattern: from_yaml_string
+          - regex: "(deserialize|serialize)"
+
+  # Rule 5: Find JsonSchema trait usage
+  - id: json-schema-usage
+    message: "JsonSchema trait usage"
+    language: rust
+    rule:
+      any:
+        - kind: attribute
+          has:
+            pattern: JsonSchema
+        - kind: impl_item
+          has:
+            pattern: JsonSchema
+        - kind: type_identifier
+          pattern: JsonSchema
+
+  # Rule 6: Find serialization-specific fields and attributes
+  - id: serde-field-attributes
+    message: "Serde field attribute"
+    language: rust
+    rule:
+      kind: attribute
+      has:
+        kind: meta_item
+        any:
+          - pattern: serde($$$ARGS$$$)
+          - pattern: skip_serializing_if
+          - pattern: rename_all
+          - pattern: flatten
+          - pattern: default
+
+  # Rule 7: Find DeserializeEnv usage (specific to this crate)
+  - id: deserialize-env-usage
+    message: "DeserializeEnv usage"
+    language: rust
+    rule:
+      any:
+        - kind: type_identifier
+          pattern: DeserializeEnv
+        - kind: call_expression
+          has:
+            field: function
+            pattern: deserialize_rule
+
+  # Rule 8: Find serialization error handling
+  - id: serialization-errors
+    message: "Serialization error types"
+    language: rust
+    rule:
+      any:
+        - kind: type_identifier
+          regex: "(YamlError|SerializeError|DeserializeError)"
+        - kind: enum_variant
+          regex: "(Yaml|Serialize|Deserialize)"
+
+  # Rule 9: Find Maybe wrapper usage (serialization helper)
+  - id: maybe-wrapper-usage
+    message: "Maybe wrapper for optional serialization"
+    language: rust
+    rule:
+      any:
+        - kind: type_identifier
+          pattern: Maybe
+        - kind: call_expression
+          has:
+            field: function
+            any:
+              - pattern: Maybe::Present
+              - pattern: Maybe::Absent
+
+  # Rule 10: Find transform and conversion functions
+  - id: transform-functions
+    message: "Transformation functions for serialization"
+    language: rust
+    rule:
+      kind: function_item
+      any:
+        - has:
+            field: name
+            regex: "(transform|convert|deserialize|serialize)"
+        - has:
+            field: body
+            has:
+              any:
+                - pattern: deserialize
+                - pattern: serialize
+
+  # Rule 11: Find config and rule creation patterns
+  - id: config-creation-patterns
+    message: "Configuration creation with serialization"
+    language: rust
+    rule:
+      any:
+        - kind: struct_expression
+          has:
+            field: name
+            regex: "(SerializableRule|SerializableRuleConfig|SerializableRuleCore)"
+        - kind: call_expression
+          has:
+            field: function
+            regex: "(from_str|from_yaml_string|try_from)"
+
+utils:
+  # Utility rule to find serialization-heavy files
+  serialization-heavy-file:
+    any:
+      - matches: serde-derive-usage
+      - matches: serde-imports
+      - matches: serializable-types

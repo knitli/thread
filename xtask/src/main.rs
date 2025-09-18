@@ -1,3 +1,8 @@
+// SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+// SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+//
+// SPDX-License-Identifier: MIT OR Apache-2.0
+
 use pico_args::Arguments;
 use std::path::Path;
 use std::process::{Command, exit};
@@ -6,7 +11,7 @@ const CRATE_PATH: &str = "crates/thread-wasm";
 const PKG_PATH: &str = "crates/thread-wasm/pkg";
 const DIST_PATH: &str = "dist/thread-wasm.optimized.wasm";
 
-const HELP: &str = r#"
+const HELP: &str = r"
 xtask - Build thread-wasm WASM binary
 
 Usage:
@@ -21,7 +26,7 @@ Options:
     --release            Build in release mode with optimizations
     --profiling          Build with profiling enabled (no optimizations)
     --help, -h          Show this help message
-"#;
+";
 
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 /// Represents the build mode for the WASM binary.
@@ -33,22 +38,22 @@ enum BuildMode {
 }
 
 impl BuildMode {
-    fn as_wasm_pack_flag(&self) -> Option<&'static str> {
+    const fn as_wasm_pack_flag(self) -> Option<&'static str> {
         match self {
-            BuildMode::Release => Some("--release"),
+            Self::Release => Some("--release"),
             _ => None,
         }
     }
-    fn opt_options(&self) -> Vec<&'static str> {
+    fn opt_options(self) -> Vec<&'static str> {
         match self {
-            BuildMode::Release => vec![
+            Self::Release => vec![
                 "-O4",
                 "--enable-bulk-memory",
                 "--enable-sign-ext",
                 "--strip-debug",
             ],
-            BuildMode::Dev => vec!["-O", "--symbolmap", "--safe-heap"],
-            BuildMode::Profiling => vec!["-O", "--enable-bulk-memory", "--enable-sign-ext"],
+            Self::Dev => vec!["-O", "--symbolmap", "--safe-heap"],
+            Self::Profiling => vec!["-O", "--enable-bulk-memory", "--enable-sign-ext"],
         }
     }
 }
@@ -56,7 +61,7 @@ impl BuildMode {
 fn main() {
     let mut args = Arguments::from_env();
     if args.contains("--help") || args.contains("-h") {
-        println!("{}", HELP);
+        println!("{HELP}");
         exit(0);
     }
     let subcmd = args.subcommand().unwrap_or(Some("build-wasm".to_string()));
@@ -74,11 +79,11 @@ fn main() {
             build_wasm(mode, multi);
         }
         Some(cmd) => {
-            eprintln!("Unknown subcommand: {}", cmd);
+            eprintln!("Unknown subcommand: {cmd}");
             exit(1);
         }
         None => {
-            println!("{}", HELP);
+            println!("{HELP}");
             exit(1);
         }
     }
@@ -87,12 +92,18 @@ fn main() {
 fn build_wasm(mode: BuildMode, multi: bool) {
     // wasm-pack build [crate-path] --target web [--release] [--features multi-threading]
     let mut wasm_pack = Command::new("wasm-pack");
-    wasm_pack.args(&["build", CRATE_PATH, "--target", "web"]);
+    wasm_pack.args(["build", CRATE_PATH, "--target", "web"]);
     if let Some(flag) = mode.as_wasm_pack_flag() {
         wasm_pack.arg(flag);
+        wasm_pack.args(["--features", "inline"]);
     }
     if multi {
-        wasm_pack.args(&["--features", "multi-threading"]);
+        // we already have a --features flag if we're releasing
+        if mode == BuildMode::Release {
+            wasm_pack.arg("multi-threading");
+        } else {
+            wasm_pack.args(["--features", "multi-threading"]);
+        }
     }
     run_or_die(wasm_pack, "wasm-pack build");
 
@@ -114,8 +125,8 @@ fn build_wasm(mode: BuildMode, multi: bool) {
 
     let mut wasm_opt = Command::new("wasm-opt");
     wasm_opt.arg(&bg_wasm);
-    wasm_opt.args(&mode.opt_options());
-    wasm_opt.args(&[
+    wasm_opt.args(mode.opt_options());
+    wasm_opt.args([
         "--enable-multivalue",
         "--vacuum",
         "--enable-tail-call",
@@ -124,15 +135,15 @@ fn build_wasm(mode: BuildMode, multi: bool) {
         "--enable-relaxed-simd",
     ]);
     if multi {
-        wasm_opt.args(&["--enable-threads", "--disable-multi-memories"]);
+        wasm_opt.args(["--enable-threads", "--disable-multi-memories"]);
     } else {
-        wasm_opt.args(&["--disable-threads", "--enable-multi-memories"]);
+        wasm_opt.args(["--disable-threads", "--enable-multi-memories"]);
     }
-    wasm_opt.args(&["-o", DIST_PATH]);
+    wasm_opt.args(["-o", DIST_PATH]);
 
     run_or_die(wasm_opt, "wasm-opt");
 
-    println!("Built optimized wasm to {:?}", DIST_PATH);
+    println!("Built optimized wasm to {DIST_PATH:?}");
 }
 
 fn run_or_die(mut cmd: Command, label: &str) {

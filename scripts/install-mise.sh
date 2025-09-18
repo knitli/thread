@@ -1,9 +1,17 @@
 #!/usr/bin/env bash
+
+# SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+# SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
 set -eu
 
 __mise_bootstrap() {
-    local script_dir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-    local project_dir=$( cd -- "$( dirname -- "$script_dir" )" &> /dev/null && pwd )
+    local script_dir
+    script_dir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+    local project_dir
+    project_dir=$( cd -- "$( dirname -- "$script_dir" )" &> /dev/null && pwd )
     export MISE_BOOTSTRAP_PROJECT_DIR="$project_dir"
     local cache_home="${XDG_CACHE_HOME:-$HOME/.cache}/mise"
     export MISE_INSTALL_PATH="$cache_home/mise-2025.7.0"

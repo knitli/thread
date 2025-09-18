@@ -1,9 +1,14 @@
-# dashmap = { version = "6.1.0", features = ["rayon", "inline"] }
+# SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+# SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+#
+
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
 # fmmap = { version = "0.4.0", features = ["tokio"] } # memory map for handling large files efficiently
 # ignore = { version = "0.4.23", features = ["simd-accel"] } # gitignore
 # rapidhash = { version = "1.4.0", features = ["std"] } # fast hashing for content addressing
 # rayon = { version = "1.10.0", features = ["std"] }
-# ropey = "1.6.1"
+# lasso
 # serde = { version = "1.0.219", features = ["derive"] }
 # serde_json = "1.0.140"
 

@@ -1,9 +1,3 @@
-/*
- * SPDX-FileCopyrightText: 2025 Knitli Inc. <https://knitli.com/>
- *
- * * Licensed under the [Plain MIT License](LICENSE.md)
-*/
-
 amends "package://github.com/jdx/hk/releases/download/v1.2.0/hk@1.2.0#/Config.pkl"
 import "package://github.com/jdx/hk/releases/download/v1.2.0/hk@1.2.0#/Builtins.pkl"
 
@@ -33,11 +27,17 @@ local linters = new Mapping<String, Step> {
     // Spellchecker
     ["typos"] = new Step {
         workspace_indicator = "_typos.toml"
-        glob = List( "*README", "*.{login,astro,bash,bash_logout,bashrc,browserlistrc,conf,config,csh,css,cts,fish,gitattributes,gitmodules,html,htmx,ini,j2,jinja,jinja2,json,json5,jsonc,jsonl,ksh,md,mdown,mdtext,mdtxt,mdwn,mdx,mk,mkd,mts,nix,nu,pkl,profile,quokka,sass,scss,sh,sh,shellcheckrc,sql,sqlite,stylelintrc,svelte,tcsh,toml,ts,tsx,txt,yaml,yml,zlogin,zlogout,zprofile,zsh,zshenv,zshrc}", "*Dockerfile*", "*Makefile*", "*makefile*", "CHANGELOG*", "CODE_OF_CONDUCT*", "CONTRIBUTING*", "HACKING*", "LICENSE", "README*", "SECURITY*", "UNLICENSE")
+        glob = List( "*README", "*.{login,astro,bash,bash_logout,bashrc,browserlistrc,conf,config,csh,css,cts,fish,gitattributes,gitmodules,html,htmx,ini,j2,jinja,jinja2,json,json5,jsonc,jsonl,ksh,md,mdown,mdtext,mdtxt,mdwn,mdx,mk,mkd,mts,nix,nu,pkl,profile,py,quokka,rs,sass,scss,sh,sh,shellcheckrc,sql,sqlite,stylelintrc,svelte,tcsh,toml,ts,tsx,txt,yaml,yml,zlogin,zlogout,zprofile,zsh,zshenv,zshrc}", "*Dockerfile*", "*Makefile*", "*makefile*", "CHANGELOG*", "CODE_OF_CONDUCT*", "CONTRIBUTING*", "HACKING*", "LICENSE", "README*", "SECURITY*", "UNLICENSE")
         check = "typos -j 8 --config {{ workspace_indicator }} {{ files }}"
         fix = "typos --write-changes --config {{ workspace_indicator }} {{ files }}"
     }
 
+    ["reuse"] = new Step {
+        glob = List("*README", "*.{login,astro,bash,bash_logout,bashrc,browserlistrc,conf,config,csh,css,cts,fish,gitattributes,gitmodules,html,htmx,ini,j2,jinja,jinja2,json,json5,jsonc,jsonl,ksh,md,mdown,mdtext,mdtxt,mdwn,mdx,mk,mkd,mts,nix,nu,pkl,profile,py,quokka,rs,sass,scss,sh,sh,shellcheckrc,sql,sqlite,stylelintrc,svelte,tcsh,toml,ts,tsx,txt,yaml,yml,zlogin,zlogout,zprofile,zsh,zshenv,zshrc}", "*Dockerfile*", "*Makefile*", "*makefile*", "CHANGELOG*", "CODE_OF_CONDUCT*", "CONTRIBUTING*", "HACKING*", "README*", "SECURITY*", "SHARING")
+        batch = true
+        check = "reuse lint-file {{ files }}"
+        fix = "./scripts/update-licenses.py add {{ files }}"
+    }
 
     // check hk.pkl (and any others)
     ["pkl"] = new Step {
@@ -51,6 +51,7 @@ local linters = new Mapping<String, Step> {
       glob = List( "*.{.yaml,yml}")
       batch = true
       check  = "yamlfmt -conf {{ workspace_indicator }} -lint {{ files }}"
+      fix = "yamlfmt -conf {{ workspace_indicator }} {{ files }}"
   }
 
 }

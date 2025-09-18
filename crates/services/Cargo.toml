@@ -1,0 +1,71 @@
+# SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+# SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+[package]
+name = "thread-services"
+description = "Service layer interfaces for Thread"
+keywords = ["ast", "pattern", "services", "interface"]
+version = "0.1.0"
+categories = ["services", "interface", "ast", "pattern"]
+readme = "README.md"
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+include.workspace = true
+
+[dependencies]
+cfg-if = { workspace = true }
+thread-ast-engine = { workspace = true, default-features = false, optional = true, features = ["matching", "parsing"] }
+# thread-rule-engine = { workspace = true, default-features = false }
+thread-language = { workspace = true, default-features = false, optional = true }
+thread-utils = { workspace = true, default-features = false, features = [
+  "hashers",
+] }
+
+# Service layer dependencies
+async-trait = "0.1.88"
+serde = { workspace = true, optional = true }
+thiserror = { workspace = true }
+
+# Tower for service composition and BoxError pattern
+tower = { version = "0.5.2", features = ["util"], optional = true }
+tower-service = { version = "0.3.3", optional = true }
+
+# Performance improvements
+futures = { workspace = true, optional = true }
+pin-project = { workspace = true, optional = true }
+
+
+[features]
+default = ["in-memory-only"]
+parsing = ["thread-ast-engine/parsing"]
+matching = ["thread-ast-engine/matching", "thread-ast-engine/parsing"]
+ast-grep-backend = ["dep:thread-ast-engine", "dep:thread-language", "matching", "parsing"]
+
+# Core service implementations
+in-memory-only = []
+# Temporarily disabled until dependencies are fixed
+
+# Commercial service boundaries
+storage-traits = ["dep:serde"]  # Trait definitions only
+storage-implementations = ["storage-traits"]
+
+# Intelligence service boundaries
+intelligence-traits = []  # Public trait definitions
+intelligence-implementations = ["intelligence-traits"]
+
+# Plugin system
+plugins = []
+extensions = ["plugins"]
+
+# Enhanced features
+serialization = ["dep:serde"]
+tower-services = ["dep:tower", "dep:tower-service"]
+performance = ["dep:futures", "dep:pin-project"]
+# string-optimization = ["dep:lasso"]
+
+# Feature combinations for improved foundation
+enhanced-foundation = ["tower-services", "performance"]

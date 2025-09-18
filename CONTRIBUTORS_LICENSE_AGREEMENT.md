@@ -1,3 +1,10 @@
+<!--
+SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+
+SPDX-License-Identifier: MIT OR Apache-2.0
+-->
+
 # Thread Contributor License Agreement (CLA)
 
 ## Welcome to Thread! 🧵🪡
@@ -21,7 +28,7 @@ By submitting code, docs, or anything else to Thread, you agree:
 ## Standard Legal Stuff 👩‍⚖️
 
 - **As is:** You’re contributing your work “as is” with no promises or guarantees. We’re not responsible for bugs, legal issues, or breakage.
-- **You keep your rights:** You can use, share, license, or remix *your own* work anywhere, any way you want (yes, even wallpaper).
+- **You keep your rights:** You can use, share, license, or remix *your own* work anywhere, any way you want (yes, even as wallpaper).
 - **No Take-Backs:** Once you contribute, you can’t undo or take back your permission.
 
 ---
@@ -43,5 +50,5 @@ Clarity is our mission. If anything’s fuzzy, ask us before you hit “submit.�
 
 ---
 
-[^1]: Knitli is the company behind Thread. We’re a Delaware corporation based in the U.S., and this agreement is made under Delaware law. Delaware: where corporations are born 👶🍼🧒🏢.
+[^1]: Knitli is the company behind Thread. We’re a Delaware corporation based in the U.S., and Delaware law governs this agreement. Delaware: where corporations are born 👶🍼🧒🏢.
 [^2]: “Share” includes distributing your contribution. We can include it in anything we make or sell, anywhere and any way we want.

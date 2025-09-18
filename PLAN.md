@@ -1,831 +1,883 @@
-thread/
-├── crates/
-│   ├── thread-core/        # Main engine + petgraph + error types
-│   ├── thread-parse/       # ast-grep integration
-│   ├── thread-store/       # Content store + memory mapping
-│   ├── thread-diff/        # Vendored difftastic diff algorithms
-│   ├── thread-cli/         # Command line interface
-│   └── thread-wasm/        # WASM bindings
-├── examples/               # Usage examples
-├── docs/                   # Documentation
-└── scripts/               # Build scripts
+# Thread Architecture 2.0: Evolved Design Plan
 
-You're absolutely right to feel confused - those multiple implementation plans created a tangle of overlapping ideas. Let me cut through the complexity and show you a **single, coherent architecture** that actually makes sense.
+Based on my analysis of your original PLAN.md vision and the current codebase, here's a comprehensive new architecture that evolves from where you are to where you want to be.
 
-## The Core Problem: Too Many Representations
+## Executive Summary
 
-Your instinct is spot-on: creating multiple data structures for the same data is wasteful and complex. The solution is to pick **one primary representation** and build everything around it.
+**Current State:** Excellent ast-grep integration foundation with performance optimizations
+**Target State:** Intelligent code analysis engine bridging AI expectations with reality
 
-## Simplified Architecture: One Graph to Rule Them All
+**Mission Alignment:** Making tools that bridge the gap between what people expect from AI and what AI can provide, with focus on accessibility and making difficult things simple and powerful.
 
-Here's how the pieces actually fit together:
+**Key Gaps:**
+1. Missing AI context intelligence layer for "exquisite context" generation
+2. Missing real-time intelligence features (conflict prediction, sprint automation)
+3. Missing human-AI bridge architecture
+4. Underspecified service boundaries for commercial extensions
 
+## Architecture Principles
+
+1. **🔒 Abstraction-First:** Isolate ast-grep behind clean interfaces
+2. **📊 Graph-Centric:** petgraph as single source of truth for code relationships
+3. **🧠 Intelligence-Driven:** AI context optimization and human-AI bridge capabilities
+4. **🧩 Modular Design:** Granular feature flags, plugin architecture
+5. **⚡ Performance-First:** SIMD optimizations, content-addressable storage
+6. **🏗️ Extensible Core:** Commercial services build on public foundation
+7. **🌐 Tiered Deployment:** Library → CLI → Limited WASM → Private Services
+8. **♿ Accessibility-First:** Making complex analysis simple and powerful for all users
+
+## Proposed Crate Structure
+
+### Core Thread Engine (New)
+
+```plaintext
+thread-core/                   # 🆕 Main analysis engine
+├── src/
+│   ├── graph/                # petgraph-based code graph
+│   │   ├── builder.rs        # Build graphs from parsed code
+│   │   ├── query.rs          # Graph traversal and analysis
+│   │   ├── relationships.rs  # Call graphs, imports, dependencies
+│   │   └── algorithms.rs     # Analysis algorithms
+│   ├── analysis/             # High-level analysis operations
+│   │   ├── context.rs        # AI context generation
+│   │   ├── dependencies.rs   # Dependency analysis
+│   │   └── metrics.rs        # Code metrics and insights
+│   ├── incremental/          # Incremental update system
+│   └── lib.rs
+└── features: ["graph", "analysis", "incremental", "metrics"]
+
+thread-store/                  # 🆕 Content-addressable storage
+├── src/
+│   ├── content.rs            # Content-addressable storage
+│   ├── dedup.rs              # Deduplication algorithms
+│   ├── cache.rs              # Analysis result caching
+│   ├── memory_map.rs         # Large file handling
+│   └── lib.rs
+└── features: ["memory-map", "compression", "persistence"]
+
+thread-intelligence/           # 🆕 AI-Human bridge layer
+├── src/
+│   ├── context/              # AI context generation strategies
+│   │   ├── relevance.rs      # Relevance scoring algorithms
+│   │   ├── optimization.rs   # Token budget optimization
+│   │   ├── adaptation.rs     # Model-specific adaptation
+│   │   └── bridge.rs         # Human-AI interface
+│   ├── explanation/          # Human-readable explanations
+│   │   ├── generator.rs      # Explanation generation
+│   │   ├── templates.rs      # Output templates
+│   │   └── accessibility.rs  # Accessibility features
+│   ├── prediction/           # Real-time intelligence
+│   │   ├── conflicts.rs      # Conflict prediction
+│   │   ├── sprint.rs         # Sprint automation
+│   │   └── evolution.rs      # Change analysis
+│   ├── monitoring/           # Performance monitoring
+│   │   ├── metrics.rs        # Performance metrics
+│   │   ├── alerts.rs         # Alerting system
+│   │   └── regression.rs     # Regression detection
+│   └── lib.rs
+└── features: ["context-intelligence", "prediction", "monitoring", "explanation"]
+
+thread-cli/                    # 🆕 Command-line interface
+├── src/
+│   ├── commands/             # CLI command implementations
+│   ├── config.rs             # Configuration management
+│   ├── output.rs             # Output formatting
+│   └── main.rs
+└── features: ["progress", "json-output", "config-files"]
 ```
-File → ast-grep (parsing) → petgraph (analysis) → Content store (dedup) → API
-                      ↓
-                   ropey (editing) → incremental updates
+
+### Enhanced Service Layer
+
+```plaintext
+thread-services/               # 🔄 Enhanced abstraction layer
+├── src/
+│   ├── traits/               # Core service traits
+│   │   ├── parser.rs         # Abstract parsing interface
+│   │   ├── analyzer.rs       # Abstract analysis interface
+│   │   ├── store.rs          # Abstract storage interface
+│   │   ├── persistence.rs    # Persistence service boundaries
+│   │   ├── intelligence.rs   # Intelligence service interface
+│   │   ├── monitoring.rs     # Performance monitoring interface
+│   │   └── context.rs        # Execution context (existing)
+│   ├── implementations/      # Service implementations
+│   │   ├── ast_grep.rs       # ast-grep service implementation
+│   │   ├── petgraph.rs       # petgraph service implementation
+│   │   ├── memory_only.rs    # In-memory implementations (public)
+│   │   └── composite.rs      # Combined service orchestration
+│   ├── plugins/              # Plugin system foundation
+│   └── lib.rs
+└── features: ["ast-grep", "plugins", "extensions", "persistence-traits", "intelligence-traits"]
 ```
 
-**That's it.** No type-sitter, no tree-sitter-graph, no redundant representations.
+### WASM Enhancement
 
-## What Each Component Actually Does
+```plaintext
+thread-wasm/                   # 🔄 Comprehensive WASM API
+├── src/
+│   ├── api/                  # JavaScript-friendly API
+│   ├── bindings.rs           # WASM bindings
+│   ├── limits.rs             # Rate limiting for public API
+│   └── lib.rs
+└── features: ["full-api", "limited-api", "rate-limiting"]
+```
 
-Let me explain each piece in plain terms:
+### Existing Crates (Preserved)
 
-### ast-grep: Your Parsing Orchestrator
+```plaintext
+thread-ast-engine/             # ✅ Keep as implementation detail
+thread-rule-engine/            # ✅ Keep as implementation detail
+thread-language/               # ✅ Keep as implementation detail
+thread-utils/                  # ✅ Enhanced with new utilities
+```
 
-- **What it does**: Detects file types, loads appropriate tree-sitter parsers, gives you clean AST access
-- **Why you need it**: Handles the messy tree-sitter setup and gives you a jQuery-like API
-- **You don't build competing representations** - you extract data from ast-grep and put it into petgraph
+## Abstraction Strategy: Isolating ast-grep
 
-### petgraph: Your Single Source of Truth
-
-- **What it does**: Stores your code structure as nodes (functions, classes) and edges (calls, imports)
-- **Why you need it**: Fast queries, graph algorithms, memory-efficient storage
-- **This is your primary data structure** - everything else feeds into or reads from this
-
-### ropey: Your Text Editor
-
-- **What it does**: Efficient text editing with line/column tracking
-- **Why you need it**: When code changes, you can update specific parts without reparsing everything
-- **How it fits**: Updates trigger incremental petgraph updates
-
-### fmmap: Your Large File Handler
-
-- **What it does**: Memory-maps huge files so you don't load them entirely into RAM
-- **Why you need it**: Parse 100MB files without using 100MB of memory
-- **How it fits**: Feeds chunks to ast-grep for parsing
-
-### Content-Addressable Storage: Your Deduplication Layer
-
-- **What it does**: Uses hashes to avoid storing duplicate content
-- **Why you need it**: If 10 files import the same function, store the function once
-- **rapidhash vs blake3**: rapidhash is faster, blake3 is more standard. Pick rapidhash for speed.
-
-## Concrete Data Flow Example
-
-Let's say you're analyzing this Rust file:
+### Current Problem
 
 ```rust
-// main.rs
-use std::collections::HashMap;
+// Direct dependency on ast-grep API
+use thread_ast_engine::AstGrep;
+let ast = Language::Tsx.ast_grep(content);  // Tied to ast-grep
+```
 
-fn process_data(input: &str) -> HashMap<String, i32> {
-    let mut result = HashMap::new();
-    // ... processing logic
-    result
+### Proposed Solution: Service Traits
+
+```rust
+// thread-services/src/traits/parser.rs
+#[async_trait::async_trait]
+pub trait CodeParser: Send + Sync {
+    async fn parse(&self, content: &str, language: SupportedLanguage)
+        -> Result<ParsedCode, ParseError>;
+
+    fn supported_languages(&self) -> &[SupportedLanguage];
+    fn capabilities(&self) -> ParserCapabilities;
 }
 
-fn main() {
-    let data = process_data("hello");
-    println!("{:?}", data);
+pub trait CodeAnalyzer: Send + Sync {
+    fn find_functions(&self, code: &ParsedCode) -> Result<Vec<Function>, AnalysisError>;
+    fn find_calls(&self, code: &ParsedCode) -> Result<Vec<FunctionCall>, AnalysisError>;
+    fn find_imports(&self, code: &ParsedCode) -> Result<Vec<Import>, AnalysisError>;
 }
-```
 
-Here's exactly what happens:
+// thread-services/src/implementations/ast_grep.rs
+pub struct AstGrepParser {
+    // Wraps thread-ast-engine internally
+}
 
-### Step 1: Parse with ast-grep
-
-```rust
-// In your parser crate
-let ast = ast_grep_core::AstGrep::new(content, Language::Rust);
-let root = ast.root();
-
-// Find functions
-let functions = root.find_all("fn $NAME($PARAMS) -> $RETURN { $BODY }");
-```
-
-### Step 2: Extract to petgraph
-
-```rust
-// In your core crate
-let mut graph = petgraph::Graph::new();
-
-for func in functions {
-    let func_node = graph.add_node(CodeNode {
-        id: hash_content(func.text()),
-        kind: NodeKind::Function,
-        name: func.field("NAME").text().to_string(),
-        line: func.start_position().row,
-        text: func.text().to_string(),
-    });
-
-    // Find calls within this function
-    let calls = func.find_all("$FUNC($ARGS)");
-    for call in calls {
-        let call_node = graph.add_node(CodeNode {
-            kind: NodeKind::FunctionCall,
-            name: call.field("FUNC").text().to_string(),
-            // ...
-        });
-        graph.add_edge(func_node, call_node, EdgeKind::Calls);
+impl CodeParser for AstGrepParser {
+    async fn parse(&self, content: &str, language: SupportedLanguage)
+        -> Result<ParsedCode, ParseError> {
+        // Implementation using thread-ast-engine
+        // But external API is clean and swappable
     }
 }
 ```
 
-### Step 3: Store with content addressing
+### Benefits of This Approach
+
+1. **🔒 Implementation Isolation:** Can swap out ast-grep without breaking APIs
+2. **🧪 Testability:** Easy to mock parsers for testing
+3. **🔌 Extensibility:** Add new parsers (tree-sitter direct, custom, etc.)
+4. **📦 Feature Flags:** Enable/disable specific parser implementations
+
+## Core Thread Engine Design
+
+### Graph-Centric Architecture
 
 ```rust
-// In your buffer crate
-let content_hash = rapidhash::hash(content.as_bytes());
-if !content_store.contains(&content_hash) {
-    content_store.insert(content_hash, content);
+// thread-core/src/graph/mod.rs
+use petgraph::{Graph, NodeIndex, EdgeIndex};
+
+pub struct CodeGraph {
+    graph: Graph<CodeNode, CodeEdge>,
+    // Fast lookups
+    name_to_node: HashMap<String, NodeIndex>,
+    file_to_nodes: HashMap<PathBuf, Vec<NodeIndex>>,
+    // Content addressing
+    content_store: Arc<ContentStore>,
+}
+
+#[derive(Debug, Clone)]
+pub struct CodeNode {
+    pub id: ContentHash,           // Content-addressable ID
+    pub kind: NodeKind,            // Function, Class, Variable, etc.
+    pub name: String,              // Symbol name
+    pub location: SourceLocation,  // File, line, column
+    pub metadata: NodeMetadata,    // Language-specific data
+}
+
+#[derive(Debug, Clone)]
+pub enum CodeEdge {
+    Calls { call_site: SourceLocation },
+    Imports { import_path: String },
+    Inherits { inheritance_type: InheritanceType },
+    References { ref_type: ReferenceType },
+    Contains { scope: ScopeType },
 }
 ```
 
-**Result**: One graph containing all your code structure, with efficient storage and fast queries.
-
-## Simplified Repo Structure
-
-Based on this understanding, here's a cleaner crate structure:
-
-```
-thread/
-├── crates/
-│   ├── thread-core/        # Main analysis engine + petgraph
-│   ├── thread-parse/       # ast-grep integration
-│   ├── thread-store/       # Content-addressable storage + fmmap
-│   ├── thread-edit/        # ropey integration for live updates
-│   ├── thread-diff/        # difftastic algorithms (vendored)
-│   ├── thread-cli/         # Command line interface
-│   └── thread-wasm/        # WASM bindings
-```
-
-**That's 7 crates instead of 10**, and each has a clear, single responsibility.
-
-## Core Integration Example
-
-Here's how the main engine actually works:## How the Parsing Layer Works## Content Store with Memory Mapping## What to Skip for MVP
-
-You're right to question some of the complexity. Here's what to **skip** for your MVP:
-
-### ❌ Skip These (Add Complexity Without Clear Value)
-
-- **type-sitter**: Adds build complexity and compile-time dependency management for marginal benefit
-- **tree-sitter-graph**: Complicates WASM builds and memory management; petgraph is more flexible
-- **difftastic parsing**: Only vendor their diff algorithms, use ast-grep for parsing
-- **ropey for now**: Start with simple string replacement, add incremental editing later
-
-### ✅ Keep These (Core Value)
-
-- **ast-grep**: Mature parsing with great language detection
-- **petgraph**: Your single source of truth for code structure
-- **content-addressable storage**: Essential for deduplication
-- **memory mapping**: Critical for large repos
-
-## Recommended Repo Structure
-
-Based on this simplified architecture, here's your actual repo structure:
-
-```
-thread/
-├── crates/
-│   ├── thread-core/        # Main engine + petgraph + error types
-│   ├── thread-parse/       # ast-grep integration
-│   ├── thread-store/       # Content store + memory mapping
-│   ├── thread-diff/        # Vendored difftastic diff algorithms
-│   ├── thread-cli/         # Command line interface
-│   └── thread-wasm/        # WASM bindings
-├── examples/               # Usage examples
-├── docs/                   # Documentation
-└── scripts/               # Build scripts
-```
-
-**That's 6 crates total** - much simpler than your current 10.
-
-## Concrete Next StepsHere's your concrete action plan
-
-### Step 1: Reorganize Your Crates (1 day)
-
-**Consolidate to 6 crates:**
-
-```bash
-# Delete unnecessary crates
-rm -rf crates/ast crates/derive crates/query crates/vcs
-
-# Rename existing crates
-mv crates/core crates/thread-core
-mv crates/parser crates/thread-parse
-mv crates/buffer crates/thread-store
-mv crates/diff crates/thread-diff
-mv crates/cli crates/thread-cli
-mv crates/wasm crates/thread-wasm
-
-# Merge language detection into parser
-cp crates/lang/src/* crates/thread-parse/src/
-rm -rf crates/lang
-```
-
-### Step 2: Build Your First Working Example (2-3 days)
-
-Start with this **minimal working example** in `thread-core`:
+### Analysis Capabilities
 
 ```rust
-// crates/thread-core/src/lib.rs
-use thread_parse::Parser;
-use petgraph::Graph;
+// thread-core/src/analysis/context.rs
+impl CodeGraph {
+    /// Generate AI-friendly context for a symbol
+    pub fn generate_context(&self, symbol: &str, opts: ContextOptions)
+        -> Result<AiContext, AnalysisError> {
+        let mut context = AiContext::new();
 
-pub fn analyze_rust_file(content: &str) -> Result<Analysis, Error> {
-    let mut parser = Parser::new();
-    let elements = parser.parse(content, SupportedLanguage::Rust)?;
+        // Find the symbol
+        let node = self.find_symbol(symbol)?;
+        context.add_primary(node);
 
-    let mut graph = Graph::new();
-    for element in elements {
-        graph.add_node(element);
+        // Add dependencies if requested
+        if opts.include_dependencies {
+            let deps = self.get_dependencies(node, opts.max_depth)?;
+            context.add_dependencies(deps);
+        }
+
+        // Add callers if requested
+        if opts.include_callers {
+            let callers = self.get_callers(node, opts.max_depth)?;
+            context.add_callers(callers);
+        }
+
+        Ok(context)
     }
 
-    Ok(Analysis { graph, node_count: graph.node_count() })
+    /// Fast graph queries
+    pub fn find_functions_calling(&self, target: &str) -> Vec<&CodeNode> { /* ... */ }
+    pub fn get_dependency_chain(&self, from: &str, to: &str) -> Option<Vec<&CodeNode>> { /* ... */ }
+    pub fn find_circular_dependencies(&self) -> Vec<Vec<&CodeNode>> { /* ... */ }
 }
 ```
 
-**Test it on your own codebase:**
+## AI Context Intelligence Layer
 
-```bash
-cargo run -- analyze crates/thread-core/src/lib.rs
-```
-
-### Step 3: Add Content-Addressable Storage (1-2 days)
-
-Implement the content store and test deduplication:
+### Context Generation Engine
 
 ```rust
-let mut store = ContentStore::new();
-let hash1 = store.intern("fn main() {}");
-let hash2 = store.intern("fn main() {}"); // Same hash!
-assert_eq!(hash1, hash2);
-```
+// thread-intelligence/src/context/relevance.rs
+pub struct ContextRelevanceEngine {
+    scorer: RelevanceScorer,
+    optimizer: TokenBudgetOptimizer,
+    adapter: ModelAdapter,
+}
 
-### Step 4: Connect to AI Context Goal
+pub struct AiContext {
+    primary_code: Vec<CodeSegment>,
+    dependencies: Vec<(CodeSegment, RelevanceScore)>,
+    semantic_relationships: Vec<SemanticLink>,
+    token_budget: TokenBudget,
+    optimization_metadata: OptimizationMetadata,
+}
 
-**This is how your architecture serves AI assistants:**
+impl ContextRelevanceEngine {
+    /// Generate exquisite context optimized for AI consumption
+    pub fn generate_context(&self,
+        query: &ContextQuery,
+        graph: &CodeGraph,
+        model_profile: &LlmProfile
+    ) -> Result<AiContext, ContextError> {
+        // Score relevance of all code segments
+        let scored_segments = self.scorer.score_relevance(query, graph)?;
 
-When an AI asks: *"How does the `parse` function work in Thread?"*
+        // Optimize for token budget
+        let optimized = self.optimizer.optimize_for_budget(
+            scored_segments,
+            model_profile.context_window
+        )?;
 
-Your system can:
+        // Adapt for specific model characteristics
+        let adapted = self.adapter.adapt_for_model(optimized, model_profile)?;
 
-1. **Find the function**: Query graph for nodes where `name == "parse"`
-2. **Find dependencies**: Traverse edges to see what `parse` calls
-3. **Find usage**: Traverse reverse edges to see what calls `parse`
-4. **Build context**: Return just the relevant functions with exact line numbers
+        Ok(adapted)
+    }
 
-Instead of dumping entire files, you give the AI **exactly what it needs**.
-
-### Step 5: Test End-to-End (1 day)
-
-Build a simple CLI command:
-
-```bash
-thread context --function "parse" --file "src/main.rs"
-```
-
-Output:
-
-```markdown
-## Function: parse (line 42-67)
-```rust
-fn parse(&self, content: &str) -> Result<Vec<Element>, Error> {
-    // ... exact function code
+    /// Generate human-readable explanations
+    pub fn explain_context(&self, context: &AiContext) -> Result<Explanation, ExplanationError> {
+        // Generate accessible explanations for humans
+    }
 }
 ```
 
-## Called by
-
-- analyze_file (line 15)
-- update_file (line 89)
-
-## Calls
-
-- detect_language (line 45)
-- extract_functions (line 52)
-
-```
-
-**That's your MVP.** A working system that can provide intelligent context to AI assistants.
-
-## Why This Architecture Works
-
-1. **Single source of truth**: Everything goes into one petgraph
-2. **No duplication**: Content store handles dedup automatically
-3. **Fast queries**: Graph traversal is O(edges), not O(files)
-4. **Incremental**: Can add features without rebuilding everything
-5. **WASM-friendly**: ast-grep compiles to WASM, petgraph is pure Rust
-
-## Start Simple, Add Complexity Later
-
-You can add these features incrementally:
-- **Week 2**: Memory mapping for large files
-- **Week 3**: Incremental updates with ropey
-- **Week 4**: WASM compilation
-- **Week 5**: Difftastic integration for change tracking
-
-The beauty of this architecture is that each piece is independent. Get the core working first, then add the bells and whistles.
-
-**Your next commit should be**: A working `analyze_rust_file()` function that parses a simple Rust file and builds a petgraph. Everything else can wait.
-
-
-# Thread: 30-Day Implementation Plan
-
-*Building a Rust code analysis engine for AI context generation*
-
-## Overview & Success Metrics
-
-**Goal**: By day 30, you'll have a working tool that can analyze Rust codebases and generate perfect context for AI assistants.
-
-**Success Criteria**:
-- ✅ Parses Rust files into a queryable graph
-- ✅ Provides AI-friendly context with exact line numbers
-- ✅ Handles large codebases efficiently
-- ✅ Compiles to WASM for edge deployment
-- ✅ CLI tool that works on real projects
-
----
-
-## Week 1: Foundation (Days 1-7)
-*Theme: Get something working quickly*
-
-### Day 1: Project Cleanup & Setup
-**Goal**: Clean repo structure, working build
-
-**Tasks**:
-```bash
-# Reorganize crates (30 min)
-rm -rf crates/{ast,derive,query,vcs}
-mv crates/core crates/thread-core
-mv crates/parser crates/thread-parse
-mv crates/buffer crates/thread-store
-mv crates/cli crates/thread-cli
-mv crates/wasm crates/thread-wasm
-
-# Update root Cargo.toml (30 min)
-# Add workspace dependencies
-```
-
-**Implementation Changes**:
-
-- While setting up the workspace, I realized that any filesystem bound operations (reading/writing files) need to be separated from all other operations. This is because the filesystem is not available in WASM, and we want to keep the core logic portable. I added the `thread-fs` crate to handle filesystem operations separately. We'll still use ast-grep's implementation most likely, so it will be a very tiny crate.
-- At some point we may need an interface to the filesystem that allows us to read/write files in a way that is compatible with both Rust and WASM (i.e. communicate with a server implementing a trait or a filesystem handler implementing the same trait -- abstract the 'get and save stuff' ops from IO/environment). For now, we can just use the `thread-fs` crate for reading/writing files in Rust.
-
-**Deliverable**: `cargo build` works without errors
-
-### Day 2: Basic ast-grep Integration <!-- We are here on 6 July -->
-
-**Goal**: Parse a simple Rust file
-
-**Tasks**:
-
-- Add ast-grep dependency to `thread-parse`
-- Implement basic language detection
-- Write function to extract Rust functions
-- Test with a simple example
-
-**Deliverable**:
+### Human-AI Bridge Architecture
 
 ```rust
-let functions = parser.extract_functions("fn main() { println!(\"hello\"); }")?;
-assert_eq!(functions.len(), 1);
-assert_eq!(functions[0].name, "main");
+// thread-intelligence/src/context/bridge.rs
+pub trait ContextBridge {
+    /// Optimize context for human consumption
+    fn optimize_for_human(&self, context: AiContext) -> HumanReadableContext;
+
+    /// Optimize context for specific LLM models
+    fn optimize_for_llm(&self, context: AiContext, model: LlmProfile) -> OptimizedContext;
+
+    /// Generate explanations of analysis results
+    fn explain_analysis(&self, result: &AnalysisResult) -> Explanation;
+
+    /// Make complex analysis accessible
+    fn simplify_for_accessibility(&self, analysis: ComplexAnalysis) -> AccessibleAnalysis;
+}
+
+pub struct LlmProfile {
+    pub model_name: String,
+    pub context_window: usize,
+    pub token_cost_ratio: f64,
+    pub strengths: Vec<ModelStrength>,
+    pub weaknesses: Vec<ModelWeakness>,
+}
+
+pub struct RelevanceScore {
+    pub syntactic_relevance: f64,
+    pub semantic_relevance: f64,
+    pub dependency_importance: f64,
+    pub usage_frequency: f64,
+    pub change_likelihood: f64,
+    pub combined_score: f64,
+}
 ```
 
-### Day 3: Petgraph Integration
+## Real-Time Intelligence Features
 
-**Goal**: Build your first code graph
-
-**Tasks**:
-
-- Add petgraph to `thread-core`
-- Define `CodeNode` and `CodeEdge` structs
-- Implement graph building from parsed functions
-- Test graph creation and basic queries
-
-**Deliverable**:
+### Predictive Intelligence Layer
 
 ```rust
-let graph = analyzer.build_graph(functions)?;
-assert_eq!(graph.node_count(), 1);
+// thread-intelligence/src/prediction/mod.rs
+pub trait IntelligenceService {
+    /// Predict potential merge conflicts before they happen
+    fn predict_conflicts(&self, changes: &[FileChange]) -> ConflictPrediction;
+
+    /// Analyze sprint velocity and bottlenecks
+    fn analyze_sprint_velocity(&self, graph: &CodeGraph) -> VelocityMetrics;
+
+    /// Suggest intelligent refactoring opportunities
+    fn suggest_refactoring(&self, complexity: &ComplexityAnalysis) -> RefactoringSuggestions;
+
+    /// Predict impact of proposed changes
+    fn predict_change_impact(&self, proposed: &[Change]) -> ImpactAnalysis;
+
+    /// Analyze code evolution patterns
+    fn analyze_evolution(&self, history: &GitHistory, graph: &CodeGraph) -> EvolutionInsights;
+}
+
+// thread-intelligence/src/prediction/conflicts.rs
+pub struct ConflictPredictor {
+    graph: Arc<CodeGraph>,
+    git_analyzer: GitAnalyzer,
+    pattern_matcher: ConflictPatternMatcher,
+}
+
+impl ConflictPredictor {
+    pub fn predict_merge_conflicts(&self,
+        branch_a: &Branch,
+        branch_b: &Branch
+    ) -> Result<ConflictPrediction, PredictionError> {
+        let changes_a = self.git_analyzer.analyze_changes(branch_a)?;
+        let changes_b = self.git_analyzer.analyze_changes(branch_b)?;
+
+        // Find overlapping affected code regions
+        let overlaps = self.find_code_overlaps(&changes_a, &changes_b)?;
+
+        // Predict conflict likelihood using graph analysis
+        let predictions = overlaps.into_iter()
+            .map(|overlap| self.predict_conflict_likelihood(overlap))
+            .collect();
+
+        Ok(ConflictPrediction::new(predictions))
+    }
+}
 ```
 
-### Day 4: End-to-End MVP
+### Performance & Monitoring Framework
 
-**Goal**: Working file analysis
+```rust
+// thread-intelligence/src/monitoring/mod.rs
+pub trait PerformanceMonitor {
+    fn track_analysis_time(&self, operation: &str, duration: Duration);
+    fn report_memory_usage(&self, component: &str, bytes: usize);
+    fn alert_on_regression(&self, metric: &str, threshold: f64);
+    fn collect_context_quality_metrics(&self, context: &AiContext, feedback: &UserFeedback);
+}
 
-**Tasks**:
-
-- Connect parser → graph builder → analysis result
-- Implement `analyze_file()` in thread-core
-- Test on a real Rust file (like `src/main.rs`)
-- Add basic error handling
-
-**Deliverable**: Analyze your own `main.rs` and print function names
-
-### Day 5: Content-Addressable Storage
-
-**Goal**: Deduplication foundation
-
-**Tasks**:
-
-- Implement basic ContentStore in `thread-store`
-- Add rapidhash for content hashing
-- Test deduplication with duplicate content
-- Integrate with graph builder
-
-**Deliverable**: Same content gets same hash, storage deduplicates automatically
-
-### Day 6: Basic CLI Interface
-
-**Goal**: Usable command-line tool
-
-**Tasks**:
-
-- Create `thread analyze <file>` command
-- Pretty-print analysis results
-- Add `--format json` option
-- Test on multiple Rust files
-
-**Deliverable**:
-
-```bash
-thread analyze src/main.rs
-# Output: Functions: main (line 1), Dependencies: 0
+pub struct IntelligenceMetrics {
+    pub context_generation_time: Duration,
+    pub relevance_score_accuracy: f64,
+    pub token_efficiency_ratio: f64,
+    pub user_satisfaction_score: f64,
+    pub prediction_accuracy: f64,
+}
 ```
 
-### Day 7: Week 1 Demo & Testing
+## Service Architecture Boundaries
 
-**Goal**: Working end-to-end system
+### Clear Separation of Concerns
 
-**Tasks**:
+```rust
+// thread-services/src/traits/persistence.rs
+pub trait AnalysisService {
+    /// In-memory only - public API
+    fn analyze_in_memory(&self, code: &CodeGraph) -> InMemoryResult;
+    fn generate_context(&self, query: &ContextQuery) -> AiContext;
+}
 
-- Run analysis on Thread's own codebase
-- Write basic integration tests
-- Document what works and what doesn't
-- Plan Week 2 priorities
+pub trait PersistenceService {
+    /// Database/storage - commercial only
+    fn store_analysis(&self, result: &AnalysisResult) -> Result<(), PersistenceError>;
+    fn load_cached_analysis(&self, key: &CacheKey) -> Option<AnalysisResult>;
+    fn persist_graph(&self, graph: &CodeGraph) -> Result<GraphId, PersistenceError>;
+}
 
-**Deliverable**: Demo video showing Thread analyzing itself
-
----
-
-## Week 2: Core Features (Days 8-14)
-
-#### Theme: Make it robust and useful
-
-### Day 8: Multi-Language Support
-
-**Goal**: Support JavaScript/TypeScript
-
-**Tasks**:
-
-- Add JavaScript patterns to ast-grep integration
-- Implement `extract_js_functions()` and `extract_js_classes()`
-- Test with real JS/TS files
-- Update language detection
-
-**Deliverable**: Parse both Rust and JavaScript files correctly
-
-### Day 9: Relationship Detection
-
-**Goal**: Find function calls and imports
-
-**Tasks**:
-
-- Extract function calls from parsed ASTs
-- Build call graph edges in petgraph
-- Implement import/export detection
-- Test relationship accuracy
-
-**Deliverable**: Graph shows "main calls println!" relationships
-
-### Day 10: Memory Mapping for Large Files
-
-**Goal**: Handle big repositories
-
-**Tasks**:
-
-- Add fmmap integration to thread-store
-- Implement threshold-based memory mapping
-- Test with files >1MB
-- Benchmark memory usage
-
-**Deliverable**: Parse large files without loading them entirely into memory
-
-### Day 11: Graph Queries & Context Generation
-
-**Goal**: AI-ready context extraction
-
-**Tasks**:
-
-- Implement `find_function()`, `get_dependencies()`, `get_callers()`
-- Create context generation that includes related functions
-- Format output for AI consumption (markdown with line numbers)
-- Test context relevance
-
-**Deliverable**: Given a function name, return all related code with line numbers
-
-### Day 12: Incremental Updates Foundation
-
-**Goal**: Detect what changed
-
-**Tasks**:
-
-- Add change detection when files are modified
-- Implement basic graph node invalidation
-- Test update performance vs full re-analysis
-- Design API for incremental updates
-
-**Deliverable**: Re-analyzing changed files is faster than full analysis
-
-### Day 13: Error Handling & Fallbacks
-
-**Goal**: Graceful failure handling
-
-**Tasks**:
-
-- Implement parse error recovery
-- Add fallback strategies for unsupported files
-- Timeout handling for large files
-- Comprehensive error types
-
-**Deliverable**: Tool handles malformed files and edge cases gracefully
-
-### Day 14: Week 2 Demo & Optimization
-
-**Goal**: Fast, reliable analysis
-
-**Tasks**:
-
-- Performance profiling and optimization
-- Test on popular open-source Rust projects
-- Memory usage analysis
-- Document performance characteristics
-
-**Deliverable**: Analyze a 100+ file project in under 10 seconds
-
----
-
-## Week 3: Production Ready (Days 15-21)
-
-*Theme: Real-world usage and polish*
-
-### Day 15: Advanced CLI Features
-
-**Goal**: Full-featured command-line interface
-
-**Tasks**:
-
-- Add `thread scan <directory>` for whole projects
-- Implement `thread context --function <name>` for AI context
-- Add filtering options (include/exclude patterns)
-- Progress bars and better UX
-
-**Deliverable**:
-
-```bash
-thread context --function "parse" --include-callers --include-dependencies
+pub trait IntelligenceService {
+    /// Advanced intelligence - commercial features
+    fn predict_conflicts(&self, changes: &[FileChange]) -> ConflictPrediction;
+    fn analyze_sprint_metrics(&self, graph: &CodeGraph) -> SprintMetrics;
+    fn suggest_optimizations(&self, analysis: &PerformanceAnalysis) -> OptimizationSuggestions;
+}
 ```
 
-### Day 16: Configuration System
+## Feature Flag Architecture
 
-**Goal**: Customizable analysis
+### Enhanced Granular Control System
 
-**Tasks**:
+```toml
+# thread-core/Cargo.toml
 
-- Add `thread.toml` configuration file support
-- Configurable language patterns
-- Custom ignore patterns
-- Analysis depth settings
+[features]
+default = ["graph", "basic-analysis"]
 
-**Deliverable**: Users can customize analysis behavior per project
+# Core features
+graph = ["petgraph", "thread-store/content-addressing"]
+analysis = ["graph", "metrics"]
+incremental = ["analysis", "thread-store/caching"]
 
-### Day 17: Repository-Level Analysis
+# Intelligence features (new)
+context-intelligence = ["analysis", "thread-intelligence/context"]
+conflict-prediction = ["intelligence", "thread-intelligence/prediction"]
+sprint-automation = ["intelligence", "thread-intelligence/prediction"]
+human-ai-bridge = ["context-intelligence", "thread-intelligence/explanation"]
 
-**Goal**: Understand project structure
+# Analysis features
+metrics = ["analysis"]
+ai-context = ["analysis", "thread-services/context-generation"]
+dependency-analysis = ["graph"]
+call-graph = ["graph", "thread-services/ast-grep"]
 
-**Tasks**:
+# Performance features
+simd = ["thread-utils/simd"]
+parallel = ["rayon"]
+memory-mapping = ["thread-store/memory-map"]
+performance-monitoring = ["thread-intelligence/monitoring"]
 
-- Implement project-wide dependency graphs
-- Module/package relationship detection
-- Cross-file reference resolution
-- Export project summaries
+# Persistence features (commercial)
+persistence = ["serde", "database-traits"]
+postgres-backend = ["persistence", "sqlx/postgres"]
+redis-cache = ["persistence", "redis"]
 
-**Deliverable**: Generate project-wide code maps with module relationships
+# Extension features
+plugins = ["thread-services/plugins"]
+custom-languages = ["thread-services/extensions"]
+commercial-extensions = ["plugins", "persistence"]
 
-### Day 18: Content Addressing Optimization
-
-**Goal**: Efficient storage and retrieval
-
-**Tasks**:
-
-- Implement storage compression
-- Add garbage collection for unused content
-- Optimize hash table performance
-- Cache analysis results
-
-**Deliverable**: Analyzing the same project twice is nearly instant
-
-### Day 19: Real-World Testing
-
-**Goal**: Validate on popular projects
-
-**Tasks**:
-
-- Test on tokio, serde, clap, and other popular crates
-- Benchmark against manual code reading
-- Collect accuracy metrics
-- Fix bugs found in testing
-
-**Deliverable**: Successfully analyze 10+ popular Rust projects
-
-### Day 20: Documentation & Examples
-
-**Goal**: User-friendly documentation
-
-**Tasks**:
-
-- Write comprehensive README
-- Create usage examples
-- Document API for programmatic use
-- Performance tuning guide
-
-**Deliverable**: Someone else can use Thread effectively from the docs
-
-### Day 21: Week 3 Demo & Integration Testing
-
-**Goal**: Production-ready tool
-
-**Tasks**:
-
-- End-to-end integration tests
-- CI/CD pipeline setup
-- Release preparation
-- Performance regression tests
-
-**Deliverable**: Automated testing ensures reliability
-
----
-
-## Week 4: WASM & Deployment (Days 22-30)
-
-#### Theme: Edge deployment and finishing touches
-
-### Day 22: WASM Compilation Setup
-
-**Goal**: Compile core functionality to WASM
-
-**Tasks**:
-
-- Configure WASM build for thread-core and thread-parse
-- Handle ast-grep WASM compatibility issues
-- Create JavaScript bindings
-- Test basic WASM functionality
-
-**Deliverable**: Core parsing functionality runs in browser/Cloudflare Workers
-
-### Day 23: WASM API Design
-
-**Goal**: Clean JavaScript interface
-
-**Tasks**:
-
-- Design ergonomic JS API for WASM module
-- Handle memory management across JS/WASM boundary
-- Implement async patterns for large operations
-- Add TypeScript definitions
-
-**Deliverable**:
-
-```javascript
-const thread = await ThreadWasm.new();
-const result = await thread.analyzeCode(rustCode, 'rust');
+# WASM features
+wasm-basic = ["graph"]
+wasm-intelligence = ["wasm-basic", "context-intelligence"]
+wasm-full = ["wasm-intelligence", "analysis", "ai-context"]
+wasm-commercial = ["wasm-full", "conflict-prediction", "sprint-automation"]
 ```
 
-### Day 24: Edge Deployment Testing
+### Usage Examples
 
-**Goal**: Validate Cloudflare Workers deployment
+```toml
+# Library users can control exactly what they pay for
+[dependencies]
+thread-core = { version = "0.1", features = ["graph", "ai-context"] }
+# Only includes graph building and AI context - no metrics overhead
 
-**Tasks**:
+thread-cli = { version = "0.1", features = ["full"] }
+# CLI includes everything
 
-- Create minimal Cloudflare Worker using Thread WASM
-- Test memory limits and performance
-- Optimize bundle size
-- Handle worker timeout constraints
+thread-wasm = { version = "0.1", features = ["basic"] }
+# Public WASM is limited
+```
 
-**Deliverable**: Working demo on Cloudflare Workers
+## Tiered Deployment Strategy
 
-### Day 25: API Service Architecture
+### 1. Public Library & CLI
 
-**Goal**: HTTP API for Focus by knitli service
+```rust
+// Full-featured, open source
+pub use thread_core::{CodeGraph, AnalysisError};
+pub use thread_services::{CodeParser, CodeAnalyzer};
+pub use thread_store::ContentStore;
 
-**Tasks**:
+// Available features: All open source features
+// License: AGPL-3.0-or-later
+```
 
-- Design REST API for code analysis
-- Implement rate limiting and auth placeholders
-- Add webhook endpoints for GitHub integration
-- Test API performance under load
+### 2. Limited Public WASM
 
-**Deliverable**: HTTP API that provides code analysis as a service
+```rust
+// thread-wasm with "limited-api" feature
+impl ThreadWasm {
+    #[wasm_bindgen]
+    pub fn analyze_code(&self, code: &str, language: &str) -> Result<JsValue, JsValue> {
+        // Rate limiting: max 100 files
+        if self.file_count > 100 {
+            return Err("API key required for large projects".into());
+        }
+        // Basic analysis only
+    }
+}
+```
 
-### Day 26: GitHub Integration Preparation
+### 3. Private Commercial Services
 
-**Goal**: Foundation for GitHub App
+```plaintext
+// Private crates (not published)
+thread-commercial/
+├── src/
+│   ├── advanced_analytics/   # Proprietary algorithms
+│   ├── enterprise_features/  # Commercial-only features
+│   ├── cloud_integration/    # Cloudflare Workers optimizations
+│   └── billing/              # Usage tracking, API keys
+```
 
-**Tasks**:
+## Commercial Extension Points
 
-- Implement repository cloning and analysis
-- Add webhook payload parsing
-- Design data models for stored analyses
-- Test with real GitHub repositories
+```rust
+// thread-services/src/traits/extension.rs
+pub trait CommercialExtension: Send + Sync {
+    fn enhance_analysis(&self, graph: &CodeGraph) -> Result<EnhancedAnalysis, Error>;
+    fn custom_metrics(&self, graph: &CodeGraph) -> Result<CustomMetrics, Error>;
+}
 
-**Deliverable**: Can analyze a GitHub repository from webhook payload
+// Private implementation
+struct EnterpriseAnalyzer {
+    // Proprietary algorithms
+}
 
-### Day 27: Performance Optimization & Caching
+impl CommercialExtension for EnterpriseAnalyzer {
+    fn enhance_analysis(&self, graph: &CodeGraph) -> Result<EnhancedAnalysis, Error> {
+        // Advanced analysis only available in commercial version
+    }
+}
+```
 
-**Goal**: Production-scale performance
+## Enhanced Migration Path: Current → Target
 
-**Tasks**:
+### Phase 0: Foundation & Service Architecture
 
-- Implement intelligent caching strategies
-- Optimize for repeated analyses
-- Memory usage profiling and optimization
-- Benchmark against performance targets
+1. **Create abstraction layer:** Enhance thread-services with parser/analyzer traits
+2. **Implement service boundaries:** Clear separation of in-memory vs persistence
+3. **Implement ast-grep adapter:** Wrap existing ast-grep components behind new interfaces
+4. **Enhanced feature flags:** Add intelligence and persistence feature control
+5. **Contract testing setup:** Ensure service boundary compliance
 
-**Deliverable**: Meets performance requirements for commercial service
+### Phase 1: Intelligence Foundation
 
-### Day 28: Security & Reliability
+1. **Design context intelligence architecture:** Create thread-intelligence crate structure
+2. **Implement relevance scoring:** Basic algorithms for context relevance
+3. **Create human-AI bridge interfaces:** Design accessibility-first APIs
+4. **Setup performance monitoring:** Framework for measuring context quality
 
-**Goal**: Production security standards
+### Phase 2: Core Engine & Intelligence
 
-**Tasks**:
+1. **Create thread-core:** Implement petgraph-based analysis engine
+2. **Create thread-store:** Content-addressable storage with deduplication
+3. **Implement context intelligence:** Basic AI context generation with relevance scoring
+4. **Integration:** Connect core engine to ast-grep via service layer
+5. **Performance monitoring:** Real-time metrics collection
 
-- Input validation and sanitization
-- Resource limit enforcement
-- Error reporting and monitoring hooks
-- Security audit of dependencies
+### Phase 3: User Interface & Accessibility (Week 5-7)
 
-**Deliverable**: Secure, reliable service foundation
+1. **Create thread-cli:** Command-line interface with accessibility features
+2. **Enhance thread-wasm:** Comprehensive WASM API with rate limiting
+3. **Human-AI bridge implementation:** Context optimization for both humans and AI
+4. **Documentation:** API docs, accessibility guides, and usage examples
+5. **Integration testing:** End-to-end workflow validation
 
-### Day 29: Final Integration & Polish
+### Phase 4: Intelligence Features (Week 7-9)
 
-**Goal**: Complete, polished system
+1. **Conflict prediction:** Implement merge conflict prediction system
+2. **Sprint automation:** Basic sprint metrics and velocity analysis
+3. **Evolution analysis:** Change impact prediction and pattern recognition
+4. **Quality feedback loops:** Context quality measurement and improvement
 
-**Tasks**:
+### Phase 5: Commercial Preparation (Week 9-10)
 
-- End-to-end testing of all components
-- Bug fixes and edge case handling
-- Final documentation updates
-- Release candidate preparation
+1. **Commercial extensions:** Private crates for enhanced intelligence features
+2. **Cloudflare optimization:** WASM deployment optimizations
+3. **Enterprise features:** Advanced analytics and monitoring
+4. **Testing & polish:** Performance testing, edge case handling, accessibility validation
 
-**Deliverable**: Feature-complete Thread v0.1.0
+## Extension & Plugin Architecture
 
-### Day 30: Launch Preparation & Demo
+### Plugin System Design
 
-**Goal**: Ready for public use
+```rust
+// thread-services/src/plugins/mod.rs
+pub trait LanguagePlugin: Send + Sync {
+    fn language(&self) -> SupportedLanguage;
+    fn parse(&self, content: &str) -> Result<ParsedCode, ParseError>;
+    fn analyze(&self, code: &ParsedCode) -> Result<AnalysisResult, AnalysisError>;
+}
 
-**Tasks**:
+pub trait AnalysisPlugin: Send + Sync {
+    fn name(&self) -> &str;
+    fn analyze(&self, graph: &CodeGraph) -> Result<PluginResult, PluginError>;
+}
 
-- Create compelling demo showcasing Thread's capabilities
-- Prepare launch blog post
-- Set up issue tracking and contribution guidelines
-- Submit to crates.io
+// Plugin registry
+pub struct PluginRegistry {
+    language_plugins: HashMap<SupportedLanguage, Box<dyn LanguagePlugin>>,
+    analysis_plugins: Vec<Box<dyn AnalysisPlugin>>,
+}
+```
 
-**Deliverable**: 🚀 **Thread 0.1.0 released and ready for early adopters**
+### Commercial Extension Pattern
 
----
+```rust
+// Public plugin interface
+#[cfg(feature = "plugins")]
+pub fn register_plugin<P: AnalysisPlugin + 'static>(plugin: P) {
+    PLUGIN_REGISTRY.write().unwrap().register_analysis(Box::new(plugin));
+}
 
-## Daily Reality Checks
+// Private commercial plugins (in separate repo)
+struct SecurityAnalysisPlugin { /*proprietary */ }
+impl AnalysisPlugin for SecurityAnalysisPlugin { /* ...*/ }
 
-**Every day, ask yourself**:
+// Dynamically loaded in commercial version
+#[cfg(feature = "commercial")]
+fn load_commercial_plugins() {
+    register_plugin(SecurityAnalysisPlugin::new());
+    register_plugin(PerformanceAnalysisPlugin::new());
+    // etc.
+}
+```
 
-1. ✅ Does what I built today actually work when I test it?
-2. ✅ Can I demo this feature to someone else and have it make sense?
-3. ✅ Am I building toward the AI context generation goal?
-4. ✅ What's the simplest thing I can cut if I'm behind schedule?
+## Enhanced Testing Strategy
 
-## Weekly Demos
+### Multi-Layer Testing Approach
 
-**End of each week, record a short demo showing**:
+```rust
+// Integration-first testing philosophy
+// Test what actually matters and changes outcomes
 
-- Week 1: "Thread can parse a Rust file and show me the functions"
-- Week 2: "Thread can analyze my entire project and show dependencies"
-- Week 3: "Thread generates perfect AI context for any function I ask about"
-- Week 4: "Thread runs in Cloudflare Workers and serves analysis via API"
+// Core functionality unit tests
+#[cfg(test)]
+mod core_tests {
+    use super::*;
 
-## Risk Mitigation
+    #[test]
+    fn test_graph_construction_performance() {
+        // Performance regression tests
+    }
 
-**If you fall behind**:
+    #[test]
+    fn test_context_relevance_scoring() {
+        // Algorithm correctness tests
+    }
+}
 
-- **Week 1 behind?** Skip multi-language support, focus on Rust only
-- **Week 2 behind?** Skip incremental updates, focus on full analysis
-- **Week 3 behind?** Skip advanced CLI features, focus on core functionality
-- **Week 4 behind?** Skip WASM optimization, get basic compilation working
+// Contract testing for service boundaries
+#[cfg(test)]
+mod contract_tests {
+    use super::*;
 
-**The MVP is**: A working CLI tool that can analyze Rust files and generate AI-friendly context. Everything else is enhancement.
+    #[test]
+    fn test_parser_service_contract() {
+        // Ensure all parser implementations follow contract
+    }
 
-## Success Celebration 🎉
+    #[test]
+    fn test_persistence_service_boundaries() {
+        // Verify in-memory vs persistence separation
+    }
+}
 
-**By Day 30, you'll have**:
+// Property-based testing for graph algorithms
+#[cfg(test)]
+mod property_tests {
+    use proptest::prelude::*;
 
-- A working Rust crate published to crates.io
-- WASM module running on Cloudflare Workers
-- Foundation for Focus by knitli commercial service
-- Proof of concept for Thread's full vision
-- Something genuinely useful for developers and AI assistants
+    proptest! {
+        #[test]
+        fn graph_operations_preserve_invariants(operations: Vec<GraphOperation>) {
+            // Ensure graph operations maintain consistency
+        }
+    }
+}
 
-**This plan balances ambition with achievability** - each week builds on the last, with built-in flexibility to adapt as you learn and discover what works best.
+// End-to-end integration tests
+#[cfg(test)]
+mod integration_tests {
+    #[test]
+    fn test_full_analysis_pipeline() {
+        // Test complete workflows that users actually use
+    }
+
+    #[test]
+    fn test_context_generation_quality() {
+        // Measure actual context quality for real codebases
+    }
+}
+```
+
+## Performance & Efficiency Design
+
+### Content-Addressable Storage
+
+```rust
+// thread-store/src/content.rs
+pub struct ContentStore {
+    storage: HashMap<ContentHash, Arc<str>>,
+    dedup_stats: DedupStats,
+}
+
+impl ContentStore {
+    pub fn intern(&mut self, content: &str) -> ContentHash {
+        let hash = rapidhash::hash(content.as_bytes());
+        self.storage.entry(hash)
+            .or_insert_with(|| Arc::from(content));
+        hash
+    }
+
+    // Memory-efficient: same content = same Arc<str>
+    pub fn get(&self, hash: ContentHash) -> Option<Arc<str>> {
+        self.storage.get(&hash).cloned()
+    }
+}
+```
+
+### Incremental Updates
+
+```rust
+// thread-core/src/incremental/mod.rs
+pub struct IncrementalAnalyzer {
+    graph: CodeGraph,
+    file_hashes: HashMap<PathBuf, ContentHash>,
+}
+
+impl IncrementalAnalyzer {
+    pub fn update_file(&mut self, path: PathBuf, new_content: &str)
+        -> Result<UpdateResult, AnalysisError> {
+        let new_hash = self.store.intern(new_content);
+
+        if let Some(old_hash) = self.file_hashes.get(&path) {
+            if *old_hash == new_hash {
+                return Ok(UpdateResult::NoChange);
+            }
+            // Remove old nodes for this file
+            self.graph.remove_file_nodes(&path);
+        }
+
+        // Re-analyze only the changed file
+        self.analyze_and_add_file(path, new_content)?;
+        Ok(UpdateResult::Updated)
+    }
+}
+```
+
+## Conclusion
+
+This architecture preserves your excellent ast-grep foundation while building the core Thread capability on top. It provides clean abstractions, commercial extensibility, and a clear path from where you are to where you want to be.
+
+## Todo Status
+
+- [x] Review PLAN.md to understand original vision and requirements
+- [x] Analyze current architecture and identify abstraction opportunities for ast-grep isolation
+- [x] Design core thread capability architecture with petgraph for codebase-wide analysis
+- [x] Design modular and extensible API architecture with granular feature flags
+- [x] Plan tiered WASM deployment strategy (public limited vs private full-featured)
+- [x] Design commercial services extension architecture for Cloudflare deployment
+
+## Implementation Recommendations
+
+Start with Phase 1 - enhance the services layer to abstract ast-grep. This gives you immediate benefits:
+
+- Clean separation between interface and implementation
+- Testability improvements
+- Foundation for commercial extensions
+
+### Key Next Steps
+
+1. Design the service traits in [`thread-services`](crates/services/)
+2. Create the [`AstGrepParser`](crates/services/src/lib.rs) implementation
+3. Add basic feature flags
+4. Start building [`thread-core`](crates/) with petgraph integration
+
+## Future Vision: Extensible Intelligence
+
+### Long-Term Architectural Goals
+
+```rust
+// Future: Domain-specific query language for comprehensive intelligence
+pub struct ThreadQuery {
+    pattern: String, // "functions calling $API where complexity > 10 and change_frequency < 0.1"
+    scope: QueryScope,
+    optimizations: QueryHints,
+    context_requirements: ContextRequirements,
+}
+
+// Semantic understanding beyond syntax
+pub trait SemanticAnalyzer {
+    fn understand_intent(&self, code: &CodeSegment) -> IntentAnalysis;
+    fn find_semantic_similarities(&self, segments: &[CodeSegment]) -> SimilarityGraph;
+    fn predict_developer_intent(&self, changes: &[Change]) -> IntentPrediction;
+}
+
+// Evolution and change intelligence
+pub trait EvolutionAnalyzer {
+    fn predict_change_impact(&self, proposed: &[Change]) -> ImpactAnalysis;
+    fn suggest_migration_path(&self, from: &CodeGraph, to: &DesiredState) -> MigrationPlan;
+    fn analyze_technical_debt_evolution(&self, history: &GitHistory) -> DebtEvolution;
+}
+```
+
+### Accessibility & Human-Centered Design
+
+```rust
+// Making complex analysis accessible to all users
+pub trait AccessibilityInterface {
+    fn generate_audio_descriptions(&self, analysis: &AnalysisResult) -> AudioDescription;
+    fn create_high_contrast_visualizations(&self, graph: &CodeGraph) -> AccessibleVisualization;
+    fn simplify_technical_language(&self, explanation: &TechnicalExplanation) -> PlainLanguageExplanation;
+    fn provide_guided_exploration(&self, codebase: &CodeGraph) -> GuidedTour;
+}
+```
+
+## Resolved Areas (Based on Clarifications)
+
+### Commercial Protection Strategy
+✅ **Licensing Protection**: AGPL with trait-based commercial extensions
+- Public interfaces with trait implementations for CLI and limited WASM
+- Commercial implementations remain private
+- Clear service boundaries prevent unauthorized access
+
+### Persistence Architecture
+✅ **Service-Based Architecture**: Feature-gated serialization
+- In-memory public API only
+- Persistence through commercial service implementations
+- Database writers as separate commercial services
+
+### Testing Philosophy Implementation
+✅ **Integration-First Testing**:
+- Focus on outcomes and user workflows
+- Unit tests for core algorithms affecting results
+- Contract testing for service boundaries
+- Property-based testing for graph algorithms
+
+## Areas Still Needing Clarification
+
+1. **Context Quality Metrics**: How should we measure "exquisite context" quality? What feedback loops will drive improvement?
+
+2. **Performance Benchmarks**: Specific targets for context generation latency and relevance scoring accuracy?
+
+3. **Rate Limiting Strategy**: Public WASM API limits and commercial tier scaling?
+
+4. **Human-AI Bridge Effectiveness**: How do we measure success in bridging expectations vs reality?
+
+5. **Accessibility Standards**: What specific accessibility compliance targets (WCAG levels, etc.)?
+
+6. **Intelligence Feature Accuracy**: Acceptable accuracy thresholds for conflict prediction and sprint automation?
