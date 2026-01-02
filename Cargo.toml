@@ -7,6 +7,8 @@
 #*               THREAD - Workspace
 # =========================================================
 
+cargo-features = ["codegen-backend"]
+
 [workspace.package]
 description = "A safe, fast, flexible code analysis and code parsing library and tool. Built with tree-sitter, ast-grep, and difftastic in Rust."
 edition = "2024"
