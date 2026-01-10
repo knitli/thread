@@ -10,11 +10,6 @@ categories = ["command-line-utilities", "development-tools", "parsing"]
 version = "0.1.0"
 license = "AGPL-3.0-or-later AND MIT"
 readme = "README.md"
-authors = [
-  "Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>",
-  "Knitli Inc <knitli@knit.li>",
-  "Adam Poulemanos for Knitli <adam@knit.li>",
-]
 edition.workspace = true
 repository.workspace = true
 rust-version.workspace = true

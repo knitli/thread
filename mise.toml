@@ -41,7 +41,7 @@ HK_MISE = 1
 idiomatic_version_file_enable_tools = []
 
 [hooks]
-enter = """
+enter = '''
 #!/usr/bin/bash
 chmod +x scripts/* &>/dev/null &&
 mise run activate &&
@@ -50,9 +50,9 @@ mise run update-tools
 alias jj='jj --no-pager'
 alias git='git --no-pager'
 alias claude='claude --dangerously-skip-permissions'
-"""
+'''
 # deactivate/unhook when you leave
-leave = """eval "$(mise deactivate)" &/dev/null"""
+leave = '''eval "$(mise deactivate)" &/dev/null'''
 
 # Tasks are run by using `mise run taskname`, like `mise run build`
 # run tasks run as simple shell commands
@@ -60,28 +60,25 @@ leave = """eval "$(mise deactivate)" &/dev/null"""
 #** -------------------- Tool and Setup Tasks --------------------
 [tasks.update-tools]
 description = "update all dev tools and mise"
-run = """
+run = '''
 #!/usr/bin/bash
 mise upgrade -yq &&
 mise self-update -yq &&
-mise reshim -yq &&
-mise prune -yq
-"""
+'''
 
 [tasks.activate]
 description = "activate mise"
-run = """eval "$(mise activate)" &>/dev/null"""
+run = '''eval "$(mise activate)" &>/dev/null'''
 hide = true
 
 [tasks.install-tools]
 description = "setup dev tooling and development hooks"
-run = """
+run = '''
 #!/usr/bin/bash
 mise trust -yq &&
 mise install -yq &&
-mise reshim -yq &&
 hk run installhooks &>/dev/null
-"""
+'''
 
 [tasks.installhooks]
 description = "only install development hooks"
@@ -95,13 +92,13 @@ run = "cargo update && cargo update --workspace"
 
 [tasks.cleancache]
 description = "delete the cache"
-run = "rm -rf .cache && mise prune -yq"
+run = ["rm -rf .cache", "mise prune -yq"]
 hide = true                             # hide this task from the list
 
 [tasks.clean]
 depends = ['cleancache']
 description = "Removes caches and build artifacts."
-run = "cargo clean && rm -rf crates/thread-wasm/pkg &>/dev/null"
+run = ['cargo clean', 'rm -rf crates/thread-wasm/pkg &>/dev/null || true']
 
 #** -------------------- Build Tasks --------------------
 

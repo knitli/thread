@@ -10,11 +10,6 @@ categories = ["command-line-utilities", "development-tools", "parsing"]
 readme = "README.md"
 license = "AGPL-3.0-or-later AND MIT"
 version = "0.1.0"
-authors = [
-  "Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>",
-  "Knitli Inc <knitli@knit.li>",
-  "Adam Poulemanos for Knitli <adam@knit.li>",
-]
 documentation.workspace = true
 edition.workspace = true
 homepage.workspace = true

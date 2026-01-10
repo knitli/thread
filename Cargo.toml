@@ -21,7 +21,6 @@ members = [
   "xtask",
 ]
 
-
 [workspace.package]
 version = "0.0.1"
 
@@ -54,10 +53,6 @@ include = [
   "src/**",
   "tests/**",
 ]
-authors = [
-  "Knitli Inc <knitli@knit.li>",
-  "Adam Poulemanos for Knitli <adam@knit.li>",
-]
 
 [workspace.dependencies]
 # speed!
@@ -80,7 +75,7 @@ regex = { version = "1.12.2" }
 # serialization
 schemars = { version = "1.2.0" }
 serde = { version = "1.0.228", features = ["derive"] }
-serde_json = { version = "1.0.141" }
+serde_json = { version = "1.0.149" }
 serde_yaml = { package = "serde_yml", version = "0.0.12" }
 simdeez = { version = "2.0.0-dev5" }
 thiserror = { version = "2.0.17" }
@@ -92,7 +87,7 @@ thread-services = { path = "crates/services", default-features = false }
 thread-utils = { path = "crates/utils", default-features = false }
 thread-wasm = { path = "crates/wasm", default-features = false }
 # The center of it all
-tree-sitter = { version = "0.25.4" }
+tree-sitter = { version = "0.26.3" }
 
 [workspace.lints.clippy]
 # Same lints as tree-sitter itself.
