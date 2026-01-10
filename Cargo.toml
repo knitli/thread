@@ -2,94 +2,88 @@
 # SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
 #
 # SPDX-License-Identifier: MIT OR Apache-2.0
-
+#:tombi schema.strict = false
 # =========================================================
-#*               THREAD - Workspace
+# *               THREAD - Workspace
 # =========================================================
 
 cargo-features = ["codegen-backend"]
-
-[workspace.package]
-description = "A safe, fast, flexible code analysis and code parsing library and tool. Built with tree-sitter, ast-grep, and difftastic in Rust."
-edition = "2024"
-rust-version = "1.85"
-license = "AGPL-3.0-or-later"
-version = "0.0.1"
-keywords = [
-  "parsing",
-  "code-analysis",
-  "tree-sitter",
-  "static-analysis",
-  "repository-tools",
-  "context",
-]
-categories = ["development-tools", "parser-implementations", "text-processing"]
-repository = "https://github.com/knitli/thread"
-documentation = "https://thread.knitli.dev"
-homepage = "https://knitli.com"
-readme = "README.md"
-authors = [
-  "Knitli Inc <knitli@knit.li>",
-  "Adam Poulemanos for Knitli <adam@knit.li>",
-]
-include = [
-  "README.md",
-  "LICENSE.md",
-  "CONTRIBUTORS_LICENSE_AGREEMENT.md",
-  "CONTRIBUTING.md",
-  "VENDORED.md",
-  "src/**",
-  "CHANGELOG.md",
-  "sbom.spdx",
-  "examples/**",
-  "tests/**",
-]
 
 [workspace]
 resolver = "3"
 members = [
   "crates/ast-engine",
+  "crates/language",
   "crates/rule-engine",
   "crates/services",
-  "crates/language",
   "crates/utils",
   "crates/wasm",
   "xtask",
 ]
 
+
+[workspace.package]
+version = "0.0.1"
+
+edition = "2024"
+rust-version = "1.85"
+description = "A safe, fast, flexible code analysis and code parsing library and tool. Built with tree-sitter, ast-grep, and difftastic in Rust."
+documentation = "https://thread.knitli.dev"
+readme = "README.md"
+homepage = "https://knitli.com"
+repository = "https://github.com/knitli/thread"
+license = "AGPL-3.0-or-later"
+keywords = [
+  "code-analysis",
+  "context",
+  "parsing",
+  "repository-tools",
+  "static-analysis",
+  "tree-sitter",
+]
+categories = ["development-tools", "parser-implementations", "text-processing"]
+include = [
+  "CHANGELOG.md",
+  "CONTRIBUTING.md",
+  "CONTRIBUTORS_LICENSE_AGREEMENT.md",
+  "LICENSE.md",
+  "README.md",
+  "VENDORED.md",
+  "examples/**",
+  "sbom.spdx",
+  "src/**",
+  "tests/**",
+]
+authors = [
+  "Knitli Inc <knitli@knit.li>",
+  "Adam Poulemanos for Knitli <adam@knit.li>",
+]
+
 [workspace.dependencies]
-# zero-cost macros
-cfg-if = { version = "1.0.1" }
-macro_rules_attribute = { version = "0.2.2" }
-# close but not exactly
-async-trait = { version = "0.1.88" }
-
-bit-set = { version = "0.8.0" }
-ignore = { version = "0.4.23" }
-regex = { version = "1.11.1" }
-thiserror = { version = "2.0.12" }
-
-# The center of it all
-tree-sitter = { version = "0.25.8" }
-
-# serialization
-schemars = { version = "1.0.4" }
-serde = { version = "1.0.219", features = ["derive"] }
-serde_json = { version = "1.0.141" }
-serde_yaml = { version = "0.0.12", package = "serde_yml" }
-
 # speed!
-aho-corasick = { version = "1.1.3" }
-lasso = { version = "0.7.3" }
-memchr = { version = "2.7.5", features = ["std"] }
-rapidhash = { version = "1.4.0" }
-rayon = { version = "1.10.0" }
-simdeez = { version = "2.0.0-dev5" }
-
-#async
+aho-corasick = { version = "1.1.4" }
+# close but not exactly
+async-trait = { version = "0.1.89" }
+bit-set = { version = "0.8.0" }
+# zero-cost macros
+cfg-if = { version = "1.0.4" }
+# async
 futures = { version = "0.3.31" }
+ignore = { version = "0.4.25" }
+lasso = { version = "0.7.3" }
+macro_rules_attribute = { version = "0.2.2" }
+memchr = { version = "2.7.6", features = ["std"] }
 pin-project = { version = "1.1.10" }
-
+rapidhash = { version = "4.2.0" }
+rayon = { version = "1.11.0" }
+regex = { version = "1.12.2" }
+# serialization
+schemars = { version = "1.2.0" }
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = { version = "1.0.141" }
+serde_yaml = { package = "serde_yml", version = "0.0.12" }
+simdeez = { version = "2.0.0-dev5" }
+thiserror = { version = "2.0.17" }
 # Thread
 thread-ast-engine = { path = "crates/ast-engine", default-features = false }
 thread-language = { path = "crates/language", default-features = false }
@@ -97,61 +91,18 @@ thread-rule-engine = { path = "crates/rule-engine", default-features = false }
 thread-services = { path = "crates/services", default-features = false }
 thread-utils = { path = "crates/utils", default-features = false }
 thread-wasm = { path = "crates/wasm", default-features = false }
-
-[profile.dev]
-opt-level = 1
-lto = false
-debug = true
-incremental = true
-debug-assertions = true
-codegen-units = 256     # More codegen units for faster compilation
-
-[profile.dev-debug]
-inherits = "dev"
-codegen-backend = "cranelift"
-
-[profile.release]
-lto = true          # Link-time optimization
-codegen-units = 1
-incremental = false
-panic = "abort"     # Smaller binary size
-opt-level = 3       # Maximum optimization
-
-[profile.release-dev]
-inherits = "release"
-lto = false
-debug = true
-debug-assertions = true
-overflow-checks = true
-incremental = true
-codegen-units = 256
-
-[profile.wasm-release]
-inherits = "release"
-incremental = false
-lto = true
-strip = true
-opt-level = "s"      # optimize for size in WASM
-
-# Optimize proc-macros even in debug builds
-[profile.dev.package."*"]
-opt-level = 3
+# The center of it all
+tree-sitter = { version = "0.25.4" }
 
 [workspace.lints.clippy]
-dbg_macro = "deny"
-todo = "allow"
-pedantic = { level = "warn", priority = -1 }
-nursery = { level = "warn", priority = -1 }
-cargo = { level = "warn", priority = -1 }
-
 # Same lints as tree-sitter itself.
 # Lints we allow because they either:
 #
 # 1. Contain false positives,
 # 2. Are unnecessary, or
 # 3. Worsen the code
-
 branches_sharing_code = "allow"
+cargo = { level = "warn", priority = -1 }
 cast_lossless = "allow"
 cast_possible_truncation = "allow"
 cast_possible_wrap = "allow"
@@ -160,6 +111,7 @@ cast_sign_loss = "allow"
 checked_conversions = "allow"
 cognitive_complexity = "warn"
 collection_is_never_read = "allow"
+dbg_macro = "deny"
 fallible_impl_from = "allow"
 fn_params_excessive_bools = "allow"
 if_not_else = "allow"
@@ -170,9 +122,11 @@ missing_errors_doc = "allow"
 missing_panics_doc = "allow"
 module_name_repetitions = "allow"
 multiple_crate_versions = "allow"
+nursery = { level = "warn", priority = -1 }
 obfuscated_if_else = "allow"
 option_if_let_else = "allow"
 or_fun_call = "allow"
+pedantic = { level = "warn", priority = -1 }
 range_plus_one = "allow"
 redundant_clone = "allow"
 redundant_closure_for_method_calls = "allow"
@@ -181,8 +135,48 @@ similar_names = "allow"
 string_lit_as_bytes = "allow"
 struct_excessive_bools = "allow"
 struct_field_names = "allow"
+todo = "allow"
 too_many_lines = "allow"
 transmute_undefined_repr = "allow"
 unnecessary_wraps = "allow"
 unused_self = "allow"
 used_underscore_items = "allow"
+
+[profile.dev]
+opt-level = 1
+debug = true
+debug-assertions = true
+lto = false
+incremental = true
+codegen-units = 256  # More codegen units for faster compilation
+
+# Optimize proc-macros even in debug builds
+[profile.dev.package."*"]
+opt-level = 3
+
+[profile.release]
+opt-level = 3  # Maximum optimization
+lto = true  # Link-time optimization
+panic = "abort"  # Smaller binary size
+incremental = false
+codegen-units = 1
+
+[profile.dev-debug]
+inherits = "dev"
+codegen-backend = "cranelift"
+
+[profile.release-dev]
+inherits = "release"
+debug = true
+debug-assertions = true
+overflow-checks = true
+lto = false
+incremental = true
+codegen-units = 256
+
+[profile.wasm-release]
+inherits = "release"
+opt-level = "s"  # optimize for size in WASM
+strip = true
+lto = true
+incremental = false
