@@ -4,50 +4,49 @@
 
 [package]
 name = "thread-ast-engine"
-description = "Core AST engine for Thread - parsing, matching, and transforming code using AST patterns. Forked from ast-grep-core."
-keywords = ["ast", "pattern", "codemod", "search", "rewrite"]
-categories = ["command-line-utilities", "development-tools", "parsing"]
-readme = "README.md"
-license = "AGPL-3.0-or-later AND MIT"
 version = "0.1.0"
-documentation.workspace = true
 edition.workspace = true
+rust-version.workspace = true
+description = "Core AST engine for Thread - parsing, matching, and transforming code using AST patterns. Forked from ast-grep-core."
+documentation.workspace = true
+readme = "README.md"
 homepage.workspace = true
 repository.workspace = true
-rust-version.workspace = true
+license = "AGPL-3.0-or-later AND MIT"
+keywords = ["ast", "codemod", "pattern", "rewrite", "search"]
+categories = ["command-line-utilities", "development-tools", "parsing"]
 include.workspace = true
 
+[[bench]]
+harness = false
+name = "performance_improvements"
+
 [dependencies]
+bit-set.workspace = true
+# regex required for pattern matching
+regex = { workspace = true, optional = true }
+thiserror.workspace = true
 thread-utils = { workspace = true, default-features = false, features = [
   "hashers",
   "simd",
 ] }
-thiserror.workspace = true
-bit-set.workspace = true
-
 # Tree-sitter required for parsing
 tree-sitter = { workspace = true, optional = true }
-# regex required for pattern matching
-regex = { workspace = true, optional = true }
-
-[features]
-default = ["parsing", "matching"]
-# The 'parsing' feature enables the tree-sitter backend
-parsing = ["dep:tree-sitter"]
-# The 'matching' feature enables the pattern matching engine
-matching = ["dep:regex"]
 
 [dev-dependencies]
-tree-sitter-typescript = "0.23.2"
-thread-language = { workspace = true, features = ["all-parsers"] }
 criterion = { version = "0.6.0", features = ["html_reports"] }
-
-[[bench]]
-name = "performance_improvements"
-harness = false
+thread-language = { workspace = true, features = ["all-parsers"] }
+tree-sitter-typescript = "0.23.2"
 
 [build-dependencies]
 cc = "1.2.30"
+
+[features]
+default = ["matching", "parsing"]
+# The 'matching' feature enables the pattern matching engine
+matching = ["dep:regex"]
+# The 'parsing' feature enables the tree-sitter backend
+parsing = ["dep:tree-sitter"]
 
 [lints]
 # Enable linting for the crate

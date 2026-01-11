@@ -6,25 +6,25 @@
 [package]
 name = "xtask"
 version = "0.1.0"
-publish = false
-description = "Xtask for thread. Primarily used for Wasm builds."
-keywords = ["xtask", "build", "wasm"]
-categories = ["build-scripts"]
-readme = "README.md"
+authors.workspace = true
 edition.workspace = true
 rust-version.workspace = true
-license.workspace = true
-repository.workspace = true
+description = "Xtask for thread. Primarily used for Wasm builds."
 documentation.workspace = true
+readme = "README.md"
 homepage.workspace = true
-authors.workspace = true
-
-[dependencies]
-pico-args = "0.5.0" # For command-line argument parsing
-
-[lints]
-workspace = true
+repository.workspace = true
+license.workspace = true
+keywords = ["build", "wasm", "xtask"]
+categories = ["build-scripts"]
+publish = false
 
 [[bin]]
 name = "xtask"
 path = "src/main.rs"
+
+[dependencies]
+pico-args = "0.5.0"  # For command-line argument parsing
+
+[lints]
+workspace = true

@@ -23,7 +23,6 @@ members = [
 
 [workspace.package]
 version = "0.0.1"
-
 edition = "2024"
 rust-version = "1.85"
 description = "A safe, fast, flexible code analysis and code parsing library and tool. Built with tree-sitter, ast-grep, and difftastic in Rust."

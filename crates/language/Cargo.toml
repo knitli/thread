@@ -4,37 +4,39 @@
 
 [package]
 name = "thread-language"
-description = "Language definitions and parsers for Thread"
-keywords = ["ast", "pattern", "codemod", "search", "rewrite", "languages"]
-license = "AGPL-3.0-or-later AND MIT"
-readme = "README.md"
-categories = ["ast", "pattern", "codemod", "search", "rewrite"]
 version = "0.1.0"
 edition.workspace = true
-repository.workspace = true
 rust-version.workspace = true
+description = "Language definitions and parsers for Thread"
+readme = "README.md"
+repository.workspace = true
+license = "AGPL-3.0-or-later AND MIT"
+keywords = ["ast", "codemod", "languages", "pattern", "rewrite", "search"]
+categories = ["ast", "codemod", "pattern", "rewrite", "search"]
 include.workspace = true
 
-[build-dependencies]
-cc = "1.2.30"
+[[bench]]
+harness = false
+name = "performance"
+
+[[bench]]
+harness = false
+name = "extension_matching"
 
 [dependencies]
+aho-corasick = { workspace = true }
+cfg-if = { workspace = true }
+ignore = { workspace = true }
+serde = { workspace = true }
 thread-ast-engine = { workspace = true }
 thread-utils = { workspace = true, default-features = false, features = [
   "hashers",
 ] }
-
-cfg-if = { workspace = true }
-
-aho-corasick = { workspace = true }
-ignore = { workspace = true }
-serde = { workspace = true }
 tree-sitter = { workspace = true }
-
 tree-sitter-bash = { version = "0.25.0", optional = true }
 tree-sitter-c = { version = "0.24.1", optional = true }
-tree-sitter-cpp = { version = "0.23.4", optional = true }
 tree-sitter-c-sharp = { version = "0.23.1", optional = true }
+tree-sitter-cpp = { version = "0.23.4", optional = true }
 tree-sitter-css = { version = "0.23.2", optional = true }
 tree-sitter-elixir = { version = "0.3.4", optional = true }
 tree-sitter-go = { version = "0.23.4", optional = true }
@@ -43,7 +45,7 @@ tree-sitter-html = { version = "0.23.2", optional = true }
 tree-sitter-java = { version = "0.23.5", optional = true }
 tree-sitter-javascript = { version = "0.23.1", optional = true }
 tree-sitter-json = { version = "0.24.8", optional = true }
-tree-sitter-kotlin = { version = "0.4.0", optional = true, package = "tree-sitter-kotlin-sg" }
+tree-sitter-kotlin = { package = "tree-sitter-kotlin-sg", version = "0.4.0", optional = true }
 tree-sitter-lua = { version = "0.2.0", optional = true }
 tree-sitter-php = { version = "0.23.11", optional = true }
 tree-sitter-python = { version = "0.23.6", optional = true }
@@ -54,42 +56,18 @@ tree-sitter-swift = { version = "0.7.1", optional = true }
 tree-sitter-typescript = { version = "0.23.2", optional = true }
 tree-sitter-yaml = { version = "0.7.1", optional = true }
 
+[dev-dependencies]
+criterion = { version = "0.6", features = ["html_reports"] }
+thread-ast-engine = { workspace = true, features = ["matching", "parsing"] }
+
+[build-dependencies]
+cc = "1.2.30"
+
 [features]
 default = ["all-parsers", "tree-sitter-parsing"]
-tree-sitter-parsing = ["thread-ast-engine/parsing"]
-matching = ["thread-ast-engine/matching", "tree-sitter-parsing"]
-
-
-# Individual language features
-bash = ["tree-sitter-bash", "tree-sitter-parsing"]
-c = ["tree-sitter-c", "tree-sitter-parsing"]
-cpp = ["tree-sitter-cpp", "tree-sitter-parsing"]
-csharp = ["tree-sitter-c-sharp", "tree-sitter-parsing"]
-css = ["tree-sitter-css", "tree-sitter-parsing"]
-elixir = ["tree-sitter-elixir", "tree-sitter-parsing"]
-go = ["tree-sitter-go", "tree-sitter-parsing"]
-haskell = ["tree-sitter-haskell", "tree-sitter-parsing"]
-html = ["tree-sitter-html", "tree-sitter-parsing"]
-html-embedded = ["html", "css", "matching", "typescript", "tsx", "javascript", "tree-sitter-parsing"]
-java = ["tree-sitter-java", "tree-sitter-parsing"]
-javascript = ["tree-sitter-javascript", "tree-sitter-parsing"]
-json = ["tree-sitter-json", "tree-sitter-parsing"]
-kotlin = ["tree-sitter-kotlin", "tree-sitter-parsing"]
-lua = ["tree-sitter-lua", "tree-sitter-parsing"]
-php = ["tree-sitter-php", "tree-sitter-parsing"]
-python = ["tree-sitter-python", "tree-sitter-parsing"]
-ruby = ["tree-sitter-ruby", "tree-sitter-parsing"]
-rust = ["tree-sitter-rust", "tree-sitter-parsing"]
-scala = ["tree-sitter-scala", "tree-sitter-parsing"]
-swift = ["tree-sitter-swift", "tree-sitter-parsing"]
-typescript = ["tree-sitter-typescript", "tree-sitter-parsing"]
-tsx = ["tree-sitter-typescript", "tree-sitter-parsing"]
-yaml = ["tree-sitter-yaml", "tree-sitter-parsing"]
-
 #! Important: `all-parsers` feature enables all tree-sitter parsers
 # Language groups
 all-parsers = [
-  "tree-sitter-parsing",
   "bash",
   "c",
   "cpp",
@@ -111,24 +89,46 @@ all-parsers = [
   "rust",
   "scala",
   "swift",
-  "typescript",
+  "tree-sitter-parsing",
   "tsx",
+  "typescript",
   "yaml",
 ]
-
-css-napi = ["tree-sitter-css", "napi-environment"]
-html-napi = ["tree-sitter-html", "napi-environment"]
-javascript-napi = ["tree-sitter-javascript", "napi-environment"]
-typescript-napi = ["tree-sitter-typescript", "napi-environment"]
-tsx-napi = ["tree-sitter-typescript", "napi-environment"]
-
+# Individual language features
+bash = ["tree-sitter-bash", "tree-sitter-parsing"]
+c = ["tree-sitter-c", "tree-sitter-parsing"]
+cpp = ["tree-sitter-cpp", "tree-sitter-parsing"]
+csharp = ["tree-sitter-c-sharp", "tree-sitter-parsing"]
+css = ["tree-sitter-css", "tree-sitter-parsing"]
+css-napi = ["napi-environment", "tree-sitter-css"]
+elixir = ["tree-sitter-elixir", "tree-sitter-parsing"]
+go = ["tree-sitter-go", "tree-sitter-parsing"]
+haskell = ["tree-sitter-haskell", "tree-sitter-parsing"]
+html = ["tree-sitter-html", "tree-sitter-parsing"]
+html-embedded = [
+  "css",
+  "html",
+  "javascript",
+  "matching",
+  "tree-sitter-parsing",
+  "tsx",
+  "typescript"
+]
+html-napi = ["napi-environment", "tree-sitter-html"]
+java = ["tree-sitter-java", "tree-sitter-parsing"]
+javascript = ["tree-sitter-javascript", "tree-sitter-parsing"]
+javascript-napi = ["napi-environment", "tree-sitter-javascript"]
+json = ["tree-sitter-json", "tree-sitter-parsing"]
+kotlin = ["tree-sitter-kotlin", "tree-sitter-parsing"]
+lua = ["tree-sitter-lua", "tree-sitter-parsing"]
+matching = ["thread-ast-engine/matching", "tree-sitter-parsing"]
 napi-compatible = [
   "css-napi",
   "html-napi",
   "javascript-napi",
-  "typescript-napi",
   "tsx-napi",
-  ]
+  "typescript-napi",
+]
 # =============== Important NAPI Information ============
 # Thread does **not** currently support NAPI builds.
 # We've included this from our fork of `ast-grep-language`, in case someone wants to build from it.
@@ -138,17 +138,17 @@ napi-compatible = [
 #! Tree-sitter cannot build for NAPI-WASM
 #! (that's Node API -- wasm for nodejs environments)
 napi-environment = []
-profiling = []
 no-enabled-langs = []
-
-[dev-dependencies]
-criterion = { version = "0.6", features = ["html_reports"] }
-thread-ast-engine = { workspace = true, features = ["matching", "parsing"] }
-
-[[bench]]
-name = "performance"
-harness = false
-
-[[bench]]
-name = "extension_matching"
-harness = false
+php = ["tree-sitter-parsing", "tree-sitter-php"]
+profiling = []
+python = ["tree-sitter-parsing", "tree-sitter-python"]
+ruby = ["tree-sitter-parsing", "tree-sitter-ruby"]
+rust = ["tree-sitter-parsing", "tree-sitter-rust"]
+scala = ["tree-sitter-parsing", "tree-sitter-scala"]
+swift = ["tree-sitter-parsing", "tree-sitter-swift"]
+tree-sitter-parsing = ["thread-ast-engine/parsing"]
+tsx = ["tree-sitter-parsing", "tree-sitter-typescript"]
+tsx-napi = ["napi-environment", "tree-sitter-typescript"]
+typescript = ["tree-sitter-parsing", "tree-sitter-typescript"]
+typescript-napi = ["napi-environment", "tree-sitter-typescript"]
+yaml = ["tree-sitter-parsing", "tree-sitter-yaml"]

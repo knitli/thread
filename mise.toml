@@ -57,7 +57,7 @@ leave = '''eval "$(mise deactivate)" &/dev/null'''
 # Tasks are run by using `mise run taskname`, like `mise run build`
 # run tasks run as simple shell commands
 
-#** -------------------- Tool and Setup Tasks --------------------
+# ** -------------------- Tool and Setup Tasks --------------------
 [tasks.update-tools]
 description = "update all dev tools and mise"
 run = '''
@@ -88,77 +88,77 @@ run = "hk install --mise"
 description = "update dependencies"
 run = "cargo update && cargo update --workspace"
 
-#** -------------------- Cleaning Tasks --------------------
+# ** -------------------- Cleaning Tasks --------------------
 
 [tasks.cleancache]
 description = "delete the cache"
 run = ["rm -rf .cache", "mise prune -yq"]
-hide = true                             # hide this task from the list
+hide = true  # hide this task from the list
 
 [tasks.clean]
-depends = ['cleancache']
+depends = ["cleancache"]
 description = "Removes caches and build artifacts."
-run = ['cargo clean', 'rm -rf crates/thread-wasm/pkg &>/dev/null || true']
+run = ["cargo clean", "rm -rf crates/thread-wasm/pkg &>/dev/null || true"]
 
-#** -------------------- Build Tasks --------------------
+# ** -------------------- Build Tasks --------------------
 
 [tasks.build]
-description = 'Build everything (except wasm)'
+description = "Build everything (except wasm)"
 run = "cargo build --workspace"
-alias = 'b'                                    # `mise run b` = build
+alias = "b"  # `mise run b` = build
 
 [tasks.build-release]
-description = 'Build everything in release mode (except wasm)'
+description = "Build everything in release mode (except wasm)"
 run = "cargo build --workspace --release --features inline"
-alias = 'br'                                                   # `mise run br` = build release
+alias = "br"  # `mise run br` = build release
 
 [tasks.build-wasm]
-description = 'Build WASM target for development'
+description = "Build WASM target for development"
 run = "cargo run -p xtask build-wasm"
-alias = 'bw'                                      # `mise run bw` = build wasm
+alias = "bw"  # `mise run bw` = build wasm
 
 [tasks.build-wasm-browser-dev]
-description = 'Build WASM target for browser development' # we don't use the browser target, so currently this is just for testing purposes
+description = "Build WASM target for browser development"  # we don't use the browser target, so currently this is just for testing purposes
 run = "cargo run -p xtask build-wasm --multi-threading"
-alias = 'bwd'                                             # `mise run bwd` = build wasm browser dev
+alias = "bwd"  # `mise run bwd` = build wasm browser dev
 
 [tasks.build-wasm-profile]
-description = 'Build WASM target with profiling'
+description = "Build WASM target with profiling"
 run = "cargo run -p xtask build-wasm --profiling"
-alias = 'bwp'                                     # `mise run bwp` = build wasm profiling
+alias = "bwp"  # `mise run bwp` = build wasm profiling
 
 [tasks.build-wasm-browser-profile]
-description = 'Build WASM target for browser to profile'
+description = "Build WASM target for browser to profile"
 run = "cargo run -p xtask build-wasm --profiling --multi-threading"
-alias = 'bwpd'                                                      # `mise run bwpd` = build wasm browser prod
+alias = "bwpd"  # `mise run bwpd` = build wasm browser prod
 
 [tasks.build-wasm-release]
-description = 'Build WASM target in release mode.'
+description = "Build WASM target in release mode."
 run = "cargo run -p xtask build-wasm --release"
-alias = 'bwr'                                      # `mise run bwr` = build wasm release
+alias = "bwr"  # `mise run bwr` = build wasm release
 
-#** -------------------- Testing/Linting/Formatting Tasks --------------------
+# ** -------------------- Testing/Linting/Formatting Tasks --------------------
 
 [tasks.update-licenses]
 description = "Update license headers for all files"
 run = "./scripts/update-licenses.py"
 
 [tasks.test]
-description = 'Run automated tests'
+description = "Run automated tests"
 # multiple commands are run in series
 run = "hk run test"
-alias = 't'         # `mise run t` = test
+alias = "t"  # `mise run t` = test
 
 [tasks.lint]
-description = 'Full linting of the codebase'
+description = "Full linting of the codebase"
 run = "hk run check"
-alias = "c"                                  # `mise run c` = check
+alias = "c"  # `mise run c` = check
 
 [tasks.fix]
-description = 'fix formatting and apply lint fixes'
+description = "fix formatting and apply lint fixes"
 run = "hk fix"
-alias = "f"                                         # `mise run f` = fix
+alias = "f"  # `mise run f` = fix
 
-[tasks.ci] # only dependencies to be run
-description = 'Run CI tasks'
-depends = ['build', 'lint', 'test']
+[tasks.ci]  # only dependencies to be run
+description = "Run CI tasks"
+depends = ["build", "lint", "test"]

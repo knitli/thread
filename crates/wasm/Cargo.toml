@@ -5,61 +5,19 @@
 
 [package]
 name = "thread-wasm"
-description = "WASM bindings for Thread. Deploy Thread to the web!"
-readme = "README.md"
-keywords = ["wasm", "webassembly", "thread", "bindings"]
-categories = ["webassembly"]
-publish = true
 version = "0.0.1"
+authors.workspace = true
 edition.workspace = true
 rust-version.workspace = true
-license.workspace = true
-repository.workspace = true
+description = "WASM bindings for Thread. Deploy Thread to the web!"
 documentation.workspace = true
-authors.workspace = true
+readme = "README.md"
+repository.workspace = true
+license.workspace = true
+keywords = ["bindings", "thread", "wasm", "webassembly"]
+categories = ["webassembly"]
 include.workspace = true
-
-[dependencies]
-# TODO: Add WASI support as a universal binary (i.e. for moonrepo)
-js-sys = { version = "0.3.77" }
-wasm-bindgen = { version = "0.2.100" }
-web-sys = { version = "0.3.77", features = ["console"], optional = true }
-thread-language = { workspace = true }
-serde = { workspace = true, optional = true }
-
-# The `console_error_panic_hook` crate provides better debugging of panics by
-# logging them with `console.error`. This is great for development, but requires
-# all the `std::fmt` and `std::panicking` infrastructure, so isn't great for
-# code size when deploying.
-console_error_panic_hook = { version = "0.1.7", optional = true }
-
-rayon = { workspace = true, features = ["web_spin_lock"], optional = true }
-
-thread-utils = { workspace = true, default-features = false, features = [
-  "hashers",
-] }
-
-[dev-dependencies]
-wasm-bindgen-test = "0.3.50"
-
-[lints]
-workspace = true
-
-[lib]
-name = "thread_wasm"
-crate-type = ["cdylib", "rlib"]
-path = "src/lib.rs"
-
-[features]
-default = ["worker"]
-worker = ["web-sys/console"]                   # single-threaded worker deployment
-browser = ["multi-threading", "serialization"]
-# TODO: wasi = [ ]
-
-
-serialization = ["serde/derive"]
-panic_hook = ['console_error_panic_hook', "web-sys/console"]
-multi-threading = ["rayon"]
+publish = true
 
 [package.metadata.wasm-pack.profile.profiling.wasm-bindgen]
 debug-js-glue = false
@@ -83,3 +41,40 @@ demangle-name-section = false
 dwarf-debug-info = false
 split-linked-modules = true
 omit-default-module-path = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+name = "thread_wasm"
+path = "src/lib.rs"
+
+[dependencies]
+# The `console_error_panic_hook` crate provides better debugging of panics by
+# logging them with `console.error`. This is great for development, but requires
+# all the `std::fmt` and `std::panicking` infrastructure, so isn't great for
+# code size when deploying.
+console_error_panic_hook = { version = "0.1.7", optional = true }
+# TODO: Add WASI support as a universal binary (i.e. for moonrepo)
+js-sys = { version = "0.3.77" }
+rayon = { workspace = true, features = ["web_spin_lock"], optional = true }
+serde = { workspace = true, optional = true }
+thread-language = { workspace = true }
+thread-utils = { workspace = true, default-features = false, features = [
+  "hashers",
+] }
+wasm-bindgen = { version = "0.2.100" }
+web-sys = { version = "0.3.77", features = ["console"], optional = true }
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3.50"
+
+[features]
+default = ["worker"]
+browser = ["multi-threading", "serialization"]
+multi-threading = ["rayon"]
+panic_hook = ["console_error_panic_hook", "web-sys/console"]
+# TODO: wasi = [ ]
+serialization = ["serde/derive"]
+worker = ["web-sys/console"]  # single-threaded worker deployment
+
+[lints]
+workspace = true
