@@ -7,7 +7,7 @@
 # *               THREAD - Workspace
 # =========================================================
 
-cargo-features = ["codegen-backend"]
+# cargo-features = ["codegen-backend"]
 
 [workspace]
 resolver = "3"
@@ -157,7 +157,7 @@ codegen-units = 1
 
 [profile.dev-debug]
 inherits = "dev"
-codegen-backend = "cranelift"
+
 
 [profile.release-dev]
 inherits = "release"
