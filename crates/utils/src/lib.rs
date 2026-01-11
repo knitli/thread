@@ -17,3 +17,4 @@ pub use hash_help::{
 mod simd;
 #[cfg(feature = "simd")]
 pub use simd::{get_char_column_simd, is_ascii_simd};
+mod hash_tests;
