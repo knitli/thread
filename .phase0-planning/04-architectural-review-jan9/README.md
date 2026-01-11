@@ -1,8 +1,41 @@
 # Architectural Review & Path C Implementation Plan
 ## Index of Documents
 
-**Date**: January 9, 2026  
+**Date**: January 10, 2026  
 **Purpose**: Thread architectural review, CocoIndex research, and Path C specification
+
+---
+
+## ⚡ FINAL DECISION (Jan 10, 2026)
+
+Thread has officially committed to **Path B (CocoIndex Integration)**. 
+- [**2026-01-10-FINAL_DECISION_PATH_B.md**](2026-01-10-FINAL_DECISION_PATH_B.md) - Official decision and rationale.
+- [**PATH_B_IMPLEMENTATION_GUIDE.md**](PATH_B_IMPLEMENTATION_GUIDE.md) - **Current Active Plan**.
+
+Path C (Hybrid Prototyping) and Path A (Services-Only) are now historical references.
+
+---
+
+## 🎯 Active Documents
+
+| Document | Purpose | Status |
+|----------|---------|--------|
+| **FINAL_DECISION_PATH_B.md** | Official decision record | **FINAL** |
+| **PATH_B_IMPLEMENTATION_GUIDE.md** | Roadmap for implementation | **ACTIVE** |
+| COCOINDEX_API_ANALYSIS.md | Technical feasibility research | Reference |
+| COMPREHENSIVE_ARCHITECTURAL_REVIEW.md | Full analysis of options | Reference |
+
+---
+
+## 📂 Archived / Superseded Documents
+
+| Document | Purpose | Status |
+|----------|---------|--------|
+| EXECUTIVE_SUMMARY_FOR_DECISION.md | Initial summary for Jan 9 | Superseded |
+| PATH_C_DETAILED_IMPLEMENTATION_PLAN.md | Canceled prototyping plan | Archived |
+| PATH_C_LAUNCH_CHECKLIST.md | Canceled checklist | Archived |
+| PATH_C_QUICK_START.md | Canceled overview | Archived |
+| PATH_C_VISUAL_TIMELINE.md | Canceled timeline | Archived |
 
 ---
 

@@ -42,7 +42,7 @@ idiomatic_version_file_enable_tools = []
 
 [hooks]
 enter = '''
-#!/usr/bin/bash
+#!/usr/bin/zsh
 chmod +x scripts/* &>/dev/null &&
 mise run activate &&
 mise run install-tools &&

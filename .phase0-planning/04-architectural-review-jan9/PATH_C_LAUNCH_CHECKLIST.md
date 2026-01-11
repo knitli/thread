@@ -1,4 +1,6 @@
 # Path C Launch Checklist
+**Status:** ⚠️ **ARCHIVED / CANCELED** (See [FINAL_DECISION_PATH_B.md](2026-01-10-FINAL_DECISION_PATH_B.md))  
+
 ## Getting Started This Week (January 9-13)
 
 Use this checklist to prepare for Path C launch on Monday, January 13, 2026.

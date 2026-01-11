@@ -9,20 +9,17 @@
 
 ## Quick Navigation
 
-### ⚡ Start Here (5-10 minutes)
-If you're new to the Phase 0 status and need the essentials:
-1. Read: [`02-phase0-planning-jan2/2026-01-02-EXECUTIVE_SUMMARY.md`](02-phase0-planning-jan2/2026-01-02-EXECUTIVE_SUMMARY.md) - TL;DR status and recommendations
-2. Then: [`02-phase0-planning-jan2/2026-01-02-IMPLEMENTATION_ROADMAP.md`](02-phase0-planning-jan2/2026-01-02-IMPLEMENTATION_ROADMAP.md) - Next 3-4 weeks of work
+### ⚡ START HERE (LATEST DECISION)
+**Final Decision (Jan 10)**: [**2026-01-10-FINAL_DECISION_PATH_B.md**](04-architectural-review-jan9/2026-01-10-FINAL_DECISION_PATH_B.md) - Thread is fully committed to **Path B (CocoIndex Integration)**.
 
-### 🎯 In-Depth Review (30-45 minutes)
+### 🏗️ Architecture Decisions
+1. [**04-architectural-review-jan9/PATH_B_IMPLEMENTATION_GUIDE.md**](04-architectural-review-jan9/PATH_B_IMPLEMENTATION_GUIDE.md) - **Active Implementation Plan**
+2. [`03-recent-status-jan9/2026-01-09-ARCHITECTURAL_VISION_UPDATE.md`](03-recent-status-jan9/2026-01-09-ARCHITECTURAL_VISION_UPDATE.md) - Strategic thinking (dataflow paradigm)
+
+### 🎯 In-Depth Review (Historical Context)
 For complete understanding of Phase 0 status:
 1. [`02-phase0-planning-jan2/2026-01-02-STATUS_REVIEW_COMPREHENSIVE.md`](02-phase0-planning-jan2/2026-01-02-STATUS_REVIEW_COMPREHENSIVE.md) - Full analysis with scoring
 2. [`02-phase0-planning-jan2/2026-01-02-REVIEW_NAVIGATION.md`](02-phase0-planning-jan2/2026-01-02-REVIEW_NAVIGATION.md) - Guide to the Jan 2 review documents
-
-### 🏗️ Architecture Decisions (Latest)
-For understanding the recent architectural evolution:
-1. [`03-recent-status-jan9/2026-01-09-ARCHITECTURAL_VISION_UPDATE.md`](03-recent-status-jan9/2026-01-09-ARCHITECTURAL_VISION_UPDATE.md) - Latest strategic thinking (dataflow paradigm)
-2. [`03-recent-status-jan9/2026-01-09-SERVICES_VS_DATAFLOW_ANALYSIS.md`](03-recent-status-jan9/2026-01-09-SERVICES_VS_DATAFLOW_ANALYSIS.md) - Technical evaluation of architecture options
 
 ### 📚 Historical Context (Foundation)
 Understanding how we got here:
@@ -70,22 +67,16 @@ The most comprehensive review conducted on January 2, 2026. Established that Pha
 ---
 
 ### 📂 `03-recent-status-jan9/` — January 9, 2026 Architectural Reflection
-**⭐ LATEST STRATEGIC THINKING**
-
-Most recent analysis capturing architectural evolution considerations. Explores potential shift from services-based to dataflow-based paradigm informed by CocoIndex research.
+**Strategic thinking leading to Path B decision**
 
 | Document | Purpose | Audience | Length |
 |----------|---------|----------|--------|
 | `2026-01-09-ARCHITECTURAL_VISION_UPDATE.md` | Long-term vision & dataflow paradigm | Architects, strategists | 20-30 min |
-| `2026-01-09-SERVICES_VS_DATAFLOW_ANALYSIS.md` | Technical evaluation & decision framework | Technical leads | 30-40 min |
+| `2026-01-09-SERVICES_VS_DATAFLOW_ANALYSIS.md` | Technical evaluation & initial decision framework | Technical leads | 30-40 min |
 
 **Key Findings**:
-- Services architecture at critical decision point (25% before full implementation)
-- Dataflow paradigm offers better adaptability for future needs
-- Recommendation: **Hybrid prototyping approach** - build minimal services implementation AND CocoIndex prototype in parallel (3 weeks)
-- Makes evidence-based decision after prototyping
-
-**When to use**: Understanding architectural direction, evaluating long-term technology choices
+- Dataflow paradigm (CocoIndex) offers superior adaptability for Thread's goals.
+- Bypassed Path C prototyping in favor of direct commitment to Path B on Jan 10.
 
 ---
 
@@ -96,18 +87,17 @@ DEC 2025
 ├─ Original planning docs established Phase 0 vision
 └─ Foundation documents created
 
-JAN 2, 2026 ⭐ CURRENT REFERENCE POINT
-├─ Comprehensive review conducted
-├─ Status: 25-30% complete with implementation gaps
-├─ Roadmap: 3-4 weeks to Phase 0 completion
-└─ 4 coordinated documents for immediate guidance
+JAN 2, 2026
+├─ Comprehensive review: Phase 0 at 25-30%
+└─ Roadmap established for implementation
 
-JAN 9, 2026 ⭐ LATEST STRATEGIC THINKING
-├─ Architectural evaluation conducted
-├─ Dataflow paradigm explored
-└─ Hybrid prototyping approach recommended
+JAN 9, 2026
+├─ Architectural evaluation of CocoIndex
+└─ Hybrid prototyping (Path C) recommended
 
-CURRENT: 2026-01-09
+JAN 10, 2026 ⭐ FINAL DECISION
+├─ Full commitment to Path B (CocoIndex)
+└─ Path C bypassed as superiority confirmed
 ```
 
 ---

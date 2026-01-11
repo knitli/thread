@@ -1,4 +1,6 @@
-# PATH C: Visual Timeline & Reference
+# Path C: Visual Timeline
+**Status:** ⚠️ **ARCHIVED / CANCELED** (See [FINAL_DECISION_PATH_B.md](2026-01-10-FINAL_DECISION_PATH_B.md))  
+
 ## 3-Week Parallel Development Plan
 
 ---

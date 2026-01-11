@@ -1,4 +1,6 @@
-# Path C: Quick Start Guide
+# Path C Quick Start Guide
+**Status:** ⚠️ **ARCHIVED / CANCELED** (See [FINAL_DECISION_PATH_B.md](2026-01-10-FINAL_DECISION_PATH_B.md))  
+
 ## Parallel Development - One-Page Summary
 
 **Duration**: 3 weeks (January 13-31, 2026)  
