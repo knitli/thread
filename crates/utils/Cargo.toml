@@ -21,6 +21,9 @@ memchr = { workspace = true, optional = true }
 rapidhash = { workspace = true, features = ["std"], optional = true }
 simdeez = { workspace = true, optional = true }
 
+[dev-dependencies]
+tempfile = "3.15"
+
 [features]
 default = ["hashers", "random", "simd"]
 hashers = ["dep:rapidhash"]
@@ -35,3 +38,6 @@ worker = ["dep:simdeez"]
 
 [lints]
 workspace = true
+
+[dev-dependencies]
+tempfile = "3.14"
