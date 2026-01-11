@@ -4,20 +4,42 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Thread is a safe, fast, flexible code analysis and parsing library built in Rust. It provides powerful AST-based pattern matching and transformation capabilities using tree-sitter parsers. The project is forked from ast-grep and enhanced for production use as a code analysis engine for AI context generation.
+Thread is a **service-library dual architecture** for safe, fast, flexible code analysis and parsing built in Rust. It operates as both:
+
+1. **Reusable Library Ecosystem** - Modular crates (ast-engine, language, rule-engine) for AST-based pattern matching and transformation using tree-sitter parsers
+2. **Persistent Service Platform** - Long-lived service with incremental intelligence, content-addressed caching, and real-time code analysis
+
+The project is forked from ast-grep and enhanced with CocoIndex dataflow framework for production use as a code analysis engine for AI context generation.
+
+**Key Differentiators**:
+- ✅ **Content-Addressed Caching**: 50x+ performance gains on repeated analysis via automatic incremental updates
+- ✅ **Dual Deployment**: Single codebase compiles to both CLI (Rayon parallelism) and Edge (tokio async, Cloudflare Workers)
+- ✅ **Persistent Storage**: Native integration with Postgres (local), D1 (edge), Qdrant (vectors)
+- ✅ **Dataflow Orchestration**: Declarative pipelines for ETL and dependency tracking via CocoIndex
 
 ## Architecture
 
-Thread follows a modular architecture with six main crates:
+Thread follows a **service-library dual architecture** (Constitution v2.0.0, Principle I) with six main crates plus service layer:
 
-### Core Crates
+### Library Core (Reusable Components)
 
 - **`thread-ast-engine`** - Core AST parsing, pattern matching, and transformation engine (forked from ast-grep-core)
-- **`thread-rule-engine`** - Rule-based scanning and transformation system with YAML configuration support
 - **`thread-language`** - Language definitions and tree-sitter parser integrations (supports 20+ languages)
+- **`thread-rule-engine`** - Rule-based scanning and transformation system with YAML configuration support
 - **`thread-utils`** - Shared utilities including SIMD optimizations and hash functions
-- **`thread-services`** - High-level service interfaces and API abstractions
 - **`thread-wasm`** - WebAssembly bindings for browser and edge deployment
+
+### Service Layer (Orchestration & Persistence)
+
+- **`thread-services`** - High-level service interfaces, API abstractions, and CocoIndex integration
+- **CocoIndex Dataflow** - Content-addressed caching, incremental ETL, and dependency tracking (foundational framework dependency per Constitution v2.0.0, Principle IV)
+- **Storage Backends**:
+  - **Postgres** (local CLI) - Persistent caching and analysis results
+  - **D1** (Cloudflare Edge) - Distributed caching across CDN nodes
+  - **Qdrant** (optional) - Vector similarity search for semantic analysis
+- **Concurrency Models**:
+  - **Rayon** (CLI) - CPU-bound parallelism for local multi-core utilization
+  - **tokio** (Edge) - Async I/O for horizontal scaling and Cloudflare Workers
 
 ### Build System
 
@@ -216,6 +238,47 @@ cargo run -p xtask build-wasm --release
 3. Run `mise run fix` to apply formatting and linting
 4. Run `mise run test` to verify functionality
 5. Use `mise run ci` to run full CI pipeline locally
+
+## Constitutional Compliance
+
+**All development MUST adhere to the Thread Constitution v2.0.0** (`.specify/memory/constitution.md`)
+
+### Core Governance Principles
+
+1. **Service-Library Architecture** (Principle I)
+   - Features MUST consider both library API design AND service deployment
+   - Libraries remain self-contained; services leverage CocoIndex for orchestration
+   - Dual architecture is non-negotiable—both aspects are first-class citizens
+
+2. **Test-First Development** (Principle III - NON-NEGOTIABLE)
+   - TDD mandatory: Tests → Approve → Fail → Implement
+   - All tests execute via `cargo nextest`
+   - No exceptions, no justifications accepted
+
+3. **Service Architecture & Persistence** (Principle VI)
+   - Content-addressed caching MUST achieve >90% hit rate
+   - Storage targets: Postgres <10ms, D1 <50ms, Qdrant <100ms p95 latency
+   - Incremental updates MUST trigger only affected component re-analysis
+
+### Quality Gates (Constitutional Requirements)
+
+Before any PR merge, verify:
+- ✅ `mise run lint` passes (zero warnings)
+- ✅ `cargo nextest run --all-features` passes (100% success)
+- ✅ `mise run ci` completes successfully
+- ✅ Public APIs have rustdoc documentation
+- ✅ Performance-sensitive changes include benchmarks
+- ✅ Service features meet storage/cache/incremental requirements
+
+### Deployment Validation
+
+- **CLI Target**: Test on Linux, macOS, Windows with Rayon parallelism
+- **Edge Target**: `mise run build-wasm-release` succeeds for Cloudflare Workers
+- **Storage**: Integration tests pass for all backends (Postgres, D1, Qdrant)
+
+**Review Process**: All PRs MUST have constitution compliance verified by reviewers. Violations require explicit technical justification or rejection.
+
+See `.specify/memory/constitution.md` for complete governance framework.
 
 ## License Structure
 
