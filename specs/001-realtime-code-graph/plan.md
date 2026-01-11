@@ -173,7 +173,7 @@ specs/[###-feature]/
 
 ```text
 crates/
-├── thread-graph/          # NEW: Core graph data structures, traversal algorithms, pathfinding
+├── graph/                 # NEW: Core graph data structures, traversal algorithms, pathfinding
 │   ├── src/
 │   │   ├── lib.rs
 │   │   ├── node.rs        # GraphNode, NodeId, NodeType
@@ -181,14 +181,14 @@ crates/
 │   │   ├── graph.rs       # Graph container, adjacency lists
 │   │   └── algorithms.rs  # Traversal, pathfinding (uses petgraph)
 │   └── tests/
-├── thread-indexer/        # NEW: Multi-source code indexing (Git, local, cloud)
+├── indexer/               # NEW: Multi-source code indexing (Git, local, cloud)
 │   ├── src/
 │   │   ├── lib.rs
 │   │   ├── sources/       # Git, local file, S3 sources
 │   │   ├── watcher.rs     # File change detection
 │   │   └── indexer.rs     # Code → AST → graph nodes
 │   └── tests/
-├── thread-conflict/       # NEW: Multi-tier conflict detection engine
+├── conflict/              # NEW: Multi-tier conflict detection engine
 │   ├── src/
 │   │   ├── lib.rs
 │   │   ├── tier1_ast.rs   # AST diff algorithm (<100ms)
@@ -196,7 +196,7 @@ crates/
 │   │   ├── tier3_graph.rs # Graph impact analysis (<5s)
 │   │   └── progressive.rs # Progressive result streaming
 │   └── tests/
-├── thread-storage/        # NEW: Multi-backend storage abstraction
+├── storage/               # NEW: Multi-backend storage abstraction
 │   ├── src/
 │   │   ├── lib.rs
 │   │   ├── traits.rs      # GraphStorage, VectorStorage, StorageMigration
@@ -204,14 +204,14 @@ crates/
 │   │   ├── d1.rs          # D1Storage implementation (Cloudflare)
 │   │   └── qdrant.rs      # QdrantStorage implementation (vectors)
 │   └── tests/
-├── thread-api/            # NEW: RPC protocol (HTTP+WebSocket)
+├── api/                   # NEW: RPC protocol (HTTP+WebSocket)
 │   ├── src/
 │   │   ├── lib.rs
 │   │   ├── rpc.rs         # Custom RPC over HTTP (workers-rs + postcard)
 │   │   ├── types.rs       # Request/response types, shared across CLI/edge
 │   │   └── errors.rs      # Error types, status codes
 │   └── tests/
-├── thread-realtime/       # NEW: Real-time update propagation
+├── realtime/              # NEW: Real-time update propagation
 │   ├── src/
 │   │   ├── lib.rs
 │   │   ├── websocket.rs   # WebSocket handling
@@ -219,7 +219,7 @@ crates/
 │   │   ├── polling.rs     # Long-polling last resort
 │   │   └── durable_objects.rs # Cloudflare Durable Objects integration
 │   └── tests/
-├── thread-services/       # EXISTING → EXTENDED: CocoIndex integration
+├── services/              # EXISTING → EXTENDED: CocoIndex integration
 │   ├── src/
 │   │   ├── lib.rs
 │   │   ├── dataflow/      # NEW: CocoIndex trait abstractions
@@ -228,13 +228,13 @@ crates/
 │   │   │   └── spec.rs    # YAML dataflow specification parser
 │   │   └── existing...    # Previous service interfaces
 │   └── tests/
-├── thread-ast-engine/     # EXISTING → REUSED: AST parsing foundation
-├── thread-language/       # EXISTING → REUSED: Language support (Tier 1-3 languages)
-├── thread-rule-engine/    # EXISTING → EXTENDED: Pattern-based conflict rules
+├── ast-engine/            # EXISTING → REUSED: AST parsing foundation
+├── language/              # EXISTING → REUSED: Language support (Tier 1-3 languages)
+├── rule-engine/           # EXISTING → EXTENDED: Pattern-based conflict rules
 │   └── src/
 │       └── conflict_rules/ # NEW: Conflict detection rule definitions
-├── thread-utils/          # EXISTING → REUSED: SIMD, hashing utilities
-└── thread-wasm/           # EXISTING → EXTENDED: Edge deployment features
+├── utils/                 # EXISTING → REUSED: SIMD, hashing utilities
+└── wasm/                  # EXISTING → EXTENDED: Edge deployment features
     ├── src/
     │   ├── api_bindings.rs # NEW: WASM bindings for thread-api
     │   └── realtime_bindings.rs # NEW: WebSocket for WASM

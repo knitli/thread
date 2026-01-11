@@ -91,6 +91,13 @@ pub struct GraphNode {
     pub location: SourceLocation,   // File path, line, column
     pub signature: Option<String>,  // Function signature, type definition
     pub semantic_metadata: SemanticMetadata, // Language-specific analysis
+    
+    // === PROVENANCE (Expanded Scope T079) ===
+    pub repository_id: String,           // Source Repository
+    pub source_version: Option<SourceVersion>, // Git commit/S3 ETag (via CocoIndex)
+    pub analysis_lineage: Option<Vec<LineageRecord>>, // Analysis pipeline trace
+    pub upstream_hashes: Option<Vec<String>>, // Upstream dependencies
+    pub cache_hit: bool,                 // From cache?
 }
 
 pub type NodeId = String;           // Format: "node:{content_hash}"
@@ -150,6 +157,11 @@ pub struct GraphEdge {
     pub edge_type: EdgeType,        // Relationship kind
     pub weight: f32,                // Relationship strength (1.0 default)
     pub context: EdgeContext,       // Additional context about relationship
+    
+    // === PROVENANCE ===
+    pub repository_id: String,
+    pub creation_method: EdgeCreationMethod, // How edge was detected
+    pub detected_at: DateTime<Utc>,
 }
 
 pub enum EdgeType {
@@ -166,6 +178,13 @@ pub struct EdgeContext {
     pub call_site: Option<SourceLocation>, // Where relationship occurs
     pub conditional: bool,          // Relationship is conditional (e.g., if statement)
     pub async_context: bool,        // Relationship crosses async boundary
+}
+
+pub enum EdgeCreationMethod {
+    ASTAnalysis,        // Static analysis
+    SemanticAnalysis,   // Type inference
+    GraphInference,     // Transitive closure
+    ExplicitAnnotation, // Manual override
 }
 ```
 
@@ -221,6 +240,10 @@ pub struct ConflictPrediction {
     pub tier: DetectionTier,        // Which tier detected it (AST/Semantic/Graph)
     pub suggested_resolution: Option<ResolutionStrategy>, // AI-suggested fix
     pub status: ConflictStatus,     // Unresolved, Acknowledged, Resolved
+    
+    // === PROVENANCE ===
+    pub analysis_pipeline: Vec<LineageRecord>, // Audit trail
+    pub source_versions: (SourceVersion, SourceVersion), // (Old, New)
 }
 
 pub type ConflictId = String;       // Format: "conflict:{hash}"
@@ -321,13 +344,37 @@ pub struct PerformanceMetrics {
 
 ---
 
-### 7. Plugin Engine
+### 7. Provenance Types (New)
+
+**Purpose**: Thread-native types wrapping CocoIndex provenance data (Trait Boundary)
+
+```rust
+pub struct SourceVersion {
+    pub source_type: String,     // "Git", "S3", etc.
+    pub identifier: String,      // Commit Hash, ETag
+    pub timestamp: DateTime<Utc>,
+}
+
+pub struct LineageRecord {
+    pub operation: String,       // "Parse", "Extract"
+    pub duration_ms: u64,
+    pub timestamp: DateTime<Utc>,
+    pub input_hash: String,
+    pub output_hash: String,
+}
+```
+
+**Trait Boundary Note**: These types map from CocoIndex `ExecutionRecord`s but are defined within Thread crates to prevent type leakage.
+
+---
+
+### 8. Analysis Engine
 
 **Purpose**: Represents a pluggable analysis component (parser, graph builder, conflict detector)
 
 **Attributes**:
 ```rust
-pub struct PluginEngine {
+pub struct AnalysisEngine {
     pub id: EngineId,               // Unique engine identifier
     pub engine_type: EngineType,    // Parser, GraphBuilder, ConflictDetector
     pub name: String,               // Human-readable name
@@ -363,7 +410,7 @@ pub struct PerformanceTuning {
 - Engines are swappable via trait boundaries (Constitution Principle IV)
 
 **Storage**:
-- Postgres/D1 table `plugin_engines`
+- Postgres/D1 table `analysis_engines`
 - Configuration managed via admin API or config files
 
 ---
@@ -378,7 +425,7 @@ CodeRepository (1) ────< (many) CodeFile
       ▼                                       ▼            ▼
 AnalysisSession ───> ConflictPrediction    GraphEdge ────┘
       │                   │
-      └───> PluginEngine  └───> (many) CodeFile
+      └───> AnalysisEngine  └───> (many) CodeFile
 ```
 
 ## Content-Addressed Storage Strategy
@@ -408,7 +455,7 @@ db.update_edges_referencing(&old_id, &new_id)?;
 ## Schema Migrations
 
 **Version 1** (Initial Schema):
-- Tables: `repositories`, `files`, `nodes`, `edges`, `conflicts`, `analysis_sessions`, `plugin_engines`
+- Tables: `repositories`, `files`, `nodes`, `edges`, `conflicts`, `analysis_sessions`, `analysis_engines`
 - Indexes: `idx_edges_source`, `idx_edges_target`, `idx_nodes_type_name`, `idx_nodes_file`
 - Schema version tracked in `schema_version` table
 

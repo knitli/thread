@@ -7,12 +7,12 @@
 ## Phase 1: Setup
 **Goal**: Initialize project structure and development environment.
 
-- [ ] T001 Create `crates/thread-graph` with `lib.rs` and `Cargo.toml`
-- [ ] T002 Create `crates/thread-indexer` with `lib.rs` and `Cargo.toml`
-- [ ] T003 Create `crates/thread-conflict` with `lib.rs` and `Cargo.toml`
-- [ ] T004 Create `crates/thread-storage` with `lib.rs` and `Cargo.toml`
-- [ ] T005 Create `crates/thread-api` with `lib.rs` and `Cargo.toml`
-- [ ] T006 Create `crates/thread-realtime` with `lib.rs` and `Cargo.toml`
+- [ ] T001 Create `crates/graph` with `lib.rs` and `Cargo.toml`
+- [ ] T002 Create `crates/indexer` with `lib.rs` and `Cargo.toml`
+- [ ] T003 Create `crates/conflict` with `lib.rs` and `Cargo.toml`
+- [ ] T004 Create `crates/storage` with `lib.rs` and `Cargo.toml`
+- [ ] T005 Create `crates/api` with `lib.rs` and `Cargo.toml`
+- [ ] T006 Create `crates/realtime` with `lib.rs` and `Cargo.toml`
 - [ ] T007 Update root `Cargo.toml` to include new workspace members
 - [ ] T008 [P] Setup `xtask` for WASM build targeting `thread-wasm`
 - [ ] T009 [P] Create `tests/contract` and `tests/integration` directories
@@ -21,53 +21,54 @@
 ## Phase 2: Foundational (Blocking Prerequisites)
 **Goal**: Core data structures, traits, and storage implementations required by all user stories.
 
-- [ ] T011 Implement `GraphNode` and `GraphEdge` structs in `crates/thread-graph/src/node.rs` and `crates/thread-graph/src/edge.rs`
-- [ ] T012 Implement `Graph` container and adjacency list in `crates/thread-graph/src/graph.rs`
-- [ ] T013 Implement `GraphStorage` trait in `crates/thread-storage/src/traits.rs`
-- [ ] T014 [P] Implement `PostgresStorage` for `GraphStorage` in `crates/thread-storage/src/postgres.rs`
-- [ ] T015 [P] Implement `D1Storage` for `GraphStorage` in `crates/thread-storage/src/d1.rs`
-- [ ] T016 [P] Implement `QdrantStorage` struct in `crates/thread-storage/src/qdrant.rs`
-- [ ] T017 Define shared RPC types in `crates/thread-api/src/types.rs` based on `specs/001-realtime-code-graph/contracts/rpc-types.rs`
-- [ ] T018 Implement CocoIndex dataflow traits in `crates/thread-services/src/dataflow/traits.rs`
-- [ ] T019 Implement `RepoConfig` and `SourceType` in `crates/thread-indexer/src/config.rs`
+- [ ] T011 Implement `GraphNode` and `GraphEdge` structs in `crates/graph/src/node.rs` and `crates/graph/src/edge.rs` with full provenance fields (T079)
+- [ ] T011b Implement `Provenance` types (`SourceVersion`, `LineageRecord`) and trait wrappers in `crates/graph/src/provenance.rs`
+- [ ] T012 Implement `Graph` container and adjacency list in `crates/graph/src/graph.rs`
+- [ ] T013 Implement `GraphStorage` trait in `crates/storage/src/traits.rs`
+- [ ] T014 [P] Implement `PostgresStorage` for `GraphStorage` in `crates/storage/src/postgres.rs`
+- [ ] T015 [P] Implement `D1Storage` for `GraphStorage` in `crates/storage/src/d1.rs`
+- [ ] T016 [P] Implement `QdrantStorage` struct in `crates/storage/src/qdrant.rs`
+- [ ] T017 Define shared RPC types in `crates/api/src/types.rs` based on `specs/001-realtime-code-graph/contracts/rpc-types.rs`
+- [ ] T018 Implement CocoIndex dataflow traits in `crates/services/src/dataflow/traits.rs` covering provenance collection
+- [ ] T019 Implement `RepoConfig` and `SourceType` in `crates/indexer/src/config.rs`
 
 ## Phase 3: User Story 1 - Real-Time Code Analysis Query (P1)
 **Goal**: Enable real-time dependency analysis and graph querying (<1s response).
 **Independent Test**: Query a function's dependencies in a 50k file codebase and verify response < 1s.
 
 - [ ] T020 [P] [US1] Create benchmark `tests/benchmarks/graph_queries.rs`
-- [ ] T021 [US1] Implement AST to Graph Node conversion in `crates/thread-indexer/src/indexer.rs`
-- [ ] T022 [US1] Implement relationship extraction logic in `crates/thread-graph/src/algorithms.rs`
-- [ ] T023 [US1] Implement `ThreadBuildGraphFunction` in `crates/thread-services/src/functions/build_graph.rs` using CocoIndex traits
-- [ ] T024 [P] [US1] Implement `D1GraphIterator` for streaming access in `crates/thread-storage/src/d1.rs`
-- [ ] T025 [US1] Implement graph traversal algorithms (BFS/DFS) in `crates/thread-graph/src/traversal.rs`
-- [ ] T026 [US1] Implement RPC query handlers in `crates/thread-api/src/rpc.rs`
+- [ ] T021 [US1] Implement AST to Graph Node conversion in `crates/indexer/src/indexer.rs`
+- [ ] T022 [US1] Implement relationship extraction logic in `crates/graph/src/algorithms.rs`
+- [ ] T023 [US1] Implement `ThreadBuildGraphFunction` in `crates/services/src/functions/build_graph.rs` using CocoIndex traits
+- [ ] T024 [P] [US1] Implement `D1GraphIterator` for streaming access in `crates/storage/src/d1.rs`
+- [ ] T025 [US1] Implement graph traversal algorithms (BFS/DFS) in `crates/graph/src/traversal.rs`
+- [ ] T026 [US1] Implement RPC query handlers in `crates/api/src/rpc.rs`
 - [ ] T027 [US1] Create integration test `tests/integration/graph_storage.rs` verifying graph persistence
-- [ ] T028 [US1] Expose graph query API in `crates/thread-wasm/src/api_bindings.rs`
+- [ ] T028 [US1] Expose graph query API in `crates/wasm/src/api_bindings.rs`
 
 ## Phase 4: User Story 2 - Conflict Prediction (P2)
 **Goal**: Detect merge conflicts before commit using multi-tier analysis.
 **Independent Test**: Simulate concurrent changes to related files and verify conflict alert.
 
 - [ ] T029 [P] [US2] Create benchmark `tests/benchmarks/conflict_detection.rs`
-- [ ] T030 [US2] Implement `ConflictPrediction` struct in `crates/thread-conflict/src/types.rs`
-- [ ] T031 [US2] Implement Tier 1 AST diff detection in `crates/thread-conflict/src/tier1_ast.rs`
-- [ ] T032 [US2] Implement Tier 2 Semantic analysis in `crates/thread-conflict/src/tier2_semantic.rs`
-- [ ] T033 [US2] Implement Tier 3 Graph impact analysis in `crates/thread-conflict/src/tier3_graph.rs`
-- [ ] T034 [US2] Implement `ReachabilityIndex` logic for D1 in `crates/thread-storage/src/d1_reachability.rs`
-- [ ] T035 [US2] Implement WebSocket/SSE notification logic in `crates/thread-realtime/src/websocket.rs`
-- [ ] T036 [US2] Implement `ProgressiveConflictDetector` in `crates/thread-conflict/src/progressive.rs`
+- [ ] T030 [US2] Implement `ConflictPrediction` struct in `crates/conflict/src/types.rs`
+- [ ] T031 [US2] Implement Tier 1 AST diff detection in `crates/conflict/src/tier1_ast.rs`
+- [ ] T032 [US2] Implement Tier 2 Semantic analysis in `crates/conflict/src/tier2_semantic.rs`
+- [ ] T033 [US2] Implement Tier 3 Graph impact analysis in `crates/conflict/src/tier3_graph.rs`
+- [ ] T034 [US2] Implement `ReachabilityIndex` logic for D1 in `crates/storage/src/d1_reachability.rs`
+- [ ] T035 [US2] Implement WebSocket/SSE notification logic in `crates/realtime/src/websocket.rs`
+- [ ] T036 [US2] Implement `ProgressiveConflictDetector` in `crates/conflict/src/progressive.rs`
 - [ ] T037 [US2] Create integration test `tests/integration/realtime_conflict.rs`
-- [ ] T038 [US2] Expose conflict detection API in `crates/thread-wasm/src/realtime_bindings.rs`
+- [ ] T038 [US2] Expose conflict detection API in `crates/wasm/src/realtime_bindings.rs`
 
 ## Phase 5: User Story 3 - Multi-Source Code Intelligence (P3)
 **Goal**: Unified graph across multiple repositories and sources.
 **Independent Test**: Index Git repo + local dir and verify cross-repo dependency link.
 
-- [ ] T039 [US3] Implement `GitSource` in `crates/thread-indexer/src/sources/git.rs`
-- [ ] T040 [US3] Implement `LocalSource` in `crates/thread-indexer/src/sources/local.rs`
-- [ ] T041 [P] [US3] Implement `S3Source` in `crates/thread-indexer/src/sources/s3.rs`
-- [ ] T042 [US3] Implement cross-repository dependency linking in `crates/thread-graph/src/linking.rs`
+- [ ] T039 [US3] Implement `GitSource` in `crates/indexer/src/sources/git.rs`
+- [ ] T040 [US3] Implement `LocalSource` in `crates/indexer/src/sources/local.rs`
+- [ ] T041 [P] [US3] Implement `S3Source` in `crates/indexer/src/sources/s3.rs`
+- [ ] T042 [US3] Implement cross-repository dependency linking in `crates/graph/src/linking.rs`
 - [ ] T043 [US3] Update `ThreadBuildGraphFunction` to handle multiple sources
 - [ ] T044 [US3] Create integration test `tests/integration/multi_source.rs`
 
@@ -75,11 +76,11 @@
 **Goal**: Suggest resolution strategies for detected conflicts.
 **Independent Test**: Create conflict and verify resolution suggestion output.
 
-- [ ] T045 [US4] Implement `ResolutionStrategy` types in `crates/thread-conflict/src/resolution.rs`
-- [ ] T046 [US4] Implement heuristic-based resolution suggestions in `crates/thread-conflict/src/heuristics.rs`
-- [ ] T047 [US4] Implement semantic compatibility checks in `crates/thread-conflict/src/compatibility.rs`
+- [ ] T045 [US4] Implement `ResolutionStrategy` types in `crates/conflict/src/resolution.rs`
+- [ ] T046 [US4] Implement heuristic-based resolution suggestions in `crates/conflict/src/heuristics.rs`
+- [ ] T047 [US4] Implement semantic compatibility checks in `crates/conflict/src/compatibility.rs`
 - [ ] T048 [US4] Update `ConflictPrediction` to include resolution strategies
-- [ ] T049 [US4] Add resolution tests in `crates/thread-conflict/tests/resolution_tests.rs`
+- [ ] T049 [US4] Add resolution tests in `crates/conflict/tests/resolution_tests.rs`
 
 ## Phase 7: Polish & Cross-Cutting
 **Goal**: Performance tuning, documentation, and final verification.

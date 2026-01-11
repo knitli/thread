@@ -99,7 +99,7 @@ When a conflict is predicted, the system suggests resolution strategies based on
 - **FR-011**: System MUST run as a local CLI application for developer workstation use (available in OSS)
 - **FR-012**: System MUST use content-addressed caching to avoid re-analyzing identical code sections across updates
 - **FR-013**: System MUST propagate code changes to all connected clients within 100ms of detection for real-time collaboration
-- **FR-014**: System MUST track analysis provenance showing which data source, version, and timestamp each graph node originated from
+- **FR-014**: System MUST track comprehensive analysis provenance including data source, version, timestamp, analysis lineage, upstream dependencies, and cache status for each graph node. This MUST leverage CocoIndex's native provenance capabilities but expose them through strict Thread-owned trait boundaries (no type leakage).
 - **FR-015**: System MUST support semantic search across the codebase to find similar functions, related types, and usage patterns
 - **FR-016**: System MUST provide graph traversal APIs via Custom RPC over HTTP protocol for: dependency walking, reverse lookups (who calls this), and path finding between symbols. This provides unified interface for CLI and edge deployments with built-in streaming and type safety.
 - **FR-017**: System MUST maintain graph consistency when code is added, modified, or deleted during active queries
