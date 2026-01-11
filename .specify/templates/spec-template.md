@@ -113,3 +113,40 @@
 - **SC-002**: [Measurable metric, e.g., "System handles 1000 concurrent users without degradation"]
 - **SC-003**: [User satisfaction metric, e.g., "90% of users successfully complete primary task on first attempt"]
 - **SC-004**: [Business metric, e.g., "Reduce support tickets related to [X] by 50%"]
+
+### Service Architecture Success Criteria *(include if feature has service layer)*
+
+<!--
+  ACTION REQUIRED: If feature includes service layer (persistence, caching, orchestration),
+  define service-specific success criteria. Mark as N/A if purely library feature.
+-->
+
+**Deployment Targets**: [CLI | Edge | Both | N/A]
+
+#### Cache Performance *(if applicable)*
+
+- **SC-CACHE-001**: Content-addressed cache achieves >90% hit rate for repeated analysis
+- **SC-CACHE-002**: Cache invalidation occurs within [X]ms of source code change
+- **SC-CACHE-003**: [Additional cache metric, e.g., "Cache size remains under 500MB for 10k file repository"]
+
+#### Incremental Updates *(if applicable)*
+
+- **SC-INCR-001**: Code changes trigger only affected component re-analysis (not full scan)
+- **SC-INCR-002**: Incremental update completes in <[X]% of full analysis time
+- **SC-INCR-003**: [Additional incremental metric, e.g., "Dependency graph updates in <100ms"]
+
+#### Storage Performance *(if applicable)*
+
+- **SC-STORE-001**: Database operations meet constitutional targets:
+  - Postgres (CLI): <10ms p95 latency for index queries
+  - D1 (Edge): <50ms p95 latency for edge queries
+  - Qdrant (vectors): <100ms p95 latency for similarity search
+- **SC-STORE-002**: [Additional storage metric, e.g., "Schema migrations complete in <30 seconds"]
+
+#### Edge Deployment *(if WASM target applicable)*
+
+- **SC-EDGE-001**: WASM binary compiles successfully via `mise run build-wasm-release`
+- **SC-EDGE-002**: Edge deployment serves requests with <50ms p95 latency globally
+- **SC-EDGE-003**: [Additional edge metric, e.g., "WASM bundle size under 5MB compressed"]
+
+**Mark as N/A if not applicable**: [Explain why service architecture doesn't apply to this feature]

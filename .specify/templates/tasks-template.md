@@ -146,6 +146,58 @@ Examples of foundational tasks (adjust based on your project):
 
 ---
 
+## Phase N-1: Service Layer Integration *(if applicable)*
+
+**Purpose**: Service architecture components (persistence, caching, orchestration)
+
+**Skip this phase if**: Feature is purely library-only with no service components
+
+### Storage & Persistence Tasks *(if applicable)*
+
+- [ ] TXXX [P] Setup database schema (Postgres for CLI, D1 for Edge, or both)
+- [ ] TXXX [P] Implement storage abstraction layer in src/storage/
+- [ ] TXXX Create migration scripts with rollback procedures in migrations/
+- [ ] TXXX [P] Add storage integration tests in tests/integration/storage/
+- [ ] TXXX Verify storage benchmark targets (<10ms Postgres, <50ms D1)
+
+### Content-Addressed Caching Tasks *(if applicable)*
+
+- [ ] TXXX Implement content-addressable storage layer
+- [ ] TXXX [P] Add cache key generation for analysis results
+- [ ] TXXX [P] Implement cache invalidation on source changes
+- [ ] TXXX Add cache performance tests (verify >90% hit rate)
+- [ ] TXXX [P] Add cache monitoring and metrics
+
+### Incremental Update Tasks *(if applicable)*
+
+- [ ] TXXX Implement dependency graph tracking
+- [ ] TXXX Add change detection mechanism
+- [ ] TXXX Implement incremental re-analysis logic
+- [ ] TXXX [P] Add incremental update tests in tests/integration/incremental/
+- [ ] TXXX Verify only affected components re-analyzed (not full scan)
+
+### CocoIndex Dataflow Tasks *(if applicable)*
+
+- [ ] TXXX Implement Thread operators as Rust traits (SourceFactory, SimpleFunctionFactory, TargetFactory)
+- [ ] TXXX Create declarative YAML pipeline specifications in pipelines/
+- [ ] TXXX [P] Add dataflow validation tests
+- [ ] TXXX Test content-addressed caching in dataflow context
+- [ ] TXXX Verify automatic dependency tracking works correctly
+
+### Edge Deployment Tasks *(if WASM target applicable)*
+
+- [ ] TXXX Configure WASM build in xtask crate
+- [ ] TXXX Implement D1 database integration for edge storage
+- [ ] TXXX [P] Implement Durable Objects for state management (if needed)
+- [ ] TXXX Add tokio async runtime support for edge
+- [ ] TXXX Verify `mise run build-wasm-release` succeeds
+- [ ] TXXX [P] Add edge deployment tests
+- [ ] TXXX Verify <50ms p95 latency for edge requests
+
+**Checkpoint**: Service layer fully functional with storage, caching, and deployment validated
+
+---
+
 ## Phase N: Polish & Cross-Cutting Concerns
 
 **Purpose**: Improvements that affect multiple user stories

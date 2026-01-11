@@ -31,7 +31,66 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+### I. Service-Library Architecture ✅/❌
+
+- [ ] **Library Core**: Feature includes reusable library crates (not just service code)
+- [ ] **Service Layer**: Feature includes service orchestration/persistence if applicable
+- [ ] **Dual Consideration**: Design addresses both library API and service deployment
+
+**Justification if violated**: [Explain why feature is library-only or service-only]
+
+### II. Performance & Safety ✅/❌
+
+- [ ] **Unsafe Code**: No unsafe blocks OR explicitly justified with safety invariants
+- [ ] **Benchmarks**: Performance-critical paths include benchmark suite
+- [ ] **Memory Efficiency**: Allocations in hot paths are justified
+
+**Justification if violated**: [Explain performance/safety trade-offs]
+
+### III. Test-First Development (NON-NEGOTIABLE) ✅/❌
+
+- [ ] **TDD Workflow**: Tests written → Approved → Fail → Implement
+- [ ] **Integration Tests**: Crate boundaries covered
+- [ ] **Contract Tests**: Public API behavior guaranteed
+
+**This gate CANNOT be violated. No justification accepted.**
+
+### IV. Modular Design ✅/❌
+
+- [ ] **Single Responsibility**: Each new crate has clear, singular purpose
+- [ ] **No Circular Dependencies**: Dependency graph is acyclic
+- [ ] **CocoIndex Integration**: If using dataflow, follows declarative YAML patterns
+
+**Justification if violated**: [Explain architectural necessity]
+
+### V. Open Source Compliance ✅/❌
+
+- [ ] **AGPL-3.0**: All new code properly licensed
+- [ ] **REUSE Spec**: License headers or .license files present
+- [ ] **Attribution**: Forked/vendored code properly attributed
+
+**Justification if violated**: [Explain licensing requirements]
+
+### VI. Service Architecture & Persistence ✅/❌/N/A
+
+- [ ] **Deployment Target**: CLI, Edge, or Both (specify below)
+- [ ] **Storage Backend**: Postgres (CLI), D1 (Edge), Qdrant (vectors), or N/A
+- [ ] **Caching Strategy**: Content-addressed caching enabled if applicable
+- [ ] **Concurrency Model**: Rayon (CLI) or tokio (Edge) - specify below
+
+**Deployment Target**: [CLI | Edge | Both | N/A]
+**Storage Backend**: [Postgres | D1 | Qdrant | None | NEEDS CLARIFICATION]
+**Justification if N/A**: [Explain why service architecture doesn't apply]
+
+### Quality Standards (Service-Specific) ✅/❌/N/A
+
+- [ ] **Storage Benchmarks**: If using storage, performance targets defined
+  - Postgres: <10ms p95 | D1: <50ms p95 | Qdrant: <100ms p95
+- [ ] **Cache Performance**: If using caching, >90% hit rate targeted
+- [ ] **Incremental Updates**: If service layer, incremental re-analysis implemented
+- [ ] **Edge Deployment**: If WASM target, `mise run build-wasm-release` passes
+
+**Justification if N/A**: [Explain why service quality gates don't apply]
 
 ## Project Structure
 
