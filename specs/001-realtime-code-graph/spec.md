@@ -19,7 +19,7 @@ A developer working on a large codebase needs to understand the impact of a prop
 
 1. **Given** a codebase with 50,000 files indexed in the graph, **When** developer queries dependencies for function "processPayment", **Then** system returns complete dependency graph with all callers, callees, and data flows in under 1 second
 2. **Given** developer is viewing a function, **When** they request semantic relationships, **Then** system highlights similar functions, related types, and usage patterns with confidence scores
-3. **Given** multiple developers querying simultaneously, **When** 100 concurrent queries are issued, **Then** all queries complete within 2 seconds with no degradation
+3. **Given** multiple developers querying simultaneously, **When** 100 concurrent queries are issued, **Then** all queries complete within 2 seconds with <10% latency increase
 
 ---
 
@@ -95,17 +95,18 @@ When a conflict is predicted, the system suggests resolution strategies based on
 - **FR-007**: System MUST provide conflict predictions with specific details: file locations, conflicting symbols, impact severity ratings, and confidence scores. Initial predictions (AST-based) deliver within 100ms, refined predictions (semantic-validated) within 1 second, comprehensive predictions (graph-validated) within 5 seconds.
 - **FR-008**: System MUST support incremental updates where only changed files and affected dependencies are re-analyzed
 - **FR-009**: System MUST allow pluggable analysis engines where the underlying AST parser, graph builder, or conflict detector can be swapped without rewriting application code
-- **FR-010**: System MUST deploy to Cloudflare Workers as a WASM binary for edge computing scenarios. **OSS Boundary**: OSS library includes simple/limited WASM worker with core query capabilities. Full edge deployment with advanced features (comprehensive caching, multi-tenant management, enterprise scale) is commercial.
+- **FR-010**: System MUST deploy to Cloudflare Workers as a WASM binary for edge computing scenarios. **OSS Boundary**: OSS library includes simple/limited WASM worker with core query capabilities. **Constraint**: Edge deployment MUST NOT load full graph into memory. Must use streaming/iterator access patterns and D1 Reachability Index.
 - **FR-011**: System MUST run as a local CLI application for developer workstation use (available in OSS)
 - **FR-012**: System MUST use content-addressed caching to avoid re-analyzing identical code sections across updates
 - **FR-013**: System MUST propagate code changes to all connected clients within 100ms of detection for real-time collaboration
 - **FR-014**: System MUST track analysis provenance showing which data source, version, and timestamp each graph node originated from
 - **FR-015**: System MUST support semantic search across the codebase to find similar functions, related types, and usage patterns
-- **FR-016**: System MUST provide graph traversal APIs via gRPC protocol for: dependency walking, reverse lookups (who calls this), and path finding between symbols. gRPC provides unified interface for CLI and edge deployments with built-in streaming and type safety. HTTP REST fallback if gRPC infeasible.
+- **FR-016**: System MUST provide graph traversal APIs via Custom RPC over HTTP protocol for: dependency walking, reverse lookups (who calls this), and path finding between symbols. This provides unified interface for CLI and edge deployments with built-in streaming and type safety.
 - **FR-017**: System MUST maintain graph consistency when code is added, modified, or deleted during active queries
 - **FR-018**: System MUST log all conflict predictions and resolutions for audit and learning purposes
 - **FR-019**: System MUST handle authentication and authorization for multi-user scenarios when deployed as a service
 - **FR-020**: System MUST expose metrics for: query performance, cache hit rates, indexing throughput, and storage utilization
+- **FR-021**: System MUST utilize batched database operations (D1 Batch API) and strictly govern memory usage (<80MB active set) on Edge via CocoIndex adaptive controls to prevent OOM errors.
 
 ### Key Entities
 
@@ -115,7 +116,7 @@ When a conflict is predicted, the system suggests resolution strategies based on
 - **Graph Edge**: Represents a relationship between nodes. Attributes: relationship type (calls, imports, inherits, uses), direction, strength/confidence score
 - **Conflict Prediction**: Represents a detected potential conflict. Attributes: affected files, conflicting developers, conflict type, severity, suggested resolution, timestamp
 - **Analysis Session**: Represents a single analysis run. Attributes: start time, completion time, files analyzed, nodes/edges created, cache hit rate
-- **Plugin Engine**: Represents a pluggable component. Attributes: engine type (parser, graph builder, conflict detector), version, configuration parameters
+- **Analysis Engine**: Represents a pluggable component. Attributes: engine type (parser, graph builder, conflict detector), version, configuration parameters
 
 ## Success Criteria *(mandatory)*
 
@@ -175,13 +176,13 @@ When a conflict is predicted, the system suggests resolution strategies based on
 2. **Data Source Priority**: Git-based repositories are primary data source, with local file system and cloud storage as secondary
 3. **Conflict Types**: Focus on code merge conflicts, API breaking changes, and concurrent edit detection - not runtime conflicts or logic bugs
 4. **Authentication**: Multi-user deployments use standard OAuth2/OIDC for authentication, delegating to existing identity providers
-5. **Real-Time Protocol**: gRPC streaming for real-time updates (unified with query API), with WebSocket/SSE as fallback options. gRPC server-side streaming provides efficient real-time propagation for both CLI and edge deployments. Cloudflare Durable Objects expected for edge stateful operations (connection management, session state). Polling fallback for restrictive networks.
+5. **Real-Time Protocol**: Custom RPC over HTTP streaming for real-time updates (unified with query API), with WebSocket/SSE as fallback options. RPC server-side streaming provides efficient real-time propagation for both CLI and edge deployments. Cloudflare Durable Objects expected for edge stateful operations (connection management, session state). Polling fallback for restrictive networks.
 6. **Graph Granularity**: Multi-level graph representation (file → class/module → function/method → symbol) for flexibility
 7. **Conflict Detection Strategy**: Multi-tier progressive approach using all available detection methods (AST diff, semantic analysis, graph impact analysis) with intelligent routing. Fast methods provide immediate feedback, slower methods refine accuracy. Results update in real-time as better information becomes available, balancing speed with precision.
 8. **Conflict Resolution**: System provides predictions and suggestions only - final resolution decisions remain with developers
 9. **Performance Baseline**: "Real-time" defined as <1 second query response for typical developer workflow interactions
 10. **Scalability Target**: Initial target is codebases up to 500k files, 10M nodes - can scale higher with infrastructure investment
-11. **Plugin Architecture**: Engines are swappable via well-defined interfaces, not runtime plugin loading (compile-time composition)
+11. **Engine Architecture**: Engines are swappable via well-defined interfaces, not runtime plugin loading (compile-time composition)
 12. **Storage Strategy**: Multi-backend architecture with specialized purposes: Postgres (CLI primary, full ACID graph), D1 (edge primary, distributed graph), Qdrant (semantic search, both deployments). Content-addressed storage via CocoIndex dataflow framework (per Constitution v2.0.0, Principle IV). CocoIndex integration follows trait boundary pattern: Thread defines storage and dataflow interfaces, CocoIndex provides implementations. This allows swapping CocoIndex components or vendoring parts as needed.
 13. **Deployment Model**: Single binary for both CLI and WASM with conditional compilation, not separate codebases. **Commercial Boundaries**: OSS includes core library with simple/limited WASM worker. Full cloud deployment (comprehensive edge, managed service, advanced features) is commercial/paid. Architecture enables feature-flag-driven separation.
 14. **Vendoring Strategy**: CocoIndex components may be vendored (copied into Thread codebase) if cloud deployment requires customization or upstream changes conflict with Thread's stability requirements. Trait boundaries enable selective vendoring without architectural disruption.
@@ -200,7 +201,7 @@ When a conflict is predicted, the system suggests resolution strategies based on
 6. **Concurrency Models**: Rayon for CLI parallelism, tokio for edge async I/O
 7. **WASM Toolchain**: `xtask` build system for WASM compilation to Cloudflare Workers target
 8. **gRPC Framework**: Primary API protocol dependency (likely tonic for Rust). Provides unified interface for queries and real-time updates across CLI and edge deployments with type safety and streaming. Must compile to WASM for Cloudflare Workers deployment.
-9. **Network Protocol**: Cloudflare Durable Objects required for edge stateful operations (connection management, session persistence, collaborative state). HTTP REST fallback if gRPC proves infeasible.
+9. **Network Protocol**: Cloudflare Durable Objects required for edge stateful operations (connection management, session persistence, collaborative state). HTTP REST fallback if RPC proves infeasible.
 10. **CodeWeaver Integration** (Optional): CodeWeaver's semantic characterization layer (sister project, currently Python) provides sophisticated code analysis capabilities. May port to Rust if superior to ast-grep-derived components. Evaluation pending CocoIndex capability assessment.
 11. **Graph Database**: Requires graph query capabilities - may need additional graph storage layer beyond relational DBs
 12. **Semantic Analysis**: May require ML/embedding models for semantic similarity search (e.g., code2vec, CodeBERT). CodeWeaver may provide this capability.
@@ -211,9 +212,9 @@ When a conflict is predicted, the system suggests resolution strategies based on
 
 - Q: What is CocoIndex's architectural role in the real-time code graph system? → A: CocoIndex provides both storage abstraction AND dataflow orchestration for the entire analysis pipeline, but must be integrated through strong trait boundaries (similar to ast-grep integration pattern) to enable swappability and potential vendoring for cloud deployment. CocoIndex serves as "pipes" infrastructure, not a tightly-coupled dependency.
 - Q: How do the three storage backends (Postgres, D1, Qdrant) relate to each other architecturally? → A: Specialized backends with deployment-specific primaries - Postgres for CLI graph storage, D1 for edge deployment graph storage, Qdrant for semantic search across both deployments. Each serves a distinct purpose rather than being alternatives or replicas.
-- Q: What protocol propagates real-time code changes to connected clients? → A: Deployment-specific protocols (SSE for edge stateless operations, WebSocket for CLI stateful operations) with expectation that Cloudflare Durable Objects will be required for some edge stateful functions. Protocol choice remains flexible (WebSocket, SSE, gRPC all candidates) pending implementation constraints.
+- Q: What protocol propagates real-time code changes to connected clients? → A: Deployment-specific protocols (SSE for edge stateless operations, WebSocket for CLI stateful operations) with expectation that Cloudflare Durable Objects will be required for some edge stateful functions. Protocol choice remains flexible (WebSocket, SSE, Custom RPC all candidates) pending implementation constraints.
 - Q: How does the system detect potential merge conflicts between concurrent code changes? → A: Multi-tier progressive detection system using all available methods (AST diff, semantic analysis, graph impact analysis) with intelligent routing. Prioritizes speed (fast AST diff for initial detection) then falls back to slower methods for accuracy. Results update progressively as more accurate analysis completes, delivering fast feedback that improves over time.
-- Q: What API interface do developers use to query the code graph? → A: gRPC for unified protocol across CLI and edge deployments (single API surface, built-in streaming, type safety). If gRPC proves infeasible, fallback to HTTP REST API for both deployments. Priority is maintaining single API surface rather than deployment-specific optimizations.
+- Q: What API interface do developers use to query the code graph? → A: Custom RPC over HTTP for unified protocol across CLI and edge deployments (single API surface, built-in streaming, type safety). If RPC proves infeasible, fallback to HTTP REST API for both deployments. Priority is maintaining single API surface rather than deployment-specific optimizations.
 - Q: Should we assume existing Thread crates (ast-engine, language, rule-engine) will be used, or evaluate alternatives? → A: Do NOT assume existing Thread components will be used. These are vendored from ast-grep and may not be optimal. Approach: (1) Evaluate what capabilities CocoIndex provides, (2) Identify gaps, (3) Decide what to build/adapt. Consider CodeWeaver's semantic characterization layer (Python, portable to Rust) as alternative to existing semantic analysis.
 - Q: How do we maintain commercial boundaries between open-source and paid cloud service? → A: Carefully defined boundaries: OSS library includes core graph analysis with simple/limited WASM worker for edge. Full cloud deployment (comprehensive edge, managed service, advanced features) is commercial/paid service. Architecture must enable this split through feature flags and deployment configurations.
 

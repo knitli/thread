@@ -25,13 +25,13 @@ Real-Time Code Graph Intelligence transforms Thread from a code analysis library
 - Service-library dual architecture with CocoIndex dataflow orchestration
 - Multi-backend storage (Postgres for CLI, D1 for edge, Qdrant for semantic search)
 - Trait-based abstraction for CocoIndex integration (prevent type leakage)
-- gRPC unified API protocol (CLI + edge, pending WASM compatibility research)
+- Custom RPC over HTTP unified API protocol (CLI + edge, pending WASM compatibility research)
 - Progressive conflict detection (AST diff → semantic → graph impact)
 - Rayon parallelism (CLI) + tokio async (edge) concurrency models
 
-## Technical Context
+**Technical Context**
 
-**Language/Version**: Rust (edition 2021, aligning with Thread's existing codebase)  
+**Language/Version**: Rust (edition 2024, aligning with Thread's existing codebase)  
 **Primary Dependencies**: 
 - CocoIndex framework (content-addressed caching, dataflow orchestration) - trait-based integration in thread-services
 - tree-sitter (AST parsing foundation, existing Thread dependency)
@@ -42,11 +42,17 @@ Real-Time Code Graph Intelligence transforms Thread from a code analysis library
 - sqlx (Postgres client for CLI storage)
 - cloudflare-workers-rs SDK (D1 client for edge storage, WebSocket support)
 - qdrant-client (vector database for semantic search)
-- petgraph (in-memory graph algorithms for complex queries)
+- petgraph (in-memory graph algorithms for complex queries - **CLI ONLY**)
+
+**Edge Constraint Strategy**:
+- **Memory Wall**: Strict 128MB limit. **NO** loading full graph into memory. Use streaming/iterator patterns (`D1GraphIterator`).
+- **Database-First**: Primary graph state lives in D1. In-memory structs are ephemeral (batch processing only).
+- **Reachability Index**: Maintain a pre-computed transitive closure table in D1 to enable O(1) conflict detection without recursive queries.
+- **Throughput Governance**: Use CocoIndex `max_inflight_bytes` (<80MB) and `Adaptive Batching` to manage resource pressure.
 
 **Storage**: Multi-backend architecture with deployment-specific primaries:
 - Postgres (CLI deployment primary - full graph with ACID guarantees)
-- D1 (edge deployment primary - distributed graph storage)
+- D1 (edge deployment primary - distributed graph storage + **Reachability Index**)
 - Qdrant (semantic search backend for vector embeddings, both deployments)
 
 **Testing**: cargo nextest (constitutional requirement, all tests executed via nextest)
@@ -100,7 +106,7 @@ Real-Time Code Graph Intelligence transforms Thread from a code analysis library
 
 - [x] **TDD Workflow**: Tests written → Approved → Fail → Implement (mandatory red-green-refactor cycle)
 - [x] **Integration Tests**: Crate boundaries covered (graph ↔ storage, indexer ↔ parser, API ↔ service)
-- [x] **Contract Tests**: Public API behavior guaranteed (gRPC contracts, library API stability)
+- [x] **Contract Tests**: Public API behavior guaranteed (RPC contracts, library API stability)
 
 **This gate CANNOT be violated. No justification accepted.** All development follows strict TDD discipline per Constitution Principle III.
 
@@ -302,3 +308,32 @@ Edge Deployment:
 |-----------|------------|-------------------------------------|
 | [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
 | [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+
+**Phase 1: Core Integration** (3 weeks, conditional on Phase 0 pass)
+```
+Goal: Implement full Thread operator suite and storage backends
+
+Tasks:
+✓ Implement all Thread custom functions:
+  - ThreadParseFunction
+  - ThreadExtractSymbolsFunction
+  - ThreadRuleMatchFunction
+  - ThreadExtractRelationshipsFunction
+  - ThreadBuildGraphFunction
+✓ Implement storage targets:
+  - PostgresTarget (CLI)
+  - D1Target (Edge) + **Reachability Index Logic**
+  - QdrantTarget (vectors)
+✓ Implement **Batching Strategy**:
+  - D1 `BATCH INSERT` optimization
+  - Streaming iterator for graph traversal
+✓ Build service trait wrappers (external API)
+✓ Comprehensive integration tests
+
+Success Criteria:
+✅ All Thread capabilities functional through CocoIndex
+✅ Service trait API stable and tested
+✅ Performance targets met (<1s query, <100ms Tier 1 conflict)
+✅ >90% cache hit rate on real-world codebases
+✅ D1 writes handled via batches, avoiding lock contention
+```

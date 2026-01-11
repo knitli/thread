@@ -132,7 +132,8 @@ pub struct SemanticMetadata {
 
 **Storage**:
 - Metadata: Postgres/D1 table `nodes`
-- In-memory: petgraph node for complex queries
+- In-memory: `petgraph` node for complex queries (CLI only)
+- Edge Strategy: **Streaming/Iterator access only**. NEVER load full graph into memory. Use `D1GraphIterator` pattern.
 - Cache: CocoIndex with node ID as key
 
 ---
@@ -175,7 +176,31 @@ pub struct EdgeContext {
 **Storage**:
 - Postgres/D1 table `edges` with composite primary key `(source_id, target_id, edge_type)`
 - Indexed on `source_id` and `target_id` for fast traversal
-- In-memory: petgraph edges for complex algorithms
+- In-memory: `petgraph` edges (CLI only)
+
+---
+
+### Edge-Specific Optimizations (D1)
+
+To overcome D1's single-threaded nature and Workers' memory limits, we utilize a **Reachability Index**.
+
+**Reachability Table (Transitive Closure)**:
+Stores pre-computed "impact" paths to allow O(1) lookups for conflict detection without recursion.
+
+```rust
+// Table: reachability
+pub struct ReachabilityEntry {
+    pub ancestor_id: NodeId,    // Upstream node (e.g., modified function)
+    pub descendant_id: NodeId,  // Downstream node (e.g., affected API)
+    pub hops: u32,              // Distance
+    pub path_hash: u64,         // Hash of the path taken (for updates)
+}
+```
+
+**Reachability Logic**:
+- **Write Path**: `ThreadBuildGraphFunction` computes transitive closure for changed nodes and performs `BATCH INSERT` into D1.
+- **Read Path**: Conflict detection runs `SELECT descendant_id FROM reachability WHERE ancestor_id = ?` (single fast query).
+- **Maintenance**: Incremental updates only recalculate reachability for the changed subgraph.
 
 ---
 

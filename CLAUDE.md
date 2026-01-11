@@ -310,8 +310,8 @@ The library provides multiple tools to help me AI assistants more efficient:
 - NEVER include explanatory text or markdown outside the JSON structure
 
 ## Active Technologies
-- Rust (edition 2021, aligning with Thread's existing codebase) (001-realtime-code-graph)
+- Rust (edition 2024, aligning with Thread's existing codebase) (001-realtime-code-graph)
 - Multi-backend architecture with deployment-specific primaries: (001-realtime-code-graph)
 
 ## Recent Changes
-- 001-realtime-code-graph: Added Rust (edition 2021, aligning with Thread's existing codebase)
+- 001-realtime-code-graph: Added Rust (edition 2024, aligning with Thread's existing codebase)
