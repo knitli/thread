@@ -260,3 +260,4 @@ target/
 #.idea/
 
 .vendored_research/
+sbom.spdx
