@@ -1,97 +1,132 @@
-amends "package://github.com/jdx/hk/releases/download/v1.2.0/hk@1.2.0#/Config.pkl"
-import "package://github.com/jdx/hk/releases/download/v1.2.0/hk@1.2.0#/Builtins.pkl"
+amends "package://github.com/jdx/hk/releases/download/v1.29.0/hk@1.29.0#/Config.pkl"
+import "package://github.com/jdx/hk/releases/download/v1.29.0/hk@1.29.0#/Builtins.pkl"
+import "package://github.com/jdx/hk/releases/download/v1.29.0/hk@1.29.0#/builtins/test/helpers.pkl"
 
 local linters = new Mapping<String, Step> {
+  ["actionlint"] = Builtins.actionlint
 
-    ["actionlint"] = Builtins.actionlint
-
-    ["cargo_deny"] = new Step {
-        workspace_indicator = "Cargo.toml"
-        glob = "Cargo.lock"
-        check = "cargo deny --all-features --manifest-path {{ workspace_indicator }} -f json -L warn check --audit-compatible-output --exclude-dev --hide-inclusion-graph | jq -e '.[].vulnerabilities | length == 0' || exit 1"
+  ["cargo_deny"] = new Step {
+    workspace_indicator = "Cargo.toml"
+    glob = "Cargo.lock"
+    check =
+      "cargo deny --all-features --manifest-path {{ workspace_indicator }} -f json -L warn check --audit-compatible-output --exclude-dev --hide-inclusion-graph | jq -e '.[].vulnerabilities | length == 0' || exit 1"
+  }
+  ["cargo_fmt"] = Builtins.cargo_fmt
+  ["cargo_clippy"] = Builtins.cargo_clippy
+  ["cargo_check"] = Builtins.cargo_check
+  ["cargo_test"] = new Step {
+    workspace_indicator = "Cargo.toml"
+    glob = "src/**/*.rs"
+    check =
+      "cargo nextest --manifest-path {{ workspace_indicator }} run --all-features --no-fail-fast -j 1"
+    env = new Mapping<String, String> {
+      ["RUST_BACKTRACE"] = "1"
     }
-    ["cargo_fmt"] = Builtins.cargo_fmt
-    ["cargo_clippy"] = Builtins.cargo_clippy
-    ["cargo_check"] = Builtins.cargo_check
-    ["cargo_test"] = new Step {
-        workspace_indicator = "Cargo.toml"
-        glob = "src/**/*.rs"
-        check = "cargo nextest --manifest-path {{ workspace_indicator }} run --all-features --no-fail-fast -j 1"
-        env = new Mapping<String, String> {
-            ["RUST_BACKTRACE"] = "1"
-        }
-    }
-
-    ["taplo"] = Builtins.taplo
-
-    // Spellchecker
-    ["typos"] = new Step {
-        workspace_indicator = "_typos.toml"
-        glob = List( "*README", "*.{login,astro,bash,bash_logout,bashrc,browserlistrc,conf,config,csh,css,cts,fish,gitattributes,gitmodules,html,htmx,ini,j2,jinja,jinja2,json,json5,jsonc,jsonl,ksh,md,mdown,mdtext,mdtxt,mdwn,mdx,mk,mkd,mts,nix,nu,pkl,profile,py,quokka,rs,sass,scss,sh,sh,shellcheckrc,sql,sqlite,stylelintrc,svelte,tcsh,toml,ts,tsx,txt,yaml,yml,zlogin,zlogout,zprofile,zsh,zshenv,zshrc}", "*Dockerfile*", "*Makefile*", "*makefile*", "CHANGELOG*", "CODE_OF_CONDUCT*", "CONTRIBUTING*", "HACKING*", "LICENSE", "README*", "SECURITY*", "UNLICENSE")
-        check = "typos -j 8 --config {{ workspace_indicator }} {{ files }}"
-        fix = "typos --write-changes --config {{ workspace_indicator }} {{ files }}"
-    }
-
-    ["reuse"] = new Step {
-        glob = List("*README", "*.{login,astro,bash,bash_logout,bashrc,browserlistrc,conf,config,csh,css,cts,fish,gitattributes,gitmodules,html,htmx,ini,j2,jinja,jinja2,json,json5,jsonc,jsonl,ksh,md,mdown,mdtext,mdtxt,mdwn,mdx,mk,mkd,mts,nix,nu,pkl,profile,py,quokka,rs,sass,scss,sh,sh,shellcheckrc,sql,sqlite,stylelintrc,svelte,tcsh,toml,ts,tsx,txt,yaml,yml,zlogin,zlogout,zprofile,zsh,zshenv,zshrc}", "*Dockerfile*", "*Makefile*", "*makefile*", "CHANGELOG*", "CODE_OF_CONDUCT*", "CONTRIBUTING*", "HACKING*", "README*", "SECURITY*", "SHARING")
-        batch = true
-        check = "reuse lint-file {{ files }}"
-        fix = "./scripts/update-licenses.py add {{ files }}"
-    }
-
-    // check hk.pkl (and any others)
-    ["pkl"] = new Step {
-        glob = "*.pkl"
-        check = "pkl eval {{ files }} >/dev/null"
-    }
-
-    // yaml
-    ["ymlfmt"] = new Step {
-      workspace_indicator = ".yamlfmt.yml"
-      glob = List( "*.{.yaml,yml}")
-      batch = true
-      check  = "yamlfmt -conf {{ workspace_indicator }} -lint {{ files }}"
-      fix = "yamlfmt -conf {{ workspace_indicator }} {{ files }}"
   }
 
+  // Spellchecker
+  ["typos"] = new Step {
+    workspace_indicator = "_typos.toml"
+    glob =
+      List(
+        "*README",
+        "*.{login,astro,bash,bash_logout,bashrc,browserlistrc,conf,config,csh,css,cts,fish,gitattributes,gitmodules,html,htmx,ini,j2,jinja,jinja2,json,json5,jsonc,jsonl,ksh,md,mdown,mdtext,mdtxt,mdwn,mdx,mk,mkd,mts,nix,nu,pkl,profile,py,quokka,rs,sass,scss,sh,sh,shellcheckrc,sql,sqlite,stylelintrc,svelte,tcsh,toml,ts,tsx,txt,yaml,yml,zlogin,zlogout,zprofile,zsh,zshenv,zshrc}",
+        "*Dockerfile*",
+        "*Makefile*",
+        "*makefile*",
+        "CHANGELOG*",
+        "CODE_OF_CONDUCT*",
+        "CONTRIBUTING*",
+        "HACKING*",
+        "LICENSE",
+        "README*",
+        "SECURITY*",
+        "UNLICENSE",
+      )
+    check = "typos -j 8 --config {{ workspace_indicator }} {{ files }}"
+    fix = "typos --write-changes --config {{ workspace_indicator }} {{ files }}"
+  }
+
+  ["tombi"] = new Step {
+    glob = "**/*.toml"
+    stage = "<JOB_FILES>"
+    check_diff = "tombi format --check --diff {{ files }}"
+    fix = "tombi format {{ files }}"
+    tests {
+      local const testMaker = new helpers.TestMaker {
+        filename = "test.toml"
+        extra_files = new Mapping<String, String> {
+          ["tombi.toml"] = "toml-version = \"v1.0.0\"\n"
+        }
+      }
+      ["check bad file"] = testMaker.checkFail("[table]\nkey  =  \"value\"\n", 1)
+      ["check good file"] = testMaker.checkPass("[table]\nkey = \"value\"\n")
+      ["fix bad file"] =
+        testMaker.fixPass("[table]\nkey  =  \"value\"\n", "[table]\nkey = \"value\"\n")
+      ["fix good file"] =
+        testMaker.fixPass("[table]\nkey = \"value\"\n", "[table]\nkey = \"value\"\n")
+    }
+  }
+
+  ["reuse"] = new Step {
+    glob =
+      List(
+        "*README",
+        "*.{login,astro,bash,bash_logout,bashrc,browserlistrc,conf,config,csh,css,cts,fish,gitattributes,gitmodules,html,htmx,ini,j2,jinja,jinja2,json,json5,jsonc,jsonl,ksh,md,mdown,mdtext,mdtxt,mdwn,mdx,mk,mkd,mts,nix,nu,pkl,profile,py,quokka,rs,sass,scss,sh,sh,shellcheckrc,sql,sqlite,stylelintrc,svelte,tcsh,toml,ts,tsx,txt,yaml,yml,zlogin,zlogout,zprofile,zsh,zshenv,zshrc}",
+        "*Dockerfile*",
+        "*Makefile*",
+        "*makefile*",
+        "CHANGELOG*",
+        "CODE_OF_CONDUCT*",
+        "CONTRIBUTING*",
+        "HACKING*",
+        "README*",
+        "SECURITY*",
+        "SHARING",
+      )
+    batch = true
+    check = "reuse lint-file {{ files }}"
+    fix = "./scripts/update-licenses.py add {{ files }}"
+  }
+
+  // check hk.pkl (and any others)
+  ["pklFormat"] = Builtins.pkl_format
+  ["pklLint"] = Builtins.pkl
+
+  // yaml
+  ["yml"] = Builtins.yq
 }
 
-
 local ci = (linters) {
-    ["cargo_test"] {
-        check = "cargo nextest --manifest-path {{ workspace_indicator }} run --all-features --fail-fast -j 1"
-    }
+  ["cargo_test"] {
+    check =
+      "cargo nextest --manifest-path {{ workspace_indicator }} run --all-features --fail-fast -j 1"
+  }
 }
 
 hooks {
-    ["pre-commit"] {
-        fix = true    // automatically modify files with available linter fixes
-        stash = "git" // stashes unstaged changes while running fix steps
-        steps = linters
-    }
-    // instead of pre-commit, you can instead define pre-push hooks
-    ["pre-push"] {
-        steps = linters
-    }
-    ["fix"] {
-        fix = true
-        stash = "git" // stashes unstaged changes while running fix steps
-        steps = linters
-    }
-    ["check"] {
-        steps = linters
-    }
-    ["test"] {
-        steps =  linters
-                    .toMap()
-                    .filter(
-                        (name, _) -> name == "cargo_test")
-                    .toMapping()
+  ["pre-commit"] {
+    fix = true // automatically modify files with available linter fixes
+    stash = "git" // stashes unstaged changes while running fix steps
+    steps = linters
+  }
+  // instead of pre-commit, you can instead define pre-push hooks
+  ["pre-push"] {
+    steps = linters
+  }
+  ["fix"] {
+    fix = true
+    stash = "git" // stashes unstaged changes while running fix steps
+    steps = linters
+  }
+  ["check"] {
+    steps = linters
+  }
+  ["test"] {
+    steps = linters.toMap().filter((name, _) -> name == "cargo_test").toMapping()
+  }
 
-    }
-
-    ["ci"] {
-        steps = ci
-    }
-
+  ["ci"] {
+    steps = ci
+  }
 }

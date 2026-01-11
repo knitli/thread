@@ -3,6 +3,8 @@
 #
 # SPDX-License-Identifier: MIT OR Apache-2.0
 
+experimental_monorepo_root = true
+
 [tools]
 act = "latest"
 ast-grep = "latest"
@@ -26,14 +28,15 @@ node = "24"
 "pipx:reuse" = "latest"
 pkl = "latest"
 ripgrep = "latest"
-rust = "nightly"
-taplo = "latest"
+rust = "latest"
+tombi = "latest"
 typos = "latest"
 uv = "latest"
-yamlfmt = "latest"
+yq = "latest"
 
 # environment variables for every environment
 [env]
+MISE_EXPERIMENTAL = 1
 CARGO_TARGET_DIR = "target"
 HK_MISE = 1
 
@@ -42,57 +45,53 @@ idiomatic_version_file_enable_tools = []
 
 [hooks]
 enter = '''
-#!/usr/bin/zsh
-chmod +x scripts/* &>/dev/null &&
-mise run activate &&
-mise run install-tools &&
-mise run update-tools
-alias jj='jj --no-pager'
-alias git='git --no-pager'
-alias claude='claude --dangerously-skip-permissions'
+echo "Activating environment..."
+mise run enter
 '''
 # deactivate/unhook when you leave
-leave = '''eval "$(mise deactivate)" &/dev/null'''
+leave = '''eval "$(mise deactivate)" &/dev/null || true
+echo "Environment deactivated"
+'''
 
 # Tasks are run by using `mise run taskname`, like `mise run build`
 # run tasks run as simple shell commands
 
 # ** -------------------- Tool and Setup Tasks --------------------
+
+[tasks.enter]
+hide = true  # hide this task from the list
+description = "activate the development environment"
+silent = true
+depends = ["install-tools", "installhooks"]
+
 [tasks.update-tools]
 description = "update all dev tools and mise"
 run = '''
-#!/usr/bin/bash
-mise upgrade -yq &&
-mise self-update -yq &&
+mise -yq upgrade
+mise -yq self-update
 '''
-
-[tasks.activate]
-description = "activate mise"
-run = '''eval "$(mise activate)" &>/dev/null'''
-hide = true
 
 [tasks.install-tools]
 description = "setup dev tooling and development hooks"
 run = '''
-#!/usr/bin/bash
-mise trust -yq &&
-mise install -yq &&
-hk run installhooks &>/dev/null
+mise -yq trust  || true
+mise -yq install || true
 '''
 
 [tasks.installhooks]
+depends = ["install-tools"]
 description = "only install development hooks"
-run = "hk install --mise"
+run = "hk install --mise &>/dev/null || true"
 
 [tasks.update]
 description = "update dependencies"
-run = "cargo update && cargo update --workspace"
+run = ["cargo update", "cargo update --workspace"]
 
 # ** -------------------- Cleaning Tasks --------------------
 
 [tasks.cleancache]
 description = "delete the cache"
-run = ["rm -rf .cache", "mise prune -yq"]
+run = ["rm -rf .cache", "mise -yq prune || true"]
 hide = true  # hide this task from the list
 
 [tasks.clean]
@@ -106,6 +105,15 @@ run = ["cargo clean", "rm -rf crates/thread-wasm/pkg &>/dev/null || true"]
 description = "Build everything (except wasm)"
 run = "cargo build --workspace"
 alias = "b"  # `mise run b` = build
+
+[tasks.build-fast]
+tools.rust = "nightly"
+description = "Build with cranelift backend for faster debug builds (requires nightly)"
+run = """
+rustup component add rustc-codegen-cranelift-preview --toolchain nightly 2>/dev/null || true
+RUSTFLAGS="-Zcodegen-backend=cranelift" cargo +nightly build --workspace
+"""
+alias = "bf"
 
 [tasks.build-release]
 description = "Build everything in release mode (except wasm)"
