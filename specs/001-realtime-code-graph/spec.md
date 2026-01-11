@@ -1,3 +1,10 @@
+<!--
+SPDX-FileCopyrightText: 2026 Knitli Inc.
+SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 # Feature Specification: Real-Time Code Graph Intelligence
 
 **Feature Branch**: `001-realtime-code-graph`
@@ -33,7 +40,7 @@ Two developers are working on different features that unknowingly modify overlap
 
 **Acceptance Scenarios**:
 
-1. **Given** two developers editing different files, **When** their changes affect the same function call chain, **Then** system detects potential conflict and notifies both developers within 5 seconds of the conflicting change
+1. **Given** two developers editing different files, **When** developer A saves a modified file locally that affects a function call chain modified by developer B, **Then** system detects potential conflict and notifies both developers within 5 seconds of the save event
 2. **Given** a developer modifying a widely-used API, **When** the change would break 15 downstream callers, **Then** system lists all affected callers with severity ratings before commit
 3. **Given** asynchronous work across timezones, **When** developer A's changes conflict with developer B's 8-hour-old WIP branch, **Then** system provides merge preview showing exactly what will conflict
 
@@ -89,24 +96,36 @@ When a conflict is predicted, the system suggests resolution strategies based on
 - **FR-001**: System MUST parse and analyze source code to build AST (Abstract Syntax Tree) representations for all supported languages
 - **FR-002**: System MUST construct a graph representation of codebase relationships including: function calls, type dependencies, data flows, and import/export chains
 - **FR-003**: System MUST index code from configurable data sources including: local file systems, Git repositories (GitHub, GitLab, Bitbucket), and cloud storage (S3-compatible)
-- **FR-004**: System MUST store analysis results in specialized database backends with deployment-specific primaries: Postgres (CLI deployment primary for full graph with ACID guarantees), D1 (edge deployment primary for distributed graph storage), and Qdrant (semantic search backend for vector embeddings, used across both deployments)
+- **FR-004**: System MUST store analysis results using a **Content-Addressed Storage (CAS)** model.
+  - **Schema**: Data is stored as immutable "Graph Chunks" keyed by content hash (e.g., `hash(file_content) -> graph_data`).
+  - **Backends**: Postgres (Local CAS), D1 (Cloud CAS).
+  - **Consistency**: Consistency is achieved via immutability; a specific hash ALWAYS maps to the same graph data.
+  - **Qdrant**: Stores vector embeddings mapped to the same content hashes.
 - **FR-005**: System MUST support real-time graph queries responding within 1 second for codebases up to 100k files
-- **FR-006**: System MUST detect when concurrent code changes create potential conflicts in: shared function call chains, modified API signatures, or overlapping data structures. Detection uses multi-tier progressive strategy: fast AST diff for initial detection (<100ms), semantic analysis for accuracy refinement (<1s), graph impact analysis for comprehensive validation (<5s). Results update progressively as each tier completes.
-- **FR-007**: System MUST provide conflict predictions with specific details: file locations, conflicting symbols, impact severity ratings, and confidence scores. Initial predictions (AST-based) deliver within 100ms, refined predictions (semantic-validated) within 1 second, comprehensive predictions (graph-validated) within 5 seconds.
+- **FR-006**: System MUST detect and classify concurrent code changes into a Three-Tier Conflict Taxonomy: **Tier 1 (Syntactic)** for parse/compile errors (detected via AST diff <100ms), **Tier 2 (Structural)** for valid syntax but broken linking/structure (detected via Symbol Graph <1s), and **Tier 3 (Semantic)** for valid structure but incompatible logic/behavior (detected via Dataflow/Semantic analysis <5s). Results update progressively as each tier completes.
+- **FR-007**: System MUST provide conflict predictions with specific details: file locations, conflicting symbols, impact severity ratings, confidence scores, and conflict tier classification. Initial predictions (Tier 1) deliver within 100ms, refined predictions (Tier 2) within 1 second, comprehensive predictions (Tier 3) within 5 seconds.
 - **FR-008**: System MUST support incremental updates where only changed files and affected dependencies are re-analyzed
-- **FR-009**: System MUST allow pluggable analysis engines where the underlying AST parser, graph builder, or conflict detector can be swapped without rewriting application code
-- **FR-010**: System MUST deploy to Cloudflare Workers as a WASM binary for edge computing scenarios. **OSS Boundary**: OSS library includes simple/limited WASM worker with core query capabilities. **Constraint**: Edge deployment MUST NOT load full graph into memory. Must use streaming/iterator access patterns and D1 Reachability Index.
-- **FR-011**: System MUST run as a local CLI application for developer workstation use (available in OSS)
+- **FR-009**: System MUST allow pluggable analysis engines where the underlying AST parser, graph builder, or conflict detector can be swapped without rewriting application code. This abstraction MUST support diverse type systems (e.g., CodeWeaver's "Things/Connections" model) alongside standard Tree-sitter nodes.
+- **FR-010**: System MUST deploy to Cloudflare Workers using a **Multi-Worker Architecture** to support ~166 languages. The architecture consists of a central Router/Handler Worker that delegates to specialized Language Workers via Service Bindings. **OSS Boundary**: OSS distribution includes a simplified single-worker deployment bundling only core languages (Rust, Python, TypeScript) to minimize complexity. **Constraint**: Edge deployment MUST NOT load full graph into memory. Must use streaming/iterator access patterns and D1 Reachability Index.
+- **FR-011**: System MUST run as a local CLI application for developer workstation use (available in OSS). **Local-Only Mode**: In this mode, Postgres serves as both the CAS store and the "Real-Time Service" (managing the Overlay/Deltas in memory), ensuring full functionality without cloud connectivity.
 - **FR-012**: System MUST use content-addressed caching to avoid re-analyzing identical code sections across updates
 - **FR-013**: System MUST propagate code changes to all connected clients within 100ms of detection for real-time collaboration
 - **FR-014**: System MUST track analysis provenance showing which data source, version, and timestamp each graph node originated from
 - **FR-015**: System MUST support semantic search across the codebase to find similar functions, related types, and usage patterns
-- **FR-016**: System MUST provide graph traversal APIs via Custom RPC over HTTP protocol for: dependency walking, reverse lookups (who calls this), and path finding between symbols. This provides unified interface for CLI and edge deployments with built-in streaming and type safety.
-- **FR-017**: System MUST maintain graph consistency when code is added, modified, or deleted during active queries
-- **FR-018**: System MUST log all conflict predictions and resolutions for audit and learning purposes
-- **FR-019**: System MUST handle authentication and authorization for multi-user scenarios when deployed as a service
-- **FR-020**: System MUST expose metrics for: query performance, cache hit rates, indexing throughput, and storage utilization
-- **FR-021**: System MUST utilize batched database operations (D1 Batch API) and strictly govern memory usage (<80MB active set) on Edge via CocoIndex adaptive controls to prevent OOM errors.
+- **FR-016**: System MUST provide graph traversal APIs via **Connect-RPC** (gRPC-compatible over HTTP/1.1 & HTTP/2) using **Protobuf** service definitions. These definitions MUST be centralized in a `thread-api-proto` crate to ensure type safety across CLI (Rust), Edge (WASM), and Web (TypeScript) clients.
+- **FR-017**: System MUST utilize an **Overlay Graph Architecture** to manage state and consistency.
+  - **Base Layer (Immutable)**: Represents the graph at a specific Git commit, stored in D1 (Cloud) or Postgres (Local).
+  - **Delta Layer (Ephemeral)**: Represents local uncommitted changes (dirty state), stored in memory or temporary local storage.
+  - **Unified View**: The query engine merges Base + Delta at runtime to provide a real-time view without modifying the persistent Base storage.
+  - **Conflict Detection**: Performed by comparing active Deltas from different users against the Base, rather than merging database states.
+- **FR-018**: System MUST maintain graph consistency when code is added, modified, or deleted during active queries
+- **FR-019**: System MUST log all conflict predictions and resolutions for audit and learning purposes
+- **FR-020**: System MUST handle authentication and authorization for multi-user scenarios when deployed as a service, utilizing standard **OAuth2/OIDC** protocols.
+- **FR-021**: System MUST expose metrics for: query performance, cache hit rates, indexing throughput, and storage utilization
+- **FR-022**: System MUST utilize batched database operations (D1 Batch API) and strictly govern memory usage (<80MB active set) on Edge via CocoIndex adaptive controls (limiting in-flight rows and bytes) to prevent OOM errors. Large payloads exceeding D1 limits should be offloaded to R2 or a Dead Letter Queue (DLQ) pattern.
+- **FR-023**: System MUST implement a **Circuit Breaker** pattern for data sources. If a source fails >5 times in 30s, it moves to OPEN state. After 60s in OPEN state, it moves to HALF-OPEN to allow a single probe request to verify source health.
+- **FR-024**: System MUST support **Partial Graph Results**. Query APIs must accept an `allow_partial=true` flag and return a "Graph Result Envelope" containing available subgraphs, a list of missing regions, and error details, rather than failing the entire query.
+- **FR-025**: System MUST detect and handle circular dependencies via depth-limiting and cycle detection mechanisms to prevent infinite recursion during graph traversal.
 
 ### Key Entities
 
@@ -123,7 +142,7 @@ When a conflict is predicted, the system suggests resolution strategies based on
 ### Measurable Outcomes
 
 - **SC-001**: Developers can query code dependencies and receive complete results in under 1 second for codebases up to 100,000 files
-- **SC-002**: System detects 95% of potential merge conflicts before code is committed, with false positive rate below 10%
+- **SC-002**: System detects 95% of potential merge conflicts before code is committed, with false positive rate below 10%. False Positive defined as: A predicted conflict that is manually dismissed by the user or successfully merged without modification.
 - **SC-003**: Incremental indexing completes in under 10% of full analysis time for typical code changes (affecting <5% of files)
 - **SC-004**: System handles 1000 concurrent users querying simultaneously with <2 second p95 response time
 - **SC-005**: Conflict resolution time reduces by 70% (from 30 minutes to under 10 minutes) when using AI-assisted suggestions
@@ -184,9 +203,14 @@ When a conflict is predicted, the system suggests resolution strategies based on
 10. **Scalability Target**: Initial target is codebases up to 500k files, 10M nodes - can scale higher with infrastructure investment
 11. **Engine Architecture**: Engines are swappable via well-defined interfaces, not runtime plugin loading (compile-time composition)
 12. **Storage Strategy**: Multi-backend architecture with specialized purposes: Postgres (CLI primary, full ACID graph), D1 (edge primary, distributed graph), Qdrant (semantic search, both deployments). Content-addressed storage via CocoIndex dataflow framework (per Constitution v2.0.0, Principle IV). CocoIndex integration follows trait boundary pattern: Thread defines storage and dataflow interfaces, CocoIndex provides implementations. This allows swapping CocoIndex components or vendoring parts as needed.
-13. **Deployment Model**: Single binary for both CLI and WASM with conditional compilation, not separate codebases. **Commercial Boundaries**: OSS includes core library with simple/limited WASM worker. Full cloud deployment (comprehensive edge, managed service, advanced features) is commercial/paid. Architecture enables feature-flag-driven separation.
+13. **Deployment Model**: Single binary for both CLI and WASM with conditional compilation, not separate codebases. **Commercial Boundaries**: OSS includes core library with simple/limited WASM worker (Rust, Python, TypeScript). Full cloud deployment (comprehensive edge, managed service, advanced features) is commercial/paid. Architecture enables feature-flag-driven separation.
 14. **Vendoring Strategy**: CocoIndex components may be vendored (copied into Thread codebase) if cloud deployment requires customization or upstream changes conflict with Thread's stability requirements. Trait boundaries enable selective vendoring without architectural disruption.
-15. **Component Selection Strategy**: Do NOT assume existing Thread crates will be used. Evaluate CocoIndex capabilities first, identify gaps, then decide whether to use existing components (ast-engine, language, rule-engine), adapt CodeWeaver semantic layer, or build new components. Prioritize best-fit over code reuse.
+15. **Component Selection Strategy**: Do NOT assume existing Thread components will be used. Evaluate CocoIndex capabilities first, identify gaps, then decide whether to use existing components (ast-engine, language, rule-engine), adapt CodeWeaver semantic layer, or build new components. Prioritize best-fit over code reuse.
+16. **Storage Consistency Model**: Replaced "Database Sync" with **Content-Addressed Storage (CAS)**.
+    - **Source of Truth**: Git is the only SoT. DBs are derived indexes.
+    - **Sync Strategy**: "Sync" is simply uploading/downloading immutable CAS chunks. No row-level merge logic required.
+    - **Local-Only**: Postgres acts as the standalone CAS and State manager.
+    - **Distributed**: D1 acts as the shared CAS; Real-Time Service manages ephemeral Deltas.
 
 ## Dependencies
 
@@ -200,7 +224,7 @@ When a conflict is predicted, the system suggests resolution strategies based on
 5. **Tree-sitter**: Underlying parser infrastructure for AST generation across multiple languages
 6. **Concurrency Models**: Rayon for CLI parallelism, tokio for edge async I/O
 7. **WASM Toolchain**: `xtask` build system for WASM compilation to Cloudflare Workers target
-8. **gRPC Framework**: Primary API protocol dependency (likely tonic for Rust). Provides unified interface for queries and real-time updates across CLI and edge deployments with type safety and streaming. Must compile to WASM for Cloudflare Workers deployment.
+8. **Connect-RPC Framework**: Primary API protocol dependency (`connect-rs` or similar for Rust). Provides unified interface for queries and real-time updates across CLI and edge deployments with type safety. Must compile to WASM for Cloudflare Workers deployment.
 9. **Network Protocol**: Cloudflare Durable Objects required for edge stateful operations (connection management, session persistence, collaborative state). HTTP REST fallback if RPC proves infeasible.
 10. **CodeWeaver Integration** (Optional): CodeWeaver's semantic characterization layer (sister project, currently Python) provides sophisticated code analysis capabilities. May port to Rust if superior to ast-grep-derived components. Evaluation pending CocoIndex capability assessment.
 11. **Graph Database**: Requires graph query capabilities - may need additional graph storage layer beyond relational DBs

@@ -1,3 +1,10 @@
+<!--
+SPDX-FileCopyrightText: 2026 Knitli Inc.
+SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 # Specification: Enhanced Provenance Tracking for Code Graph
 
 **Based on**: PROVENANCE_RESEARCH_REPORT.md

@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2026 Github
+
+SPDX-License-Identifier: MIT
+-->
+
 # Implementation Plan: [FEATURE]
 
 **Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]

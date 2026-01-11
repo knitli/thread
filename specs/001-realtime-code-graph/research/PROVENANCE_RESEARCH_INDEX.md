@@ -1,3 +1,10 @@
+<!--
+SPDX-FileCopyrightText: 2026 Knitli Inc.
+SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 # Provenance Research Index & Guide
 
 **Research Topic**: CocoIndex Native Provenance Capabilities for Real-Time Code Graph Intelligence

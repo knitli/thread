@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+# SPDX-FileCopyrightText: 2026 Github
+#
+# SPDX-License-Identifier: MIT
+
 set -e
 
 # Parse command line arguments

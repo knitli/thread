@@ -1,3 +1,10 @@
+<!--
+SPDX-FileCopyrightText: 2026 Knitli Inc.
+SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 # Claude Conversation Log
 
 Session ID: 98c0bc16-d22a-4406-90dc-5a68fade679e

@@ -1,3 +1,10 @@
+<!--
+SPDX-FileCopyrightText: 2026 Knitli Inc.
+SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 # Task Completion Checklist
 
 When completing a development task in Thread, ensure you follow this checklist:

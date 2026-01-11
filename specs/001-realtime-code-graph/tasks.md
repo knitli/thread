@@ -1,3 +1,10 @@
+<!--
+SPDX-FileCopyrightText: 2026 Knitli Inc.
+SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 # Tasks: Real-Time Code Graph Intelligence
 
 **Feature**: `001-realtime-code-graph`
@@ -23,11 +30,11 @@
 
 - [ ] T011 Implement `GraphNode` and `GraphEdge` structs in `crates/thread-graph/src/node.rs` and `crates/thread-graph/src/edge.rs`
 - [ ] T012 Implement `Graph` container and adjacency list in `crates/thread-graph/src/graph.rs`
-- [ ] T013 Implement `GraphStorage` trait in `crates/thread-storage/src/traits.rs`
-- [ ] T014 [P] Implement `PostgresStorage` for `GraphStorage` in `crates/thread-storage/src/postgres.rs`
-- [ ] T015 [P] Implement `D1Storage` for `GraphStorage` in `crates/thread-storage/src/d1.rs`
+- [ ] T013 Implement `CasStorage` trait (Content-Addressed Storage) in `crates/thread-storage/src/cas.rs`
+- [ ] T014 [P] Implement `PostgresCas` for `CasStorage` in `crates/thread-storage/src/postgres.rs`
+- [ ] T015 [P] Implement `D1Cas` for `CasStorage` in `crates/thread-storage/src/d1.rs`
 - [ ] T016 [P] Implement `QdrantStorage` struct in `crates/thread-storage/src/qdrant.rs`
-- [ ] T017 Define shared RPC types in `crates/thread-api/src/types.rs` based on `specs/001-realtime-code-graph/contracts/rpc-types.rs`
+- [ ] T017 Define Connect-RPC Protobuf definitions (.proto) in `crates/thread-api/proto/` and configure generation
 - [ ] T018 Implement CocoIndex dataflow traits in `crates/thread-services/src/dataflow/traits.rs`
 - [ ] T019 Implement `RepoConfig` and `SourceType` in `crates/thread-indexer/src/config.rs`
 
@@ -38,10 +45,12 @@
 - [ ] T020 [P] [US1] Create benchmark `tests/benchmarks/graph_queries.rs`
 - [ ] T021 [US1] Implement AST to Graph Node conversion in `crates/thread-indexer/src/indexer.rs`
 - [ ] T022 [US1] Implement relationship extraction logic in `crates/thread-graph/src/algorithms.rs`
-- [ ] T023 [US1] Implement `ThreadBuildGraphFunction` in `crates/thread-services/src/functions/build_graph.rs` using CocoIndex traits
+- [ ] T023 [US1] Implement `OverlayGraph` struct (merging Base + Delta) in `crates/thread-graph/src/overlay.rs`
 - [ ] T024 [P] [US1] Implement `D1GraphIterator` for streaming access in `crates/thread-storage/src/d1.rs`
 - [ ] T025 [US1] Implement graph traversal algorithms (BFS/DFS) in `crates/thread-graph/src/traversal.rs`
-- [ ] T026 [US1] Implement RPC query handlers in `crates/thread-api/src/rpc.rs`
+- [ ] T026 [US1] Implement Connect-RPC query handlers in `crates/thread-api/src/connect_rpc.rs`
+- [ ] T026a [US1] Implement Circuit Breaker logic for data sources in `crates/thread-indexer/src/circuit_breaker.rs`
+- [ ] T026b [US1] Implement Partial Graph Result Envelope in `crates/thread-api/src/response.rs`
 - [ ] T027 [US1] Create integration test `tests/integration/graph_storage.rs` verifying graph persistence
 - [ ] T028 [US1] Expose graph query API in `crates/thread-wasm/src/api_bindings.rs`
 
@@ -51,9 +60,10 @@
 
 - [ ] T029 [P] [US2] Create benchmark `tests/benchmarks/conflict_detection.rs`
 - [ ] T030 [US2] Implement `ConflictPrediction` struct in `crates/thread-conflict/src/types.rs`
+- [ ] T030a [US2] Implement `Delta` struct (representing local changes) in `crates/thread-graph/src/delta.rs`
 - [ ] T031 [US2] Implement Tier 1 AST diff detection in `crates/thread-conflict/src/tier1_ast.rs`
-- [ ] T032 [US2] Implement Tier 2 Semantic analysis in `crates/thread-conflict/src/tier2_semantic.rs`
-- [ ] T033 [US2] Implement Tier 3 Graph impact analysis in `crates/thread-conflict/src/tier3_graph.rs`
+- [ ] T032 [US2] Implement Tier 2 Structural analysis in `crates/thread-conflict/src/tier2_structural.rs`
+- [ ] T033 [US2] Implement Tier 3 Semantic analysis in `crates/thread-conflict/src/tier3_semantic.rs`
 - [ ] T034 [US2] Implement `ReachabilityIndex` logic for D1 in `crates/thread-storage/src/d1_reachability.rs`
 - [ ] T035 [US2] Implement WebSocket/SSE notification logic in `crates/thread-realtime/src/websocket.rs`
 - [ ] T036 [US2] Implement `ProgressiveConflictDetector` in `crates/thread-conflict/src/progressive.rs`

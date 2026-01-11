@@ -1,3 +1,10 @@
+<!--
+SPDX-FileCopyrightText: 2026 Knitli Inc.
+SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 # Thread Architecture 2.0: Evolved Design Plan
 
 Based on my analysis of your original PLAN.md vision and the current codebase, here's a comprehensive new architecture that evolves from where you are to where you want to be.

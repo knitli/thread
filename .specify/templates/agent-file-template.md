@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2026 Github
+
+SPDX-License-Identifier: MIT
+-->
+
 # [PROJECT NAME] Development Guidelines
 
 Auto-generated from all feature plans. Last updated: [DATE]

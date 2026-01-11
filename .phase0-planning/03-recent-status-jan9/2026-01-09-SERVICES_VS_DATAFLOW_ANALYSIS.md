@@ -1,3 +1,10 @@
+<!--
+SPDX-FileCopyrightText: 2026 Knitli Inc.
+SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 # Thread Architectural Analysis: Services vs Dataflow
 **Date:** January 9, 2026
 **Analysis Type:** Comprehensive architectural evaluation for services → dataflow transition

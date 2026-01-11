@@ -1,4 +1,8 @@
 ---
+# SPDX-FileCopyrightText: 2026 Github
+#
+# SPDX-License-Identifier: MIT
+
 description: Execute the implementation planning workflow using the plan template to generate design artifacts.
 handoffs: 
   - label: Create Tasks

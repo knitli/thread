@@ -1,4 +1,9 @@
 ---
+# SPDX-FileCopyrightText: 2026 Knitli Inc.
+# SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 name: cocoindex-rust
 description: Comprehensive toolkit for developing with the CocoIndex Rust API. Use when building high-performance operators, embedding the engine in Rust applications, or extending the core framework. Covers LibContext management, custom native operators, and direct execution control.
 ---
