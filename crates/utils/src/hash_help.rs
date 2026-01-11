@@ -196,19 +196,6 @@ mod tests {
     }
 
     #[test]
-    fn test_hash_bytes_with_seed_vs_no_seed() {
-        let data = b"test data";
-        
-        let hash_no_seed = hash_bytes(data);
-        let hash_with_seed = hash_bytes_with_seed(data, 0);
-        
-        // Default hash and seeded hash with seed 0 might differ
-        // (depends on implementation, but they should at least work)
-        let _ = hash_no_seed;
-        let _ = hash_with_seed;
-    }
-
-    #[test]
     fn test_hash_bytes_with_seed_empty() {
         let seed = 42u64;
         let hash1 = hash_bytes_with_seed(&[], seed);
