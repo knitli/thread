@@ -1,3 +1,10 @@
+<!--
+SPDX-FileCopyrightText: 2026 Knitli Inc.
+SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 # CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
@@ -308,3 +315,10 @@ The library provides multiple tools to help me AI assistants more efficient:
 - The JSON must include an array of files, each with file_name, file_type, and file_content fields
 - For binary files, encode content as base64 and set file_type to "binary"
 - NEVER include explanatory text or markdown outside the JSON structure
+
+## Active Technologies
+- Rust (edition 2024, aligning with Thread's existing codebase) (001-realtime-code-graph)
+- Multi-backend architecture with deployment-specific primaries: (001-realtime-code-graph)
+
+## Recent Changes
+- 001-realtime-code-graph: Added Rust (edition 2024, aligning with Thread's existing codebase)

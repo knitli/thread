@@ -6,7 +6,6 @@
 [package]
 name = "xtask"
 version = "0.1.0"
-authors = ["Adam Poulemanos <adam@knit.li>"]
 edition.workspace = true
 rust-version.workspace = true
 description = "Xtask for thread. Primarily used for Wasm builds."

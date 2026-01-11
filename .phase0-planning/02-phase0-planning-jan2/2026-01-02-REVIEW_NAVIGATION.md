@@ -1,3 +1,10 @@
+<!--
+SPDX-FileCopyrightText: 2026 Knitli Inc.
+SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 # Thread Project Status Review - January 2026
 
 This directory contains a comprehensive assessment of the Thread project status conducted on January 2, 2026.

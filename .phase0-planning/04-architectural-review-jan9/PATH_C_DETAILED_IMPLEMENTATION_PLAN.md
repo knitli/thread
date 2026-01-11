@@ -1,3 +1,10 @@
+<!--
+SPDX-FileCopyrightText: 2026 Knitli Inc.
+SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 # PATH C: Hybrid Prototyping - Detailed Implementation Plan
 **Status:** ⚠️ **ARCHIVED / CANCELED** (See [FINAL_DECISION_PATH_B.md](2026-01-10-FINAL_DECISION_PATH_B.md))  
 **Date:** January 9, 2026  

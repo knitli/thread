@@ -1,3 +1,8 @@
+# SPDX-FileCopyrightText: 2026 Knitli Inc.
+# SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 # list of languages for which language servers are started; choose from:
 #   al               bash             clojure          cpp              csharp           csharp_omnisharp
 #   dart             elixir           elm              erlang           fortran          go

@@ -1,3 +1,10 @@
+<!--
+SPDX-FileCopyrightText: 2026 Knitli Inc.
+SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 # Thread: Comprehensive Architectural Review & Strategic Recommendations
 **Date:** January 9, 2026  
 **Scope:** Phase 0 Assessment, Services vs Dataflow Architecture, CocoIndex Integration Strategy  

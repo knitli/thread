@@ -5,7 +5,6 @@
 [package]
 name = "thread-utils"
 version = "0.0.1"
-authors = ["Adam Poulemanos <adam@knit.li>"]
 edition.workspace = true
 rust-version.workspace = true
 description = "A collection of utilities for working with Thread. Includes fast hashers, SIMD operations, and more."
@@ -39,5 +38,3 @@ worker = ["dep:simdeez"]
 
 [lints]
 workspace = true
-[dev-dependencies]
-tempfile = "3.14"
