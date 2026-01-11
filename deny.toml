@@ -119,10 +119,10 @@ confidence-threshold = 0.8
 # aren't accepted for every possible crate as with the normal allow list
 exceptions = [
   { allow = ["AGPL-3.0-or-later"], crate = "xtask" },
-  { allow = ["AGPL-3.0-or-later", "AGPL-3.0-or-later AND MIT"], crate = "thread-ast-engine" },
-  { allow = ["AGPL-3.0-or-later", "AGPL-3.0-or-later AND MIT"], crate = "thread-rule-engine" },
+  { allow = ["AGPL-3.0-or-later"], crate = "thread-ast-engine" },
+  { allow = ["AGPL-3.0-or-later"], crate = "thread-rule-engine" },
   { allow = ["AGPL-3.0-or-later"], crate = "thread-utils" },
-  { allow = ["AGPL-3.0-or-later", "AGPL-3.0-or-later AND MIT"], crate = "thread-language" },
+  { allow = ["AGPL-3.0-or-later"], crate = "thread-language" },
   { allow = ["AGPL-3.0-or-later"], crate = "thread-services" },
   { allow = ["AGPL-3.0-or-later"], crate = "thread-wasm" },
 
