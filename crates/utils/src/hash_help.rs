@@ -87,6 +87,11 @@ mod tests {
     use std::collections::HashSet;
     use std::io::Write;
 
+    // Test constants
+    const HASH_DISTRIBUTION_TEST_SIZE: usize = 1000;
+    const HASH_DISTRIBUTION_MIN_UNIQUENESS: usize = 95; // 95% uniqueness threshold
+    const LARGE_FILE_SIZE: usize = 100_000;
+
     // Tests for hash_bytes
     #[test]
     fn test_hash_bytes_empty() {
@@ -224,7 +229,11 @@ mod tests {
         }
         
         // Should have high uniqueness (allowing for small collision chance)
-        assert!(hashes.len() >= 95, "Expected high hash distribution, got {} unique hashes out of 100", hashes.len());
+        assert!(
+            hashes.len() >= HASH_DISTRIBUTION_MIN_UNIQUENESS,
+            "Expected high hash distribution, got {} unique hashes out of 100",
+            hashes.len()
+        );
     }
 
     // Tests for hash_file
@@ -284,7 +293,7 @@ mod tests {
     #[test]
     fn test_hash_file_large() -> Result<(), std::io::Error> {
         let mut temp_file = tempfile::NamedTempFile::new()?;
-        let large_data = vec![0xABu8; 100000];
+        let large_data = vec![0xABu8; LARGE_FILE_SIZE];
         temp_file.write_all(&large_data)?;
         temp_file.flush()?;
         
@@ -460,15 +469,15 @@ mod tests {
         // Test that RapidMap handles hash collisions properly
         let mut map: RapidMap<i32, String> = get_map();
         
-        for i in 0..1000 {
-            map.insert(i, format!("value_{}", i));
+        for i in 0..HASH_DISTRIBUTION_TEST_SIZE {
+            map.insert(i as i32, format!("value_{}", i));
         }
         
-        assert_eq!(map.len(), 1000);
+        assert_eq!(map.len(), HASH_DISTRIBUTION_TEST_SIZE);
         
         // Verify all values are retrievable
-        for i in 0..1000 {
-            assert_eq!(map.get(&i), Some(&format!("value_{}", i)));
+        for i in 0..HASH_DISTRIBUTION_TEST_SIZE {
+            assert_eq!(map.get(&(i as i32)), Some(&format!("value_{}", i)));
         }
     }
 
@@ -477,15 +486,15 @@ mod tests {
         // Test that RapidSet handles hash collisions properly
         let mut set: RapidSet<i32> = get_set();
         
-        for i in 0..1000 {
-            set.insert(i);
+        for i in 0..HASH_DISTRIBUTION_TEST_SIZE {
+            set.insert(i as i32);
         }
         
-        assert_eq!(set.len(), 1000);
+        assert_eq!(set.len(), HASH_DISTRIBUTION_TEST_SIZE);
         
         // Verify all values are present
-        for i in 0..1000 {
-            assert!(set.contains(&i));
+        for i in 0..HASH_DISTRIBUTION_TEST_SIZE {
+            assert!(set.contains(&(i as i32)));
         }
     }
 }
