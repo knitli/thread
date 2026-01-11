@@ -30,6 +30,7 @@
   "editor.fontFamily": "'Inconsolata Nerd Font Mono', 'Hack Nerd Font', 'Fira Code Nerd Font', 'JetBrainsMono Nerd Font', Consolas, Courier New, monospace'",
   "editor.fontSize": 16,
   "terminal.integrated.fontFamily": "'CaskaydiaCove Nerd Font Mono', 'Inconsolata Nerd Font Mono', 'FiraCode Nerd Font Mono', 'JetBrains Mono', Consolas, monospace",
-  "scm.inputFontSize": 15,
-  "debug.console.fontSize": 15
+  "scm.inputFontSize": 13,
+  "debug.console.fontSize": 14,
+  "terminal.integrated.fontSize": 14,
 }
