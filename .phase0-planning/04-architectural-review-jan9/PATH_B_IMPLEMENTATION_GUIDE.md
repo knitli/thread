@@ -154,7 +154,7 @@ To ensure a robust integration between Thread's imperative library and CocoIndex
 **Category:** Structural  
 **Problem:** `thread-ast-engine` provides direct parsing functions, but CocoIndex requires operators to implement `SimpleFunctionFactory` and `SimpleFunctionExecutor` traits.
 
-**Solution:** Create adapters in `thread-cocoindex` that wrap Thread's core logic.
+**Solution:** Create adapters in `thread-flow` that wrap Thread's core logic.
 
 ```rust
 // Adapter: Wraps Thread's imperative parsing in a CocoIndex executor
@@ -177,7 +177,7 @@ impl SimpleFunctionExecutor for ThreadParseExecutor {
 **Category:** Structural  
 **Problem:** `thread-services` abstractions (`CodeAnalyzer`) must not depend directly on `cocoindex` implementation details to preserve the Service-Library separation.
 
-**Solution:** Separate the abstraction (`thread-services`) from the implementation (`thread-cocoindex`).
+**Solution:** Separate the abstraction (`thread-services`) from the implementation (`thread-flow`).
 
 ```rust
 // Abstraction (thread-services)
@@ -185,7 +185,7 @@ pub trait CodeAnalyzer {
     async fn analyze(&self, doc: &ParsedDocument) -> Result<AnalysisResult>;
 }
 
-// Implementation (thread-cocoindex)
+// Implementation (thread-flow)
 pub struct CocoIndexAnalyzer {
     flow_ctx: Arc<FlowContext>, // Encapsulated CocoIndex internals
 }
@@ -523,7 +523,7 @@ impl TargetFactory for D1Target {
 **Pure Rust Implementation**:
 
 ```rust
-// crates/thread-cocoindex/src/functions/parse.rs
+// crates/flow/src/functions/parse.rs
 use cocoindex::ops::interface::{SimpleFunctionFactory, SimpleFunctionExecutor};
 use thread_ast_engine::{parse, Language};
 use async_trait::async_trait;
@@ -581,7 +581,7 @@ fn build_output_schema() -> EnrichedValueType {
 ```
 
 **Tasks**:
-- [ ] Create `thread-cocoindex` crate (Rust library)
+- [ ] Create `thread-flow` crate (Rust library)
 - [ ] Implement SimpleFunctionFactory for ThreadParse
 - [ ] Implement SimpleFunctionExecutor with Thread parsing
 - [ ] Define output ValueType schema
@@ -598,7 +598,7 @@ fn build_output_schema() -> EnrichedValueType {
 **Rust Flow Construction**:
 
 ```rust
-// crates/thread-cocoindex/src/flows/analysis.rs
+// crates/flow/src/flows/analysis.rs
 use cocoindex::{
     builder::flow_builder::FlowBuilder,
     base::spec::{FlowInstanceSpec, ImportOpSpec, ReactiveOpSpec, ExportOpSpec},
@@ -951,7 +951,7 @@ serde_json = "1.0"
 ### Operator Registration
 
 ```rust
-// crates/thread-cocoindex/src/lib.rs
+// crates/flow/src/lib.rs
 use cocoindex::ops::registry::register_factory;
 use cocoindex::ops::interface::ExecutorFactory;
 
@@ -1056,15 +1056,15 @@ WORKDIR /app
 # Copy workspace
 COPY . .
 
-# Build thread-cocoindex binary (includes CocoIndex + Thread)
-RUN cargo build --release -p thread-cocoindex \
+# Build flow binary (includes CocoIndex + Thread)
+RUN cargo build --release -p thread-flow \
     --features cloudflare
 
 # Runtime (minimal distroless image)
 FROM gcr.io/distroless/cc-debian12
-COPY --from=builder /app/target/release/thread-cocoindex /app/thread-cocoindex
+COPY --from=builder /app/target/release/thread-flow /app/thread-flow
 EXPOSE 8080
-CMD ["/app/thread-cocoindex"]
+CMD ["/app/thread-flow"]
 ```
 
 **D1 Database** (Edge-distributed SQL):
@@ -1105,19 +1105,19 @@ CREATE INDEX idx_symbol_kind ON symbol_search(symbol_kind);
 1. **Build** (Local):
    ```bash
    # Build Rust binary with CocoIndex integration
-   cargo build --release -p thread-cocoindex --features cloudflare
+   cargo build --release -p thread-flow --features cloudflare
 
    # Build container image
-   docker build -t thread-cocoindex:latest .
+   docker build -t thread-flow:latest .
 
    # Test locally
-   docker run -p 8080:8080 thread-cocoindex:latest
+   docker run -p 8080:8080 thread-flow:latest
    ```
 
 2. **Deploy** (Cloudflare):
    ```bash
    # Push container to Cloudflare
-   wrangler deploy --image thread-cocoindex:latest
+   wrangler deploy --image thread-flow:latest
 
    # Create D1 database
    wrangler d1 create code-index
@@ -1422,7 +1422,7 @@ Reference implementation:
 
 **Core Components**:
 ```rust
-thread-cocoindex/
+flow/
 ├── src/
 │   ├── lib.rs              # Operator registration
 │   ├── functions/

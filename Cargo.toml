@@ -1,8 +1,8 @@
+#:tombi schema.strict = false
 # SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
 # SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
 #
 # SPDX-License-Identifier: MIT OR Apache-2.0
-#:tombi schema.strict = false
 # =========================================================
 # *               THREAD - Workspace
 # =========================================================
@@ -52,30 +52,38 @@ include = [
   "tests/**",
 ]
 
+# tombi: format.rules.table-keys-order.disabled = true
 [workspace.dependencies]
-# speed!
+# ludicrous speed!
 aho-corasick = { version = "1.1.4" }
-# close but not exactly
-async-trait = { version = "0.1.89" }
 bit-set = { version = "0.8.0" }
+memchr = { version = "2.7.6", features = ["std"] }
+rapidhash = { version = "4.2.0" }
+regex = { version = "1.12.2" }
+simdeez = { version = "2.0.0" }
+# speed, but parallelism for local deployment
+rayon = { version = "1.11.0" }
+# ast
+tree-sitter = { version = ">=0.25.0" }
+# async -- primarily for edge deployment
+async-trait = { version = "0.1.89" }
+futures = { version = "0.3.31" }
+pin-project = { version = "1.1.10" }
+tokio = { version = "1.49", features = ["full"] }
 # zero-cost macros
 cfg-if = { version = "1.0.4" }
-# async
-futures = { version = "0.3.31" }
-ignore = { version = "0.4.25" }
-lasso = { version = "0.7.3" }
 macro_rules_attribute = { version = "0.2.2" }
-memchr = { version = "2.7.6", features = ["std"] }
-pin-project = { version = "1.1.10" }
-rapidhash = { version = "4.2.0" }
-rayon = { version = "1.11.0" }
-regex = { version = "1.12.2" }
+# respecting gitignore
+ignore = { version = "0.4.25" }
+# string interning and lightweight types
+lasso = { version = "0.7.3" }
+smallvec = { version = "1.15.1" }
+smol_str = { version = "0.3.5" }
 # serialization
 schemars = { version = "1.2.0" }
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = { version = "1.0.149" }
-serde_yaml = { package = "serde_yml", version = "0.0.12" }
-simdeez = { version = "2.0.0" }
+serde_yaml = { package = "serde_yml", version = "0.0.12" }  # TODO: serde_yaml is deprecated. We need to replace it with something like serde_yaml2 or yaml-peg
 thiserror = { version = "2.0.17" }
 # Thread
 thread-ast-engine = { path = "crates/ast-engine", default-features = false }
@@ -84,8 +92,6 @@ thread-rule-engine = { path = "crates/rule-engine", default-features = false }
 thread-services = { path = "crates/services", default-features = false }
 thread-utils = { path = "crates/utils", default-features = false }
 thread-wasm = { path = "crates/wasm", default-features = false }
-# The center of it all
-tree-sitter = { version = ">=0.25.0" }
 
 [workspace.lints.clippy]
 # Same lints as tree-sitter itself.

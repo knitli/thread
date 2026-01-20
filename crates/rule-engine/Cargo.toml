@@ -15,8 +15,6 @@ keywords = ["ast", "codemod", "pattern", "rewrite", "rules", "search"]
 categories = ["command-line-utilities", "development-tools", "parsing"]
 include.workspace = true
 
-# [features] # we need to separate serialization, but that's a big job, and ideally rework ast-engine to allow narrower featuring
-
 [dependencies]
 bit-set.workspace = true
 globset = "0.4.16"
@@ -36,7 +34,7 @@ thread-utils = { workspace = true, default-features = false, features = [
 # ast-grep-config = { version = "0.39.1" }
 # ast-grep-core = { version = "0.39.1", features = ["tree-sitter"] }
 # ast-grep-language = { version = "0.39.1", features = ["builtin-parser"] }
-criterion = { version = "0.6", features = ["html_reports"] }
+criterion = { version = "0.8", features = ["html_reports"] }
 thread-ast-engine = { workspace = true, features = ["matching", "parsing"] }
 thread-language = { workspace = true, features = ["all-parsers"] }
 tree-sitter.workspace = true
@@ -47,3 +45,8 @@ tree-sitter-typescript = "0.23.2"
 
 [build-dependencies]
 cc = "1.2.30"
+
+[features]
+# we need to separate serialization, but that's a big job, and ideally rework ast-engine to allow narrower featuring
+
+worker = []  # feature flag for cloud edge deployment specific logic

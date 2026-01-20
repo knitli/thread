@@ -34,7 +34,7 @@ thread-utils = { workspace = true, default-features = false, features = [
 tree-sitter = { workspace = true, optional = true }
 
 [dev-dependencies]
-criterion = { version = "0.6.0", features = ["html_reports"] }
+criterion = { version = "0.8.0", features = ["html_reports"] }
 thread-language = { workspace = true, features = ["all-parsers"] }
 tree-sitter-typescript = "0.23.2"
 

@@ -1,28 +1,26 @@
 [package]
-name = "thread-cocoindex"
+name = "thread-flow"
 version = "0.1.0"
 edition.workspace = true
 rust-version.workspace = true
-description = "CocoIndex integration for Thread"
+description = "Thread dataflow integration for data processing pipelines, using CocoIndex."
 repository.workspace = true
 license.workspace = true
 
 [dependencies]
 async-trait = "0.1.88"
+# CocoIndex dependency
+cocoindex = { git = "https://github.com/cocoindex-io/cocoindex.git", branch = "main", rev = "179899d237a1706abf5fb2a7e004d609b12df0ba" }
 serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }
-tokio = { version = "1.0", features = ["full"] }
-
 # Workspace dependencies
 thread-ast-engine = { workspace = true }
 thread-language = { workspace = true }
 thread-services = { workspace = true }
 thread-utils = { workspace = true }
-
-# CocoIndex dependency
-cocoindex = { git = "https://github.com/cocoindex-io/cocoindex", branch = "main" }
+tokio = { workspace = true }
 
 [features]
 default = []
-cloudflare = [] # Feature flag for Edge deployment specific logic
+worker = []  # Feature flag for Edge deployment specific logic
