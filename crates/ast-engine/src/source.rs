@@ -78,7 +78,7 @@ pub struct Edit<S: Content> {
 
 /// Generic interface for AST nodes across different parser backends.
 ///
-/// `SgNode` (SourceGraph Node) provides a consistent API for working with
+/// `SgNode` (`SourceGraph` Node) provides a consistent API for working with
 /// AST nodes regardless of the underlying parser implementation. Supports
 /// navigation, introspection, and traversal operations.
 ///

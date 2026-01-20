@@ -44,7 +44,7 @@ language: TypeScript
 rule:
   pattern: function $F($$$) { $$$ }
 "#, /*
-                                                                                                                                                            r#"
+                                                                                                                                                                                                                        r#"
 id: class-with-constructor
 message: found class with constructor
 severity: info

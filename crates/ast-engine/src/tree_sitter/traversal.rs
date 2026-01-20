@@ -91,9 +91,9 @@
 
 use super::StrDoc;
 use crate::tree_sitter::LanguageExt;
+use crate::{Doc, Matcher, Node, Root};
 #[cfg(feature = "matching")]
 use crate::{MatcherExt, NodeMatch};
-use crate::{Doc, Matcher, Node, Root};
 
 use tree_sitter as ts;
 
@@ -242,7 +242,6 @@ where
                 return Some(node_match);
             }
             self.mark_match(None);
-
         }
     }
 }
@@ -340,7 +339,8 @@ pub struct TsPre<'tree> {
 }
 
 impl<'tree> TsPre<'tree> {
-    #[must_use] pub fn new(node: &ts::Node<'tree>) -> Self {
+    #[must_use]
+    pub fn new(node: &ts::Node<'tree>) -> Self {
         Self {
             cursor: node.walk(),
             start_id: Some(node.id()),
@@ -414,7 +414,8 @@ impl<'tree, L: LanguageExt> Iterator for Pre<'tree, L> {
 }
 
 impl<'t, L: LanguageExt> Pre<'t, L> {
-    #[must_use] pub fn new(node: &Node<'t, StrDoc<L>>) -> Self {
+    #[must_use]
+    pub fn new(node: &Node<'t, StrDoc<L>>) -> Self {
         let inner = TsPre::new(&node.inner);
         Self {
             root: node.root,
@@ -458,7 +459,8 @@ pub struct Post<'tree, L: LanguageExt> {
 
 /// Amortized time complexity is O(NlgN), depending on branching factor.
 impl<'tree, L: LanguageExt> Post<'tree, L> {
-    #[must_use] pub fn new(node: &Node<'tree, StrDoc<L>>) -> Self {
+    #[must_use]
+    pub fn new(node: &Node<'tree, StrDoc<L>>) -> Self {
         let mut ret = Self {
             cursor: node.inner.walk(),
             root: node.root,
@@ -548,7 +550,8 @@ pub struct Level<'tree, L: LanguageExt> {
 }
 
 impl<'tree, L: LanguageExt> Level<'tree, L> {
-    #[must_use] pub fn new(node: &Node<'tree, StrDoc<L>>) -> Self {
+    #[must_use]
+    pub fn new(node: &Node<'tree, StrDoc<L>>) -> Self {
         let mut deque = VecDeque::new();
         deque.push_back(node.inner);
         let cursor = node.inner.walk();

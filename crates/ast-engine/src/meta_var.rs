@@ -30,15 +30,13 @@
 use crate::match_tree::does_node_match_exactly;
 #[cfg(feature = "matching")]
 use crate::matcher::Matcher;
+#[cfg(feature = "matching")]
+use crate::replacer::formatted_slice;
 use crate::source::Content;
 use crate::{Doc, Node};
 #[cfg(feature = "matching")]
 use std::borrow::Cow;
-use std::collections::HashMap;
-use std::hash::BuildHasherDefault;
-use thread_utils::{RapidInlineHasher, RapidMap, map_with_capacity};
-#[cfg(feature = "matching")]
-use crate::replacer::formatted_slice;
+use thread_utils::{RapidMap, map_with_capacity};
 
 pub type MetaVariableID = String;
 
@@ -347,8 +345,7 @@ pub(crate) const fn is_valid_meta_var_char(c: char) -> bool {
     is_valid_first_char(c) || c.is_ascii_digit()
 }
 
-impl<'tree, D: Doc> From<MetaVarEnv<'tree, D>>
-    for HashMap<String, String, BuildHasherDefault<RapidInlineHasher>>
+impl<'tree, D: Doc> From<MetaVarEnv<'tree, D>> for RapidMap<String, String>
 where
     D::Source: Content,
 {

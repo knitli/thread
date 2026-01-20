@@ -8,13 +8,13 @@
 //! functionality while preserving all its capabilities.
 
 use async_trait::async_trait;
-use std::path::Path;
 use std::collections::HashMap;
+use std::path::Path;
 
-use crate::types::{ParsedDocument, AnalysisContext, ExecutionScope};
-use crate::error::{ServiceResult, ParseError};
-use thread_language::SupportLang;
+use crate::error::{ParseError, ServiceResult};
+use crate::types::{AnalysisContext, ExecutionScope, ParsedDocument};
 use thread_ast_engine::source::Doc;
+use thread_language::SupportLang;
 
 /// Core parser service trait that abstracts ast-grep parsing functionality.
 ///
@@ -172,10 +172,12 @@ pub trait CodeParser: Send + Sync {
     /// Default implementation uses file extension matching.
     /// Implementations can override for more sophisticated detection.
     fn detect_language(&self, file_path: &Path) -> ServiceResult<SupportLang> {
-        SupportLang::from_path(file_path)
-            .map_err(|e| ParseError::LanguageDetectionFailed {
-                file_path: file_path.to_path_buf()
-            }.into())
+        SupportLang::from_path(file_path).map_err(|e| {
+            ParseError::LanguageDetectionFailed {
+                file_path: file_path.to_path_buf(),
+            }
+            .into()
+        })
     }
 
     /// Validate content before parsing.
@@ -185,8 +187,9 @@ pub trait CodeParser: Send + Sync {
     fn validate_content(&self, content: &str, language: SupportLang) -> ServiceResult<()> {
         if content.is_empty() {
             return Err(ParseError::InvalidSource {
-                message: "Content is empty".to_string()
-            }.into());
+                message: "Content is empty".to_string(),
+            }
+            .into());
         }
 
         // Check content size limits based on capabilities
@@ -195,8 +198,9 @@ pub trait CodeParser: Send + Sync {
             if content.len() > max_size {
                 return Err(ParseError::ContentTooLarge {
                     size: content.len(),
-                    max_size
-                }.into());
+                    max_size,
+                }
+                .into());
             }
         }
 

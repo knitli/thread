@@ -112,7 +112,9 @@ simd_runtime_generate!(
 
         // Handle remaining bytes
         for &byte in remainder {
-            if (byte as u8) & NON_UTF_8_CONTINUATION_PATTERN as u8 != UTF_8_CONTINUATION_PATTERN as u8 {
+            if (byte as u8) & NON_UTF_8_CONTINUATION_PATTERN as u8
+                != UTF_8_CONTINUATION_PATTERN as u8
+            {
                 char_count += 1;
             }
         }
@@ -129,7 +131,8 @@ simd_runtime_generate!(
 /// must use [`count_utf8_chars_simd`] to count non-continuation bytes.
 /// All operations are highly optimized with full SIMD support.
 #[inline]
-#[must_use] pub fn get_char_column_simd(text: &str, offset: usize) -> usize {
+#[must_use]
+pub fn get_char_column_simd(text: &str, offset: usize) -> usize {
     if offset == 0 {
         return 0;
     }

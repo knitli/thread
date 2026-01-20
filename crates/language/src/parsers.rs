@@ -125,8 +125,8 @@ macro_rules! into_lang {
 // With TS-enabled, we can always use the `into_napi_lang!` macro
 // to convert the language into a NAPI-compatible type.
 // We just can't do it... in NAPI.
-#[cfg(
-    all(any(
+#[cfg(all(
+    any(
         feature = "all-parsers",
         feature = "bash",
         feature = "c",
@@ -188,7 +188,12 @@ static C_LANG: OnceLock<TSLanguage> = OnceLock::new();
 static CPP_LANG: OnceLock<TSLanguage> = OnceLock::new();
 #[cfg(any(feature = "csharp", feature = "all-parsers"))]
 static CSHARP_LANG: OnceLock<TSLanguage> = OnceLock::new();
-#[cfg(any(feature = "css", feature = "all-parsers", feature = "css-napi", feature = "napi-compatible"))]
+#[cfg(any(
+    feature = "css",
+    feature = "all-parsers",
+    feature = "css-napi",
+    feature = "napi-compatible"
+))]
 static CSS_LANG: OnceLock<TSLanguage> = OnceLock::new();
 #[cfg(any(feature = "elixir", feature = "all-parsers"))]
 static ELIXIR_LANG: OnceLock<TSLanguage> = OnceLock::new();
@@ -230,7 +235,12 @@ static RUST_LANG: OnceLock<TSLanguage> = OnceLock::new();
 static SCALA_LANG: OnceLock<TSLanguage> = OnceLock::new();
 #[cfg(any(feature = "swift", feature = "all-parsers"))]
 static SWIFT_LANG: OnceLock<TSLanguage> = OnceLock::new();
-#[cfg(any(feature = "tsx", feature = "all-parsers", feature = "tsx-napi", feature = "napi-compatible"))]
+#[cfg(any(
+    feature = "tsx",
+    feature = "all-parsers",
+    feature = "tsx-napi",
+    feature = "napi-compatible"
+))]
 static TSX_LANG: OnceLock<TSLanguage> = OnceLock::new();
 #[cfg(any(
     feature = "typescript",
@@ -262,7 +272,12 @@ pub fn language_c_sharp() -> TSLanguage {
         .get_or_init(|| into_lang!(tree_sitter_c_sharp))
         .clone()
 }
-#[cfg(all(any(feature = "css", feature = "all-parsers", feature = "css-napi", feature = "napi-compatible")))]
+#[cfg(all(any(
+    feature = "css",
+    feature = "all-parsers",
+    feature = "css-napi",
+    feature = "napi-compatible"
+)))]
 pub fn language_css() -> TSLanguage {
     CSS_LANG
         .get_or_init(|| into_napi_lang!(tree_sitter_css::LANGUAGE))
@@ -367,7 +382,12 @@ pub fn language_swift() -> TSLanguage {
         .get_or_init(|| into_lang!(tree_sitter_swift))
         .clone()
 }
-#[cfg(any(feature = "tsx", feature = "all-parsers", feature = "tsx-napi", feature = "napi-compatible"))]
+#[cfg(any(
+    feature = "tsx",
+    feature = "all-parsers",
+    feature = "tsx-napi",
+    feature = "napi-compatible"
+))]
 pub fn language_tsx() -> TSLanguage {
     TSX_LANG
         .get_or_init(|| into_napi_lang!(tree_sitter_typescript::LANGUAGE_TSX))

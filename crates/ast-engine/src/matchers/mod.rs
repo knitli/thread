@@ -72,9 +72,7 @@ pub(crate) mod text;
 
 pub(crate) mod types;
 #[cfg(not(feature = "matching"))]
-pub use types::{
-    MatchStrictness, Pattern, PatternBuilder, PatternError, PatternNode
-};
+pub use types::{MatchStrictness, Pattern, PatternBuilder, PatternError, PatternNode};
 
 pub(crate) mod matcher {
     pub use super::types::{Matcher, MatcherExt, NodeMatch};

@@ -11,17 +11,18 @@
 //! The optimization strategies significantly improve performance over the naive
 //! O(n*m) approach of checking each language's extensions individually.
 
-use crate::{SupportLang, constants::{
-    EXTENSIONS, EXTENSION_TO_LANG
-}};
-use aho_corasick::{AhoCorasick, Anchored, AhoCorasickBuilder, Input, MatchKind, StartKind};
+use crate::{
+    SupportLang,
+    constants::{EXTENSION_TO_LANG, EXTENSIONS},
+};
+use aho_corasick::{AhoCorasick, AhoCorasickBuilder, Anchored, Input, MatchKind, StartKind};
 use std::sync::LazyLock;
 
 /// Aho-Corasick automaton for efficient multi-pattern matching.
 /// Built lazily on first use with all extensions normalized to lowercase.
 const AHO_CORASICK: LazyLock<AhoCorasick> = LazyLock::new(|| {
     // Use LeftmostLongest to prefer longer matches (e.g., "cpp" over "c")
-AhoCorasickBuilder::new()
+    AhoCorasickBuilder::new()
         .match_kind(MatchKind::LeftmostLongest)
         .start_kind(StartKind::Anchored)
         .build(EXTENSIONS)
@@ -46,7 +47,7 @@ pub fn match_by_aho_corasick(ext: &str) -> Option<SupportLang> {
     }
     let ext_lower = ext.to_ascii_lowercase();
     // Find matches and ensure they span the entire extension
-    for mat in AHO_CORASICK.find_iter(Input::new(&ext_lower).anchored(Anchored::Yes) ) {
+    for mat in AHO_CORASICK.find_iter(Input::new(&ext_lower).anchored(Anchored::Yes)) {
         // Only accept matches that span the entire extension
         if mat.end() == ext_lower.len() {
             let pattern_id = mat.pattern().as_usize();
@@ -55,7 +56,6 @@ pub fn match_by_aho_corasick(ext: &str) -> Option<SupportLang> {
     }
     None
 }
-
 
 #[cfg(test)]
 mod tests {

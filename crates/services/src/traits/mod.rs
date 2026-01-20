@@ -8,14 +8,14 @@
 //! These traits abstract over ast-grep functionality while preserving
 //! all its powerful capabilities and enabling codebase-level intelligence.
 
-pub mod parser;
 pub mod analyzer;
+pub mod parser;
 
 #[cfg(feature = "storage-traits")]
 pub mod storage;
 
+pub use analyzer::{AnalyzerCapabilities, CodeAnalyzer};
 pub use parser::{CodeParser, ParserCapabilities};
-pub use analyzer::{CodeAnalyzer, AnalyzerCapabilities};
 
 #[cfg(feature = "storage-traits")]
-pub use storage::{StorageService, CacheService};
+pub use storage::{CacheService, StorageService};

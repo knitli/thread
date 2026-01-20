@@ -71,33 +71,39 @@
 //! ```
 
 // Core modules
-pub mod types;
-pub mod error;
-pub mod traits;
 pub mod conversion;
+pub mod error;
+pub mod facade;
+pub mod traits;
+pub mod types;
 
 // Re-export key types for convenience
 pub use types::{
-    ParsedDocument, CodeMatch, AnalysisContext, 
-    ExecutionScope, AnalysisDepth, CrossFileRelationship,
+    AnalysisContext,
+    AnalysisDepth,
+    AstNode,
+    AstNodeMatch,
     // Re-export ast-grep types for compatibility
-    AstPosition, AstRoot, AstNode, AstNodeMatch,
-    SupportLang, SupportLangErr,
+    AstPosition,
+    AstRoot,
+    CodeMatch,
+    CrossFileRelationship,
+    ExecutionScope,
+    ParsedDocument,
+    SupportLang,
+    SupportLangErr,
 };
 
 pub use error::{
-    ServiceError, ParseError, AnalysisError, 
-    ServiceResult, ContextualError, ContextualResult,
-    ErrorContextExt, RecoverableError,
+    AnalysisError, ContextualError, ContextualResult, ErrorContextExt, ParseError,
+    RecoverableError, ServiceError, ServiceResult,
 };
 
-pub use traits::{
-    CodeParser, CodeAnalyzer, ParserCapabilities, AnalyzerCapabilities,
-};
+pub use traits::{AnalyzerCapabilities, CodeAnalyzer, CodeParser, ParserCapabilities};
 
 // Storage traits (commercial boundary)
 #[cfg(feature = "storage-traits")]
-pub use traits::{StorageService, CacheService};
+pub use traits::{CacheService, StorageService};
 
 use std::path::Path;
 use thiserror::Error;
@@ -223,10 +229,10 @@ mod tests {
     fn test_memory_context() {
         let mut ctx = MemoryContext::new();
         ctx.add_content("test.rs".to_string(), "fn main() {}".to_string());
-        
+
         let content = ctx.read_content("test.rs").unwrap();
         assert_eq!(content, "fn main() {}");
-        
+
         let sources = ctx.list_sources().unwrap();
         assert_eq!(sources, vec!["test.rs"]);
     }

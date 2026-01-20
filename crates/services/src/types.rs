@@ -29,7 +29,7 @@ use std::sync::Arc;
 
 // Conditionally import thread dependencies when available
 #[cfg(feature = "ast-grep-backend")]
-use thread_ast_engine::{Root, Node, NodeMatch, Position};
+use thread_ast_engine::{Node, NodeMatch, Position, Root};
 
 #[cfg(feature = "ast-grep-backend")]
 use thread_ast_engine::source::Doc;
@@ -43,10 +43,7 @@ use thread_language::SupportLang;
 /// Re-export key ast-grep types when available
 #[cfg(feature = "ast-grep-backend")]
 pub use thread_ast_engine::{
-    Position as AstPosition,
-    Root as AstRoot,
-    Node as AstNode,
-    NodeMatch as AstNodeMatch,
+    Node as AstNode, NodeMatch as AstNodeMatch, Position as AstPosition, Root as AstRoot,
 };
 
 #[cfg(feature = "ast-grep-backend")]

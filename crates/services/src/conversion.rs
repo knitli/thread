@@ -11,11 +11,11 @@
 use std::collections::HashMap;
 use std::path::PathBuf;
 
+use crate::error::{AnalysisError, ServiceResult};
 use crate::types::{
-    ParsedDocument, CodeMatch, DocumentMetadata, SymbolInfo, ImportInfo, ExportInfo,
-    CallInfo, TypeInfo, SymbolKind, Visibility, ImportKind, ExportKind, TypeKind, Range
+    CallInfo, CodeMatch, DocumentMetadata, ExportInfo, ExportKind, ImportInfo, ImportKind,
+    ParsedDocument, Range, SymbolInfo, SymbolKind, TypeInfo, TypeKind, Visibility,
 };
-use crate::error::{ServiceResult, AnalysisError};
 
 cfg_if::cfg_if!(
     if #[cfg(feature = "ast-grep-backend")] {
@@ -25,7 +25,6 @@ cfg_if::cfg_if!(
         use crate::types::{Doc, Root, MatcherExt, Node, NodeMatch, Position};
     }
 );
-
 
 /// Convert ast-grep NodeMatch to service layer CodeMatch
 ///
@@ -89,10 +88,10 @@ fn extract_functions<D: Doc>(root_node: &Node<D>) -> ServiceResult<HashMap<Strin
 
     // Try different function patterns based on common languages
     let patterns = [
-        "fn $NAME($$$PARAMS) { $$$BODY }",  // Rust
+        "fn $NAME($$$PARAMS) { $$$BODY }",       // Rust
         "function $NAME($$$PARAMS) { $$$BODY }", // JavaScript
-        "def $NAME($$$PARAMS): $$$BODY",    // Python
-        "func $NAME($$$PARAMS) { $$$BODY }", // Go
+        "def $NAME($$$PARAMS): $$$BODY",         // Python
+        "func $NAME($$$PARAMS) { $$$BODY }",     // Go
     ];
 
     for pattern in &patterns {
@@ -132,11 +131,7 @@ fn extract_imports<D: Doc>(
     let mut imports = HashMap::new();
 
     let patterns = match language {
-        SupportLang::Rust => vec![
-            "use $PATH;",
-            "use $PATH::$ITEM;",
-            "use $PATH::{$$$ITEMS};",
-        ],
+        SupportLang::Rust => vec!["use $PATH;", "use $PATH::$ITEM;", "use $PATH::{$$$ITEMS};"],
         SupportLang::JavaScript | SupportLang::TypeScript => vec![
             "import $ITEM from '$PATH';",
             "import { $$$ITEMS } from '$PATH';",
@@ -154,10 +149,14 @@ fn extract_imports<D: Doc>(
         if let Some(matches) = root_node.find_all(pattern) {
             for node_match in matches {
                 if let (Some(path_node), item_node) = (
-                    node_match.get_env().get_match("PATH")
+                    node_match
+                        .get_env()
+                        .get_match("PATH")
                         .or_else(|| node_match.get_env().get_match("MODULE")),
-                    node_match.get_env().get_match("ITEM")
-                        .or_else(|| node_match.get_env().get_match("PATH"))
+                    node_match
+                        .get_env()
+                        .get_match("ITEM")
+                        .or_else(|| node_match.get_env().get_match("PATH")),
                 ) {
                     if let Some(item_node) = item_node {
                         let import_info = ImportInfo {
@@ -188,16 +187,18 @@ fn extract_function_calls<D: Doc>(root_node: &Node<D>) -> ServiceResult<Vec<Call
 
     // Common function call patterns
     let patterns = [
-        "$FUNC($$$ARGS)",  // Most languages
+        "$FUNC($$$ARGS)",        // Most languages
         "$OBJ.$METHOD($$$ARGS)", // Method calls
     ];
 
     for pattern in &patterns {
         if let Some(matches) = root_node.find_all(pattern) {
             for node_match in matches {
-                if let Some(func_node) = node_match.get_env().get_match("FUNC")
-                    .or_else(|| node_match.get_env().get_match("METHOD")) {
-
+                if let Some(func_node) = node_match
+                    .get_env()
+                    .get_match("FUNC")
+                    .or_else(|| node_match.get_env().get_match("METHOD"))
+                {
                     let call_info = CallInfo {
                         function_name: func_node.text().to_string(),
                         position: Position::new(
@@ -224,7 +225,11 @@ fn extract_function_calls<D: Doc>(root_node: &Node<D>) -> ServiceResult<Vec<Call
 fn count_arguments<D: Doc>(node_match: &NodeMatch<D>) -> usize {
     if let Some(args_node) = node_match.get_env().get_match("ARGS") {
         // This is a simplified count - would need language-specific parsing
-        args_node.text().split(',').filter(|s| !s.trim().is_empty()).count()
+        args_node
+            .text()
+            .split(',')
+            .filter(|s| !s.trim().is_empty())
+            .count()
     } else {
         0
     }
@@ -236,11 +241,7 @@ pub fn position_to_range(start: Position, end: Position) -> Range {
 }
 
 /// Helper for creating SymbolInfo with common defaults
-pub fn create_symbol_info(
-    name: String,
-    kind: SymbolKind,
-    position: Position,
-) -> SymbolInfo {
+pub fn create_symbol_info(name: String, kind: SymbolKind, position: Position) -> SymbolInfo {
     SymbolInfo {
         name,
         kind,
@@ -336,11 +337,7 @@ mod tests {
     #[test]
     fn test_create_symbol_info() {
         let pos = Position::new(1, 0, 10);
-        let info = create_symbol_info(
-            "test_function".to_string(),
-            SymbolKind::Function,
-            pos
-        );
+        let info = create_symbol_info("test_function".to_string(), SymbolKind::Function, pos);
 
         assert_eq!(info.name, "test_function");
         assert_eq!(info.kind, SymbolKind::Function);

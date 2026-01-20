@@ -60,7 +60,7 @@
 //! }
 //! ```
 //!
-//! ### NodeMatch
+//! ### `NodeMatch`
 //!
 //! #### Pattern Match Results with Meta-Variable Capture
 //!

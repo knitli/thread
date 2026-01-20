@@ -3,7 +3,10 @@
 // SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
-#![allow(dead_code, reason = "Some fields report they're dead if the `matching` feature is not enabled.")]
+#![allow(
+    dead_code,
+    reason = "Some fields report they're dead if the `matching` feature is not enabled."
+)]
 //! # Core Pattern Matching Types
 //!
 //! Fundamental types and traits for AST pattern matching operations.
@@ -22,7 +25,7 @@
 //! implementation dependencies.
 
 use crate::Doc;
-use crate::meta_var::{MetaVariable, MetaVarEnv};
+use crate::meta_var::{MetaVarEnv, MetaVariable};
 use crate::node::Node;
 use bit_set::BitSet;
 use std::borrow::Cow;
@@ -178,7 +181,6 @@ pub trait MatcherExt: Matcher {
 #[cfg_attr(not(feature = "matching"), allow(dead_code))]
 pub struct NodeMatch<'t, D: Doc>(pub(crate) Node<'t, D>, pub(crate) MetaVarEnv<'t, D>);
 
-
 /// Controls how precisely patterns must match AST structure.
 ///
 /// Different strictness levels allow patterns to match with varying degrees
@@ -276,7 +278,7 @@ pub enum PatternNode {
         /// Node type identifier
         kind_id: u16,
         /// Child pattern nodes
-        children: Vec<PatternNode>,
+        children: Vec<Self>,
     },
 }
 

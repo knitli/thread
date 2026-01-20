@@ -114,8 +114,7 @@ impl MatchStrictness {
         match self {
             Self::Cst | Self::Ast => false,
             Self::Smart => true,
-            Self::Relaxed |
-            Self::Signature => skip_comment_or_unnamed(candidate),
+            Self::Relaxed | Self::Signature => skip_comment_or_unnamed(candidate),
         }
     }
 
@@ -128,13 +127,10 @@ impl MatchStrictness {
                 Self::Cst => false,
                 Self::Smart => match pattern {
                     PatternNode::MetaVar { meta_var } => match meta_var {
-                        MetaVariable::Multiple |
-                        MetaVariable::MultiCapture(_) => true,
-                        MetaVariable::Dropped(_) |
-                        MetaVariable::Capture(..) => false,
+                        MetaVariable::Multiple | MetaVariable::MultiCapture(_) => true,
+                        MetaVariable::Dropped(_) | MetaVariable::Capture(..) => false,
                     },
-                    PatternNode::Terminal { .. } |
-                    PatternNode::Internal { .. } => false,
+                    PatternNode::Terminal { .. } | PatternNode::Internal { .. } => false,
                 },
                 Self::Ast | Self::Relaxed | Self::Signature => match pattern {
                     PatternNode::MetaVar { meta_var } => match meta_var {

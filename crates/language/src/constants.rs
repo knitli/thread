@@ -5,7 +5,7 @@
 
 use crate::SupportLang;
 
-pub const ALL_SUPPORTED_LANGS: [&'static str; 23] = [
+pub const ALL_SUPPORTED_LANGS: [&str; 23] = [
     "bash",
     "c",
     "cpp",
@@ -32,7 +32,7 @@ pub const ALL_SUPPORTED_LANGS: [&'static str; 23] = [
 ];
 
 #[cfg(any(feature = "bash", feature = "all-parsers"))]
-pub const BASH_EXTS: [&'static str; 19] = [
+pub const BASH_EXTS: [&str; 19] = [
     "bash",
     "bats",
     "sh",
@@ -60,30 +60,35 @@ cfg_if::cfg_if! {
     if #[cfg(all(feature = "c", not(feature = "cpp")))] {
         pub const C_EXTS: [&'static str; 2] = ["c", "h"];
     } else if #[cfg(any(feature = "c", feature = "all-parsers"))] {
-        pub const C_EXTS: [&'static str; 1] = ["c"];
+        pub const C_EXTS: [&str; 1] = ["c"];
     }
 }
 
 /// C++ specific extensions; we consider cuda c++ for our purposes
 #[cfg(any(feature = "cpp", feature = "all-parsers"))]
-pub const CPP_EXTS: [&'static str; 11] = [
+pub const CPP_EXTS: [&str; 11] = [
     "cpp", "cc", "cxx", "hxx", "c++", "hh", "cxx", "cu", "ino", "h", "cu",
 ];
 
 #[cfg(any(feature = "csharp", feature = "all-parsers"))]
-pub const CSHARP_EXTS: [&'static str; 2] = ["cs", "csx"];
+pub const CSHARP_EXTS: [&str; 2] = ["cs", "csx"];
 
-#[cfg(any(feature = "css", feature = "all-parsers", feature = "css-napi", feature = "napi-compatible"))]
-pub const CSS_EXTS: [&'static str; 1] = ["css"];
+#[cfg(any(
+    feature = "css",
+    feature = "all-parsers",
+    feature = "css-napi",
+    feature = "napi-compatible"
+))]
+pub const CSS_EXTS: [&str; 1] = ["css"];
 
 #[cfg(any(feature = "elixir", feature = "all-parsers"))]
-pub const ELIXIR_EXTS: [&'static str; 2] = ["ex", "exs"];
+pub const ELIXIR_EXTS: [&str; 2] = ["ex", "exs"];
 
 #[cfg(any(feature = "go", feature = "all-parsers"))]
-pub const GO_EXTS: [&'static str; 1] = ["go"];
+pub const GO_EXTS: [&str; 1] = ["go"];
 
 #[cfg(feature = "haskell")]
-pub const HASKELL_EXTS: [&'static str; 2] = ["hs", "lhs"];
+pub const HASKELL_EXTS: [&str; 2] = ["hs", "lhs"];
 
 #[cfg(any(
     feature = "html",
@@ -91,10 +96,10 @@ pub const HASKELL_EXTS: [&'static str; 2] = ["hs", "lhs"];
     feature = "html-napi",
     feature = "napi-compatible"
 ))]
-pub const HTML_EXTS: [&'static str; 4] = ["html", "htm", "xhtml", "shtml"];
+pub const HTML_EXTS: [&str; 4] = ["html", "htm", "xhtml", "shtml"];
 
 #[cfg(any(feature = "java", feature = "all-parsers"))]
-pub const JAVA_EXTS: [&'static str; 1] = ["java"];
+pub const JAVA_EXTS: [&str; 1] = ["java"];
 
 #[cfg(any(
     feature = "javascript",
@@ -102,34 +107,34 @@ pub const JAVA_EXTS: [&'static str; 1] = ["java"];
     feature = "javascript-napi",
     feature = "napi-compatible"
 ))]
-pub const JAVASCRIPT_EXTS: [&'static str; 5] = ["js", "mjs", "cjs", "jsx", "snap"];
+pub const JAVASCRIPT_EXTS: [&str; 5] = ["js", "mjs", "cjs", "jsx", "snap"];
 
 #[cfg(any(feature = "json", feature = "all-parsers"))]
-pub const JSON_EXTS: [&'static str; 3] = ["json", "json5", "jsonc"];
+pub const JSON_EXTS: [&str; 3] = ["json", "json5", "jsonc"];
 
 #[cfg(any(feature = "kotlin", feature = "all-parsers"))]
-pub const KOTLIN_EXTS: [&'static str; 3] = ["kt", "kts", "ktm"];
+pub const KOTLIN_EXTS: [&str; 3] = ["kt", "kts", "ktm"];
 
 #[cfg(any(feature = "lua", feature = "all-parsers"))]
-pub const LUA_EXTS: [&'static str; 1] = ["lua"];
+pub const LUA_EXTS: [&str; 1] = ["lua"];
 
 #[cfg(any(feature = "php", feature = "all-parsers"))]
-pub const PHP_EXTS: [&'static str; 2] = ["php", "phtml"];
+pub const PHP_EXTS: [&str; 2] = ["php", "phtml"];
 
 #[cfg(any(feature = "python", feature = "all-parsers"))]
-pub const PYTHON_EXTS: [&'static str; 4] = ["py", "py3", "pyi", "bzl"];
+pub const PYTHON_EXTS: [&str; 4] = ["py", "py3", "pyi", "bzl"];
 
 #[cfg(any(feature = "ruby", feature = "all-parsers"))]
-pub const RUBY_EXTS: [&'static str; 4] = ["rb", "rbw", "rake", "gemspec"];
+pub const RUBY_EXTS: [&str; 4] = ["rb", "rbw", "rake", "gemspec"];
 
 #[cfg(any(feature = "rust", feature = "all-parsers"))]
-pub const RUST_EXTS: [&'static str; 1] = ["rs"];
+pub const RUST_EXTS: [&str; 1] = ["rs"];
 
 #[cfg(any(feature = "scala", feature = "all-parsers"))]
-pub const SCALA_EXTS: [&'static str; 4] = ["scala", "sc", "scm", "sbt"];
+pub const SCALA_EXTS: [&str; 4] = ["scala", "sc", "scm", "sbt"];
 
 #[cfg(any(feature = "swift", feature = "all-parsers"))]
-pub const SWIFT_EXTS: [&'static str; 2] = ["swift", "xctest"];
+pub const SWIFT_EXTS: [&str; 2] = ["swift", "xctest"];
 
 #[cfg(any(
     feature = "typescript",
@@ -137,13 +142,18 @@ pub const SWIFT_EXTS: [&'static str; 2] = ["swift", "xctest"];
     feature = "typescript-napi",
     feature = "napi-compatible"
 ))]
-pub const TYPESCRIPT_EXTS: [&'static str; 3] = ["ts", "cts", "mts"];
+pub const TYPESCRIPT_EXTS: [&str; 3] = ["ts", "cts", "mts"];
 
-#[cfg(any(feature = "tsx", feature = "all-parsers", feature = "tsx-napi", feature = "napi-compatible"))]
-pub const TSX_EXTS: [&'static str; 1] = ["tsx"];
+#[cfg(any(
+    feature = "tsx",
+    feature = "all-parsers",
+    feature = "tsx-napi",
+    feature = "napi-compatible"
+))]
+pub const TSX_EXTS: [&str; 1] = ["tsx"];
 
 #[cfg(any(feature = "yaml", feature = "all-parsers"))]
-pub const YAML_EXTS: [&'static str; 2] = ["yaml", "yml"];
+pub const YAML_EXTS: [&str; 2] = ["yaml", "yml"];
 
 cfg_if::cfg_if!(
     if #[cfg(
@@ -162,7 +172,7 @@ cfg_if::cfg_if!(
     )] {
         pub const ENABLED_LANGS: &'static [&'static crate::SupportLang; 1] = &[crate::SupportLang::NoEnabledLangs];
     } else {
-    pub const ENABLED_LANGS: &'static [&'static SupportLang] = &{
+    pub const ENABLED_LANGS: &[&SupportLang] = &{
         // Count total enabled languages
         use crate::SupportLang::*;
         const fn count_enabled_langs() -> usize {
@@ -341,9 +351,9 @@ cfg_if::cfg_if!(
                     )
                 )
             )] {
-                pub const EXTENSIONS: &'static [&'static str; 0] = &[]
+                pub const EXTENSIONS: &'static [&'static str; 0] = &[];
             } else {
-            pub const EXTENSIONS: &'static [&'static str] = &{
+            pub const EXTENSIONS: &[&str] = &{
                 // Count total extensions needed
                 const fn count_total_extensions() -> usize {
                     let mut count = 0;
@@ -696,7 +706,7 @@ cfg_if::cfg_if!(
                     )
                 )
             )] {
-                pub const EXTENSION_TO_LANG: &[SupportLang; 1] = &[crate::SupportLang::NoEnabledLangs]
+                pub const EXTENSION_TO_LANG: &[SupportLang; 1] = &[crate::SupportLang::NoEnabledLangs];
             } else {
             pub const EXTENSION_TO_LANG: &[SupportLang] = &{
                 use crate::SupportLang;
@@ -1027,7 +1037,7 @@ cfg_if::cfg_if!(
 /// List of files that DO NOT have an extension but are still associated with a language.
 #[cfg(any(feature = "bash", feature = "all-parsers", feature = "ruby"))]
 #[allow(unused_variables)]
-const LANG_RELATIONSHIPS_WITH_NO_EXTENSION: &'static [(&'static str, SupportLang)] = &[
+const LANG_RELATIONSHIPS_WITH_NO_EXTENSION: &[(&str, SupportLang)] = &[
     #[cfg(any(feature = "bash", feature = "all-parsers"))]
     ("profile", SupportLang::Bash),
     #[cfg(any(feature = "bash", feature = "all-parsers"))]
@@ -1049,7 +1059,7 @@ const LANG_RELATIONSHIPS_WITH_NO_EXTENSION: &'static [(&'static str, SupportLang
 /// Files whose presence can resolve language identification
 #[cfg(any(all(feature = "cpp", feature = "c"), feature = "all-parsers"))]
 #[allow(unused_variables)]
-const LANG_FILE_INDICATORS: &'static [(&'static str, SupportLang)] = &[
+const LANG_FILE_INDICATORS: &[(&str, SupportLang)] = &[
     #[cfg(any(all(feature = "cpp", feature = "c"), feature = "all-parsers"))]
     ("conanfile.txt", SupportLang::Cpp),
     #[cfg(any(all(feature = "cpp", feature = "c"), feature = "all-parsers"))]

@@ -87,22 +87,30 @@ pub enum ServiceError {
 impl ServiceError {
     /// Create execution error with static string (zero allocation)
     pub fn execution_static(msg: &'static str) -> Self {
-        Self::Execution { message: Cow::Borrowed(msg) }
+        Self::Execution {
+            message: Cow::Borrowed(msg),
+        }
     }
 
     /// Create execution error with dynamic string
     pub fn execution_dynamic(msg: String) -> Self {
-        Self::Execution { message: Cow::Owned(msg) }
+        Self::Execution {
+            message: Cow::Owned(msg),
+        }
     }
 
     /// Create config error with static string (zero allocation)
     pub fn config_static(msg: &'static str) -> Self {
-        Self::Config { message: Cow::Borrowed(msg) }
+        Self::Config {
+            message: Cow::Borrowed(msg),
+        }
     }
 
     /// Create config error with dynamic string
     pub fn config_dynamic(msg: String) -> Self {
-        Self::Config { message: Cow::Owned(msg) }
+        Self::Config {
+            message: Cow::Owned(msg),
+        }
     }
 
     /// Create timeout error with operation context
@@ -263,16 +271,16 @@ pub enum StorageError {
 pub struct ErrorContext {
     /// File being processed when error occurred
     pub file_path: Option<PathBuf>,
-    
+
     /// Line number where error occurred
     pub line: Option<usize>,
-    
+
     /// Column where error occurred
     pub column: Option<usize>,
-    
+
     /// Operation being performed
     pub operation: Option<String>,
-    
+
     /// Additional context data
     pub context_data: std::collections::HashMap<String, String>,
 }
@@ -294,31 +302,31 @@ impl ErrorContext {
     pub fn new() -> Self {
         Self::default()
     }
-    
+
     /// Set file path
     pub fn with_file_path(mut self, file_path: PathBuf) -> Self {
         self.file_path = Some(file_path);
         self
     }
-    
+
     /// Set line number
     pub fn with_line(mut self, line: usize) -> Self {
         self.line = Some(line);
         self
     }
-    
+
     /// Set column number
     pub fn with_column(mut self, column: usize) -> Self {
         self.column = Some(column);
         self
     }
-    
+
     /// Set operation name
     pub fn with_operation(mut self, operation: String) -> Self {
         self.operation = Some(operation);
         self
     }
-    
+
     /// Add context data
     pub fn with_context_data(mut self, key: String, value: String) -> Self {
         self.context_data.insert(key, value);
@@ -331,7 +339,7 @@ impl ErrorContext {
 pub struct ContextualError {
     /// The underlying error
     pub error: ServiceError,
-    
+
     /// Additional context information
     pub context: ErrorContext,
 }
@@ -339,23 +347,23 @@ pub struct ContextualError {
 impl fmt::Display for ContextualError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.error)?;
-        
+
         if let Some(ref file_path) = self.context.file_path {
             write!(f, " (file: {})", file_path.display())?;
         }
-        
+
         if let Some(line) = self.context.line {
             write!(f, " (line: {})", line)?;
         }
-        
+
         if let Some(column) = self.context.column {
             write!(f, " (column: {})", column)?;
         }
-        
+
         if let Some(ref operation) = self.context.operation {
             write!(f, " (operation: {})", operation)?;
         }
-        
+
         Ok(())
     }
 }
@@ -369,7 +377,7 @@ impl From<ServiceError> for ContextualError {
     }
 }
 
-/// Compatibility type for legacy ServiceError usage 
+/// Compatibility type for legacy ServiceError usage
 pub type LegacyServiceResult<T> = Result<T, ServiceError>;
 
 /// Result type for contextual operations
@@ -378,35 +386,35 @@ pub type ContextualResult<T> = Result<T, ContextualError>;
 /// Helper trait for adding context to errors
 pub trait ErrorContextExt {
     type Output;
-    
+
     /// Add context to the error
     fn with_context(self, context: ErrorContext) -> Self::Output;
-    
+
     /// Add file path context
     fn with_file(self, file_path: PathBuf) -> Self::Output;
-    
+
     /// Add line context
     fn with_line(self, line: usize) -> Self::Output;
-    
+
     /// Add operation context
     fn with_operation(self, operation: &str) -> Self::Output;
 }
 
 impl<T> ErrorContextExt for ServiceResult<T> {
     type Output = ContextualResult<T>;
-    
+
     fn with_context(self, context: ErrorContext) -> Self::Output {
         self.map_err(|error| ContextualError { error, context })
     }
-    
+
     fn with_file(self, file_path: PathBuf) -> Self::Output {
         self.with_context(ErrorContext::new().with_file_path(file_path))
     }
-    
+
     fn with_line(self, line: usize) -> Self::Output {
         self.with_context(ErrorContext::new().with_line(line))
     }
-    
+
     fn with_operation(self, operation: &str) -> Self::Output {
         self.with_context(ErrorContext::new().with_operation(operation.to_string()))
     }
@@ -417,16 +425,16 @@ impl<T> ErrorContextExt for ServiceResult<T> {
 pub enum RecoveryStrategy {
     /// Retry the operation
     Retry { max_attempts: usize },
-    
+
     /// Skip the current item and continue
     Skip,
-    
+
     /// Use a fallback approach
     Fallback { strategy: String },
-    
+
     /// Abort the entire operation
     Abort,
-    
+
     /// Continue with partial results
     Partial,
 }
@@ -436,10 +444,10 @@ pub enum RecoveryStrategy {
 pub struct ErrorRecovery {
     /// Suggested recovery strategy
     pub strategy: RecoveryStrategy,
-    
+
     /// Human-readable recovery instructions
     pub instructions: String,
-    
+
     /// Whether automatic recovery is possible
     pub auto_recoverable: bool,
 }
@@ -448,7 +456,7 @@ pub struct ErrorRecovery {
 pub trait RecoverableError {
     /// Get recovery information for this error
     fn recovery_info(&self) -> Option<ErrorRecovery>;
-    
+
     /// Check if this error is retryable
     fn is_retryable(&self) -> bool {
         matches!(
@@ -459,7 +467,7 @@ pub trait RecoverableError {
             })
         )
     }
-    
+
     /// Check if this error allows partial continuation
     fn allows_partial(&self) -> bool {
         matches!(
@@ -477,34 +485,39 @@ impl RecoverableError for ServiceError {
         match self {
             ServiceError::Parse(ParseError::TreeSitter(_)) => Some(ErrorRecovery {
                 strategy: RecoveryStrategy::Retry { max_attempts: 3 },
-                instructions: "Tree-sitter parsing failed. Retry with error recovery enabled.".to_string(),
+                instructions: "Tree-sitter parsing failed. Retry with error recovery enabled."
+                    .to_string(),
                 auto_recoverable: true,
             }),
-            
-            ServiceError::Analysis(AnalysisError::PatternCompilation { .. }) => Some(ErrorRecovery {
-                strategy: RecoveryStrategy::Skip,
-                instructions: "Pattern compilation failed. Skip this pattern and continue.".to_string(),
-                auto_recoverable: true,
-            }),
-            
+
+            ServiceError::Analysis(AnalysisError::PatternCompilation { .. }) => {
+                Some(ErrorRecovery {
+                    strategy: RecoveryStrategy::Skip,
+                    instructions: "Pattern compilation failed. Skip this pattern and continue."
+                        .to_string(),
+                    auto_recoverable: true,
+                })
+            }
+
             ServiceError::Io(_) => Some(ErrorRecovery {
                 strategy: RecoveryStrategy::Retry { max_attempts: 3 },
                 instructions: "I/O operation failed. Retry with exponential backoff.".to_string(),
                 auto_recoverable: true,
             }),
-            
+
             ServiceError::Timeout(_) => Some(ErrorRecovery {
                 strategy: RecoveryStrategy::Retry { max_attempts: 2 },
                 instructions: "Operation timed out. Retry with increased timeout.".to_string(),
                 auto_recoverable: true,
             }),
-            
+
             ServiceError::Storage(StorageError::Connection { .. }) => Some(ErrorRecovery {
                 strategy: RecoveryStrategy::Retry { max_attempts: 5 },
-                instructions: "Storage connection failed. Retry with exponential backoff.".to_string(),
+                instructions: "Storage connection failed. Retry with exponential backoff."
+                    .to_string(),
                 auto_recoverable: true,
             }),
-            
+
             _ => None,
         }
     }
@@ -550,19 +563,19 @@ macro_rules! storage_error {
 mod tests {
     use super::*;
     use std::path::PathBuf;
-    
+
     #[test]
     fn test_error_context() {
         let context = ErrorContext::new()
             .with_file_path(PathBuf::from("test.rs"))
             .with_line(42)
             .with_operation("pattern_matching".to_string());
-        
+
         assert_eq!(context.file_path, Some(PathBuf::from("test.rs")));
         assert_eq!(context.line, Some(42));
         assert_eq!(context.operation, Some("pattern_matching".to_string()));
     }
-    
+
     #[test]
     fn test_contextual_error_display() {
         let error = ServiceError::Config("test error".to_string());
@@ -572,19 +585,22 @@ mod tests {
                 .with_file_path(PathBuf::from("test.rs"))
                 .with_line(42),
         };
-        
+
         let display = format!("{}", contextual);
         assert!(display.contains("test error"));
         assert!(display.contains("test.rs"));
         assert!(display.contains("42"));
     }
-    
+
     #[test]
     fn test_recovery_info() {
         let error = ServiceError::Timeout("test timeout".to_string());
         let recovery = error.recovery_info().unwrap();
-        
-        assert!(matches!(recovery.strategy, RecoveryStrategy::Retry { max_attempts: 2 }));
+
+        assert!(matches!(
+            recovery.strategy,
+            RecoveryStrategy::Retry { max_attempts: 2 }
+        ));
         assert!(recovery.auto_recoverable);
     }
 }

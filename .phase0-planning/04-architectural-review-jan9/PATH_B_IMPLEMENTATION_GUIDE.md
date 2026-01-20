@@ -50,13 +50,14 @@ Thread is **NOT** a library that returns immediate results. It is:
 ## Table of Contents
 
 1. [Architecture Overview](#architecture-overview)
-2. [Feasibility Validation](#feasibility-validation)
-3. [4-Week Implementation Plan](#4-week-implementation-plan)
-4. [Rust ↔ Python Bridge Strategy](#rust--python-bridge-strategy)
-5. [Edge Deployment Architecture](#edge-deployment-architecture)
-6. [Thread's Semantic Intelligence](#threads-semantic-intelligence)
-7. [Success Criteria](#success-criteria)
-8. [Risk Mitigation](#risk-mitigation)
+2. [Design Patterns & Architectural Standards](#design-patterns--architectural-standards)
+3. [Feasibility Validation](#feasibility-validation)
+4. [3-Week Implementation Plan](#3-week-implementation-plan)
+5. [Rust ↔ Python Bridge Strategy](#rust--python-bridge-strategy)
+6. [Edge Deployment Architecture](#edge-deployment-architecture)
+7. [Thread's Semantic Intelligence](#threads-semantic-intelligence)
+8. [Success Criteria](#success-criteria)
+9. [Risk Mitigation](#risk-mitigation)
 
 ---
 
@@ -141,6 +142,105 @@ impl SimpleFunctionFactory for ThreadParseFunction {
 - Distributed processing across edge network
 
 **Why Both Work**: CocoIndex natively supports tokio async, Thread adds CPU parallelism via custom Rust transforms.
+
+---
+
+## Design Patterns & Architectural Standards
+
+To ensure a robust integration between Thread's imperative library and CocoIndex's declarative dataflow, we will strictly adhere to the following design patterns:
+
+### 1. Adapter Pattern (Critical)
+
+**Category:** Structural  
+**Problem:** `thread-ast-engine` provides direct parsing functions, but CocoIndex requires operators to implement `SimpleFunctionFactory` and `SimpleFunctionExecutor` traits.
+
+**Solution:** Create adapters in `thread-cocoindex` that wrap Thread's core logic.
+
+```rust
+// Adapter: Wraps Thread's imperative parsing in a CocoIndex executor
+struct ThreadParseExecutor;
+
+#[async_trait]
+impl SimpleFunctionExecutor for ThreadParseExecutor {
+    async fn evaluate(&self, input: Vec<Value>) -> Result<Value> {
+        let content = input[0].as_str()?;
+        // Adapt: Call Thread's internal logic
+        let doc = thread_ast_engine::parse(content, ...)?; 
+        // Adapt: Convert Thread Doc -> CocoIndex Value
+        serialize_doc(doc) 
+    }
+}
+```
+
+### 2. Bridge Pattern (Architecture)
+
+**Category:** Structural  
+**Problem:** `thread-services` abstractions (`CodeAnalyzer`) must not depend directly on `cocoindex` implementation details to preserve the Service-Library separation.
+
+**Solution:** Separate the abstraction (`thread-services`) from the implementation (`thread-cocoindex`).
+
+```rust
+// Abstraction (thread-services)
+pub trait CodeAnalyzer {
+    async fn analyze(&self, doc: &ParsedDocument) -> Result<AnalysisResult>;
+}
+
+// Implementation (thread-cocoindex)
+pub struct CocoIndexAnalyzer {
+    flow_ctx: Arc<FlowContext>, // Encapsulated CocoIndex internals
+}
+```
+
+### 3. Builder Pattern (Configuration)
+
+**Category:** Creational  
+**Problem:** Constructing CocoIndex flows involves complex setup of sources, transforms, and targets.
+
+**Solution:** Use a `FlowBuilder` wrapper to construct standard Thread analysis pipelines.
+
+```rust
+// Programmatic flow construction
+let flow = ThreadFlowBuilder::new("full_analysis")
+    .source(LocalFileSource::new("."))
+    .add_step(ThreadParseFactory)       // Parse
+    .add_step(ExtractSymbolsFactory)    // Extract
+    .target(PostgresTarget::new(...))   // Store
+    .build();
+```
+
+### 4. Strategy Pattern (Deployment)
+
+**Category:** Behavioral  
+**Problem:** The service runs in two distinct environments: CLI (Rayon/Local/Postgres) and Edge (Tokio/Cloudflare/D1).
+
+**Solution:** Implement a `RuntimeStrategy` to abstract platform-specific resource access.
+
+```rust
+pub trait RuntimeStrategy {
+    fn spawn<F>(&self, future: F) where F: Future;
+    fn get_storage_backend(&self) -> Box<dyn StorageFactory>;
+}
+// D1Strategy returns D1TargetFactory; LocalStrategy returns PostgresTargetFactory
+```
+
+### 5. Facade Pattern (API)
+
+**Category:** Structural  
+**Problem:** Consumers (CLI, LSP) need a simple interface, hiding the complexity of dataflow graphs.
+
+**Solution:** Provide a `ServiceFacade` in `thread-services`.
+
+```rust
+pub struct ThreadService {
+    analyzer: Box<dyn CodeAnalyzer>,
+    storage: Box<dyn StorageService>,
+}
+
+impl ThreadService {
+    // Hides complex flow execution details
+    pub async fn analyze_path(&self, path: &Path) -> ServiceResult<Summary>;
+}
+```
 
 ---
 

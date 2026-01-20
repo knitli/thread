@@ -7,12 +7,12 @@
 use super::pre_process_pattern;
 use thread_ast_engine::Language;
 #[cfg(feature = "matching")]
-use thread_ast_engine::matcher::{Pattern, PatternBuilder, PatternError};
+use thread_ast_engine::matcher::KindMatcher;
 #[cfg(feature = "matching")]
-use thread_ast_engine::tree_sitter::{StrDoc, TSRange};
+use thread_ast_engine::matcher::{Pattern, PatternBuilder, PatternError};
 use thread_ast_engine::tree_sitter::{LanguageExt, TSLanguage};
 #[cfg(feature = "matching")]
-use thread_ast_engine::matcher::KindMatcher;
+use thread_ast_engine::tree_sitter::{StrDoc, TSRange};
 #[cfg(feature = "matching")]
 use thread_ast_engine::{Doc, Node};
 #[cfg(feature = "html-embedded")]
@@ -105,10 +105,7 @@ impl LanguageExt for Html {
                         if lang_name == "js" || lang_name == "javascript" {
                             js_ranges.push(range);
                         } else {
-                            other_ranges
-                                .entry(lang_name)
-                                .or_default()
-                                .push(range);
+                            other_ranges.entry(lang_name).or_default().push(range);
                         }
                     }
                     None => js_ranges.push(range), // Default to JavaScript
@@ -128,10 +125,7 @@ impl LanguageExt for Html {
                         if lang_name == "css" {
                             css_ranges.push(range);
                         } else {
-                            other_ranges
-                                .entry(lang_name)
-                                .or_default()
-                                .push(range);
+                            other_ranges.entry(lang_name).or_default().push(range);
                         }
                     }
                     None => css_ranges.push(range), // Default to CSS

@@ -12,8 +12,8 @@ use async_trait::async_trait;
 use std::collections::HashMap;
 use std::time::{Duration, SystemTime};
 
-use crate::types::{ParsedDocument, CrossFileRelationship, AnalysisContext};
 use crate::error::{ServiceResult, StorageError};
+use crate::types::{AnalysisContext, CrossFileRelationship, ParsedDocument};
 use thread_ast_engine::source::Doc;
 
 /// Storage service trait for persisting analysis results and enabling advanced features.
@@ -45,7 +45,7 @@ use thread_ast_engine::source::Doc;
 /// // Commercial: actual implementations available with license
 /// #[cfg(feature = "commercial")]
 /// use thread_commercial::PostgresStorageService;
-/// 
+///
 /// async fn example() {
 ///     #[cfg(feature = "commercial")]
 ///     {
@@ -127,7 +127,10 @@ pub trait StorageService: Send + Sync {
     ///
     /// Includes cleanup, optimization, and health monitoring tasks
     /// for enterprise storage management.
-    async fn maintenance(&self, operation: MaintenanceOperation) -> ServiceResult<MaintenanceResult>;
+    async fn maintenance(
+        &self,
+        operation: MaintenanceOperation,
+    ) -> ServiceResult<MaintenanceResult>;
 
     /// Get storage statistics and metrics.
     ///
@@ -152,10 +155,7 @@ pub trait CacheService: Send + Sync {
     ) -> ServiceResult<()>;
 
     /// Load item from cache.
-    async fn load<T: CacheableItem>(
-        &self,
-        key: &CacheKey,
-    ) -> ServiceResult<Option<T>>;
+    async fn load<T: CacheableItem>(&self, key: &CacheKey) -> ServiceResult<Option<T>>;
 
     /// Invalidate cache entries.
     async fn invalidate(&self, pattern: &CachePattern) -> ServiceResult<usize>;
@@ -181,10 +181,7 @@ pub trait AnalyticsService: Send + Sync {
     ) -> ServiceResult<()>;
 
     /// Get usage analytics.
-    async fn get_analytics(
-        &self,
-        query: &AnalyticsQuery,
-    ) -> ServiceResult<AnalyticsResult>;
+    async fn get_analytics(&self, query: &AnalyticsQuery) -> ServiceResult<AnalyticsResult>;
 
     /// Get performance metrics.
     async fn get_performance_metrics(
@@ -193,10 +190,7 @@ pub trait AnalyticsService: Send + Sync {
     ) -> ServiceResult<PerformanceMetrics>;
 
     /// Generate insights and recommendations.
-    async fn generate_insights(
-        &self,
-        context: &AnalysisContext,
-    ) -> ServiceResult<Vec<Insight>>;
+    async fn generate_insights(&self, context: &AnalysisContext) -> ServiceResult<Vec<Insight>>;
 }
 
 // Storage-related types and configurations
@@ -233,22 +227,22 @@ pub struct StorageKey {
 pub struct StorageCapabilities {
     /// Maximum storage size per tenant
     pub max_storage_size: Option<u64>,
-    
+
     /// Supported storage backends
     pub supported_backends: Vec<StorageBackend>,
-    
+
     /// Whether distributed storage is supported
     pub supports_distributed: bool,
-    
+
     /// Whether encryption at rest is supported
     pub supports_encryption: bool,
-    
+
     /// Whether backup/restore is supported
     pub supports_backup: bool,
-    
+
     /// Whether multi-tenancy is supported
     pub supports_multi_tenancy: bool,
-    
+
     /// Performance characteristics
     pub performance_profile: StoragePerformanceProfile,
 }
@@ -324,7 +318,9 @@ pub struct CachePattern {
 /// Trait for items that can be cached
 pub trait CacheableItem: Send + Sync {
     fn serialize(&self) -> ServiceResult<Vec<u8>>;
-    fn deserialize(data: &[u8]) -> ServiceResult<Self> where Self: Sized;
+    fn deserialize(data: &[u8]) -> ServiceResult<Self>
+    where
+        Self: Sized;
     fn cache_key(&self) -> String;
     fn ttl(&self) -> Option<Duration>;
 }
@@ -412,7 +408,7 @@ pub struct AnalyticsSummary {
 #[derive(Debug, Clone)]
 pub struct PerformanceMetrics {
     pub period: TimePeriod,
-    pub throughput: f64, // operations per second
+    pub throughput: f64,                                // operations per second
     pub latency_percentiles: HashMap<String, Duration>, // p50, p95, p99
     pub error_rates: HashMap<String, f64>,
     pub resource_usage: ResourceUsage,
@@ -468,7 +464,7 @@ mod tests {
             configuration_hash: 67890,
             version: "1.0".to_string(),
         };
-        
+
         assert_eq!(key.operation_type, "pattern_match");
         assert_eq!(key.content_hash, 12345);
     }
@@ -484,9 +480,12 @@ mod tests {
             supports_multi_tenancy: true,
             performance_profile: StoragePerformanceProfile::Balanced,
         };
-        
+
         assert!(caps.supports_encryption);
         assert!(caps.supports_backup);
-        assert_eq!(caps.performance_profile, StoragePerformanceProfile::Balanced);
+        assert_eq!(
+            caps.performance_profile,
+            StoragePerformanceProfile::Balanced
+        );
     }
 }

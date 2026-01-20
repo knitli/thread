@@ -174,9 +174,7 @@ enum MetaVarExtract {
 impl MetaVarExtract {
     fn used_var(&self) -> &str {
         match self {
-            Self::Single(s) |
-            Self::Multiple(s) |
-            Self::Transformed(s) => s,
+            Self::Single(s) | Self::Multiple(s) | Self::Transformed(s) => s,
         }
     }
 }

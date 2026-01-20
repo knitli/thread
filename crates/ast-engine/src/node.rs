@@ -233,7 +233,7 @@ pub struct Node<'r, D: Doc> {
     pub(crate) root: &'r Root<D>,
 }
 
-/// Identifier for different AST node types (e.g., "function_declaration", "identifier")
+/// Identifier for different AST node types (e.g., "`function_declaration`", "identifier")
 pub type KindId = u16;
 
 /// APIs for Node inspection

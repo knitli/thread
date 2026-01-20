@@ -10,15 +10,15 @@
 use async_trait::async_trait;
 use std::collections::HashMap;
 
-use crate::types::{ParsedDocument, CodeMatch, AnalysisContext, CrossFileRelationship};
-use crate::error::{ServiceResult, AnalysisError};
+use crate::error::{AnalysisError, ServiceResult};
+use crate::types::{AnalysisContext, CodeMatch, CrossFileRelationship, ParsedDocument};
 #[cfg(feature = "matching")]
 use thread_ast_engine::source::Doc;
 #[cfg(feature = "matching")]
 use thread_ast_engine::{Node, NodeMatch};
 
 #[cfg(feature = "matching")]
-use thread_ast_engine::{Pattern, Matcher};
+use thread_ast_engine::{Matcher, Pattern};
 
 /// Core analyzer service trait that abstracts ast-grep analysis functionality.
 ///
@@ -219,9 +219,12 @@ pub trait CodeAnalyzer: Send + Sync {
             "class_declaration" => "class $NAME { $$$BODY }",
             "variable_declaration" => "let $VAR = $VALUE",
             // Add more patterns as needed
-            _ => return Err(AnalysisError::InvalidPattern {
-                pattern: format!("Unknown node kind: {}", node_kind)
-            }.into()),
+            _ => {
+                return Err(AnalysisError::InvalidPattern {
+                    pattern: format!("Unknown node kind: {}", node_kind),
+                }
+                .into());
+            }
         };
 
         self.find_pattern(document, pattern, context).await
@@ -234,8 +237,9 @@ pub trait CodeAnalyzer: Send + Sync {
     fn validate_pattern(&self, pattern: &str) -> ServiceResult<()> {
         if pattern.is_empty() {
             return Err(AnalysisError::InvalidPattern {
-                pattern: "Pattern cannot be empty".to_string()
-            }.into());
+                pattern: "Pattern cannot be empty".to_string(),
+            }
+            .into());
         }
 
         // Basic meta-variable validation
@@ -252,8 +256,9 @@ pub trait CodeAnalyzer: Send + Sync {
                         if !next_ch.is_alphabetic() && next_ch != '_' {
                             return Err(AnalysisError::MetaVariable {
                                 variable: format!("${}", next_ch),
-                                message: "Invalid meta-variable format".to_string()
-                            }.into());
+                                message: "Invalid meta-variable format".to_string(),
+                            }
+                            .into());
                         }
                     }
                 }
@@ -350,10 +355,7 @@ impl Default for AnalyzerCapabilities {
             supports_cross_file_analysis: false,
             supports_batch_optimization: true,
             supports_incremental_analysis: false,
-            supported_analysis_depths: vec![
-                AnalysisDepth::Syntax,
-                AnalysisDepth::Local,
-            ],
+            supported_analysis_depths: vec![AnalysisDepth::Syntax, AnalysisDepth::Local],
             performance_profile: AnalysisPerformanceProfile::Balanced,
             capability_flags: HashMap::new(),
         }
@@ -450,7 +452,10 @@ mod tests {
         assert!(!caps.supports_cross_file_analysis);
         assert!(caps.supports_batch_optimization);
         assert!(!caps.supports_pattern_compilation);
-        assert_eq!(caps.performance_profile, AnalysisPerformanceProfile::Balanced);
+        assert_eq!(
+            caps.performance_profile,
+            AnalysisPerformanceProfile::Balanced
+        );
     }
 
     #[test]
