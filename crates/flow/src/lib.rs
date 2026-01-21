@@ -13,6 +13,7 @@
 //! - **Strategy**: Handles runtime differences (CLI vs Edge)
 
 pub mod bridge;
+pub mod conversion;
 pub mod flows;
 pub mod functions;
 pub mod runtime;

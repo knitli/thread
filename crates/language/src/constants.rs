@@ -170,7 +170,7 @@ cfg_if::cfg_if!(
                     )
                 )
     )] {
-        pub const ENABLED_LANGS: &'static [&'static crate::SupportLang; 1] = &[crate::SupportLang::NoEnabledLangs];
+        pub const ENABLED_LANGS: &'static [&'static crate::SupportLang; 1] = &[&crate::SupportLang::NoEnabledLangs];
     } else {
     pub const ENABLED_LANGS: &[&SupportLang] = &{
         // Count total enabled languages

@@ -12,7 +12,6 @@ use thread_rule_engine::{GlobalRules, from_yaml_string};
 struct BenchmarkData {
     simple_patterns: Vec<&'static str>,
     complex_rules: Vec<&'static str>,
-    test_code: &'static str,
 }
 
 impl BenchmarkData {

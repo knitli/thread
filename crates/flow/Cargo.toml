@@ -16,8 +16,17 @@ serde_json = { workspace = true }
 thiserror = { workspace = true }
 # Workspace dependencies
 thread-ast-engine = { workspace = true }
-thread-language = { workspace = true }
-thread-services = { workspace = true }
+thread-language = { workspace = true, features = [
+  "javascript",
+  "python",
+  "rust",
+  "tsx",
+  "typescript"
+] }
+thread-services = { workspace = true, features = [
+  "ast-grep-backend",
+  "serialization"
+] }
 thread-utils = { workspace = true }
 tokio = { workspace = true }
 

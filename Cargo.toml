@@ -87,7 +87,7 @@ serde_yaml = { package = "serde_yml", version = "0.0.12" }  # TODO: serde_yaml i
 thiserror = { version = "2.0.17" }
 # Thread
 thread-ast-engine = { path = "crates/ast-engine", default-features = false }
-thread-flow = { path = "crates/flow", default-features = false }
+# thread-flow = { path = "crates/flow", default-features = false }
 thread-language = { path = "crates/language", default-features = false }
 thread-rule-engine = { path = "crates/rule-engine", default-features = false }
 thread-services = { path = "crates/services", default-features = false }
