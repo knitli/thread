@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 use async_trait::async_trait;
-use std::sync::Arc;
 use thread_services::error::ServiceResult;
 use thread_services::traits::{AnalyzerCapabilities, CodeAnalyzer};
 use thread_services::types::{AnalysisContext, CrossFileRelationship, ParsedDocument};

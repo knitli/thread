@@ -50,12 +50,12 @@ fn bench_meta_var_env_conversion(c: &mut Criterion) {
     c.bench_function("meta_var_env_conversion", |b| {
         b.iter(|| {
             let pattern = Pattern::new(black_box(pattern_str), &Tsx);
-            let root = Root::str(black_box(source_code), &Tsx);
+            let root = Root::str(black_box(source_code), Tsx);
             let matches: Vec<_> = root.root().find_all(&pattern).collect();
 
             // Test the optimized string concatenation
             for m in matches {
-                let env_map = RapidMap::from(m.get_env().clone());
+                let env_map: RapidMap<String, String> = RapidMap::from(m.get_env().clone());
                 black_box(env_map);
             }
         })

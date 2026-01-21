@@ -8,8 +8,6 @@ use cocoindex::ops::interface::{
     SimpleFunctionBuildOutput, SimpleFunctionExecutor, SimpleFunctionFactory,
 };
 use std::sync::Arc;
-use thread_ast_engine::{Language, parse};
-use thread_services::error::ServiceResult;
 
 /// Factory for creating the ThreadParseExecutor
 pub struct ThreadParseFactory;
