@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
 // SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
 // SPDX-License-Identifier: AGPL-3.0-or-later
-
+#![feature(trait_alias)]
 //! # Thread Service Layer
 //!
 //! This crate provides the service layer interfaces for Thread that abstract over
@@ -79,19 +79,8 @@ pub mod types;
 
 // Re-export key types for convenience
 pub use types::{
-    AnalysisContext,
-    AnalysisDepth,
-    AstNode,
-    AstNodeMatch,
-    // Re-export ast-grep types for compatibility
-    AstPosition,
-    AstRoot,
-    CodeMatch,
-    CrossFileRelationship,
-    ExecutionScope,
-    ParsedDocument,
-    SupportLang,
-    SupportLangErr,
+    AnalysisContext, AnalysisDepth, CodeMatch, CrossFileRelationship, ExecutionScope,
+    ParsedDocument, SupportLang, SupportLangErr,
 };
 
 pub use error::{
@@ -100,6 +89,15 @@ pub use error::{
 };
 
 pub use traits::{AnalyzerCapabilities, CodeAnalyzer, CodeParser, ParserCapabilities};
+
+#[cfg(feature = "ast-grep-backend")]
+pub use types::{
+    AstNode,
+    AstNodeMatch,
+    // Re-export ast-grep types for compatibility
+    AstPosition,
+    AstRoot,
+};
 
 // Storage traits (commercial boundary)
 #[cfg(feature = "storage-traits")]

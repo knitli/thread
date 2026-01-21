@@ -7,6 +7,7 @@
 //! Defines the analyzer service interface that abstracts over ast-grep analysis
 //! functionality while preserving all matching and replacement capabilities.
 
+use crate::types::Doc;
 use async_trait::async_trait;
 use std::collections::HashMap;
 

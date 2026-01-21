@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
 // SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
 // SPDX-License-Identifier: AGPL-3.0-or-later
-#![feature(trait_alias)]
+#![allow(dead_code)]
 //! # Service Layer Types - Abstraction Glue for Thread
 //!
 //! This module provides language-agnostic types that abstract over ast-grep functionality
@@ -24,8 +24,7 @@
 
 use std::any::Any;
 use std::collections::HashMap;
-use std::path::{Path, PathBuf};
-use std::sync::Arc;
+use std::path::PathBuf;
 
 // Conditionally import thread dependencies when available
 #[cfg(feature = "ast-grep-backend")]
