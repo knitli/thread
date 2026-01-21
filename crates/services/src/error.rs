@@ -400,7 +400,7 @@ pub trait ErrorContextExt {
     fn with_operation(self, operation: &str) -> Self::Output;
 }
 
-impl<T> ErrorContextExt for ServiceResult<T> {
+impl<T> ErrorContextExt for Result<T, ServiceError> {
     type Output = ContextualResult<T>;
 
     fn with_context(self, context: ErrorContext) -> Self::Output {
@@ -483,6 +483,7 @@ pub trait RecoverableError {
 impl RecoverableError for ServiceError {
     fn recovery_info(&self) -> Option<ErrorRecovery> {
         match self {
+            #[cfg(feature = "ast-grep-backend")]
             ServiceError::Parse(ParseError::TreeSitter(_)) => Some(ErrorRecovery {
                 strategy: RecoveryStrategy::Retry { max_attempts: 3 },
                 instructions: "Tree-sitter parsing failed. Retry with error recovery enabled."
@@ -490,6 +491,7 @@ impl RecoverableError for ServiceError {
                 auto_recoverable: true,
             }),
 
+            #[cfg(all(feature = "matching", feature = "ast-grep-backend"))]
             ServiceError::Analysis(AnalysisError::PatternCompilation { .. }) => {
                 Some(ErrorRecovery {
                     strategy: RecoveryStrategy::Skip,
@@ -505,7 +507,7 @@ impl RecoverableError for ServiceError {
                 auto_recoverable: true,
             }),
 
-            ServiceError::Timeout(_) => Some(ErrorRecovery {
+            ServiceError::Timeout { .. } => Some(ErrorRecovery {
                 strategy: RecoveryStrategy::Retry { max_attempts: 2 },
                 instructions: "Operation timed out. Retry with increased timeout.".to_string(),
                 auto_recoverable: true,
@@ -578,7 +580,7 @@ mod tests {
 
     #[test]
     fn test_contextual_error_display() {
-        let error = ServiceError::Config("test error".to_string());
+        let error = ServiceError::config_dynamic("test error".to_string());
         let contextual = ContextualError {
             error,
             context: ErrorContext::new()
@@ -594,7 +596,7 @@ mod tests {
 
     #[test]
     fn test_recovery_info() {
-        let error = ServiceError::Timeout("test timeout".to_string());
+        let error = ServiceError::timeout("test timeout", std::time::Duration::from_secs(1));
         let recovery = error.recovery_info().unwrap();
 
         assert!(matches!(

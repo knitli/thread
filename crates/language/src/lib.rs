@@ -524,6 +524,7 @@ macro_rules! impl_aliases {
     $(#[cfg(feature = $feature)]
       impl_alias!($lang => $as);
     )*
+    #[allow(dead_code)]
     const fn alias(lang: SupportLang) -> &'static [&'static str] {
       match lang {
         $(

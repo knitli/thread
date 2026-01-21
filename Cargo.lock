@@ -1337,7 +1337,7 @@ dependencies = [
 [[package]]
 name = "cocoindex"
 version = "999.0.0"
-source = "git+https://github.com/cocoindex-io/cocoindex.git?rev=179899d237a1706abf5fb2a7e004d609b12df0ba#179899d237a1706abf5fb2a7e004d609b12df0ba"
+source = "git+https://github.com/cocoindex-io/cocoindex?rev=179899d237a1706abf5fb2a7e004d609b12df0ba#179899d237a1706abf5fb2a7e004d609b12df0ba"
 dependencies = [
  "anyhow",
  "async-openai",
@@ -1419,7 +1419,7 @@ dependencies = [
 [[package]]
 name = "cocoindex_extra_text"
 version = "999.0.0"
-source = "git+https://github.com/cocoindex-io/cocoindex.git?rev=179899d237a1706abf5fb2a7e004d609b12df0ba#179899d237a1706abf5fb2a7e004d609b12df0ba"
+source = "git+https://github.com/cocoindex-io/cocoindex?rev=179899d237a1706abf5fb2a7e004d609b12df0ba#179899d237a1706abf5fb2a7e004d609b12df0ba"
 dependencies = [
  "regex",
  "tree-sitter",
@@ -1456,7 +1456,7 @@ dependencies = [
 [[package]]
 name = "cocoindex_py_utils"
 version = "999.0.0"
-source = "git+https://github.com/cocoindex-io/cocoindex.git?rev=179899d237a1706abf5fb2a7e004d609b12df0ba#179899d237a1706abf5fb2a7e004d609b12df0ba"
+source = "git+https://github.com/cocoindex-io/cocoindex?rev=179899d237a1706abf5fb2a7e004d609b12df0ba#179899d237a1706abf5fb2a7e004d609b12df0ba"
 dependencies = [
  "anyhow",
  "cocoindex_utils",
@@ -1471,7 +1471,7 @@ dependencies = [
 [[package]]
 name = "cocoindex_utils"
 version = "999.0.0"
-source = "git+https://github.com/cocoindex-io/cocoindex.git?rev=179899d237a1706abf5fb2a7e004d609b12df0ba#179899d237a1706abf5fb2a7e004d609b12df0ba"
+source = "git+https://github.com/cocoindex-io/cocoindex?rev=179899d237a1706abf5fb2a7e004d609b12df0ba#179899d237a1706abf5fb2a7e004d609b12df0ba"
 dependencies = [
  "anyhow",
  "async-openai",
@@ -5936,6 +5936,7 @@ dependencies = [
  "async-trait",
  "cfg-if",
  "futures",
+ "ignore",
  "pin-project",
  "serde",
  "thiserror 2.0.18",

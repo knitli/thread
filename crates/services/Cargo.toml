@@ -16,6 +16,7 @@ categories = ["ast", "interface", "pattern", "services"]
 include.workspace = true
 
 [dependencies]
+ignore = { workspace = true }
 # Service layer dependencies
 async-trait = "0.1.88"
 cfg-if = { workspace = true }

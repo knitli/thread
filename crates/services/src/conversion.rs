@@ -8,21 +8,15 @@
 //! These functions bridge the ast-grep functionality with the service layer
 //! abstractions while preserving all ast-grep power.
 
-use std::collections::HashMap;
+use crate::types::{CodeMatch, ParsedDocument, Range, SymbolInfo, SymbolKind, Visibility};
 use std::path::PathBuf;
-
-use crate::error::{AnalysisError, ServiceResult};
-use crate::types::{
-    CallInfo, CodeMatch, DocumentMetadata, ExportInfo, ExportKind, ImportInfo, ImportKind,
-    ParsedDocument, Range, SymbolInfo, SymbolKind, TypeInfo, TypeKind, Visibility,
-};
 
 cfg_if::cfg_if!(
     if #[cfg(feature = "ast-grep-backend")] {
         use thread_ast_engine::{Doc, Root, MatcherExt, Node, NodeMatch, Position};
         use thread_language::SupportLang;
     } else  {
-        use crate::types::{Doc, Root, MatcherExt, Node, NodeMatch, Position};
+        use crate::types::{Doc, Root, NodeMatch, Position, SupportLang};
     }
 );
 
@@ -297,7 +291,6 @@ pub fn modifier_to_visibility(modifier: &str) -> Visibility {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::path::PathBuf;
 
     #[test]
     fn test_compute_content_hash() {

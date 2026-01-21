@@ -4,11 +4,3 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 mod utils;
-
-#[cfg_attr(feature = "serialization", derive(serde::Serialize))]
-struct WasmAnalysisResult {
-    node_count: usize,
-    edge_count: usize,
-    language: String,
-    line_count: usize,
-}

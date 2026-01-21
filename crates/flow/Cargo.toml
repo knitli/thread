@@ -8,9 +8,9 @@ repository.workspace = true
 license.workspace = true
 
 [dependencies]
-async-trait = "0.1.88"
+async-trait = { workspace = true }
 # CocoIndex dependency
-cocoindex = { git = "https://github.com/cocoindex-io/cocoindex.git", rev = "179899d237a1706abf5fb2a7e004d609b12df0ba" }
+cocoindex = { git = "https://github.com/cocoindex-io/cocoindex", rev = "179899d237a1706abf5fb2a7e004d609b12df0ba" }
 serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }

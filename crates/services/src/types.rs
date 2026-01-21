@@ -48,24 +48,74 @@ pub use thread_ast_engine::{
 #[cfg(feature = "ast-grep-backend")]
 pub use thread_language::{SupportLang, SupportLangErr};
 
-// Stub types for when ast-grep-backend is not available
 #[cfg(not(feature = "ast-grep-backend"))]
 pub trait Doc = Clone + 'static;
 
 #[cfg(not(feature = "ast-grep-backend"))]
-pub type Root<D: Doc> = ();
+#[derive(Debug, Clone)]
+pub struct Root<D>(pub std::marker::PhantomData<D>);
 
 #[cfg(not(feature = "ast-grep-backend"))]
-pub type Node<D: Doc> = ();
+impl<D: Doc> Root<D> {
+    pub fn root<'a>(&'a self) -> Node<'a, D> {
+        Node(std::marker::PhantomData)
+    }
+
+    pub fn generate(&self) -> String {
+        String::new()
+    }
+}
 
 #[cfg(not(feature = "ast-grep-backend"))]
-pub type NodeMatch<'a, D> = ();
+#[derive(Debug, Clone)]
+pub struct Node<'a, D>(pub std::marker::PhantomData<&'a D>);
 
 #[cfg(not(feature = "ast-grep-backend"))]
-pub type Position = ();
+#[derive(Debug, Clone)]
+pub struct NodeMatch<'a, D>(pub std::marker::PhantomData<&'a D>);
 
 #[cfg(not(feature = "ast-grep-backend"))]
-pub type PinnedNodeData<D> = ();
+impl<'a, D> std::ops::Deref for NodeMatch<'a, D> {
+    type Target = Node<'a, D>;
+    fn deref(&self) -> &Self::Target {
+        unsafe { &*(self as *const Self as *const Node<'a, D>) }
+    }
+}
+
+#[cfg(not(feature = "ast-grep-backend"))]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct Position {
+    pub row: usize,
+    pub column: usize,
+    pub index: usize,
+}
+
+#[cfg(not(feature = "ast-grep-backend"))]
+impl Position {
+    pub fn new(row: usize, column: usize, index: usize) -> Self {
+        Self { row, column, index }
+    }
+}
+
+#[cfg(not(feature = "ast-grep-backend"))]
+#[derive(Debug, Clone)]
+pub struct PinnedNodeData<D>(pub std::marker::PhantomData<D>);
+
+#[cfg(not(feature = "ast-grep-backend"))]
+impl<D: Doc> PinnedNodeData<D> {
+    pub fn new<F, T>(_root: &Root<D>, _f: F) -> Self
+    where
+        F: FnOnce(&Root<D>) -> T,
+    {
+        Self(std::marker::PhantomData)
+    }
+}
+
+#[cfg(not(feature = "ast-grep-backend"))]
+pub trait MatcherExt {}
+
+#[cfg(not(feature = "ast-grep-backend"))]
+impl<T> MatcherExt for T {}
 
 // SupportLang enum stub when not using ast-grep-backend
 #[cfg(not(feature = "ast-grep-backend"))]
@@ -97,8 +147,26 @@ pub enum SupportLang {
 }
 
 #[cfg(not(feature = "ast-grep-backend"))]
+impl SupportLang {
+    pub fn from_path(_path: &std::path::Path) -> Result<Self, SupportLangErr> {
+        // Simple stub implementation
+        Ok(Self::Rust)
+    }
+}
+
+#[cfg(not(feature = "ast-grep-backend"))]
 #[derive(Debug, Clone)]
 pub struct SupportLangErr(pub String);
+
+#[cfg(not(feature = "ast-grep-backend"))]
+impl std::fmt::Display for SupportLangErr {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+#[cfg(not(feature = "ast-grep-backend"))]
+impl std::error::Error for SupportLangErr {}
 
 /// A parsed document that wraps ast-grep Root with additional codebase-level metadata.
 ///
@@ -160,11 +228,12 @@ impl<D: Doc> ParsedDocument<D> {
     }
 
     /// Create a pinned version for cross-thread/FFI usage
-    pub fn pin_for_threading<F, T>(&self, f: F) -> PinnedNodeData<T>
-    where
-        F: FnOnce(&Root<D>) -> T,
-    {
-        PinnedNodeData::new(&self.ast_root, f)
+    pub fn pin_for_threading(&self) -> PinnedNodeData<D> {
+        #[cfg(feature = "ast-grep-backend")]
+        return unsafe { PinnedNodeData::new(&self.ast_root, |r| r.root().node()) };
+
+        #[cfg(not(feature = "ast-grep-backend"))]
+        return PinnedNodeData::new(&self.ast_root, |_| ());
     }
 
     /// Generate the source code (preserves ast-grep replacement functionality)
@@ -215,7 +284,7 @@ impl<'tree, D: Doc> CodeMatch<'tree, D> {
     }
 
     /// Get the matched node (delegate to NodeMatch)
-    pub fn node(&self) -> &Node<D> {
+    pub fn node(&self) -> &Node<'_, D> {
         &self.node_match
     }
 

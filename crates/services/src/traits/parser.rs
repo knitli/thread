@@ -12,9 +12,16 @@ use std::collections::HashMap;
 use std::path::Path;
 
 use crate::error::{ParseError, ServiceResult};
-use crate::types::{AnalysisContext, ExecutionScope, ParsedDocument};
-use thread_ast_engine::source::Doc;
-use thread_language::SupportLang;
+use crate::types::{AnalysisContext, ParsedDocument};
+
+cfg_if::cfg_if!(
+    if #[cfg(feature = "ast-grep-backend")] {
+        use thread_ast_engine::source::Doc;
+        use thread_language::SupportLang;
+    } else {
+        use crate::types::{Doc, SupportLang};
+    }
+);
 
 /// Core parser service trait that abstracts ast-grep parsing functionality.
 ///
@@ -99,7 +106,7 @@ use thread_language::SupportLang;
 /// # }
 /// ```
 #[async_trait]
-pub trait CodeParser: Send + Sync {
+pub trait CodeParser<D: Doc + Send + Sync>: Send + Sync {
     /// Parse source content into a ParsedDocument.
     ///
     /// This method wraps ast-grep parsing with additional metadata collection
@@ -117,7 +124,7 @@ pub trait CodeParser: Send + Sync {
         content: &str,
         language: SupportLang,
         context: &AnalysisContext,
-    ) -> ServiceResult<ParsedDocument<impl Doc>>;
+    ) -> ServiceResult<ParsedDocument<D>>;
 
     /// Parse a single file into a ParsedDocument.
     ///
@@ -134,7 +141,7 @@ pub trait CodeParser: Send + Sync {
         &self,
         file_path: &Path,
         context: &AnalysisContext,
-    ) -> ServiceResult<ParsedDocument<impl Doc>>;
+    ) -> ServiceResult<ParsedDocument<D>>;
 
     /// Parse multiple files with efficient parallel execution.
     ///
@@ -153,7 +160,7 @@ pub trait CodeParser: Send + Sync {
         &self,
         file_paths: &[&Path],
         context: &AnalysisContext,
-    ) -> ServiceResult<Vec<ParsedDocument<impl Doc>>>;
+    ) -> ServiceResult<Vec<ParsedDocument<D>>>;
 
     /// Get parser capabilities and configuration.
     ///
@@ -172,7 +179,7 @@ pub trait CodeParser: Send + Sync {
     /// Default implementation uses file extension matching.
     /// Implementations can override for more sophisticated detection.
     fn detect_language(&self, file_path: &Path) -> ServiceResult<SupportLang> {
-        SupportLang::from_path(file_path).map_err(|e| {
+        SupportLang::from_path(file_path).map_err(|_e| {
             ParseError::LanguageDetectionFailed {
                 file_path: file_path.to_path_buf(),
             }
@@ -184,10 +191,10 @@ pub trait CodeParser: Send + Sync {
     ///
     /// Default implementation checks for basic validity.
     /// Implementations can override for language-specific validation.
-    fn validate_content(&self, content: &str, language: SupportLang) -> ServiceResult<()> {
+    fn validate_content(&self, content: &str, _language: SupportLang) -> ServiceResult<()> {
         if content.is_empty() {
             return Err(ParseError::InvalidSource {
-                message: "Content is empty".to_string(),
+                message: "Content is empty".into(),
             }
             .into());
         }
@@ -211,7 +218,7 @@ pub trait CodeParser: Send + Sync {
     ///
     /// Default implementation returns content unchanged.
     /// Implementations can override for content normalization.
-    fn preprocess_content(&self, content: &str, language: SupportLang) -> String {
+    fn preprocess_content(&self, content: &str, _language: SupportLang) -> String {
         content.to_string()
     }
 
@@ -219,7 +226,7 @@ pub trait CodeParser: Send + Sync {
     ///
     /// Default implementation returns document unchanged.
     /// Implementations can override to add custom metadata collection.
-    async fn postprocess_document<D: Doc>(
+    async fn postprocess_document(
         &self,
         mut document: ParsedDocument<D>,
         context: &AnalysisContext,
@@ -233,9 +240,9 @@ pub trait CodeParser: Send + Sync {
     ///
     /// Default implementation extracts symbols, imports, exports, and function calls.
     /// This bridges ast-grep file-level analysis to codebase-level intelligence.
-    async fn collect_basic_metadata<D: Doc>(
+    async fn collect_basic_metadata(
         &self,
-        document: &mut ParsedDocument<D>,
+        _document: &mut ParsedDocument<D>,
         _context: &AnalysisContext,
     ) -> ServiceResult<()> {
         // This will be implemented in the conversion utilities
@@ -345,12 +352,12 @@ impl Default for ParserConfig {
 }
 
 /// Parser factory trait for creating configured parser instances
-pub trait ParserFactory: Send + Sync {
+pub trait ParserFactory<D: Doc + Send + Sync>: Send + Sync {
     /// Create a new parser instance with default configuration
-    fn create_parser(&self) -> Box<dyn CodeParser>;
+    fn create_parser(&self) -> Box<dyn CodeParser<D>>;
 
     /// Create a new parser instance with specific configuration
-    fn create_configured_parser(&self, config: ParserConfig) -> Box<dyn CodeParser>;
+    fn create_configured_parser(&self, config: ParserConfig) -> Box<dyn CodeParser<D>>;
 
     /// Get available parser types
     fn available_parsers(&self) -> Vec<String>;
@@ -359,7 +366,6 @@ pub trait ParserFactory: Send + Sync {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::path::PathBuf;
 
     #[test]
     fn test_parser_capabilities_default() {
