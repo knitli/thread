@@ -51,18 +51,6 @@ impl IsRetryable for async_openai::error::OpenAIError {
     }
 }
 
-// Neo4j errors - retryable on connection errors and transient errors
-#[cfg(feature = "neo4rs")]
-impl IsRetryable for neo4rs::Error {
-    fn is_retryable(&self) -> bool {
-        match self {
-            neo4rs::Error::ConnectionError => true,
-            neo4rs::Error::Neo4j(e) => e.kind() == neo4rs::Neo4jErrorKind::Transient,
-            _ => false,
-        }
-    }
-}
-
 impl Error {
     pub fn retryable<E: Into<crate::error::Error>>(error: E) -> Self {
         Self {

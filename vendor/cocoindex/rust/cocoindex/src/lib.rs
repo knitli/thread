@@ -5,7 +5,6 @@ mod lib_context;
 mod llm;
 pub mod ops;
 mod prelude;
-mod py;
 mod server;
 mod service;
 mod settings;

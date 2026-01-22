@@ -40,34 +40,14 @@ cocoindex/
 │   │       ├── execution/      # Runtime execution: evaluator, indexer, live_updater
 │   │       ├── llm/            # LLM integration
 │   │       ├── ops/            # Operations: sources, targets, functions
-│   │       ├── py/             # Python bindings (PyO3)
 │   │       ├── service/        # Service layer
 │   │       └── setup/          # Setup and configuration
-│   ├── py_utils/               # Python-Rust utility helpers
 │   └── utils/                  # General utilities: error handling, batching, etc.
 │
-├── python/
-│   └── cocoindex/              # Python package
-│       ├── __init__.py         # Package entry point
-│       ├── _engine.abi3.so     # Compiled Rust extension (generated)
-│       ├── cli.py              # CLI commands (cocoindex CLI)
-│       ├── flow.py             # Flow definition API
-│       ├── op.py               # Operation definitions
-│       ├── engine_*.py         # Engine types, values, objects
-│       ├── functions/          # Built-in functions
-│       ├── sources/            # Data source connectors
-│       ├── targets/            # Output target connectors
-│       └── tests/              # Python tests
-│
-├── examples/                   # Example applications
-├── docs/                       # Documentation
-└── dev/                        # Development utilities
-```
 
 ## Key Concepts
 
 - **CocoIndex** is an data processing framework that maintains derived data from source data incrementally
-- The core engine is written in Rust for performance, with Python bindings via PyO3
 - **Flows** define data transformation pipelines from sources to targets
 - **Operations** (ops) include sources, functions, and targets
 - The system supports incremental updates - only reprocessing changed data
