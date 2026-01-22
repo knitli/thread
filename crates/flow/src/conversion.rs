@@ -4,9 +4,7 @@
 use cocoindex::base::schema::{EnrichedValueType, FieldSchema, StructType, ValueType};
 use cocoindex::base::value::Value;
 use std::collections::HashMap;
-use thread_services::types::{
-    CallInfo, DocumentMetadata, ImportInfo, ParsedDocument, SymbolInfo, SymbolKind,
-};
+use thread_services::types::{CallInfo, ImportInfo, ParsedDocument, SymbolInfo};
 
 /// Convert a ParsedDocument to a CocoIndex Value
 pub fn serialize_parsed_doc<D: thread_services::types::Doc>(
@@ -29,7 +27,7 @@ pub fn serialize_parsed_doc<D: thread_services::types::Doc>(
         .values()
         .map(serialize_symbol)
         .collect::<Result<Vec<_>, _>>()?;
-    fields.insert("symbols".to_string(), Value::Array(symbols));
+    fields.insert("symbols".to_string(), Value::LTable(symbols));
 
     // Serialize imports
     let imports = doc
@@ -38,7 +36,7 @@ pub fn serialize_parsed_doc<D: thread_services::types::Doc>(
         .values()
         .map(serialize_import)
         .collect::<Result<Vec<_>, _>>()?;
-    fields.insert("imports".to_string(), Value::Array(imports));
+    fields.insert("imports".to_string(), Value::LTable(imports));
 
     // Serialize calls
     let calls = doc
@@ -47,19 +45,25 @@ pub fn serialize_parsed_doc<D: thread_services::types::Doc>(
         .iter()
         .map(serialize_call)
         .collect::<Result<Vec<_>, _>>()?;
-    fields.insert("calls".to_string(), Value::Array(calls));
+    fields.insert("calls".to_string(), Value::LTable(calls));
 
-    Ok(Value::Struct(fields))
+    Ok(Value::Struct(FieldValues {
+        fields: Arc::new(vec![
+            fields.remove("symbols").unwrap_or(Value::Null),
+            fields.remove("imports").unwrap_or(Value::Null),
+            fields.remove("calls").unwrap_or(Value::Null),
+        ]),
+    }))
 }
 
 fn serialize_symbol(info: &SymbolInfo) -> Result<Value, cocoindex::error::Error> {
     let mut fields = HashMap::new();
-    fields.insert("name".to_string(), Value::String(info.name.clone()));
+    fields.insert("name".to_string(), Value::Basic(BasicValue::Str(info.name.clone().into())));
     fields.insert(
         "kind".to_string(),
-        Value::String(format!("{:?}", info.kind)),
+        Value::Basic(BasicValue::Str(format!("{:?}", info.kind).into())),
     ); // SymbolKind doesn't impl Display/Serialize yet
-    fields.insert("scope".to_string(), Value::String(info.scope.clone()));
+    fields.insert("scope".to_string(), Value::Basic(BasicValue::Str(info.scope.clone().into())));
     // Position can be added if needed
     Ok(Value::Struct(fields))
 }
@@ -68,15 +72,15 @@ fn serialize_import(info: &ImportInfo) -> Result<Value, cocoindex::error::Error>
     let mut fields = HashMap::new();
     fields.insert(
         "symbol_name".to_string(),
-        Value::String(info.symbol_name.clone()),
+        Value::Basic(BasicValue::Str(info.symbol_name.clone().into())),
     );
     fields.insert(
         "source_path".to_string(),
-        Value::String(info.source_path.clone()),
+        Value::Basic(BasicValue::Str(info.source_path.clone().into())),
     );
     fields.insert(
         "kind".to_string(),
-        Value::String(format!("{:?}", info.import_kind)),
+        Value::Basic(BasicValue::Str(format!("{:?}", info.import_kind).into())),
     );
     Ok(Value::Struct(fields))
 }
@@ -85,30 +89,67 @@ fn serialize_call(info: &CallInfo) -> Result<Value, cocoindex::error::Error> {
     let mut fields = HashMap::new();
     fields.insert(
         "function_name".to_string(),
-        Value::String(info.function_name.clone()),
+        Value::Basic(BasicValue::Str(info.function_name.clone().into())),
     );
     fields.insert(
         "arguments_count".to_string(),
-        Value::Int(info.arguments_count as i64),
+        Value::Basic(BasicValue::Int64(info.arguments_count as i64)),
     );
     Ok(Value::Struct(fields))
 }
 
 /// Build the schema for the output of ThreadParse
-pub fn build_output_schema() -> EnrichedValueType {
-    EnrichedValueType::Struct(StructType {
-        fields: vec![
-            FieldSchema::new(
-                "symbols".to_string(),
-                ValueType::Array(Box::new(symbol_type())),
-            ),
-            FieldSchema::new(
-                "imports".to_string(),
-                ValueType::Array(Box::new(import_type())),
-            ),
-            FieldSchema::new("calls".to_string(), ValueType::Array(Box::new(call_type()))),
-        ],
-    })
+    EnrichedValueType {
+        typ: ValueType::Struct(StructType {
+            fields: Arc::new(vec![
+                FieldSchema::new(
+                    "symbols".to_string(),
+                    EnrichedValueType {
+                        typ: ValueType::Table(TableSchema {
+                            kind: TableKind::LTable,
+                            row: match symbol_type() {
+                                ValueType::Struct(s) => s,
+                                _ => unreachable!(),
+                            },
+                        }),
+                        nullable: false,
+                        attrs: Default::default(),
+                    },
+                ),
+                FieldSchema::new(
+                    "imports".to_string(),
+                    EnrichedValueType {
+                        typ: ValueType::Table(TableSchema {
+                            kind: TableKind::LTable,
+                            row: match import_type() {
+                                ValueType::Struct(s) => s,
+                                _ => unreachable!(),
+                            },
+                        }),
+                        nullable: false,
+                        attrs: Default::default(),
+                    },
+                ),
+                FieldSchema::new(
+                    "calls".to_string(),
+                    EnrichedValueType {
+                        typ: ValueType::Table(TableSchema {
+                            kind: TableKind::LTable,
+                            row: match call_type() {
+                                ValueType::Struct(s) => s,
+                                _ => unreachable!(),
+                            },
+                        }),
+                        nullable: false,
+                        attrs: Default::default(),
+                    },
+                ),
+            ]),
+            description: None,
+        }),
+        nullable: false,
+        attrs: Default::default(),
+    }
 }
 
 fn symbol_type() -> ValueType {

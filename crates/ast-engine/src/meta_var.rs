@@ -44,7 +44,7 @@ pub type Underlying<D> = Vec<<<D as Doc>::Source as Content>::Underlying>;
 
 /// a dictionary that stores metavariable instantiation
 /// const a = 123 matched with const a = $A will produce env: $A => 123
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct MetaVarEnv<'tree, D: Doc> {
     single_matched: RapidMap<MetaVariableID, Node<'tree, D>>,
     multi_matched: RapidMap<MetaVariableID, Vec<Node<'tree, D>>>,

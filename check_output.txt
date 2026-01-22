@@ -1,0 +1,410 @@
+[1m[33mwarning[0m[1m: unused variable: `root`[0m
+    [1m[94m--> [0mcrates/language/src/lib.rs:1501:9
+     [1m[94m|[0m
+[1m[94m1501[0m [1m[94m|[0m [1m[94m...[0m   root: Node<[1m[94m...[0m
+     [1m[94m|[0m       [1m[33m^^^^[0m [1m[33mhelp: if this is intentional, prefix it with an underscore: `_root`[0m
+     [1m[94m|[0m
+     [1m[94m= [0m[1mnote[0m: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+[1m[33mwarning[0m: `thread-language` (lib) generated 1 warning (run `cargo fix --lib -p thread-language` to apply 1 suggestion)
+[1m[33mwarning[0m[1m: unused import: `MatcherExt`[0m
+  [1m[94m--> [0mcrates/services/src/conversion.rs:21:44
+   [1m[94m|[0m
+[1m[94m21[0m [1m[94m|[0m [1m[94m...[0mt, MatcherExt, N[1m[94m...[0m
+   [1m[94m|[0m       [1m[33m^^^^^^^^^^[0m
+   [1m[94m|[0m
+   [1m[94m= [0m[1mnote[0m: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+[1m[33mwarning[0m[1m: unused imports: `NodeMatch` and `Node`[0m
+  [1m[94m--> [0mcrates/services/src/traits/analyzer.rs:18:25
+   [1m[94m|[0m
+[1m[94m18[0m [1m[94m|[0m [1m[94m...[0m::{Node, NodeMatch};
+   [1m[94m|[0m       [1m[33m^^^^[0m  [1m[33m^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: unused imports: `Matcher` and `Pattern`[0m
+  [1m[94m--> [0mcrates/services/src/traits/analyzer.rs:21:25
+   [1m[94m|[0m
+[1m[94m21[0m [1m[94m|[0m [1m[94m...[0m::{Matcher, Pattern};
+   [1m[94m|[0m       [1m[33m^^^^^^^[0m  [1m[33m^^^^^^^[0m
+
+[1m[33mwarning[0m: `thread-services` (lib) generated 3 warnings (run `cargo fix --lib -p thread-services` to apply 3 suggestions)
+[1m[92m    Checking[0m thread-flow v0.1.0 (/home/knitli/thread/crates/flow)
+[1m[91merror[E0433][0m[1m: failed to resolve: use of unresolved module or unlinked crate `cocoindex`[0m
+ [1m[94m--> [0mcrates/flow/src/conversion.rs:4:5
+  [1m[94m|[0m
+[1m[94m4[0m [1m[94m|[0m use cocoindex::base:[1m[94m...[0m
+  [1m[94m|[0m     [1m[91m^^^^^^^^^[0m [1m[91muse of unresolved module or unlinked crate `cocoindex`[0m
+  [1m[94m|[0m
+  [1m[94m= [0m[1mhelp[0m: if you wanted to use a crate named `cocoindex`, use `cargo add cocoindex` to add it to your `Cargo.toml`
+
+[1m[91merror[E0433][0m[1m: failed to resolve: use of unresolved module or unlinked crate `cocoindex`[0m
+ [1m[94m--> [0mcrates/flow/src/conversion.rs:5:5
+  [1m[94m|[0m
+[1m[94m5[0m [1m[94m|[0m use cocoindex::base:[1m[94m...[0m
+  [1m[94m|[0m     [1m[91m^^^^^^^^^[0m [1m[91muse of unresolved module or unlinked crate `cocoindex`[0m
+  [1m[94m|[0m
+  [1m[94m= [0m[1mhelp[0m: if you wanted to use a crate named `cocoindex`, use `cargo add cocoindex` to add it to your `Cargo.toml`
+
+[1m[91merror[E0433][0m[1m: failed to resolve: use of unresolved module or unlinked crate `cocoindex`[0m
+ [1m[94m--> [0mcrates/flow/src/flows/builder.rs:4:5
+  [1m[94m|[0m
+[1m[94m4[0m [1m[94m|[0m use cocoindex::base:[1m[94m...[0m
+  [1m[94m|[0m     [1m[91m^^^^^^^^^[0m [1m[91muse of unresolved module or unlinked crate `cocoindex`[0m
+  [1m[94m|[0m
+  [1m[94m= [0m[1mhelp[0m: if you wanted to use a crate named `cocoindex`, use `cargo add cocoindex` to add it to your `Cargo.toml`
+
+[1m[91merror[E0433][0m[1m: failed to resolve: use of unresolved module or unlinked crate `cocoindex`[0m
+ [1m[94m--> [0mcrates/flow/src/flows/builder.rs:7:5
+  [1m[94m|[0m
+[1m[94m7[0m [1m[94m|[0m use cocoindex::build[1m[94m...[0m
+  [1m[94m|[0m     [1m[91m^^^^^^^^^[0m [1m[91muse of unresolved module or unlinked crate `cocoindex`[0m
+  [1m[94m|[0m
+  [1m[94m= [0m[1mhelp[0m: if you wanted to use a crate named `cocoindex`, use `cargo add cocoindex` to add it to your `Cargo.toml`
+
+[1m[91merror[E0433][0m[1m: failed to resolve: use of unresolved module or unlinked crate `cocoindex`[0m
+ [1m[94m--> [0mcrates/flow/src/functions/parse.rs:5:5
+  [1m[94m|[0m
+[1m[94m5[0m [1m[94m|[0m use cocoindex::base:[1m[94m...[0m
+  [1m[94m|[0m     [1m[91m^^^^^^^^^[0m [1m[91muse of unresolved module or unlinked crate `cocoindex`[0m
+  [1m[94m|[0m
+  [1m[94m= [0m[1mhelp[0m: if you wanted to use a crate named `cocoindex`, use `cargo add cocoindex` to add it to your `Cargo.toml`
+
+[1m[91merror[E0433][0m[1m: failed to resolve: use of unresolved module or unlinked crate `cocoindex`[0m
+ [1m[94m--> [0mcrates/flow/src/functions/parse.rs:6:5
+  [1m[94m|[0m
+[1m[94m6[0m [1m[94m|[0m use cocoindex::conte[1m[94m...[0m
+  [1m[94m|[0m     [1m[91m^^^^^^^^^[0m [1m[91muse of unresolved module or unlinked crate `cocoindex`[0m
+  [1m[94m|[0m
+  [1m[94m= [0m[1mhelp[0m: if you wanted to use a crate named `cocoindex`, use `cargo add cocoindex` to add it to your `Cargo.toml`
+
+[1m[91merror[E0433][0m[1m: failed to resolve: use of unresolved module or unlinked crate `cocoindex`[0m
+ [1m[94m--> [0mcrates/flow/src/functions/parse.rs:7:5
+  [1m[94m|[0m
+[1m[94m7[0m [1m[94m|[0m use cocoindex::ops::[1m[94m...[0m
+  [1m[94m|[0m     [1m[91m^^^^^^^^^[0m [1m[91muse of unresolved module or unlinked crate `cocoindex`[0m
+  [1m[94m|[0m
+  [1m[94m= [0m[1mhelp[0m: if you wanted to use a crate named `cocoindex`, use `cargo add cocoindex` to add it to your `Cargo.toml`
+
+[1m[91merror[E0433][0m[1m: failed to resolve: use of unresolved module or unlinked crate `cocoindex`[0m
+ [1m[94m--> [0mcrates/flow/src/runtime.rs:5:5
+  [1m[94m|[0m
+[1m[94m5[0m [1m[94m|[0m use cocoindex::ops::[1m[94m...[0m
+  [1m[94m|[0m     [1m[91m^^^^^^^^^[0m [1m[91muse of unresolved module or unlinked crate `cocoindex`[0m
+  [1m[94m|[0m
+  [1m[94m= [0m[1mhelp[0m: if you wanted to use a crate named `cocoindex`, use `cargo add cocoindex` to add it to your `Cargo.toml`
+
+[1m[91merror[E0433][0m[1m: failed to resolve: could not find `AnalysisPerformanceProfile` in `traits`[0m
+  [1m[94m--> [0mcrates/flow/src/bridge.rs:34:59
+   [1m[94m|[0m
+[1m[94m34[0m [1m[94m|[0m [1m[94m...[0ms::AnalysisPerformanceProfile::B[1m[94m...[0m
+   [1m[94m|[0m       [1m[91m^^^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mcould not find `AnalysisPerformanceProfile` in `traits`[0m
+   [1m[94m|[0m
+[1m[96mhelp[0m: consider importing this enum
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use thread_services::traits::analyzer::AnalysisPerformanceProfile;[0m
+   [1m[94m|[0m
+[1m[96mhelp[0m: if you import `AnalysisPerformanceProfile`, refer to it directly
+   [1m[94m|[0m
+[1m[94m34[0m [91m- [0m            performance_profile: [91mthread_services::traits::[0mAnalysisPerformanceProfile::Balanced,
+[1m[94m34[0m [92m+ [0m            performance_profile: AnalysisPerformanceProfile::Balanced,
+   [1m[94m|[0m
+
+[1m[91merror[E0433][0m[1m: failed to resolve: use of unresolved module or unlinked crate `cocoindex`[0m
+  [1m[94m--> [0mcrates/flow/src/conversion.rs:14:20
+   [1m[94m|[0m
+[1m[94m14[0m [1m[94m|[0m [1m[94m...[0me, cocoindex::er[1m[94m...[0m
+   [1m[94m|[0m       [1m[91m^^^^^^^^^[0m [1m[91muse of unresolved module or unlinked crate `cocoindex`[0m
+   [1m[94m|[0m
+   [1m[94m= [0m[1mhelp[0m: if you wanted to use a crate named `cocoindex`, use `cargo add cocoindex` to add it to your `Cargo.toml`
+[1m[96mhelp[0m: consider importing one of these modules
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use std::error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use serde_json::error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use thread_services::error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use tokio::sync::mpsc::error;[0m
+   [1m[94m|[0m
+   [1m[94m= [0mand 2 other candidates
+[1m[96mhelp[0m: if you import `error`, refer to it directly
+   [1m[94m|[0m
+[1m[94m14[0m [91m- [0m) -> Result<Value, [91mcocoindex::[0merror::Error> {
+[1m[94m14[0m [92m+ [0m) -> Result<Value, error::Error> {
+   [1m[94m|[0m
+
+[1m[91merror[E0433][0m[1m: failed to resolve: use of unresolved module or unlinked crate `cocoindex`[0m
+  [1m[94m--> [0mcrates/flow/src/conversion.rs:55:57
+   [1m[94m|[0m
+[1m[94m55[0m [1m[94m|[0m [1m[94m...[0me, cocoindex::er[1m[94m...[0m
+   [1m[94m|[0m       [1m[91m^^^^^^^^^[0m [1m[91muse of unresolved module or unlinked crate `cocoindex`[0m
+   [1m[94m|[0m
+   [1m[94m= [0m[1mhelp[0m: if you wanted to use a crate named `cocoindex`, use `cargo add cocoindex` to add it to your `Cargo.toml`
+[1m[96mhelp[0m: consider importing one of these modules
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use std::error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use serde_json::error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use thread_services::error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use tokio::sync::mpsc::error;[0m
+   [1m[94m|[0m
+   [1m[94m= [0mand 2 other candidates
+[1m[96mhelp[0m: if you import `error`, refer to it directly
+   [1m[94m|[0m
+[1m[94m55[0m [91m- [0mfn serialize_symbol(info: &SymbolInfo) -> Result<Value, [91mcocoindex::[0merror::Error> {
+[1m[94m55[0m [92m+ [0mfn serialize_symbol(info: &SymbolInfo) -> Result<Value, error::Error> {
+   [1m[94m|[0m
+
+[1m[91merror[E0433][0m[1m: failed to resolve: use of unresolved module or unlinked crate `cocoindex`[0m
+  [1m[94m--> [0mcrates/flow/src/conversion.rs:67:57
+   [1m[94m|[0m
+[1m[94m67[0m [1m[94m|[0m [1m[94m...[0me, cocoindex::er[1m[94m...[0m
+   [1m[94m|[0m       [1m[91m^^^^^^^^^[0m [1m[91muse of unresolved module or unlinked crate `cocoindex`[0m
+   [1m[94m|[0m
+   [1m[94m= [0m[1mhelp[0m: if you wanted to use a crate named `cocoindex`, use `cargo add cocoindex` to add it to your `Cargo.toml`
+[1m[96mhelp[0m: consider importing one of these modules
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use std::error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use serde_json::error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use thread_services::error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use tokio::sync::mpsc::error;[0m
+   [1m[94m|[0m
+   [1m[94m= [0mand 2 other candidates
+[1m[96mhelp[0m: if you import `error`, refer to it directly
+   [1m[94m|[0m
+[1m[94m67[0m [91m- [0mfn serialize_import(info: &ImportInfo) -> Result<Value, [91mcocoindex::[0merror::Error> {
+[1m[94m67[0m [92m+ [0mfn serialize_import(info: &ImportInfo) -> Result<Value, error::Error> {
+   [1m[94m|[0m
+
+[1m[91merror[E0433][0m[1m: failed to resolve: use of unresolved module or unlinked crate `cocoindex`[0m
+  [1m[94m--> [0mcrates/flow/src/conversion.rs:84:53
+   [1m[94m|[0m
+[1m[94m84[0m [1m[94m|[0m [1m[94m...[0me, cocoindex::er[1m[94m...[0m
+   [1m[94m|[0m       [1m[91m^^^^^^^^^[0m [1m[91muse of unresolved module or unlinked crate `cocoindex`[0m
+   [1m[94m|[0m
+   [1m[94m= [0m[1mhelp[0m: if you wanted to use a crate named `cocoindex`, use `cargo add cocoindex` to add it to your `Cargo.toml`
+[1m[96mhelp[0m: consider importing one of these modules
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use std::error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use serde_json::error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use thread_services::error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use tokio::sync::mpsc::error;[0m
+   [1m[94m|[0m
+   [1m[94m= [0mand 2 other candidates
+[1m[96mhelp[0m: if you import `error`, refer to it directly
+   [1m[94m|[0m
+[1m[94m84[0m [91m- [0mfn serialize_call(info: &CallInfo) -> Result<Value, [91mcocoindex::[0merror::Error> {
+[1m[94m84[0m [92m+ [0mfn serialize_call(info: &CallInfo) -> Result<Value, error::Error> {
+   [1m[94m|[0m
+
+[1m[91merror[E0433][0m[1m: failed to resolve: use of unresolved module or unlinked crate `cocoindex`[0m
+  [1m[94m--> [0mcrates/flow/src/functions/parse.rs:21:44
+   [1m[94m|[0m
+[1m[94m21[0m [1m[94m|[0m [1m[94m...[0mt, cocoindex::er[1m[94m...[0m
+   [1m[94m|[0m       [1m[91m^^^^^^^^^[0m [1m[91muse of unresolved module or unlinked crate `cocoindex`[0m
+   [1m[94m|[0m
+   [1m[94m= [0m[1mhelp[0m: if you wanted to use a crate named `cocoindex`, use `cargo add cocoindex` to add it to your `Cargo.toml`
+[1m[96mhelp[0m: consider importing one of these modules
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use std::error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use serde_json::error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use thread_services::error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use tokio::sync::mpsc::error;[0m
+   [1m[94m|[0m
+   [1m[94m= [0mand 2 other candidates
+[1m[96mhelp[0m: if you import `error`, refer to it directly
+   [1m[94m|[0m
+[1m[94m21[0m [91m- [0m    ) -> Result<SimpleFunctionBuildOutput, [91mcocoindex::[0merror::Error> {
+[1m[94m21[0m [92m+ [0m    ) -> Result<SimpleFunctionBuildOutput, error::Error> {
+   [1m[94m|[0m
+
+[1m[91merror[E0433][0m[1m: failed to resolve: use of unresolved module or unlinked crate `cocoindex`[0m
+  [1m[94m--> [0mcrates/flow/src/functions/parse.rs:36:66
+   [1m[94m|[0m
+[1m[94m36[0m [1m[94m|[0m [1m[94m...[0me, cocoindex::er[1m[94m...[0m
+   [1m[94m|[0m       [1m[91m^^^^^^^^^[0m [1m[91muse of unresolved module or unlinked crate `cocoindex`[0m
+   [1m[94m|[0m
+   [1m[94m= [0m[1mhelp[0m: if you wanted to use a crate named `cocoindex`, use `cargo add cocoindex` to add it to your `Cargo.toml`
+[1m[96mhelp[0m: consider importing one of these modules
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use std::error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use serde_json::error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use thread_services::error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use tokio::sync::mpsc::error;[0m
+   [1m[94m|[0m
+   [1m[94m= [0mand 2 other candidates
+[1m[96mhelp[0m: if you import `error`, refer to it directly
+   [1m[94m|[0m
+[1m[94m36[0m [91m- [0m    async fn evaluate(&self, input: Vec<Value>) -> Result<Value, [91mcocoindex::[0merror::Error> {
+[1m[94m36[0m [92m+ [0m    async fn evaluate(&self, input: Vec<Value>) -> Result<Value, error::Error> {
+   [1m[94m|[0m
+
+[1m[91merror[E0433][0m[1m: failed to resolve: use of unresolved module or unlinked crate `cocoindex`[0m
+  [1m[94m--> [0mcrates/flow/src/functions/parse.rs:40:28
+   [1m[94m|[0m
+[1m[94m40[0m [1m[94m|[0m [1m[94m...[0m|| cocoindex::er[1m[94m...[0m
+   [1m[94m|[0m       [1m[91m^^^^^^^^^[0m [1m[91muse of unresolved module or unlinked crate `cocoindex`[0m
+   [1m[94m|[0m
+   [1m[94m= [0m[1mhelp[0m: if you wanted to use a crate named `cocoindex`, use `cargo add cocoindex` to add it to your `Cargo.toml`
+[1m[96mhelp[0m: consider importing one of these items
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use std::error::Error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use std::fmt::Error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use std::io::Error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use core::error::Error;[0m
+   [1m[94m|[0m
+   [1m[94m= [0mand 7 other candidates
+[1m[96mhelp[0m: if you import `Error`, refer to it directly
+   [1m[94m|[0m
+[1m[94m40[0m [91m- [0m            .ok_or_else(|| [91mcocoindex::error::[0mError::msg("Missing content"))?
+[1m[94m40[0m [92m+ [0m            .ok_or_else(|| Error::msg("Missing content"))?
+   [1m[94m|[0m
+
+[1m[91merror[E0433][0m[1m: failed to resolve: use of unresolved module or unlinked crate `cocoindex`[0m
+  [1m[94m--> [0mcrates/flow/src/functions/parse.rs:42:26
+   [1m[94m|[0m
+[1m[94m42[0m [1m[94m|[0m [1m[94m...[0me| cocoindex::er[1m[94m...[0m
+   [1m[94m|[0m       [1m[91m^^^^^^^^^[0m [1m[91muse of unresolved module or unlinked crate `cocoindex`[0m
+   [1m[94m|[0m
+   [1m[94m= [0m[1mhelp[0m: if you wanted to use a crate named `cocoindex`, use `cargo add cocoindex` to add it to your `Cargo.toml`
+[1m[96mhelp[0m: consider importing one of these items
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use std::error::Error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use std::fmt::Error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use std::io::Error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use core::error::Error;[0m
+   [1m[94m|[0m
+   [1m[94m= [0mand 7 other candidates
+[1m[96mhelp[0m: if you import `Error`, refer to it directly
+   [1m[94m|[0m
+[1m[94m42[0m [91m- [0m            .map_err(|e| [91mcocoindex::error::[0mError::msg(e.to_string()))?;
+[1m[94m42[0m [92m+ [0m            .map_err(|e| Error::msg(e.to_string()))?;
+   [1m[94m|[0m
+
+[1m[91merror[E0433][0m[1m: failed to resolve: use of unresolved module or unlinked crate `cocoindex`[0m
+  [1m[94m--> [0mcrates/flow/src/functions/parse.rs:46:28
+   [1m[94m|[0m
+[1m[94m46[0m [1m[94m|[0m [1m[94m...[0m|| cocoindex::er[1m[94m...[0m
+   [1m[94m|[0m       [1m[91m^^^^^^^^^[0m [1m[91muse of unresolved module or unlinked crate `cocoindex`[0m
+   [1m[94m|[0m
+   [1m[94m= [0m[1mhelp[0m: if you wanted to use a crate named `cocoindex`, use `cargo add cocoindex` to add it to your `Cargo.toml`
+[1m[96mhelp[0m: consider importing one of these items
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use std::error::Error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use std::fmt::Error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use std::io::Error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use core::error::Error;[0m
+   [1m[94m|[0m
+   [1m[94m= [0mand 7 other candidates
+[1m[96mhelp[0m: if you import `Error`, refer to it directly
+   [1m[94m|[0m
+[1m[94m46[0m [91m- [0m            .ok_or_else(|| [91mcocoindex::error::[0mError::msg("Missing language"))?
+[1m[94m46[0m [92m+ [0m            .ok_or_else(|| Error::msg("Missing language"))?
+   [1m[94m|[0m
+
+[1m[91merror[E0433][0m[1m: failed to resolve: use of unresolved module or unlinked crate `cocoindex`[0m
+  [1m[94m--> [0mcrates/flow/src/functions/parse.rs:48:26
+   [1m[94m|[0m
+[1m[94m48[0m [1m[94m|[0m [1m[94m...[0me| cocoindex::er[1m[94m...[0m
+   [1m[94m|[0m       [1m[91m^^^^^^^^^[0m [1m[91muse of unresolved module or unlinked crate `cocoindex`[0m
+   [1m[94m|[0m
+   [1m[94m= [0m[1mhelp[0m: if you wanted to use a crate named `cocoindex`, use `cargo add cocoindex` to add it to your `Cargo.toml`
+[1m[96mhelp[0m: consider importing one of these items
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use std::error::Error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use std::fmt::Error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use std::io::Error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use core::error::Error;[0m
+   [1m[94m|[0m
+   [1m[94m= [0mand 7 other candidates
+[1m[96mhelp[0m: if you import `Error`, refer to it directly
+   [1m[94m|[0m
+[1m[94m48[0m [91m- [0m            .map_err(|e| [91mcocoindex::error::[0mError::msg(e.to_string()))?;
+[1m[94m48[0m [92m+ [0m            .map_err(|e| Error::msg(e.to_string()))?;
+   [1m[94m|[0m
+
+[1m[91merror[E0433][0m[1m: failed to resolve: use of unresolved module or unlinked crate `cocoindex`[0m
+  [1m[94m--> [0mcrates/flow/src/functions/parse.rs:66:17
+   [1m[94m|[0m
+[1m[94m66[0m [1m[94m|[0m [1m[94m...[0m   cocoindex::er[1m[94m...[0m
+   [1m[94m|[0m       [1m[91m^^^^^^^^^[0m [1m[91muse of unresolved module or unlinked crate `cocoindex`[0m
+   [1m[94m|[0m
+   [1m[94m= [0m[1mhelp[0m: if you wanted to use a crate named `cocoindex`, use `cargo add cocoindex` to add it to your `Cargo.toml`
+[1m[96mhelp[0m: consider importing one of these items
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use std::error::Error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use std::fmt::Error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use std::io::Error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use core::error::Error;[0m
+   [1m[94m|[0m
+   [1m[94m= [0mand 7 other candidates
+[1m[96mhelp[0m: if you import `Error`, refer to it directly
+   [1m[94m|[0m
+[1m[94m66[0m [91m- [0m                [91mcocoindex::error::[0mError::msg(format!("Unsupported language: {}", lang_str))
+[1m[94m66[0m [92m+ [0m                Error::msg(format!("Unsupported language: {}", lang_str))
+   [1m[94m|[0m
+
+[1m[91merror[E0433][0m[1m: failed to resolve: use of unresolved module or unlinked crate `cocoindex`[0m
+  [1m[94m--> [0mcrates/flow/src/functions/parse.rs:85:26
+   [1m[94m|[0m
+[1m[94m85[0m [1m[94m|[0m [1m[94m...[0me| cocoindex::er[1m[94m...[0m
+   [1m[94m|[0m       [1m[91m^^^^^^^^^[0m [1m[91muse of unresolved module or unlinked crate `cocoindex`[0m
+   [1m[94m|[0m
+   [1m[94m= [0m[1mhelp[0m: if you wanted to use a crate named `cocoindex`, use `cargo add cocoindex` to add it to your `Cargo.toml`
+[1m[96mhelp[0m: consider importing one of these items
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use std::error::Error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use std::fmt::Error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use std::io::Error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use core::error::Error;[0m
+   [1m[94m|[0m
+   [1m[94m= [0mand 7 other candidates
+[1m[96mhelp[0m: if you import `Error`, refer to it directly
+   [1m[94m|[0m
+[1m[94m85[0m [91m- [0m            .map_err(|e| [91mcocoindex::error::[0mError::msg(format!("Extraction error: {}", e)))?;
+[1m[94m85[0m [92m+ [0m            .map_err(|e| Error::msg(format!("Extraction error: {}", e)))?;
+   [1m[94m|[0m
+
+[1m[33mwarning[0m[1m: unused imports: `DocumentMetadata` and `SymbolKind`[0m
+ [1m[94m--> [0mcrates/flow/src/conversion.rs:8:15
+  [1m[94m|[0m
+[1m[94m8[0m [1m[94m|[0m [1m[94m...[0mo, DocumentMetadata, ImportInfo, ParsedDocument, SymbolInfo, SymbolKind,
+  [1m[94m|[0m       [1m[33m^^^^^^^^^^^^^^^^[0m                                          [1m[33m^^^^^^^^^^[0m
+  [1m[94m|[0m
+  [1m[94m= [0m[1mnote[0m: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+[1mFor more information about this error, try `rustc --explain E0433`.[0m
+[1m[33mwarning[0m: `thread-flow` (lib) generated 1 warning
+[1m[91merror[0m: could not compile `thread-flow` (lib) due to 21 previous errors; 1 warning emitted

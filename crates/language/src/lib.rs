@@ -1498,11 +1498,11 @@ impl LanguageExt for SupportLang {
     impl_lang_method!(injectable_languages, () => Option<&'static [&'static str]>);
     fn extract_injections<L: LanguageExt>(
         &self,
-        root: Node<StrDoc<L>>,
+        _root: Node<StrDoc<L>>,
     ) -> RapidMap<String, Vec<TSRange>> {
         match self {
             #[cfg(feature = "html-embedded")]
-            SupportLang::Html => Html.extract_injections(root),
+            SupportLang::Html => Html.extract_injections(_root),
             _ => RapidMap::default(),
         }
     }

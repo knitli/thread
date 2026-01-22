@@ -31,13 +31,16 @@ use std::path::PathBuf;
 use thread_ast_engine::{Node, NodeMatch, Position, Root};
 
 #[cfg(feature = "ast-grep-backend")]
-use thread_ast_engine::source::Doc;
+pub use thread_ast_engine::source::Doc;
 
 #[cfg(feature = "ast-grep-backend")]
 use thread_ast_engine::pinned::PinnedNodeData;
 
 #[cfg(feature = "ast-grep-backend")]
-use thread_language::SupportLang;
+pub type PinnedNodeResult<D> = PinnedNodeData<D, Node<'static, D>>;
+
+#[cfg(not(feature = "ast-grep-backend"))]
+pub type PinnedNodeResult<D> = PinnedNodeData<D>;
 
 /// Re-export key ast-grep types when available
 #[cfg(feature = "ast-grep-backend")]
@@ -148,9 +151,9 @@ pub enum SupportLang {
 
 #[cfg(not(feature = "ast-grep-backend"))]
 impl SupportLang {
-    pub fn from_path(_path: &std::path::Path) -> Result<Self, SupportLangErr> {
+    pub fn from_path(_path: &std::path::Path) -> Option<Self> {
         // Simple stub implementation
-        Ok(Self::Rust)
+        Some(Self::Rust)
     }
 }
 
@@ -228,9 +231,9 @@ impl<D: Doc> ParsedDocument<D> {
     }
 
     /// Create a pinned version for cross-thread/FFI usage
-    pub fn pin_for_threading(&self) -> PinnedNodeData<D> {
+    pub fn pin_for_threading(&self) -> PinnedNodeResult<D> {
         #[cfg(feature = "ast-grep-backend")]
-        return unsafe { PinnedNodeData::new(&self.ast_root, |r| r.root().node()) };
+        return PinnedNodeData::new(self.ast_root.clone(), |r| r.root());
 
         #[cfg(not(feature = "ast-grep-backend"))]
         return PinnedNodeData::new(&self.ast_root, |_| ());
@@ -238,6 +241,16 @@ impl<D: Doc> ParsedDocument<D> {
 
     /// Generate the source code (preserves ast-grep replacement functionality)
     pub fn generate(&self) -> String {
+        #[cfg(feature = "ast-grep-backend")]
+        {
+            use thread_ast_engine::source::Content;
+            let root_node = self.root();
+            let doc = root_node.get_doc();
+            let range = root_node.range();
+            let bytes = doc.get_source().get_range(range);
+            return D::Source::encode_bytes(bytes).into_owned();
+        }
+        #[cfg(not(feature = "ast-grep-backend"))]
         self.ast_root.generate()
     }
 
@@ -284,7 +297,7 @@ impl<'tree, D: Doc> CodeMatch<'tree, D> {
     }
 
     /// Get the matched node (delegate to NodeMatch)
-    pub fn node(&self) -> &Node<'_, D> {
+    pub fn node(&self) -> &Node<'tree, D> {
         &self.node_match
     }
 

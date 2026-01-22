@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 use async_trait::async_trait;
-use cocoindex::ops::interface::TargetFactory;
 use std::future::Future;
 
 /// Strategy pattern for handling runtime environment differences

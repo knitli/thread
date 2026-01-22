@@ -88,7 +88,9 @@ pub use error::{
     RecoverableError, ServiceError, ServiceResult,
 };
 
-pub use traits::{AnalyzerCapabilities, CodeAnalyzer, CodeParser, ParserCapabilities};
+pub use traits::{
+    AnalysisPerformanceProfile, AnalyzerCapabilities, CodeAnalyzer, CodeParser, ParserCapabilities,
+};
 
 #[cfg(feature = "ast-grep-backend")]
 pub use types::{

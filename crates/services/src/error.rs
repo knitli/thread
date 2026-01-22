@@ -268,6 +268,7 @@ pub enum StorageError {
 
 /// Context information for errors
 #[derive(Debug, Clone)]
+#[derive(Default)]
 pub struct ErrorContext {
     /// File being processed when error occurred
     pub file_path: Option<PathBuf>,
@@ -285,17 +286,6 @@ pub struct ErrorContext {
     pub context_data: std::collections::HashMap<String, String>,
 }
 
-impl Default for ErrorContext {
-    fn default() -> Self {
-        Self {
-            file_path: None,
-            line: None,
-            column: None,
-            operation: None,
-            context_data: std::collections::HashMap::new(),
-        }
-    }
-}
 
 impl ErrorContext {
     /// Create new error context

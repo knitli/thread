@@ -8,12 +8,15 @@
 //! These functions bridge the ast-grep functionality with the service layer
 //! abstractions while preserving all ast-grep power.
 
-use crate::types::{CodeMatch, ParsedDocument, Range, SymbolInfo, SymbolKind, Visibility};
+use crate::types::{
+    CodeMatch, ParsedDocument, Range,
+    SymbolInfo, SymbolKind, Visibility,
+};
 use std::path::PathBuf;
 
 cfg_if::cfg_if!(
     if #[cfg(feature = "ast-grep-backend")] {
-        use thread_ast_engine::{Doc, Root, MatcherExt, Node, NodeMatch, Position};
+        use thread_ast_engine::{Doc, Root, Node, NodeMatch, Position};
         use thread_language::SupportLang;
     } else  {
         use crate::types::{Doc, Root, NodeMatch, Position, SupportLang};
@@ -89,26 +92,20 @@ fn extract_functions<D: Doc>(root_node: &Node<D>) -> ServiceResult<HashMap<Strin
     ];
 
     for pattern in &patterns {
-        if let Some(matches) = root_node.find_all(pattern) {
-            for node_match in matches {
-                if let Some(name_node) = node_match.get_env().get_match("NAME") {
-                    let function_name = name_node.text().to_string();
-                    let position = Position::new(
-                        name_node.start_pos().row,
-                        name_node.start_pos().column,
-                        name_node.start_byte(),
-                    );
+        for node_match in root_node.find_all(pattern) {
+            if let Some(name_node) = node_match.get_env().get_match("NAME") {
+                let function_name = name_node.text().to_string();
+                let position = name_node.start_pos();
 
-                    let symbol_info = SymbolInfo {
-                        name: function_name.clone(),
-                        kind: SymbolKind::Function,
-                        position,
-                        scope: "global".to_string(), // Simplified for now
-                        visibility: Visibility::Public, // Simplified for now
-                    };
+                let symbol_info = SymbolInfo {
+                    name: function_name.clone(),
+                    kind: SymbolKind::Function,
+                    position,
+                    scope: "global".to_string(),    // Simplified for now
+                    visibility: Visibility::Public, // Simplified for now
+                };
 
-                    functions.insert(function_name, symbol_info);
-                }
+                functions.insert(function_name, symbol_info);
             }
         }
     }
@@ -140,33 +137,25 @@ fn extract_imports<D: Doc>(
     };
 
     for pattern in patterns {
-        if let Some(matches) = root_node.find_all(pattern) {
-            for node_match in matches {
-                if let (Some(path_node), item_node) = (
-                    node_match
-                        .get_env()
-                        .get_match("PATH")
-                        .or_else(|| node_match.get_env().get_match("MODULE")),
-                    node_match
-                        .get_env()
-                        .get_match("ITEM")
-                        .or_else(|| node_match.get_env().get_match("PATH")),
-                ) {
-                    if let Some(item_node) = item_node {
-                        let import_info = ImportInfo {
-                            symbol_name: item_node.text().to_string(),
-                            source_path: path_node.text().to_string(),
-                            import_kind: ImportKind::Named, // Simplified
-                            position: Position::new(
-                                item_node.start_pos().row,
-                                item_node.start_pos().column,
-                                item_node.start_byte(),
-                            ),
-                        };
+        for node_match in root_node.find_all(pattern) {
+            if let (Some(path_node), Some(item_node)) = (
+                node_match
+                    .get_env()
+                    .get_match("PATH")
+                    .or_else(|| node_match.get_env().get_match("MODULE")),
+                node_match
+                    .get_env()
+                    .get_match("ITEM")
+                    .or_else(|| node_match.get_env().get_match("PATH")),
+            ) {
+                let import_info = ImportInfo {
+                    symbol_name: item_node.text().to_string(),
+                    source_path: path_node.text().to_string(),
+                    import_kind: ImportKind::Named, // Simplified
+                    position: item_node.start_pos(),
+                };
 
-                        imports.insert(item_node.text().to_string(), import_info);
-                    }
-                }
+                imports.insert(item_node.text().to_string(), import_info);
             }
         }
     }
@@ -186,27 +175,21 @@ fn extract_function_calls<D: Doc>(root_node: &Node<D>) -> ServiceResult<Vec<Call
     ];
 
     for pattern in &patterns {
-        if let Some(matches) = root_node.find_all(pattern) {
-            for node_match in matches {
-                if let Some(func_node) = node_match
-                    .get_env()
-                    .get_match("FUNC")
-                    .or_else(|| node_match.get_env().get_match("METHOD"))
-                {
-                    let call_info = CallInfo {
-                        function_name: func_node.text().to_string(),
-                        position: Position::new(
-                            func_node.start_pos().row,
-                            func_node.start_pos().column,
-                            func_node.start_byte(),
-                        ),
-                        arguments_count: count_arguments(&node_match),
-                        is_resolved: false, // Would need cross-file analysis
-                        target_file: None,  // Would need cross-file analysis
-                    };
+        for node_match in root_node.find_all(pattern) {
+            if let Some(func_node) = node_match
+                .get_env()
+                .get_match("FUNC")
+                .or_else(|| node_match.get_env().get_match("METHOD"))
+            {
+                let call_info = CallInfo {
+                    function_name: func_node.text().to_string(),
+                    position: func_node.start_pos(),
+                    arguments_count: count_arguments(&node_match),
+                    is_resolved: false, // Would need cross-file analysis
+                    target_file: None,  // Would need cross-file analysis
+                };
 
-                    calls.push(call_info);
-                }
+                calls.push(call_info);
             }
         }
     }

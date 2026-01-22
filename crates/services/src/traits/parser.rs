@@ -17,6 +17,7 @@ use crate::types::{AnalysisContext, ParsedDocument};
 cfg_if::cfg_if!(
     if #[cfg(feature = "ast-grep-backend")] {
         use thread_ast_engine::source::Doc;
+        use thread_ast_engine::Language;
         use thread_language::SupportLang;
     } else {
         use crate::types::{Doc, SupportLang};
@@ -179,7 +180,7 @@ pub trait CodeParser<D: Doc + Send + Sync>: Send + Sync {
     /// Default implementation uses file extension matching.
     /// Implementations can override for more sophisticated detection.
     fn detect_language(&self, file_path: &Path) -> ServiceResult<SupportLang> {
-        SupportLang::from_path(file_path).map_err(|_e| {
+        SupportLang::from_path(file_path).ok_or_else(|| {
             ParseError::LanguageDetectionFailed {
                 file_path: file_path.to_path_buf(),
             }

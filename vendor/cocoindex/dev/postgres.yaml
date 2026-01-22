@@ -1,0 +1,11 @@
+name: cocoindex-postgres
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: cocoindex
+      POSTGRES_USER: cocoindex
+      POSTGRES_DB: cocoindex
+    ports:
+      - 5432:5432

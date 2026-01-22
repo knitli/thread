@@ -55,7 +55,7 @@ impl SimpleFunctionExecutor for ThreadParseExecutor {
         // Resolve language
         // We assume lang_str is an extension or can be resolved by from_extension_str
         // If it's a full name, this might need adjustment, but usually extensions are passed.
-        use thread_language::SupportLang;
+
         let lang = thread_language::from_extension_str(lang_str)
             .or_else(|| {
                 // Try from_extension with a constructed path if lang_str is just extension

@@ -68,7 +68,7 @@ use std::borrow::Cow;
 /// let start_pos = root.start_pos();
 /// assert_eq!(start_pos.line(), 0);
 /// ```
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Position {
     /// Zero-based line number (line 0 = first line)
     line: usize,

@@ -1,0 +1,1254 @@
+[1m[92m   Compiling[0m pyo3-build-config v0.27.2
+[1m[92m   Compiling[0m pyo3-ffi v0.27.2
+[1m[92m   Compiling[0m pyo3-macros-backend v0.27.2
+[1m[92m   Compiling[0m pyo3 v0.27.2
+[1m[92m   Compiling[0m numpy v0.27.1
+[1m[92m   Compiling[0m pyo3-macros v0.27.2
+[1m[92m    Checking[0m pyo3-async-runtimes v0.27.0
+[1m[92m    Checking[0m pythonize v0.27.0
+[1m[92m    Checking[0m cocoindex_py_utils v999.0.0 (/home/knitli/thread/vendor/cocoindex/rust/py_utils)
+[1m[92m    Checking[0m cocoindex v999.0.0 (/home/knitli/thread/vendor/cocoindex/rust/cocoindex)
+[1m[33mwarning[0m[1m: unused variable: `reqwest_client`[0m
+  [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/registration.rs:10:9
+   [1m[94m|[0m
+[1m[94m10[0m [1m[94m|[0m     let reqwest_client = reqwest::Client::new();
+   [1m[94m|[0m         [1m[33m^^^^^^^^^^^^^^[0m [1m[33mhelp: if this is intentional, prefix it with an underscore: `_reqwest_client`[0m
+   [1m[94m|[0m
+   [1m[94m= [0m[1mnote[0m: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+[1m[33mwarning[0m[1m: static `INFER` is never used[0m
+ [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/llm/mod.rs:8:8
+  [1m[94m|[0m
+[1m[94m8[0m [1m[94m|[0m static INFER: LazyLock<Infer> = LazyLock::new(Infer::new);
+  [1m[94m|[0m        [1m[33m^^^^^[0m
+  [1m[94m|[0m
+  [1m[94m= [0m[1mnote[0m: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+[1m[33mwarning[0m[1m: fields `name` and `schema` are never read[0m
+  [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/llm/mod.rs:63:9
+   [1m[94m|[0m
+[1m[94m62[0m [1m[94m|[0m     JsonSchema {
+   [1m[94m|[0m     [1m[94m----------[0m [1m[94mfields in this variant[0m
+[1m[94m63[0m [1m[94m|[0m         name: Cow<'a, str>,
+   [1m[94m|[0m         [1m[33m^^^^[0m
+[1m[94m64[0m [1m[94m|[0m         schema: Cow<'a, SchemaObject>,
+   [1m[94m|[0m         [1m[33m^^^^^^[0m
+   [1m[94m|[0m
+   [1m[94m= [0m[1mnote[0m: `OutputFormat` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+[1m[33mwarning[0m[1m: fields `model`, `system_prompt`, `user_prompt`, `image`, and `output_format` are never read[0m
+  [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/llm/mod.rs:70:9
+   [1m[94m|[0m
+[1m[94m69[0m [1m[94m|[0m pub struct LlmGenerateRequest<'a> {
+   [1m[94m|[0m            [1m[94m------------------[0m [1m[94mfields in this struct[0m
+[1m[94m70[0m [1m[94m|[0m     pub model: &'a str,
+   [1m[94m|[0m         [1m[33m^^^^^[0m
+[1m[94m71[0m [1m[94m|[0m     pub system_prompt: Option<Cow<'a, str>>,
+   [1m[94m|[0m         [1m[33m^^^^^^^^^^^^^[0m
+[1m[94m72[0m [1m[94m|[0m     pub user_prompt: Cow<'a, str>,
+   [1m[94m|[0m         [1m[33m^^^^^^^^^^^[0m
+[1m[94m73[0m [1m[94m|[0m     pub image: Option<Cow<'a, [u8]>>,
+   [1m[94m|[0m         [1m[33m^^^^^[0m
+[1m[94m74[0m [1m[94m|[0m     pub output_format: Option<OutputFormat<'a>>,
+   [1m[94m|[0m         [1m[33m^^^^^^^^^^^^^[0m
+   [1m[94m|[0m
+   [1m[94m= [0m[1mnote[0m: `LlmGenerateRequest` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+[1m[33mwarning[0m[1m: variants `Json` and `Text` are never constructed[0m
+  [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/llm/mod.rs:79:5
+   [1m[94m|[0m
+[1m[94m78[0m [1m[94m|[0m pub enum GeneratedOutput {
+   [1m[94m|[0m          [1m[94m---------------[0m [1m[94mvariants in this enum[0m
+[1m[94m79[0m [1m[94m|[0m     Json(serde_json::Value),
+   [1m[94m|[0m     [1m[33m^^^^[0m
+[1m[94m80[0m [1m[94m|[0m     Text(String),
+   [1m[94m|[0m     [1m[33m^^^^[0m
+   [1m[94m|[0m
+   [1m[94m= [0m[1mnote[0m: `GeneratedOutput` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+[1m[33mwarning[0m[1m: fields `model`, `texts`, `output_dimension`, and `task_type` are never read[0m
+   [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/llm/mod.rs:100:9
+    [1m[94m|[0m
+[1m[94m 99[0m [1m[94m|[0m pub struct LlmEmbeddingRequest<'a> {
+    [1m[94m|[0m            [1m[94m-------------------[0m [1m[94mfields in this struct[0m
+[1m[94m100[0m [1m[94m|[0m     pub model: &'a str,
+    [1m[94m|[0m         [1m[33m^^^^^[0m
+[1m[94m101[0m [1m[94m|[0m     pub texts: Vec<Cow<'a, str>>,
+    [1m[94m|[0m         [1m[33m^^^^^[0m
+[1m[94m102[0m [1m[94m|[0m     pub output_dimension: Option<u32>,
+    [1m[94m|[0m         [1m[33m^^^^^^^^^^^^^^^^[0m
+[1m[94m103[0m [1m[94m|[0m     pub task_type: Option<Cow<'a, str>>,
+    [1m[94m|[0m         [1m[33m^^^^^^^^^[0m
+    [1m[94m|[0m
+    [1m[94m= [0m[1mnote[0m: `LlmEmbeddingRequest` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+[1m[33mwarning[0m[1m: function `detect_image_mime_type` is never used[0m
+   [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/llm/mod.rs:152:8
+    [1m[94m|[0m
+[1m[94m152[0m [1m[94m|[0m pub fn detect_image_mime_type(bytes: &[u8]) -> Result<&'static str> {
+    [1m[94m|[0m        [1m[33m^^^^^^^^^^^^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: struct `TargetFieldMapping` is never constructed[0m
+ [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/targets/shared/property_graph.rs:6:12
+  [1m[94m|[0m
+[1m[94m6[0m [1m[94m|[0m pub struct TargetFieldMapping {
+  [1m[94m|[0m            [1m[33m^^^^^^^^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: method `get_target` is never used[0m
+  [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/targets/shared/property_graph.rs:16:12
+   [1m[94m|[0m
+[1m[94m15[0m [1m[94m|[0m impl TargetFieldMapping {
+   [1m[94m|[0m [1m[94m-----------------------[0m [1m[94mmethod in this implementation[0m
+[1m[94m16[0m [1m[94m|[0m     pub fn get_target(&self) -> &spec::FieldName {
+   [1m[94m|[0m            [1m[33m^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: struct `NodeFromFieldsSpec` is never constructed[0m
+  [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/targets/shared/property_graph.rs:22:12
+   [1m[94m|[0m
+[1m[94m22[0m [1m[94m|[0m pub struct NodeFromFieldsSpec {
+   [1m[94m|[0m            [1m[33m^^^^^^^^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: struct `NodesSpec` is never constructed[0m
+  [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/targets/shared/property_graph.rs:28:12
+   [1m[94m|[0m
+[1m[94m28[0m [1m[94m|[0m pub struct NodesSpec {
+   [1m[94m|[0m            [1m[33m^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: struct `RelationshipsSpec` is never constructed[0m
+  [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/targets/shared/property_graph.rs:33:12
+   [1m[94m|[0m
+[1m[94m33[0m [1m[94m|[0m pub struct RelationshipsSpec {
+   [1m[94m|[0m            [1m[33m^^^^^^^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: enum `GraphElementMapping` is never used[0m
+  [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/targets/shared/property_graph.rs:41:10
+   [1m[94m|[0m
+[1m[94m41[0m [1m[94m|[0m pub enum GraphElementMapping {
+   [1m[94m|[0m          [1m[33m^^^^^^^^^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: struct `GraphDeclaration` is never constructed[0m
+  [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/targets/shared/property_graph.rs:47:12
+   [1m[94m|[0m
+[1m[94m47[0m [1m[94m|[0m pub struct GraphDeclaration {
+   [1m[94m|[0m            [1m[33m^^^^^^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: enum `ElementType` is never used[0m
+  [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/targets/shared/property_graph.rs:55:10
+   [1m[94m|[0m
+[1m[94m55[0m [1m[94m|[0m pub enum ElementType {
+   [1m[94m|[0m          [1m[33m^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: associated items `label`, `from_mapping_spec`, and `matcher` are never used[0m
+  [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/targets/shared/property_graph.rs:61:12
+   [1m[94m|[0m
+[1m[94m60[0m [1m[94m|[0m impl ElementType {
+   [1m[94m|[0m [1m[94m----------------[0m [1m[94massociated items in this implementation[0m
+[1m[94m61[0m [1m[94m|[0m     pub fn label(&self) -> &str {
+   [1m[94m|[0m            [1m[33m^^^^^[0m
+[1m[94m...[0m
+[1m[94m68[0m [1m[94m|[0m     pub fn from_mapping_spec(spec: &GraphElementMapping) -> Self {
+   [1m[94m|[0m            [1m[33m^^^^^^^^^^^^^^^^^[0m
+[1m[94m...[0m
+[1m[94m77[0m [1m[94m|[0m     pub fn matcher(&self, var_name: &str) -> String {
+   [1m[94m|[0m            [1m[33m^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: struct `GraphElementType` is never constructed[0m
+   [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/targets/shared/property_graph.rs:101:12
+    [1m[94m|[0m
+[1m[94m101[0m [1m[94m|[0m pub struct GraphElementType<AuthEntry> {
+    [1m[94m|[0m            [1m[33m^^^^^^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: struct `GraphElementSchema` is never constructed[0m
+   [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/targets/shared/property_graph.rs:113:12
+    [1m[94m|[0m
+[1m[94m113[0m [1m[94m|[0m pub struct GraphElementSchema {
+    [1m[94m|[0m            [1m[33m^^^^^^^^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: struct `GraphElementInputFieldsIdx` is never constructed[0m
+   [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/targets/shared/property_graph.rs:119:12
+    [1m[94m|[0m
+[1m[94m119[0m [1m[94m|[0m pub struct GraphElementInputFieldsIdx {
+    [1m[94m|[0m            [1m[33m^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: method `extract_key` is never used[0m
+   [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/targets/shared/property_graph.rs:125:12
+    [1m[94m|[0m
+[1m[94m124[0m [1m[94m|[0m impl GraphElementInputFieldsIdx {
+    [1m[94m|[0m [1m[94m-------------------------------[0m [1m[94mmethod in this implementation[0m
+[1m[94m125[0m [1m[94m|[0m     pub fn extract_key(&self, fields: &[value::Value]) -> Result<value::KeyValue> {
+    [1m[94m|[0m            [1m[33m^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: struct `AnalyzedGraphElementFieldMapping` is never constructed[0m
+   [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/targets/shared/property_graph.rs:132:12
+    [1m[94m|[0m
+[1m[94m132[0m [1m[94m|[0m pub struct AnalyzedGraphElementFieldMapping {
+    [1m[94m|[0m            [1m[33m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: method `has_value_fields` is never used[0m
+   [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/targets/shared/property_graph.rs:138:12
+    [1m[94m|[0m
+[1m[94m137[0m [1m[94m|[0m impl AnalyzedGraphElementFieldMapping {
+    [1m[94m|[0m [1m[94m-------------------------------------[0m [1m[94mmethod in this implementation[0m
+[1m[94m138[0m [1m[94m|[0m     pub fn has_value_fields(&self) -> bool {
+    [1m[94m|[0m            [1m[33m^^^^^^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: struct `AnalyzedRelationshipInfo` is never constructed[0m
+   [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/targets/shared/property_graph.rs:143:12
+    [1m[94m|[0m
+[1m[94m143[0m [1m[94m|[0m pub struct AnalyzedRelationshipInfo {
+    [1m[94m|[0m            [1m[33m^^^^^^^^^^^^^^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: struct `AnalyzedDataCollection` is never constructed[0m
+   [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/targets/shared/property_graph.rs:148:12
+    [1m[94m|[0m
+[1m[94m148[0m [1m[94m|[0m pub struct AnalyzedDataCollection {
+    [1m[94m|[0m            [1m[33m^^^^^^^^^^^^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: method `dependent_node_labels` is never used[0m
+   [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/targets/shared/property_graph.rs:156:12
+    [1m[94m|[0m
+[1m[94m155[0m [1m[94m|[0m impl AnalyzedDataCollection {
+    [1m[94m|[0m [1m[94m---------------------------[0m [1m[94mmethod in this implementation[0m
+[1m[94m156[0m [1m[94m|[0m     pub fn dependent_node_labels(&self) -> IndexSet<&str> {
+    [1m[94m|[0m            [1m[33m^^^^^^^^^^^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: struct `GraphElementSchemaBuilder` is never constructed[0m
+   [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/targets/shared/property_graph.rs:166:8
+    [1m[94m|[0m
+[1m[94m166[0m [1m[94m|[0m struct GraphElementSchemaBuilder {
+    [1m[94m|[0m        [1m[33m^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: associated items `new`, `merge_fields`, `merge`, and `build_schema` are never used[0m
+   [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/targets/shared/property_graph.rs:173:8
+    [1m[94m|[0m
+[1m[94m172[0m [1m[94m|[0m impl GraphElementSchemaBuilder {
+    [1m[94m|[0m [1m[94m------------------------------[0m [1m[94massociated items in this implementation[0m
+[1m[94m173[0m [1m[94m|[0m     fn new(elem_type: ElementType) -> Self {
+    [1m[94m|[0m        [1m[33m^^^[0m
+[1m[94m...[0m
+[1m[94m181[0m [1m[94m|[0m     fn merge_fields(
+    [1m[94m|[0m        [1m[33m^^^^^^^^^^^^[0m
+[1m[94m...[0m
+[1m[94m231[0m [1m[94m|[0m     fn merge(
+    [1m[94m|[0m        [1m[33m^^^^^[0m
+[1m[94m...[0m
+[1m[94m250[0m [1m[94m|[0m     fn build_schema(self) -> Result<GraphElementSchema> {
+    [1m[94m|[0m        [1m[33m^^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: struct `DependentNodeLabelAnalyzer` is never constructed[0m
+   [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/targets/shared/property_graph.rs:264:8
+    [1m[94m|[0m
+[1m[94m264[0m [1m[94m|[0m struct DependentNodeLabelAnalyzer<'a, AuthEntry> {
+    [1m[94m|[0m        [1m[33m^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: associated items `new`, `process_field`, and `build` are never used[0m
+   [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/targets/shared/property_graph.rs:272:8
+    [1m[94m|[0m
+[1m[94m271[0m [1m[94m|[0m impl<'a, AuthEntry> DependentNodeLabelAnalyzer<'a, AuthEntry> {
+    [1m[94m|[0m [1m[94m-------------------------------------------------------------[0m [1m[94massociated items in this implementation[0m
+[1m[94m272[0m [1m[94m|[0m     fn new(
+    [1m[94m|[0m        [1m[33m^^^[0m
+[1m[94m...[0m
+[1m[94m296[0m [1m[94m|[0m     fn process_field(&mut self, field_idx: usize, field_schema: &schema::FieldSchema) -[1m[94m...[0m
+    [1m[94m|[0m        [1m[33m^^^^^^^^^^^^^[0m
+[1m[94m...[0m
+[1m[94m308[0m [1m[94m|[0m     fn build(
+    [1m[94m|[0m        [1m[33m^^^^^[0m
+
+[1m[33mwarning[0m[1m: struct `DataCollectionGraphMappingInput` is never constructed[0m
+   [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/targets/shared/property_graph.rs:347:12
+    [1m[94m|[0m
+[1m[94m347[0m [1m[94m|[0m pub struct DataCollectionGraphMappingInput<'a, AuthEntry> {
+    [1m[94m|[0m            [1m[33m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: function `analyze_graph_mappings` is never used[0m
+   [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/targets/shared/property_graph.rs:356:8
+    [1m[94m|[0m
+[1m[94m356[0m [1m[94m|[0m pub fn analyze_graph_mappings<'a, AuthEntry: 'a>(
+    [1m[94m|[0m        [1m[33m^^^^^^^^^^^^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: trait `State` is never used[0m
+ [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/setup/components.rs:5:11
+  [1m[94m|[0m
+[1m[94m5[0m [1m[94m|[0m pub trait State<Key>: Debug + Send + Sync {
+  [1m[94m|[0m           [1m[33m^^^^^[0m
+
+[1m[33mwarning[0m[1m: trait `SetupOperator` is never used[0m
+  [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/setup/components.rs:10:11
+   [1m[94m|[0m
+[1m[94m10[0m [1m[94m|[0m pub trait SetupOperator: 'static + Send + Sync {
+   [1m[94m|[0m           [1m[33m^^^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: struct `CompositeStateUpsert` is never constructed[0m
+  [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/setup/components.rs:33:8
+   [1m[94m|[0m
+[1m[94m33[0m [1m[94m|[0m struct CompositeStateUpsert<S> {
+   [1m[94m|[0m        [1m[33m^^^^^^^^^^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: struct `SetupChange` is never constructed[0m
+  [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/setup/components.rs:40:12
+   [1m[94m|[0m
+[1m[94m40[0m [1m[94m|[0m pub struct SetupChange<D: SetupOperator> {
+   [1m[94m|[0m            [1m[33m^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: associated function `create` is never used[0m
+  [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/setup/components.rs:48:12
+   [1m[94m|[0m
+[1m[94m47[0m [1m[94m|[0m impl<D: SetupOperator> SetupChange<D> {
+   [1m[94m|[0m [1m[94m-------------------------------------[0m [1m[94massociated function in this implementation[0m
+[1m[94m48[0m [1m[94m|[0m     pub fn create(
+   [1m[94m|[0m            [1m[33m^^^^^^[0m
+
+[1m[33mwarning[0m[1m: function `apply_component_changes` is never used[0m
+   [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/setup/components.rs:151:14
+    [1m[94m|[0m
+[1m[94m151[0m [1m[94m|[0m pub async fn apply_component_changes<D: SetupOperator>(
+    [1m[94m|[0m              [1m[33m^^^^^^^^^^^^^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m: `cocoindex` (lib) generated 37 warnings (run `cargo fix --lib -p cocoindex` to apply 1 suggestion)
+[1m[92m    Checking[0m thread-flow v0.1.0 (/home/knitli/thread/crates/flow)
+[1m[91merror[E0050][0m[1m: method `build` has 3 parameters but the declaration in trait `cocoindex::ops::interface::SimpleFunctionFactory::build` has 4[0m
+  [1m[94m--> [0mcrates/flow/src/functions/parse.rs:18:15
+   [1m[94m|[0m
+[1m[94m18[0m [1m[94m|[0m           self: Arc<Self>,
+   [1m[94m|[0m [1m[91m _______________^[0m
+[1m[94m19[0m [1m[94m|[0m [1m[91m|[0m         _spec: serde_json::Value,
+[1m[94m20[0m [1m[94m|[0m [1m[91m|[0m         _context: Arc<FlowInstanceContext>,
+   [1m[94m|[0m [1m[91m|__________________________________________^[0m [1m[91mexpected 4 parameters, found 3[0m
+   [1m[94m|[0m
+   [1m[94m= [0m[1mnote[0m: `build` from trait: `[1m[35mfn(Arc<Self>, serde_json::Value, Vec<OpArgSchema>, Arc<FlowInstanceContext>) -> Pin<Box<(dyn Future<Output = Result<SimpleFunctionBuildOutput, cocoindex::error::Error>> + Send + 'async_trait)>>[0m`
+
+[1m[91merror[E0599][0m[1m: no variant or associated item named `Array` found for enum `cocoindex::base::value::Value<VS>` in the current scope[0m
+    [1m[94m--> [0mcrates/flow/src/conversion.rs:30:49
+     [1m[94m|[0m
+[1m[94m  30[0m [1m[94m|[0m     fields.insert("symbols".to_string(), Value::Array(symbols));
+     [1m[94m|[0m                                                 [1m[91m^^^^^[0m [1m[91mvariant or associated item not found in `cocoindex::base::value::Value<_>`[0m
+     [1m[94m|[0m
+[1m[92mnote[0m: if you're trying to build a new `cocoindex::base::value::Value<_>` consider using one of the following associated functions:
+      cocoindex::base::value::Value::<VS>::from_alternative
+      cocoindex::base::value::Value::<VS>::from_alternative_ref
+      cocoindex::base::value::Value::<VS>::from_json
+    [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/base/value.rs:806:5
+     [1m[94m|[0m
+[1m[94m 806[0m [1m[94m|[0m [1m[92m/[0m     pub fn from_alternative<AltVS>(value: Value<AltVS>) -> Self
+[1m[94m 807[0m [1m[94m|[0m [1m[92m|[0m     where
+[1m[94m 808[0m [1m[94m|[0m [1m[92m|[0m         AltVS: Into<VS>,
+     [1m[94m|[0m [1m[92m|________________________^[0m
+[1m[94m...[0m
+[1m[94m 826[0m [1m[94m|[0m [1m[92m/[0m     pub fn from_alternative_ref<AltVS>(value: &Value<AltVS>) -> Self
+[1m[94m 827[0m [1m[94m|[0m [1m[92m|[0m     where
+[1m[94m 828[0m [1m[94m|[0m [1m[92m|[0m         for<'a> &'a AltVS: Into<VS>,
+     [1m[94m|[0m [1m[92m|____________________________________^[0m
+[1m[94m...[0m
+[1m[94m1296[0m [1m[94m|[0m       pub fn from_json(value: serde_json::Value, schema: &ValueType) -> Result<Self> {
+     [1m[94m|[0m       [1m[92m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+
+[1m[91merror[E0599][0m[1m: no variant or associated item named `Array` found for enum `cocoindex::base::value::Value<VS>` in the current scope[0m
+    [1m[94m--> [0mcrates/flow/src/conversion.rs:39:49
+     [1m[94m|[0m
+[1m[94m  39[0m [1m[94m|[0m     fields.insert("imports".to_string(), Value::Array(imports));
+     [1m[94m|[0m                                                 [1m[91m^^^^^[0m [1m[91mvariant or associated item not found in `cocoindex::base::value::Value<_>`[0m
+     [1m[94m|[0m
+[1m[92mnote[0m: if you're trying to build a new `cocoindex::base::value::Value<_>` consider using one of the following associated functions:
+      cocoindex::base::value::Value::<VS>::from_alternative
+      cocoindex::base::value::Value::<VS>::from_alternative_ref
+      cocoindex::base::value::Value::<VS>::from_json
+    [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/base/value.rs:806:5
+     [1m[94m|[0m
+[1m[94m 806[0m [1m[94m|[0m [1m[92m/[0m     pub fn from_alternative<AltVS>(value: Value<AltVS>) -> Self
+[1m[94m 807[0m [1m[94m|[0m [1m[92m|[0m     where
+[1m[94m 808[0m [1m[94m|[0m [1m[92m|[0m         AltVS: Into<VS>,
+     [1m[94m|[0m [1m[92m|________________________^[0m
+[1m[94m...[0m
+[1m[94m 826[0m [1m[94m|[0m [1m[92m/[0m     pub fn from_alternative_ref<AltVS>(value: &Value<AltVS>) -> Self
+[1m[94m 827[0m [1m[94m|[0m [1m[92m|[0m     where
+[1m[94m 828[0m [1m[94m|[0m [1m[92m|[0m         for<'a> &'a AltVS: Into<VS>,
+     [1m[94m|[0m [1m[92m|____________________________________^[0m
+[1m[94m...[0m
+[1m[94m1296[0m [1m[94m|[0m       pub fn from_json(value: serde_json::Value, schema: &ValueType) -> Result<Self> {
+     [1m[94m|[0m       [1m[92m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+
+[1m[91merror[E0599][0m[1m: no variant or associated item named `Array` found for enum `cocoindex::base::value::Value<VS>` in the current scope[0m
+    [1m[94m--> [0mcrates/flow/src/conversion.rs:48:47
+     [1m[94m|[0m
+[1m[94m  48[0m [1m[94m|[0m     fields.insert("calls".to_string(), Value::Array(calls));
+     [1m[94m|[0m                                               [1m[91m^^^^^[0m [1m[91mvariant or associated item not found in `cocoindex::base::value::Value<_>`[0m
+     [1m[94m|[0m
+[1m[92mnote[0m: if you're trying to build a new `cocoindex::base::value::Value<_>` consider using one of the following associated functions:
+      cocoindex::base::value::Value::<VS>::from_alternative
+      cocoindex::base::value::Value::<VS>::from_alternative_ref
+      cocoindex::base::value::Value::<VS>::from_json
+    [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/base/value.rs:806:5
+     [1m[94m|[0m
+[1m[94m 806[0m [1m[94m|[0m [1m[92m/[0m     pub fn from_alternative<AltVS>(value: Value<AltVS>) -> Self
+[1m[94m 807[0m [1m[94m|[0m [1m[92m|[0m     where
+[1m[94m 808[0m [1m[94m|[0m [1m[92m|[0m         AltVS: Into<VS>,
+     [1m[94m|[0m [1m[92m|________________________^[0m
+[1m[94m...[0m
+[1m[94m 826[0m [1m[94m|[0m [1m[92m/[0m     pub fn from_alternative_ref<AltVS>(value: &Value<AltVS>) -> Self
+[1m[94m 827[0m [1m[94m|[0m [1m[92m|[0m     where
+[1m[94m 828[0m [1m[94m|[0m [1m[92m|[0m         for<'a> &'a AltVS: Into<VS>,
+     [1m[94m|[0m [1m[92m|____________________________________^[0m
+[1m[94m...[0m
+[1m[94m1296[0m [1m[94m|[0m       pub fn from_json(value: serde_json::Value, schema: &ValueType) -> Result<Self> {
+     [1m[94m|[0m       [1m[92m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+
+[1m[91merror[E0599][0m[1m: no variant or associated item named `String` found for enum `cocoindex::base::value::Value<VS>` in the current scope[0m
+    [1m[94m--> [0mcrates/flow/src/conversion.rs:55:46
+     [1m[94m|[0m
+[1m[94m  55[0m [1m[94m|[0m     fields.insert("name".to_string(), Value::String(info.name.clone()));
+     [1m[94m|[0m                                              [1m[91m^^^^^^[0m [1m[91mvariant or associated item not found in `cocoindex::base::value::Value<_>`[0m
+     [1m[94m|[0m
+[1m[92mnote[0m: if you're trying to build a new `cocoindex::base::value::Value<_>` consider using one of the following associated functions:
+      cocoindex::base::value::Value::<VS>::from_alternative
+      cocoindex::base::value::Value::<VS>::from_alternative_ref
+      cocoindex::base::value::Value::<VS>::from_json
+    [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/base/value.rs:806:5
+     [1m[94m|[0m
+[1m[94m 806[0m [1m[94m|[0m [1m[92m/[0m     pub fn from_alternative<AltVS>(value: Value<AltVS>) -> Self
+[1m[94m 807[0m [1m[94m|[0m [1m[92m|[0m     where
+[1m[94m 808[0m [1m[94m|[0m [1m[92m|[0m         AltVS: Into<VS>,
+     [1m[94m|[0m [1m[92m|________________________^[0m
+[1m[94m...[0m
+[1m[94m 826[0m [1m[94m|[0m [1m[92m/[0m     pub fn from_alternative_ref<AltVS>(value: &Value<AltVS>) -> Self
+[1m[94m 827[0m [1m[94m|[0m [1m[92m|[0m     where
+[1m[94m 828[0m [1m[94m|[0m [1m[92m|[0m         for<'a> &'a AltVS: Into<VS>,
+     [1m[94m|[0m [1m[92m|____________________________________^[0m
+[1m[94m...[0m
+[1m[94m1296[0m [1m[94m|[0m       pub fn from_json(value: serde_json::Value, schema: &ValueType) -> Result<Self> {
+     [1m[94m|[0m       [1m[92m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+
+[1m[91merror[E0599][0m[1m: no variant or associated item named `String` found for enum `cocoindex::base::value::Value<VS>` in the current scope[0m
+    [1m[94m--> [0mcrates/flow/src/conversion.rs:58:16
+     [1m[94m|[0m
+[1m[94m  58[0m [1m[94m|[0m         Value::String(format!("{:?}", info.kind)),
+     [1m[94m|[0m                [1m[91m^^^^^^[0m [1m[91mvariant or associated item not found in `cocoindex::base::value::Value<_>`[0m
+     [1m[94m|[0m
+[1m[92mnote[0m: if you're trying to build a new `cocoindex::base::value::Value<_>` consider using one of the following associated functions:
+      cocoindex::base::value::Value::<VS>::from_alternative
+      cocoindex::base::value::Value::<VS>::from_alternative_ref
+      cocoindex::base::value::Value::<VS>::from_json
+    [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/base/value.rs:806:5
+     [1m[94m|[0m
+[1m[94m 806[0m [1m[94m|[0m [1m[92m/[0m     pub fn from_alternative<AltVS>(value: Value<AltVS>) -> Self
+[1m[94m 807[0m [1m[94m|[0m [1m[92m|[0m     where
+[1m[94m 808[0m [1m[94m|[0m [1m[92m|[0m         AltVS: Into<VS>,
+     [1m[94m|[0m [1m[92m|________________________^[0m
+[1m[94m...[0m
+[1m[94m 826[0m [1m[94m|[0m [1m[92m/[0m     pub fn from_alternative_ref<AltVS>(value: &Value<AltVS>) -> Self
+[1m[94m 827[0m [1m[94m|[0m [1m[92m|[0m     where
+[1m[94m 828[0m [1m[94m|[0m [1m[92m|[0m         for<'a> &'a AltVS: Into<VS>,
+     [1m[94m|[0m [1m[92m|____________________________________^[0m
+[1m[94m...[0m
+[1m[94m1296[0m [1m[94m|[0m       pub fn from_json(value: serde_json::Value, schema: &ValueType) -> Result<Self> {
+     [1m[94m|[0m       [1m[92m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+
+[1m[91merror[E0599][0m[1m: no variant or associated item named `String` found for enum `cocoindex::base::value::Value<VS>` in the current scope[0m
+    [1m[94m--> [0mcrates/flow/src/conversion.rs:60:47
+     [1m[94m|[0m
+[1m[94m  60[0m [1m[94m|[0m     fields.insert("scope".to_string(), Value::String(info.scope.clone()));
+     [1m[94m|[0m                                               [1m[91m^^^^^^[0m [1m[91mvariant or associated item not found in `cocoindex::base::value::Value<_>`[0m
+     [1m[94m|[0m
+[1m[92mnote[0m: if you're trying to build a new `cocoindex::base::value::Value<_>` consider using one of the following associated functions:
+      cocoindex::base::value::Value::<VS>::from_alternative
+      cocoindex::base::value::Value::<VS>::from_alternative_ref
+      cocoindex::base::value::Value::<VS>::from_json
+    [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/base/value.rs:806:5
+     [1m[94m|[0m
+[1m[94m 806[0m [1m[94m|[0m [1m[92m/[0m     pub fn from_alternative<AltVS>(value: Value<AltVS>) -> Self
+[1m[94m 807[0m [1m[94m|[0m [1m[92m|[0m     where
+[1m[94m 808[0m [1m[94m|[0m [1m[92m|[0m         AltVS: Into<VS>,
+     [1m[94m|[0m [1m[92m|________________________^[0m
+[1m[94m...[0m
+[1m[94m 826[0m [1m[94m|[0m [1m[92m/[0m     pub fn from_alternative_ref<AltVS>(value: &Value<AltVS>) -> Self
+[1m[94m 827[0m [1m[94m|[0m [1m[92m|[0m     where
+[1m[94m 828[0m [1m[94m|[0m [1m[92m|[0m         for<'a> &'a AltVS: Into<VS>,
+     [1m[94m|[0m [1m[92m|____________________________________^[0m
+[1m[94m...[0m
+[1m[94m1296[0m [1m[94m|[0m       pub fn from_json(value: serde_json::Value, schema: &ValueType) -> Result<Self> {
+     [1m[94m|[0m       [1m[92m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+
+[1m[91merror[E0599][0m[1m: no variant or associated item named `String` found for enum `cocoindex::base::value::Value<VS>` in the current scope[0m
+    [1m[94m--> [0mcrates/flow/src/conversion.rs:69:16
+     [1m[94m|[0m
+[1m[94m  69[0m [1m[94m|[0m         Value::String(info.symbol_name.clone()),
+     [1m[94m|[0m                [1m[91m^^^^^^[0m [1m[91mvariant or associated item not found in `cocoindex::base::value::Value<_>`[0m
+     [1m[94m|[0m
+[1m[92mnote[0m: if you're trying to build a new `cocoindex::base::value::Value<_>` consider using one of the following associated functions:
+      cocoindex::base::value::Value::<VS>::from_alternative
+      cocoindex::base::value::Value::<VS>::from_alternative_ref
+      cocoindex::base::value::Value::<VS>::from_json
+    [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/base/value.rs:806:5
+     [1m[94m|[0m
+[1m[94m 806[0m [1m[94m|[0m [1m[92m/[0m     pub fn from_alternative<AltVS>(value: Value<AltVS>) -> Self
+[1m[94m 807[0m [1m[94m|[0m [1m[92m|[0m     where
+[1m[94m 808[0m [1m[94m|[0m [1m[92m|[0m         AltVS: Into<VS>,
+     [1m[94m|[0m [1m[92m|________________________^[0m
+[1m[94m...[0m
+[1m[94m 826[0m [1m[94m|[0m [1m[92m/[0m     pub fn from_alternative_ref<AltVS>(value: &Value<AltVS>) -> Self
+[1m[94m 827[0m [1m[94m|[0m [1m[92m|[0m     where
+[1m[94m 828[0m [1m[94m|[0m [1m[92m|[0m         for<'a> &'a AltVS: Into<VS>,
+     [1m[94m|[0m [1m[92m|____________________________________^[0m
+[1m[94m...[0m
+[1m[94m1296[0m [1m[94m|[0m       pub fn from_json(value: serde_json::Value, schema: &ValueType) -> Result<Self> {
+     [1m[94m|[0m       [1m[92m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+
+[1m[91merror[E0599][0m[1m: no variant or associated item named `String` found for enum `cocoindex::base::value::Value<VS>` in the current scope[0m
+    [1m[94m--> [0mcrates/flow/src/conversion.rs:73:16
+     [1m[94m|[0m
+[1m[94m  73[0m [1m[94m|[0m         Value::String(info.source_path.clone()),
+     [1m[94m|[0m                [1m[91m^^^^^^[0m [1m[91mvariant or associated item not found in `cocoindex::base::value::Value<_>`[0m
+     [1m[94m|[0m
+[1m[92mnote[0m: if you're trying to build a new `cocoindex::base::value::Value<_>` consider using one of the following associated functions:
+      cocoindex::base::value::Value::<VS>::from_alternative
+      cocoindex::base::value::Value::<VS>::from_alternative_ref
+      cocoindex::base::value::Value::<VS>::from_json
+    [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/base/value.rs:806:5
+     [1m[94m|[0m
+[1m[94m 806[0m [1m[94m|[0m [1m[92m/[0m     pub fn from_alternative<AltVS>(value: Value<AltVS>) -> Self
+[1m[94m 807[0m [1m[94m|[0m [1m[92m|[0m     where
+[1m[94m 808[0m [1m[94m|[0m [1m[92m|[0m         AltVS: Into<VS>,
+     [1m[94m|[0m [1m[92m|________________________^[0m
+[1m[94m...[0m
+[1m[94m 826[0m [1m[94m|[0m [1m[92m/[0m     pub fn from_alternative_ref<AltVS>(value: &Value<AltVS>) -> Self
+[1m[94m 827[0m [1m[94m|[0m [1m[92m|[0m     where
+[1m[94m 828[0m [1m[94m|[0m [1m[92m|[0m         for<'a> &'a AltVS: Into<VS>,
+     [1m[94m|[0m [1m[92m|____________________________________^[0m
+[1m[94m...[0m
+[1m[94m1296[0m [1m[94m|[0m       pub fn from_json(value: serde_json::Value, schema: &ValueType) -> Result<Self> {
+     [1m[94m|[0m       [1m[92m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+
+[1m[91merror[E0599][0m[1m: no variant or associated item named `String` found for enum `cocoindex::base::value::Value<VS>` in the current scope[0m
+    [1m[94m--> [0mcrates/flow/src/conversion.rs:77:16
+     [1m[94m|[0m
+[1m[94m  77[0m [1m[94m|[0m         Value::String(format!("{:?}", info.import_kind)),
+     [1m[94m|[0m                [1m[91m^^^^^^[0m [1m[91mvariant or associated item not found in `cocoindex::base::value::Value<_>`[0m
+     [1m[94m|[0m
+[1m[92mnote[0m: if you're trying to build a new `cocoindex::base::value::Value<_>` consider using one of the following associated functions:
+      cocoindex::base::value::Value::<VS>::from_alternative
+      cocoindex::base::value::Value::<VS>::from_alternative_ref
+      cocoindex::base::value::Value::<VS>::from_json
+    [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/base/value.rs:806:5
+     [1m[94m|[0m
+[1m[94m 806[0m [1m[94m|[0m [1m[92m/[0m     pub fn from_alternative<AltVS>(value: Value<AltVS>) -> Self
+[1m[94m 807[0m [1m[94m|[0m [1m[92m|[0m     where
+[1m[94m 808[0m [1m[94m|[0m [1m[92m|[0m         AltVS: Into<VS>,
+     [1m[94m|[0m [1m[92m|________________________^[0m
+[1m[94m...[0m
+[1m[94m 826[0m [1m[94m|[0m [1m[92m/[0m     pub fn from_alternative_ref<AltVS>(value: &Value<AltVS>) -> Self
+[1m[94m 827[0m [1m[94m|[0m [1m[92m|[0m     where
+[1m[94m 828[0m [1m[94m|[0m [1m[92m|[0m         for<'a> &'a AltVS: Into<VS>,
+     [1m[94m|[0m [1m[92m|____________________________________^[0m
+[1m[94m...[0m
+[1m[94m1296[0m [1m[94m|[0m       pub fn from_json(value: serde_json::Value, schema: &ValueType) -> Result<Self> {
+     [1m[94m|[0m       [1m[92m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+
+[1m[91merror[E0599][0m[1m: no variant or associated item named `String` found for enum `cocoindex::base::value::Value<VS>` in the current scope[0m
+    [1m[94m--> [0mcrates/flow/src/conversion.rs:86:16
+     [1m[94m|[0m
+[1m[94m  86[0m [1m[94m|[0m         Value::String(info.function_name.clone()),
+     [1m[94m|[0m                [1m[91m^^^^^^[0m [1m[91mvariant or associated item not found in `cocoindex::base::value::Value<_>`[0m
+     [1m[94m|[0m
+[1m[92mnote[0m: if you're trying to build a new `cocoindex::base::value::Value<_>` consider using one of the following associated functions:
+      cocoindex::base::value::Value::<VS>::from_alternative
+      cocoindex::base::value::Value::<VS>::from_alternative_ref
+      cocoindex::base::value::Value::<VS>::from_json
+    [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/base/value.rs:806:5
+     [1m[94m|[0m
+[1m[94m 806[0m [1m[94m|[0m [1m[92m/[0m     pub fn from_alternative<AltVS>(value: Value<AltVS>) -> Self
+[1m[94m 807[0m [1m[94m|[0m [1m[92m|[0m     where
+[1m[94m 808[0m [1m[94m|[0m [1m[92m|[0m         AltVS: Into<VS>,
+     [1m[94m|[0m [1m[92m|________________________^[0m
+[1m[94m...[0m
+[1m[94m 826[0m [1m[94m|[0m [1m[92m/[0m     pub fn from_alternative_ref<AltVS>(value: &Value<AltVS>) -> Self
+[1m[94m 827[0m [1m[94m|[0m [1m[92m|[0m     where
+[1m[94m 828[0m [1m[94m|[0m [1m[92m|[0m         for<'a> &'a AltVS: Into<VS>,
+     [1m[94m|[0m [1m[92m|____________________________________^[0m
+[1m[94m...[0m
+[1m[94m1296[0m [1m[94m|[0m       pub fn from_json(value: serde_json::Value, schema: &ValueType) -> Result<Self> {
+     [1m[94m|[0m       [1m[92m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+
+[1m[91merror[E0599][0m[1m: no variant or associated item named `Int` found for enum `cocoindex::base::value::Value<VS>` in the current scope[0m
+    [1m[94m--> [0mcrates/flow/src/conversion.rs:90:16
+     [1m[94m|[0m
+[1m[94m  90[0m [1m[94m|[0m         Value::Int(info.arguments_count as i64),
+     [1m[94m|[0m                [1m[91m^^^[0m [1m[91mvariant or associated item not found in `cocoindex::base::value::Value<_>`[0m
+     [1m[94m|[0m
+[1m[92mnote[0m: if you're trying to build a new `cocoindex::base::value::Value<_>` consider using one of the following associated functions:
+      cocoindex::base::value::Value::<VS>::from_alternative
+      cocoindex::base::value::Value::<VS>::from_alternative_ref
+      cocoindex::base::value::Value::<VS>::from_json
+    [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/base/value.rs:806:5
+     [1m[94m|[0m
+[1m[94m 806[0m [1m[94m|[0m [1m[92m/[0m     pub fn from_alternative<AltVS>(value: Value<AltVS>) -> Self
+[1m[94m 807[0m [1m[94m|[0m [1m[92m|[0m     where
+[1m[94m 808[0m [1m[94m|[0m [1m[92m|[0m         AltVS: Into<VS>,
+     [1m[94m|[0m [1m[92m|________________________^[0m
+[1m[94m...[0m
+[1m[94m 826[0m [1m[94m|[0m [1m[92m/[0m     pub fn from_alternative_ref<AltVS>(value: &Value<AltVS>) -> Self
+[1m[94m 827[0m [1m[94m|[0m [1m[92m|[0m     where
+[1m[94m 828[0m [1m[94m|[0m [1m[92m|[0m         for<'a> &'a AltVS: Into<VS>,
+     [1m[94m|[0m [1m[92m|____________________________________^[0m
+[1m[94m...[0m
+[1m[94m1296[0m [1m[94m|[0m       pub fn from_json(value: serde_json::Value, schema: &ValueType) -> Result<Self> {
+     [1m[94m|[0m       [1m[92m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+
+[1m[91merror[E0599][0m[1m: no associated item named `Struct` found for struct `EnrichedValueType<DataType>` in the current scope[0m
+   [1m[94m--> [0mcrates/flow/src/conversion.rs:97:24
+    [1m[94m|[0m
+[1m[94m 97[0m [1m[94m|[0m     EnrichedValueType::Struct(StructType {
+    [1m[94m|[0m                        [1m[91m^^^^^^[0m [1m[91massociated item not found in `EnrichedValueType<_>`[0m
+    [1m[94m|[0m
+[1m[92mnote[0m: if you're trying to build a new `EnrichedValueType<_>`, consider using `EnrichedValueType::<DataType>::from_alternative` which returns `Result<EnrichedValueType<_>, cocoindex::error::Error>`
+   [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/base/schema.rs:273:5
+    [1m[94m|[0m
+[1m[94m273[0m [1m[94m|[0m [1m[92m/[0m     pub fn from_alternative<AltDataType>(
+[1m[94m274[0m [1m[94m|[0m [1m[92m|[0m         value_type: &EnrichedValueType<AltDataType>,
+[1m[94m275[0m [1m[94m|[0m [1m[92m|[0m     ) -> Result<Self>
+[1m[94m276[0m [1m[94m|[0m [1m[92m|[0m     where
+[1m[94m277[0m [1m[94m|[0m [1m[92m|[0m         for<'a> &'a AltDataType: TryInto<DataType, Error = Error>,
+    [1m[94m|[0m [1m[92m|__________________________________________________________________^[0m
+
+[1m[91merror[E0599][0m[1m: no variant or associated item named `Array` found for enum `ValueType` in the current scope[0m
+   [1m[94m--> [0mcrates/flow/src/conversion.rs:101:28
+    [1m[94m|[0m
+[1m[94m101[0m [1m[94m|[0m                 ValueType::Array(Box::new(symbol_type())),
+    [1m[94m|[0m                            [1m[91m^^^^^[0m [1m[91mvariant or associated item not found in `ValueType`[0m
+
+[1m[91merror[E0599][0m[1m: no variant or associated item named `Array` found for enum `ValueType` in the current scope[0m
+   [1m[94m--> [0mcrates/flow/src/conversion.rs:105:28
+    [1m[94m|[0m
+[1m[94m105[0m [1m[94m|[0m                 ValueType::Array(Box::new(import_type())),
+    [1m[94m|[0m                            [1m[91m^^^^^[0m [1m[91mvariant or associated item not found in `ValueType`[0m
+
+[1m[91merror[E0599][0m[1m: no variant or associated item named `Array` found for enum `ValueType` in the current scope[0m
+   [1m[94m--> [0mcrates/flow/src/conversion.rs:107:62
+    [1m[94m|[0m
+[1m[94m107[0m [1m[94m|[0m [1m[94m...[0m, ValueType::Array(Box::new(call_type()))),
+    [1m[94m|[0m                 [1m[91m^^^^^[0m [1m[91mvariant or associated item not found in `ValueType`[0m
+
+[1m[91merror[E0063][0m[1m: missing field `description` in initializer of `StructSchema`[0m
+  [1m[94m--> [0mcrates/flow/src/conversion.rs:97:31
+   [1m[94m|[0m
+[1m[94m97[0m [1m[94m|[0m     EnrichedValueType::Struct(StructType {
+   [1m[94m|[0m                               [1m[91m^^^^^^^^^^[0m [1m[91mmissing `description`[0m
+
+[1m[91merror[E0599][0m[1m: no variant or associated item named `String` found for enum `ValueType` in the current scope[0m
+   [1m[94m--> [0mcrates/flow/src/conversion.rs:115:61
+    [1m[94m|[0m
+[1m[94m115[0m [1m[94m|[0m             FieldSchema::new("name".to_string(), ValueType::String),
+    [1m[94m|[0m                                                             [1m[91m^^^^^^[0m [1m[91mvariant or associated item not found in `ValueType`[0m
+
+[1m[91merror[E0599][0m[1m: no variant or associated item named `String` found for enum `ValueType` in the current scope[0m
+   [1m[94m--> [0mcrates/flow/src/conversion.rs:116:61
+    [1m[94m|[0m
+[1m[94m116[0m [1m[94m|[0m             FieldSchema::new("kind".to_string(), ValueType::String),
+    [1m[94m|[0m                                                             [1m[91m^^^^^^[0m [1m[91mvariant or associated item not found in `ValueType`[0m
+
+[1m[91merror[E0599][0m[1m: no variant or associated item named `String` found for enum `ValueType` in the current scope[0m
+   [1m[94m--> [0mcrates/flow/src/conversion.rs:117:62
+    [1m[94m|[0m
+[1m[94m117[0m [1m[94m|[0m             FieldSchema::new("scope".to_string(), ValueType::String),
+    [1m[94m|[0m                                                              [1m[91m^^^^^^[0m [1m[91mvariant or associated item not found in `ValueType`[0m
+
+[1m[91merror[E0063][0m[1m: missing field `description` in initializer of `StructSchema`[0m
+   [1m[94m--> [0mcrates/flow/src/conversion.rs:113:23
+    [1m[94m|[0m
+[1m[94m113[0m [1m[94m|[0m     ValueType::Struct(StructType {
+    [1m[94m|[0m                       [1m[91m^^^^^^^^^^[0m [1m[91mmissing `description`[0m
+
+[1m[91merror[E0599][0m[1m: no variant or associated item named `String` found for enum `ValueType` in the current scope[0m
+   [1m[94m--> [0mcrates/flow/src/conversion.rs:125:68
+    [1m[94m|[0m
+[1m[94m125[0m [1m[94m|[0m             FieldSchema::new("symbol_name".to_string(), ValueType::String),
+    [1m[94m|[0m                                                                    [1m[91m^^^^^^[0m [1m[91mvariant or associated item not found in `ValueType`[0m
+
+[1m[91merror[E0599][0m[1m: no variant or associated item named `String` found for enum `ValueType` in the current scope[0m
+   [1m[94m--> [0mcrates/flow/src/conversion.rs:126:68
+    [1m[94m|[0m
+[1m[94m126[0m [1m[94m|[0m             FieldSchema::new("source_path".to_string(), ValueType::String),
+    [1m[94m|[0m                                                                    [1m[91m^^^^^^[0m [1m[91mvariant or associated item not found in `ValueType`[0m
+
+[1m[91merror[E0599][0m[1m: no variant or associated item named `String` found for enum `ValueType` in the current scope[0m
+   [1m[94m--> [0mcrates/flow/src/conversion.rs:127:61
+    [1m[94m|[0m
+[1m[94m127[0m [1m[94m|[0m             FieldSchema::new("kind".to_string(), ValueType::String),
+    [1m[94m|[0m                                                             [1m[91m^^^^^^[0m [1m[91mvariant or associated item not found in `ValueType`[0m
+
+[1m[91merror[E0063][0m[1m: missing field `description` in initializer of `StructSchema`[0m
+   [1m[94m--> [0mcrates/flow/src/conversion.rs:123:23
+    [1m[94m|[0m
+[1m[94m123[0m [1m[94m|[0m     ValueType::Struct(StructType {
+    [1m[94m|[0m                       [1m[91m^^^^^^^^^^[0m [1m[91mmissing `description`[0m
+
+[1m[91merror[E0599][0m[1m: no variant or associated item named `String` found for enum `ValueType` in the current scope[0m
+   [1m[94m--> [0mcrates/flow/src/conversion.rs:135:70
+    [1m[94m|[0m
+[1m[94m135[0m [1m[94m|[0m             FieldSchema::new("function_name".to_string(), ValueType::String),
+    [1m[94m|[0m                                                                      [1m[91m^^^^^^[0m [1m[91mvariant or associated item not found in `ValueType`[0m
+
+[1m[91merror[E0599][0m[1m: no variant or associated item named `Int` found for enum `ValueType` in the current scope[0m
+   [1m[94m--> [0mcrates/flow/src/conversion.rs:136:72
+    [1m[94m|[0m
+[1m[94m136[0m [1m[94m|[0m             FieldSchema::new("arguments_count".to_string(), ValueType::Int),
+    [1m[94m|[0m                                                                        [1m[91m^^^[0m [1m[91mvariant or associated item not found in `ValueType`[0m
+
+[1m[91merror[E0063][0m[1m: missing field `description` in initializer of `StructSchema`[0m
+   [1m[94m--> [0mcrates/flow/src/conversion.rs:133:23
+    [1m[94m|[0m
+[1m[94m133[0m [1m[94m|[0m     ValueType::Struct(StructType {
+    [1m[94m|[0m                       [1m[91m^^^^^^^^^^[0m [1m[91mmissing `description`[0m
+
+[1m[91merror[E0061][0m[1m: this function takes 3 arguments but 1 argument was supplied[0m
+   [1m[94m--> [0mcrates/flow/src/flows/builder.rs:86:27
+    [1m[94m|[0m
+[1m[94m 86[0m [1m[94m|[0m         let mut builder = FlowBuilder::new(&self.name);
+    [1m[94m|[0m                           [1m[91m^^^^^^^^^^^^^^^^[0m[1m[94m------------[0m
+    [1m[94m|[0m                                           [1m[94m||[0m
+    [1m[94m|[0m                                           [1m[94m|argument #1 of type `pyo3::marker::Python<'_>` is missing[0m
+    [1m[94m|[0m                                           [1m[94margument #3 of type `pyo3::instance::Py<pyo3::types::any::PyAny>` is missing[0m
+    [1m[94m|[0m
+[1m[92mnote[0m: associated function defined here
+   [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/builder/flow_builder.rs:254:12
+    [1m[94m|[0m
+[1m[94m254[0m [1m[94m|[0m     pub fn new(py: Python<'_>, name: &str, py_event_loop: Py<PyAny>) -> PyResult<Self> {
+    [1m[94m|[0m            [1m[92m^^^[0m
+[1m[96mhelp[0m: provide the arguments
+    [1m[94m|[0m
+[1m[94m 86[0m [91m- [0m        let mut builder = FlowBuilder::new[91m(&self.name)[0m;
+[1m[94m 86[0m [92m+ [0m        let mut builder = FlowBuilder::new[92m(/* pyo3::marker::Python<'_> */, &self.name, /* pyo3::instance::Py<pyo3::types::any::PyAny> */)[0m;
+    [1m[94m|[0m
+
+[1m[91merror[E0599][0m[1m: no method named `add_source` found for enum `Result<T, E>` in the current scope[0m
+   [1m[94m--> [0mcrates/flow/src/flows/builder.rs:94:14
+    [1m[94m|[0m
+[1m[94m 93[0m [1m[94m|[0m           let source_node = builder
+    [1m[94m|[0m [1m[94m ___________________________-[0m
+[1m[94m 94[0m [1m[94m|[0m [1m[94m|[0m             .add_source(
+    [1m[94m|[0m [1m[94m|[0m             [1m[94m-[0m[1m[91m^^^^^^^^^^[0m [1m[91mmethod not found in `Result<FlowBuilder, pyo3::err::PyErr>`[0m
+    [1m[94m|[0m [1m[94m|_____________|[0m
+    [1m[94m|[0m
+    [1m[94m|[0m
+[1m[92mnote[0m: the method `add_source` exists on the type `FlowBuilder`
+   [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/builder/flow_builder.rs:299:5
+    [1m[94m|[0m
+[1m[94m299[0m [1m[94m|[0m [1m[92m/[0m     pub fn add_source(
+[1m[94m300[0m [1m[94m|[0m [1m[92m|[0m         &mut self,
+[1m[94m301[0m [1m[94m|[0m [1m[92m|[0m         py: Python<'_>,
+[1m[94m302[0m [1m[94m|[0m [1m[92m|[0m         kind: String,
+[1m[94m...[0m   [1m[92m|[0m
+[1m[94m307[0m [1m[94m|[0m [1m[92m|[0m         execution_options: Option<py::Pythonized<spec::ExecutionOptions>>,
+[1m[94m308[0m [1m[94m|[0m [1m[92m|[0m     ) -> PyResult<DataSlice> {
+    [1m[94m|[0m [1m[92m|____________________________^[0m
+[1m[96mhelp[0m: use the `?` operator to extract the `FlowBuilder` value, propagating a `Result::Err` value to the caller
+    [1m[94m|[0m
+[1m[94m 93[0m [1m[94m| [0m        let source_node = builder[92m?[0m
+    [1m[94m|[0m                                  [92m+[0m
+
+[1m[91merror[E0599][0m[1m: no method named `transform` found for enum `Result<T, E>` in the current scope[0m
+   [1m[94m--> [0mcrates/flow/src/flows/builder.rs:129:26
+    [1m[94m|[0m
+[1m[94m128[0m [1m[94m|[0m                       let parsed = builder
+    [1m[94m|[0m [1m[94m __________________________________-[0m
+[1m[94m129[0m [1m[94m|[0m [1m[94m|[0m                         .transform(
+    [1m[94m|[0m [1m[94m|_________________________-[0m[1m[91m^^^^^^^^^[0m
+    [1m[94m|[0m
+   [1m[94m::: [0m/home/knitli/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/yoke-0.8.1/src/yokeable.rs:96:8
+    [1m[94m|[0m
+[1m[94m 96[0m [1m[94m|[0m       fn transform(&'a self) -> &'a Self::Output;
+    [1m[94m|[0m          [1m[94m---------[0m [1m[94mthe method is available for `&Result<FlowBuilder, pyo3::err::PyErr>` here[0m
+    [1m[94m|[0m
+[1m[92mnote[0m: the method `transform` exists on the type `FlowBuilder`
+   [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/builder/flow_builder.rs:455:5
+    [1m[94m|[0m
+[1m[94m455[0m [1m[94m|[0m [1m[92m/[0m     pub fn transform(
+[1m[94m456[0m [1m[94m|[0m [1m[92m|[0m         &mut self,
+[1m[94m457[0m [1m[94m|[0m [1m[92m|[0m         py: Python<'_>,
+[1m[94m458[0m [1m[94m|[0m [1m[92m|[0m         kind: String,
+[1m[94m...[0m   [1m[92m|[0m
+[1m[94m462[0m [1m[94m|[0m [1m[92m|[0m         name: String,
+[1m[94m463[0m [1m[94m|[0m [1m[92m|[0m     ) -> PyResult<DataSlice> {
+    [1m[94m|[0m [1m[92m|____________________________^[0m
+[1m[96mhelp[0m: there is a method `transform_owned` with a similar name, but with different arguments
+   [1m[94m--> [0m/home/knitli/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/yoke-0.8.1/src/yokeable.rs:105:5
+    [1m[94m|[0m
+[1m[94m105[0m [1m[94m|[0m     fn transform_owned(self) -> Self::Output;
+    [1m[94m|[0m     [1m[96m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+[1m[96mhelp[0m: use the `?` operator to extract the `FlowBuilder` value, propagating a `Result::Err` value to the caller
+    [1m[94m|[0m
+[1m[94m128[0m [1m[94m| [0m                    let parsed = builder[92m?[0m
+    [1m[94m|[0m                                         [92m+[0m
+
+[1m[91merror[E0599][0m[1m: no method named `add_collector` found for enum `Result<T, E>` in the current scope[0m
+   [1m[94m--> [0mcrates/flow/src/flows/builder.rs:150:53
+    [1m[94m|[0m
+[1m[94m150[0m [1m[94m|[0m                     let symbols_collector = builder.add_collector("symbols").map_err(|e| {
+    [1m[94m|[0m                                                     [1m[91m^^^^^^^^^^^^^[0m [1m[91mmethod not found in `Result<FlowBuilder, pyo3::err::PyErr>`[0m
+
+[1m[91merror[E0599][0m[1m: no method named `collect` found for enum `Result<FlowBuilder, pyo3::err::PyErr>` in the current scope[0m
+   [1m[94m--> [0mcrates/flow/src/flows/builder.rs:167:26
+    [1m[94m|[0m
+[1m[94m166[0m [1m[94m|[0m [1m[94m/[0m                     builder
+[1m[94m167[0m [1m[94m|[0m [1m[94m|[0m                         .collect(
+    [1m[94m|[0m [1m[94m|[0m                         [1m[94m-[0m[1m[91m^^^^^^^[0m [1m[91m`Result<FlowBuilder, pyo3::err::PyErr>` is not an iterator[0m
+    [1m[94m|[0m [1m[94m|_________________________|[0m
+    [1m[94m|[0m
+    [1m[94m|[0m
+[1m[96mhelp[0m: call `.into_iter()` first
+    [1m[94m|[0m
+[1m[94m167[0m [1m[94m| [0m                        .[92minto_iter().[0mcollect(
+    [1m[94m|[0m                          [92m++++++++++++[0m
+
+[1m[91merror[E0282][0m[1m: type annotations needed[0m
+   [1m[94m--> [0mcrates/flow/src/flows/builder.rs:175:51
+    [1m[94m|[0m
+[1m[94m175[0m [1m[94m|[0m [1m[94m...[0m                   .map_err(|e| ServiceError::config_dynamic(e.to_string()))?,
+    [1m[94m|[0m                                 [1m[91m^[0m                               [1m[94m-[0m [1m[94mtype must be known at this point[0m
+    [1m[94m|[0m
+[1m[96mhelp[0m: consider giving this closure parameter an explicit type
+    [1m[94m|[0m
+[1m[94m175[0m [1m[94m| [0m                                        .map_err(|e[92m: /* Type */[0m| ServiceError::config_dynamic(e.to_string()))?,
+    [1m[94m|[0m                                                    [92m++++++++++++[0m
+
+[1m[91merror[E0282][0m[1m: type annotations needed[0m
+   [1m[94m--> [0mcrates/flow/src/flows/builder.rs:181:51
+    [1m[94m|[0m
+[1m[94m181[0m [1m[94m|[0m [1m[94m...[0m                   .map_err(|e| ServiceError::config_dynamic(e.to_string()))?,
+    [1m[94m|[0m                                 [1m[91m^[0m                               [1m[94m-[0m [1m[94mtype must be known at this point[0m
+    [1m[94m|[0m
+[1m[96mhelp[0m: consider giving this closure parameter an explicit type
+    [1m[94m|[0m
+[1m[94m181[0m [1m[94m| [0m                                        .map_err(|e[92m: /* Type */[0m| ServiceError::config_dynamic(e.to_string()))?,
+    [1m[94m|[0m                                                    [92m++++++++++++[0m
+
+[1m[91merror[E0282][0m[1m: type annotations needed[0m
+   [1m[94m--> [0mcrates/flow/src/flows/builder.rs:187:51
+    [1m[94m|[0m
+[1m[94m187[0m [1m[94m|[0m [1m[94m...[0m                   .map_err(|e| ServiceError::config_dynamic(e.to_string()))?,
+    [1m[94m|[0m                                 [1m[91m^[0m                               [1m[94m-[0m [1m[94mtype must be known at this point[0m
+    [1m[94m|[0m
+[1m[96mhelp[0m: consider giving this closure parameter an explicit type
+    [1m[94m|[0m
+[1m[94m187[0m [1m[94m| [0m                                        .map_err(|e[92m: /* Type */[0m| ServiceError::config_dynamic(e.to_string()))?,
+    [1m[94m|[0m                                                    [92m++++++++++++[0m
+
+[1m[91merror[E0599][0m[1m: no method named `export` found for enum `Result<T, E>` in the current scope[0m
+    [1m[94m--> [0mcrates/flow/src/flows/builder.rs:203:38
+     [1m[94m|[0m
+[1m[94m 202[0m [1m[94m|[0m [1m[94m/[0m [1m[94m...[0m                   builder
+[1m[94m 203[0m [1m[94m|[0m [1m[94m|[0m [1m[94m...[0m                       .export(
+     [1m[94m|[0m [1m[94m|___________________________-[0m[1m[91m^^^^^^[0m
+     [1m[94m|[0m
+[1m[92mnote[0m: the method `export` exists on the type `FlowBuilder`
+    [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/builder/flow_builder.rs:590:5
+     [1m[94m|[0m
+[1m[94m 590[0m [1m[94m|[0m [1m[92m/[0m     pub fn export(
+[1m[94m 591[0m [1m[94m|[0m [1m[92m|[0m         &mut self,
+[1m[94m 592[0m [1m[94m|[0m [1m[92m|[0m         name: String,
+[1m[94m 593[0m [1m[94m|[0m [1m[92m|[0m         kind: String,
+[1m[94m...[0m    [1m[92m|[0m
+[1m[94m 598[0m [1m[94m|[0m [1m[92m|[0m         setup_by_user: bool,
+[1m[94m 599[0m [1m[94m|[0m [1m[92m|[0m     ) -> PyResult<()> {
+     [1m[94m|[0m [1m[92m|_____________________^[0m
+[1m[96mhelp[0m: there is a method `expect` with a similar name, but with different arguments
+    [1m[94m--> [0m/home/knitli/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/result.rs:1179:5
+     [1m[94m|[0m
+[1m[94m1179[0m [1m[94m|[0m [1m[96m/[0m     pub fn expect(self, msg: &str) -> T
+[1m[94m1180[0m [1m[94m|[0m [1m[96m|[0m     where
+[1m[94m1181[0m [1m[94m|[0m [1m[96m|[0m         E: fmt::Debug,
+     [1m[94m|[0m [1m[96m|______________________^[0m
+[1m[96mhelp[0m: use the `?` operator to extract the `FlowBuilder` value, propagating a `Result::Err` value to the caller
+     [1m[94m|[0m
+[1m[94m 202[0m [1m[94m| [0m                                builder[92m?[0m
+     [1m[94m|[0m                                        [92m+[0m
+
+[1m[91merror[E0599][0m[1m: no function or associated item named `default` found for struct `IndexOptions` in the current scope[0m
+   [1m[94m--> [0mcrates/flow/src/flows/builder.rs:211:55
+    [1m[94m|[0m
+[1m[94m211[0m [1m[94m|[0m [1m[94m...[0m                   IndexOptions::default(),
+    [1m[94m|[0m                                     [1m[91m^^^^^^^[0m [1m[91mfunction or associated item not found in `IndexOptions`[0m
+    [1m[94m|[0m
+[1m[96mhelp[0m: there is a method `default_color` with a similar name
+    [1m[94m|[0m
+[1m[94m211[0m [1m[94m| [0m                                        IndexOptions::default[92m_color[0m(),
+    [1m[94m|[0m                                                              [92m++++++[0m
+
+[1m[91merror[E0599][0m[1m: no method named `build_flow` found for enum `Result<T, E>` in the current scope[0m
+   [1m[94m--> [0mcrates/flow/src/flows/builder.rs:227:14
+    [1m[94m|[0m
+[1m[94m226[0m [1m[94m|[0m [1m[94m/[0m         builder
+[1m[94m227[0m [1m[94m|[0m [1m[94m|[0m             .build_flow()
+    [1m[94m|[0m [1m[94m|[0m             [1m[94m-[0m[1m[91m^^^^^^^^^^[0m [1m[91mmethod not found in `Result<FlowBuilder, pyo3::err::PyErr>`[0m
+    [1m[94m|[0m [1m[94m|_____________|[0m
+    [1m[94m|[0m
+    [1m[94m|[0m
+[1m[92mnote[0m: the method `build_flow` exists on the type `FlowBuilder`
+   [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/builder/flow_builder.rs:647:5
+    [1m[94m|[0m
+[1m[94m647[0m [1m[94m|[0m     pub fn build_flow(&self, py: Python<'_>) -> PyResult<py::Flow> {
+    [1m[94m|[0m     [1m[92m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+[1m[96mhelp[0m: use the `?` operator to extract the `FlowBuilder` value, propagating a `Result::Err` value to the caller
+    [1m[94m|[0m
+[1m[94m226[0m [1m[94m| [0m        builder[92m?[0m
+    [1m[94m|[0m                [92m+[0m
+
+[1m[91merror[E0308][0m[1m: mismatched types[0m
+  [1m[94m--> [0mcrates/flow/src/functions/parse.rs:23:23
+   [1m[94m|[0m
+[1m[94m23[0m [1m[94m|[0m             executor: Arc::new(ThreadParseExecutor),
+   [1m[94m|[0m                       [1m[91m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mexpected `Pin<Box<...>>`, found `Arc<ThreadParseExecutor>`[0m
+   [1m[94m|[0m
+   [1m[94m= [0m[1mnote[0m: expected struct `[1m[35mPin<Box<(dyn Future<Output = Result<Box<(dyn SimpleFunctionExecutor + 'static)>, cocoindex::error::Error>> + Send + 'static)>>[0m`
+              found struct `[1m[35mArc<ThreadParseExecutor>[0m`
+
+[1m[91merror[E0560][0m[1m: struct `SimpleFunctionBuildOutput` has no field named `output_value_type`[0m
+  [1m[94m--> [0mcrates/flow/src/functions/parse.rs:24:13
+   [1m[94m|[0m
+[1m[94m24[0m [1m[94m|[0m             output_value_type: crate::conversion::build_output_schema(),
+   [1m[94m|[0m             [1m[91m^^^^^^^^^^^^^^^^^[0m [1m[91m`SimpleFunctionBuildOutput` does not have this field[0m
+   [1m[94m|[0m
+   [1m[94m= [0m[1mnote[0m: available fields are: `output_type`, `behavior_version`
+
+[1m[91merror[E0560][0m[1m: struct `SimpleFunctionBuildOutput` has no field named `enable_cache`[0m
+  [1m[94m--> [0mcrates/flow/src/functions/parse.rs:25:13
+   [1m[94m|[0m
+[1m[94m25[0m [1m[94m|[0m             enable_cache: true,
+   [1m[94m|[0m             [1m[91m^^^^^^^^^^^^[0m [1m[91m`SimpleFunctionBuildOutput` does not have this field[0m
+   [1m[94m|[0m
+   [1m[94m= [0m[1mnote[0m: available fields are: `output_type`, `behavior_version`
+
+[1m[91merror[E0560][0m[1m: struct `SimpleFunctionBuildOutput` has no field named `timeout`[0m
+  [1m[94m--> [0mcrates/flow/src/functions/parse.rs:26:13
+   [1m[94m|[0m
+[1m[94m26[0m [1m[94m|[0m             timeout: None,
+   [1m[94m|[0m             [1m[91m^^^^^^^[0m [1m[91m`SimpleFunctionBuildOutput` does not have this field[0m
+   [1m[94m|[0m
+   [1m[94m= [0m[1mnote[0m: available fields are: `output_type`, `behavior_version`
+
+[1m[91merror[E0599][0m[1m: no variant or associated item named `msg` found for enum `cocoindex::error::Error` in the current scope[0m
+  [1m[94m--> [0mcrates/flow/src/functions/parse.rs:40:53
+   [1m[94m|[0m
+[1m[94m40[0m [1m[94m|[0m             .ok_or_else(|| cocoindex::error::Error::msg("Missing content"))?
+   [1m[94m|[0m                                                     [1m[91m^^^[0m [1m[91mvariant or associated item not found in `cocoindex::error::Error`[0m
+   [1m[94m|[0m
+[1m[92mnote[0m: if you're trying to build a new `cocoindex::error::Error` consider using one of the following associated functions:
+      cocoindex::error::Error::host
+      cocoindex::error::Error::client
+      cocoindex::error::Error::internal
+      cocoindex::error::Error::internal_msg
+  [1m[94m--> [0mvendor/cocoindex/rust/utils/src/error.rs:55:5
+   [1m[94m|[0m
+[1m[94m55[0m [1m[94m|[0m     pub fn host(e: impl HostError) -> Self {
+   [1m[94m|[0m     [1m[92m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+[1m[94m...[0m
+[1m[94m59[0m [1m[94m|[0m     pub fn client(msg: impl Into<String>) -> Self {
+   [1m[94m|[0m     [1m[92m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+[1m[94m...[0m
+[1m[94m66[0m [1m[94m|[0m     pub fn internal(e: impl Into<anyhow::Error>) -> Self {
+   [1m[94m|[0m     [1m[92m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+[1m[94m...[0m
+[1m[94m70[0m [1m[94m|[0m     pub fn internal_msg(msg: impl Into<String>) -> Self {
+   [1m[94m|[0m     [1m[92m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+
+[1m[91merror[E0599][0m[1m: no variant or associated item named `msg` found for enum `cocoindex::error::Error` in the current scope[0m
+  [1m[94m--> [0mcrates/flow/src/functions/parse.rs:42:51
+   [1m[94m|[0m
+[1m[94m42[0m [1m[94m|[0m             .map_err(|e| cocoindex::error::Error::msg(e.to_string()))?;
+   [1m[94m|[0m                                                   [1m[91m^^^[0m [1m[91mvariant or associated item not found in `cocoindex::error::Error`[0m
+   [1m[94m|[0m
+[1m[92mnote[0m: if you're trying to build a new `cocoindex::error::Error` consider using one of the following associated functions:
+      cocoindex::error::Error::host
+      cocoindex::error::Error::client
+      cocoindex::error::Error::internal
+      cocoindex::error::Error::internal_msg
+  [1m[94m--> [0mvendor/cocoindex/rust/utils/src/error.rs:55:5
+   [1m[94m|[0m
+[1m[94m55[0m [1m[94m|[0m     pub fn host(e: impl HostError) -> Self {
+   [1m[94m|[0m     [1m[92m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+[1m[94m...[0m
+[1m[94m59[0m [1m[94m|[0m     pub fn client(msg: impl Into<String>) -> Self {
+   [1m[94m|[0m     [1m[92m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+[1m[94m...[0m
+[1m[94m66[0m [1m[94m|[0m     pub fn internal(e: impl Into<anyhow::Error>) -> Self {
+   [1m[94m|[0m     [1m[92m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+[1m[94m...[0m
+[1m[94m70[0m [1m[94m|[0m     pub fn internal_msg(msg: impl Into<String>) -> Self {
+   [1m[94m|[0m     [1m[92m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+
+[1m[91merror[E0282][0m[1m: type annotations needed[0m
+  [1m[94m--> [0mcrates/flow/src/functions/parse.rs:42:23
+   [1m[94m|[0m
+[1m[94m42[0m [1m[94m|[0m             .map_err(|e| cocoindex::error::Error::msg(e.to_string()))?;
+   [1m[94m|[0m                       [1m[91m^[0m                               [1m[94m-[0m [1m[94mtype must be known at this point[0m
+   [1m[94m|[0m
+[1m[96mhelp[0m: consider giving this closure parameter an explicit type
+   [1m[94m|[0m
+[1m[94m42[0m [1m[94m| [0m            .map_err(|e[92m: /* Type */[0m| cocoindex::error::Error::msg(e.to_string()))?;
+   [1m[94m|[0m                        [92m++++++++++++[0m
+
+[1m[91merror[E0599][0m[1m: no variant or associated item named `msg` found for enum `cocoindex::error::Error` in the current scope[0m
+  [1m[94m--> [0mcrates/flow/src/functions/parse.rs:46:53
+   [1m[94m|[0m
+[1m[94m46[0m [1m[94m|[0m             .ok_or_else(|| cocoindex::error::Error::msg("Missing language"))?
+   [1m[94m|[0m                                                     [1m[91m^^^[0m [1m[91mvariant or associated item not found in `cocoindex::error::Error`[0m
+   [1m[94m|[0m
+[1m[92mnote[0m: if you're trying to build a new `cocoindex::error::Error` consider using one of the following associated functions:
+      cocoindex::error::Error::host
+      cocoindex::error::Error::client
+      cocoindex::error::Error::internal
+      cocoindex::error::Error::internal_msg
+  [1m[94m--> [0mvendor/cocoindex/rust/utils/src/error.rs:55:5
+   [1m[94m|[0m
+[1m[94m55[0m [1m[94m|[0m     pub fn host(e: impl HostError) -> Self {
+   [1m[94m|[0m     [1m[92m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+[1m[94m...[0m
+[1m[94m59[0m [1m[94m|[0m     pub fn client(msg: impl Into<String>) -> Self {
+   [1m[94m|[0m     [1m[92m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+[1m[94m...[0m
+[1m[94m66[0m [1m[94m|[0m     pub fn internal(e: impl Into<anyhow::Error>) -> Self {
+   [1m[94m|[0m     [1m[92m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+[1m[94m...[0m
+[1m[94m70[0m [1m[94m|[0m     pub fn internal_msg(msg: impl Into<String>) -> Self {
+   [1m[94m|[0m     [1m[92m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+
+[1m[91merror[E0599][0m[1m: no variant or associated item named `msg` found for enum `cocoindex::error::Error` in the current scope[0m
+  [1m[94m--> [0mcrates/flow/src/functions/parse.rs:48:51
+   [1m[94m|[0m
+[1m[94m48[0m [1m[94m|[0m             .map_err(|e| cocoindex::error::Error::msg(e.to_string()))?;
+   [1m[94m|[0m                                                   [1m[91m^^^[0m [1m[91mvariant or associated item not found in `cocoindex::error::Error`[0m
+   [1m[94m|[0m
+[1m[92mnote[0m: if you're trying to build a new `cocoindex::error::Error` consider using one of the following associated functions:
+      cocoindex::error::Error::host
+      cocoindex::error::Error::client
+      cocoindex::error::Error::internal
+      cocoindex::error::Error::internal_msg
+  [1m[94m--> [0mvendor/cocoindex/rust/utils/src/error.rs:55:5
+   [1m[94m|[0m
+[1m[94m55[0m [1m[94m|[0m     pub fn host(e: impl HostError) -> Self {
+   [1m[94m|[0m     [1m[92m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+[1m[94m...[0m
+[1m[94m59[0m [1m[94m|[0m     pub fn client(msg: impl Into<String>) -> Self {
+   [1m[94m|[0m     [1m[92m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+[1m[94m...[0m
+[1m[94m66[0m [1m[94m|[0m     pub fn internal(e: impl Into<anyhow::Error>) -> Self {
+   [1m[94m|[0m     [1m[92m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+[1m[94m...[0m
+[1m[94m70[0m [1m[94m|[0m     pub fn internal_msg(msg: impl Into<String>) -> Self {
+   [1m[94m|[0m     [1m[92m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+
+[1m[91merror[E0282][0m[1m: type annotations needed[0m
+  [1m[94m--> [0mcrates/flow/src/functions/parse.rs:48:23
+   [1m[94m|[0m
+[1m[94m48[0m [1m[94m|[0m             .map_err(|e| cocoindex::error::Error::msg(e.to_string()))?;
+   [1m[94m|[0m                       [1m[91m^[0m                               [1m[94m-[0m [1m[94mtype must be known at this point[0m
+   [1m[94m|[0m
+[1m[96mhelp[0m: consider giving this closure parameter an explicit type
+   [1m[94m|[0m
+[1m[94m48[0m [1m[94m| [0m            .map_err(|e[92m: /* Type */[0m| cocoindex::error::Error::msg(e.to_string()))?;
+   [1m[94m|[0m                        [92m++++++++++++[0m
+
+[1m[91merror[E0308][0m[1m: mismatched types[0m
+    [1m[94m--> [0mcrates/flow/src/functions/parse.rs:52:43
+     [1m[94m|[0m
+[1m[94m  52[0m [1m[94m|[0m             .map(|v| v.as_str().unwrap_or("unknown"))
+     [1m[94m|[0m                                 [1m[94m---------[0m [1m[91m^^^^^^^^^[0m [1m[91mexpected `&Arc<str>`, found `&str`[0m
+     [1m[94m|[0m                                 [1m[94m|[0m
+     [1m[94m|[0m                                 [1m[94marguments to this method are incorrect[0m
+     [1m[94m|[0m
+     [1m[94m= [0m[1mnote[0m: expected reference `[1m[35m&[0m[1m[35mArc<str>[0m`
+                found reference `[1m[35m&'static [0m[1m[35mstr[0m`
+[1m[96mhelp[0m: the return type of this call is `&'static str` due to the type of the argument passed
+    [1m[94m--> [0mcrates/flow/src/functions/parse.rs:52:22
+     [1m[94m|[0m
+[1m[94m  52[0m [1m[94m|[0m             .map(|v| v.as_str().unwrap_or("unknown"))
+     [1m[94m|[0m                      [1m[96m^^^^^^^^^^^^^^^^^^^^^[0m[1m[94m---------[0m[1m[96m^[0m
+     [1m[94m|[0m                                           [1m[94m|[0m
+     [1m[94m|[0m                                           [1m[94mthis argument influences the return type of `unwrap_or`[0m
+[1m[92mnote[0m: method defined here
+    [1m[94m--> [0m/home/knitli/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/result.rs:1590:18
+     [1m[94m|[0m
+[1m[94m1590[0m [1m[94m|[0m     pub const fn unwrap_or(self, default: T) -> T
+     [1m[94m|[0m                  [1m[92m^^^^^^^^^[0m
+[1m[96mhelp[0m: use `Result::map_or` to deref inner value of `Result`
+     [1m[94m|[0m
+[1m[94m  52[0m [91m- [0m            .map(|v| v.as_str().[91munwrap_or[0m("unknown"))
+[1m[94m  52[0m [92m+ [0m            .map(|v| v.as_str().[92mmap_or[0m("unknown"[92m, |v| v[0m))
+     [1m[94m|[0m
+
+[1m[91merror[E0308][0m[1m: mismatched types[0m
+    [1m[94m--> [0mcrates/flow/src/functions/parse.rs:53:24
+     [1m[94m|[0m
+[1m[94m  53[0m [1m[94m|[0m             .unwrap_or("unknown");
+     [1m[94m|[0m              [1m[94m---------[0m [1m[91m^^^^^^^^^[0m [1m[91mexpected `&Arc<str>`, found `&str`[0m
+     [1m[94m|[0m              [1m[94m|[0m
+     [1m[94m|[0m              [1m[94marguments to this method are incorrect[0m
+     [1m[94m|[0m
+     [1m[94m= [0m[1mnote[0m: expected reference `[1m[35m&[0m[1m[35mArc<str>[0m`
+                found reference `[1m[35m&'static [0m[1m[35mstr[0m`
+[1m[96mhelp[0m: the return type of this call is `&'static str` due to the type of the argument passed
+    [1m[94m--> [0mcrates/flow/src/functions/parse.rs:50:24
+     [1m[94m|[0m
+[1m[94m  50[0m [1m[94m|[0m           let path_str = input
+     [1m[94m|[0m [1m[96m ________________________^[0m
+[1m[94m  51[0m [1m[94m|[0m [1m[96m|[0m             .get(2)
+[1m[94m  52[0m [1m[94m|[0m [1m[96m|[0m             .map(|v| v.as_str().unwrap_or("unknown"))
+[1m[94m  53[0m [1m[94m|[0m [1m[96m|[0m             .unwrap_or("unknown");
+     [1m[94m|[0m [1m[96m|________________________[0m[1m[94m---------[0m[1m[96m^[0m
+     [1m[94m|[0m                          [1m[94m|[0m
+     [1m[94m|[0m                          [1m[94mthis argument influences the return type of `unwrap_or`[0m
+[1m[92mnote[0m: method defined here
+    [1m[94m--> [0m/home/knitli/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/option.rs:1038:18
+     [1m[94m|[0m
+[1m[94m1038[0m [1m[94m|[0m     pub const fn unwrap_or(self, default: T) -> T
+     [1m[94m|[0m                  [1m[92m^^^^^^^^^[0m
+[1m[96mhelp[0m: use `Option::map_or` to deref inner value of `Option`
+     [1m[94m|[0m
+[1m[94m  53[0m [91m- [0m            .[91munwrap_or[0m("unknown");
+[1m[94m  53[0m [92m+ [0m            .[92mmap_or[0m("unknown"[92m, |v| v[0m);
+     [1m[94m|[0m
+
+[1m[91merror[E0599][0m[1m: no variant or associated item named `msg` found for enum `cocoindex::error::Error` in the current scope[0m
+  [1m[94m--> [0mcrates/flow/src/functions/parse.rs:66:42
+   [1m[94m|[0m
+[1m[94m66[0m [1m[94m|[0m                 cocoindex::error::Error::msg(format!("Unsupported language: {}", lang_str))
+   [1m[94m|[0m                                          [1m[91m^^^[0m [1m[91mvariant or associated item not found in `cocoindex::error::Error`[0m
+   [1m[94m|[0m
+[1m[92mnote[0m: if you're trying to build a new `cocoindex::error::Error` consider using one of the following associated functions:
+      cocoindex::error::Error::host
+      cocoindex::error::Error::client
+      cocoindex::error::Error::internal
+      cocoindex::error::Error::internal_msg
+  [1m[94m--> [0mvendor/cocoindex/rust/utils/src/error.rs:55:5
+   [1m[94m|[0m
+[1m[94m55[0m [1m[94m|[0m     pub fn host(e: impl HostError) -> Self {
+   [1m[94m|[0m     [1m[92m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+[1m[94m...[0m
+[1m[94m59[0m [1m[94m|[0m     pub fn client(msg: impl Into<String>) -> Self {
+   [1m[94m|[0m     [1m[92m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+[1m[94m...[0m
+[1m[94m66[0m [1m[94m|[0m     pub fn internal(e: impl Into<anyhow::Error>) -> Self {
+   [1m[94m|[0m     [1m[92m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+[1m[94m...[0m
+[1m[94m70[0m [1m[94m|[0m     pub fn internal_msg(msg: impl Into<String>) -> Self {
+   [1m[94m|[0m     [1m[92m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+
+[1m[91merror[E0277][0m[1m: the trait bound `Arc<str>: AsRef<OsStr>` is not satisfied[0m
+    [1m[94m--> [0mcrates/flow/src/functions/parse.rs:77:20
+     [1m[94m|[0m
+[1m[94m  77[0m [1m[94m|[0m         let path = std::path::PathBuf::from(path_str);
+     [1m[94m|[0m                    [1m[91m^^^^^^^^^^^^^^^^^^[0m [1m[91mthe trait `AsRef<OsStr>` is not implemented for `Arc<str>`[0m
+     [1m[94m|[0m
+[1m[96mhelp[0m: the trait `AsRef<[1m[35mOsStr[0m>` [1m[35mis not[0m implemented for `Arc<str>`
+      but trait `AsRef<[1m[35mstr[0m>` [1m[35mis[0m implemented for it
+    [1m[94m--> [0m/home/knitli/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/alloc/src/sync.rs:4189:1
+     [1m[94m|[0m
+[1m[94m4189[0m [1m[94m|[0m impl<T: ?Sized, A: Allocator> AsRef<T> for Arc<T, A> {
+     [1m[94m|[0m [1m[96m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+     [1m[94m= [0m[1mhelp[0m: for that trait implementation, expected `[1m[35mstr[0m`, found `[1m[35mOsStr[0m`
+     [1m[94m= [0m[1mnote[0m: required for `PathBuf` to implement `From<&Arc<str>>`
+
+[1m[91merror[E0599][0m[1m: no variant or associated item named `msg` found for enum `cocoindex::error::Error` in the current scope[0m
+  [1m[94m--> [0mcrates/flow/src/functions/parse.rs:85:51
+   [1m[94m|[0m
+[1m[94m85[0m [1m[94m|[0m [1m[94m...[0m:Error::msg(format!("Extraction error: {}", e)))?;
+   [1m[94m|[0m            [1m[91m^^^[0m [1m[91mvariant or associated item not found in `cocoindex::error::Error`[0m
+   [1m[94m|[0m
+[1m[92mnote[0m: if you're trying to build a new `cocoindex::error::Error` consider using one of the following associated functions:
+      cocoindex::error::Error::host
+      cocoindex::error::Error::client
+      cocoindex::error::Error::internal
+      cocoindex::error::Error::internal_msg
+  [1m[94m--> [0mvendor/cocoindex/rust/utils/src/error.rs:55:5
+   [1m[94m|[0m
+[1m[94m55[0m [1m[94m|[0m     pub fn host(e: impl HostError) -> Self {
+   [1m[94m|[0m     [1m[92m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+[1m[94m...[0m
+[1m[94m59[0m [1m[94m|[0m     pub fn client(msg: impl Into<String>) -> Self {
+   [1m[94m|[0m     [1m[92m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+[1m[94m...[0m
+[1m[94m66[0m [1m[94m|[0m     pub fn internal(e: impl Into<anyhow::Error>) -> Self {
+   [1m[94m|[0m     [1m[92m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+[1m[94m...[0m
+[1m[94m70[0m [1m[94m|[0m     pub fn internal_msg(msg: impl Into<String>) -> Self {
+   [1m[94m|[0m     [1m[92m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+
+[1m[91merror[E0308][0m[1m: mismatched types[0m
+   [1m[94m--> [0mcrates/flow/src/conversion.rs:98:17
+    [1m[94m|[0m
+[1m[94m 98[0m [1m[94m|[0m   [1m[94m...[0m   fields: vec![
+    [1m[94m|[0m [1m[91m _______________^[0m
+[1m[94m 99[0m [1m[94m|[0m [1m[91m|[0m [1m[94m...[0m       FieldSchema::new(
+[1m[94m100[0m [1m[94m|[0m [1m[91m|[0m [1m[94m...[0m           "symbols".to_string(),
+[1m[94m101[0m [1m[94m|[0m [1m[91m|[0m [1m[94m...[0m           ValueType::Array(Box::new(symbol_type())),
+[1m[94m...[0m   [1m[91m|[0m
+[1m[94m107[0m [1m[94m|[0m [1m[91m|[0m [1m[94m...[0m       FieldSchema::new("calls".to_string(), ValueType::Array(Box::new(call_type()[1m[94m...[0m
+[1m[94m108[0m [1m[94m|[0m [1m[91m|[0m [1m[94m...[0m   ],
+    [1m[94m|[0m [1m[91m|_______^[0m [1m[91mexpected `Arc<Vec<FieldSchema>>`, found `Vec<FieldSchema>`[0m
+    [1m[94m|[0m
+    [1m[94m= [0m[1mnote[0m: expected struct `[1m[35mArc[0m[1m[35m<[0mVec<_>[1m[35m>[0m`
+               found struct `Vec<_>`
+    [1m[94m= [0m[1mnote[0m: this error originates in the macro `vec` (in Nightly builds, run with -Z macro-backtrace for more info)
+[1m[96mhelp[0m: call `Into::into` on this expression to convert `Vec<FieldSchema>` into `Arc<Vec<FieldSchema>>`
+    [1m[94m|[0m
+[1m[94m108[0m [1m[94m| [0m        ][92m.into()[0m,
+    [1m[94m|[0m          [92m+++++++[0m
+
+[1m[91merror[E0308][0m[1m: mismatched types[0m
+   [1m[94m--> [0mcrates/flow/src/conversion.rs:114:17
+    [1m[94m|[0m
+[1m[94m114[0m [1m[94m|[0m           fields: vec![
+    [1m[94m|[0m [1m[91m _________________^[0m
+[1m[94m115[0m [1m[94m|[0m [1m[91m|[0m             FieldSchema::new("name".to_string(), ValueType::String),
+[1m[94m116[0m [1m[94m|[0m [1m[91m|[0m             FieldSchema::new("kind".to_string(), ValueType::String),
+[1m[94m117[0m [1m[94m|[0m [1m[91m|[0m             FieldSchema::new("scope".to_string(), ValueType::String),
+[1m[94m118[0m [1m[94m|[0m [1m[91m|[0m         ],
+    [1m[94m|[0m [1m[91m|_________^[0m [1m[91mexpected `Arc<Vec<FieldSchema>>`, found `Vec<FieldSchema>`[0m
+    [1m[94m|[0m
+    [1m[94m= [0m[1mnote[0m: expected struct `[1m[35mArc[0m[1m[35m<[0mVec<_>[1m[35m>[0m`
+               found struct `Vec<_>`
+    [1m[94m= [0m[1mnote[0m: this error originates in the macro `vec` (in Nightly builds, run with -Z macro-backtrace for more info)
+[1m[96mhelp[0m: call `Into::into` on this expression to convert `Vec<FieldSchema>` into `Arc<Vec<FieldSchema>>`
+    [1m[94m|[0m
+[1m[94m118[0m [1m[94m| [0m        ][92m.into()[0m,
+    [1m[94m|[0m          [92m+++++++[0m
+
+[1m[91merror[E0308][0m[1m: mismatched types[0m
+   [1m[94m--> [0mcrates/flow/src/conversion.rs:124:17
+    [1m[94m|[0m
+[1m[94m124[0m [1m[94m|[0m           fields: vec![
+    [1m[94m|[0m [1m[91m _________________^[0m
+[1m[94m125[0m [1m[94m|[0m [1m[91m|[0m             FieldSchema::new("symbol_name".to_string(), ValueType::String),
+[1m[94m126[0m [1m[94m|[0m [1m[91m|[0m             FieldSchema::new("source_path".to_string(), ValueType::String),
+[1m[94m127[0m [1m[94m|[0m [1m[91m|[0m             FieldSchema::new("kind".to_string(), ValueType::String),
+[1m[94m128[0m [1m[94m|[0m [1m[91m|[0m         ],
+    [1m[94m|[0m [1m[91m|_________^[0m [1m[91mexpected `Arc<Vec<FieldSchema>>`, found `Vec<FieldSchema>`[0m
+    [1m[94m|[0m
+    [1m[94m= [0m[1mnote[0m: expected struct `[1m[35mArc[0m[1m[35m<[0mVec<_>[1m[35m>[0m`
+               found struct `Vec<_>`
+    [1m[94m= [0m[1mnote[0m: this error originates in the macro `vec` (in Nightly builds, run with -Z macro-backtrace for more info)
+[1m[96mhelp[0m: call `Into::into` on this expression to convert `Vec<FieldSchema>` into `Arc<Vec<FieldSchema>>`
+    [1m[94m|[0m
+[1m[94m128[0m [1m[94m| [0m        ][92m.into()[0m,
+    [1m[94m|[0m          [92m+++++++[0m
+
+[1m[91merror[E0308][0m[1m: mismatched types[0m
+   [1m[94m--> [0mcrates/flow/src/conversion.rs:134:17
+    [1m[94m|[0m
+[1m[94m134[0m [1m[94m|[0m           fields: vec![
+    [1m[94m|[0m [1m[91m _________________^[0m
+[1m[94m135[0m [1m[94m|[0m [1m[91m|[0m             FieldSchema::new("function_name".to_string(), ValueType::String),
+[1m[94m136[0m [1m[94m|[0m [1m[91m|[0m             FieldSchema::new("arguments_count".to_string(), ValueType::Int),
+[1m[94m137[0m [1m[94m|[0m [1m[91m|[0m         ],
+    [1m[94m|[0m [1m[91m|_________^[0m [1m[91mexpected `Arc<Vec<FieldSchema>>`, found `Vec<FieldSchema>`[0m
+    [1m[94m|[0m
+    [1m[94m= [0m[1mnote[0m: expected struct `[1m[35mArc[0m[1m[35m<[0mVec<_>[1m[35m>[0m`
+               found struct `Vec<_>`
+    [1m[94m= [0m[1mnote[0m: this error originates in the macro `vec` (in Nightly builds, run with -Z macro-backtrace for more info)
+[1m[96mhelp[0m: call `Into::into` on this expression to convert `Vec<FieldSchema>` into `Arc<Vec<FieldSchema>>`
+    [1m[94m|[0m
+[1m[94m137[0m [1m[94m| [0m        ][92m.into()[0m,
+    [1m[94m|[0m          [92m+++++++[0m
+
+[1mSome errors have detailed explanations: E0050, E0061, E0063, E0277, E0282, E0308, E0560, E0599.[0m
+[1mFor more information about an error, try `rustc --explain E0050`.[0m
+[1m[91merror[0m: could not compile `thread-flow` (lib) due to 58 previous errors

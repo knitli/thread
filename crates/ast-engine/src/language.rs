@@ -40,7 +40,7 @@ use std::path::Path;
 /// * which character is used for meta variable.
 /// * if we need to use other char in meta var for parser at runtime
 /// * pre process the Pattern code.
-pub trait Language: Clone + 'static {
+pub trait Language: Clone + std::fmt::Debug + Send + Sync + 'static {
     /// normalize pattern code before matching
     /// e.g. remove `expression_statement`, or prefer parsing {} to object over block
     fn pre_process_pattern<'q>(&self, query: &'q str) -> Cow<'q, str> {

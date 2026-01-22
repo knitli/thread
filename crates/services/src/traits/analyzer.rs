@@ -13,13 +13,6 @@ use std::collections::HashMap;
 
 use crate::error::{AnalysisError, ServiceResult};
 use crate::types::{AnalysisContext, CodeMatch, CrossFileRelationship, ParsedDocument};
-#[cfg(feature = "matching")]
-use thread_ast_engine::source::Doc;
-#[cfg(feature = "matching")]
-use thread_ast_engine::{Node, NodeMatch};
-
-#[cfg(feature = "matching")]
-use thread_ast_engine::{Matcher, Pattern};
 
 /// Core analyzer service trait that abstracts ast-grep analysis functionality.
 ///

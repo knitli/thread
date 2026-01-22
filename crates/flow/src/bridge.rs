@@ -21,33 +21,55 @@ impl CocoIndexAnalyzer {
 }
 
 #[async_trait]
-impl CodeAnalyzer for CocoIndexAnalyzer {
+impl<D: thread_ast_engine::source::Doc + Send + Sync> CodeAnalyzer<D> for CocoIndexAnalyzer {
     fn capabilities(&self) -> AnalyzerCapabilities {
         AnalyzerCapabilities {
-            supports_incremental: true,
-            supports_cross_file: true,
-            supports_deep_analysis: true,
-            supported_languages: vec![], // TODO: Fill from available parsers
+            max_concurrent_patterns: Some(50),
+            max_matches_per_pattern: Some(1000),
+            supports_pattern_compilation: false,
+            supports_cross_file_analysis: true,
+            supports_batch_optimization: true,
+            supports_incremental_analysis: true,
+            supported_analysis_depths: vec![], // TODO
+            performance_profile: thread_services::traits::AnalysisPerformanceProfile::Balanced,
+            capability_flags: std::collections::HashMap::new(),
         }
     }
 
-    async fn analyze_document(
+    async fn find_pattern(
         &self,
-        document: &ParsedDocument<impl thread_ast_engine::source::Doc>,
-        context: &AnalysisContext,
-    ) -> ServiceResult<ParsedDocument<impl thread_ast_engine::source::Doc>> {
-        // Bridge: Trigger a CocoIndex flow execution for single document
-        Ok(ParsedDocument::new(
-            document.ast_root.clone(),
-            document.file_path.clone(),
-            document.language,
-            document.content_hash,
-        ))
+        _document: &ParsedDocument<D>,
+        _pattern: &str,
+        _context: &AnalysisContext,
+    ) -> ServiceResult<Vec<thread_services::types::CodeMatch<'_, D>>> {
+        // TODO: Bridge to CocoIndex
+        Ok(vec![])
+    }
+
+    async fn find_all_patterns(
+        &self,
+        _document: &ParsedDocument<D>,
+        _patterns: &[&str],
+        _context: &AnalysisContext,
+    ) -> ServiceResult<Vec<thread_services::types::CodeMatch<'_, D>>> {
+        // TODO: Bridge to CocoIndex
+        Ok(vec![])
+    }
+
+    async fn replace_pattern(
+        &self,
+        _document: &mut ParsedDocument<D>,
+        _pattern: &str,
+        _replacement: &str,
+        _context: &AnalysisContext,
+    ) -> ServiceResult<usize> {
+        // TODO: Bridge to CocoIndex
+        Ok(0)
     }
 
     async fn analyze_cross_file_relationships(
         &self,
-        _documents: &[ParsedDocument<impl thread_ast_engine::source::Doc>],
+        _documents: &[ParsedDocument<D>],
         _context: &AnalysisContext,
     ) -> ServiceResult<Vec<CrossFileRelationship>> {
         // Bridge: Query CocoIndex graph for relationships

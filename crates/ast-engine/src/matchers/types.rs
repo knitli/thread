@@ -177,7 +177,7 @@ pub trait MatcherExt: Matcher {
 ///
 /// - `'t` - Lifetime tied to the source document
 /// - `D: Doc` - Document type containing the source and language info
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 #[cfg_attr(not(feature = "matching"), allow(dead_code))]
 pub struct NodeMatch<'t, D: Doc>(pub(crate) Node<'t, D>, pub(crate) MetaVarEnv<'t, D>);
 

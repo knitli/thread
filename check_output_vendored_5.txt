@@ -1,0 +1,734 @@
+[1m[92m    Blocking[0m waiting for file lock on build directory
+[1m[92m   Compiling[0m pyo3-build-config v0.27.2
+[1m[92m    Checking[0m hyper-tls v0.6.0
+[1m[92m    Checking[0m reqwest v0.12.28
+[1m[92m    Checking[0m cocoindex_utils v999.0.0 (/home/knitli/thread/vendor/cocoindex/rust/utils)
+[1m[92m   Compiling[0m pyo3-macros-backend v0.27.2
+[1m[92m   Compiling[0m pyo3-ffi v0.27.2
+[1m[92m   Compiling[0m pyo3 v0.27.2
+[1m[92m   Compiling[0m numpy v0.27.1
+[1m[92m   Compiling[0m pyo3-macros v0.27.2
+[1m[92m    Checking[0m pyo3-async-runtimes v0.27.0
+[1m[92m    Checking[0m pythonize v0.27.0
+[1m[92m    Checking[0m cocoindex_py_utils v999.0.0 (/home/knitli/thread/vendor/cocoindex/rust/py_utils)
+[1m[92m    Checking[0m cocoindex v999.0.0 (/home/knitli/thread/vendor/cocoindex/rust/cocoindex)
+[1m[33mwarning[0m[1m: unused variable: `reqwest_client`[0m
+  [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/registration.rs:10:9
+   [1m[94m|[0m
+[1m[94m10[0m [1m[94m|[0m     let reqwest_client = reqwest::Client::new();
+   [1m[94m|[0m         [1m[33m^^^^^^^^^^^^^^[0m [1m[33mhelp: if this is intentional, prefix it with an underscore: `_reqwest_client`[0m
+   [1m[94m|[0m
+   [1m[94m= [0m[1mnote[0m: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+[1m[33mwarning[0m[1m: static `CONTENT_MIME_TYPE` is never used[0m
+  [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/base/field_attrs.rs:11:12
+   [1m[94m|[0m
+[1m[94m11[0m [1m[94m|[0m pub static CONTENT_MIME_TYPE: &str = concatcp!(COCOINDEX_PREFIX, "content_mime_type");
+   [1m[94m|[0m            [1m[33m^^^^^^^^^^^^^^^^^[0m
+   [1m[94m|[0m
+   [1m[94m= [0m[1mnote[0m: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+[1m[33mwarning[0m[1m: static `INFER` is never used[0m
+ [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/llm/mod.rs:8:8
+  [1m[94m|[0m
+[1m[94m8[0m [1m[94m|[0m static INFER: LazyLock<Infer> = LazyLock::new(Infer::new);
+  [1m[94m|[0m        [1m[33m^^^^^[0m
+
+[1m[33mwarning[0m[1m: fields `name` and `schema` are never read[0m
+  [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/llm/mod.rs:63:9
+   [1m[94m|[0m
+[1m[94m62[0m [1m[94m|[0m     JsonSchema {
+   [1m[94m|[0m     [1m[94m----------[0m [1m[94mfields in this variant[0m
+[1m[94m63[0m [1m[94m|[0m         name: Cow<'a, str>,
+   [1m[94m|[0m         [1m[33m^^^^[0m
+[1m[94m64[0m [1m[94m|[0m         schema: Cow<'a, SchemaObject>,
+   [1m[94m|[0m         [1m[33m^^^^^^[0m
+   [1m[94m|[0m
+   [1m[94m= [0m[1mnote[0m: `OutputFormat` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+[1m[33mwarning[0m[1m: fields `model`, `system_prompt`, `user_prompt`, `image`, and `output_format` are never read[0m
+  [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/llm/mod.rs:70:9
+   [1m[94m|[0m
+[1m[94m69[0m [1m[94m|[0m pub struct LlmGenerateRequest<'a> {
+   [1m[94m|[0m            [1m[94m------------------[0m [1m[94mfields in this struct[0m
+[1m[94m70[0m [1m[94m|[0m     pub model: &'a str,
+   [1m[94m|[0m         [1m[33m^^^^^[0m
+[1m[94m71[0m [1m[94m|[0m     pub system_prompt: Option<Cow<'a, str>>,
+   [1m[94m|[0m         [1m[33m^^^^^^^^^^^^^[0m
+[1m[94m72[0m [1m[94m|[0m     pub user_prompt: Cow<'a, str>,
+   [1m[94m|[0m         [1m[33m^^^^^^^^^^^[0m
+[1m[94m73[0m [1m[94m|[0m     pub image: Option<Cow<'a, [u8]>>,
+   [1m[94m|[0m         [1m[33m^^^^^[0m
+[1m[94m74[0m [1m[94m|[0m     pub output_format: Option<OutputFormat<'a>>,
+   [1m[94m|[0m         [1m[33m^^^^^^^^^^^^^[0m
+   [1m[94m|[0m
+   [1m[94m= [0m[1mnote[0m: `LlmGenerateRequest` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+[1m[33mwarning[0m[1m: variants `Json` and `Text` are never constructed[0m
+  [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/llm/mod.rs:79:5
+   [1m[94m|[0m
+[1m[94m78[0m [1m[94m|[0m pub enum GeneratedOutput {
+   [1m[94m|[0m          [1m[94m---------------[0m [1m[94mvariants in this enum[0m
+[1m[94m79[0m [1m[94m|[0m     Json(serde_json::Value),
+   [1m[94m|[0m     [1m[33m^^^^[0m
+[1m[94m80[0m [1m[94m|[0m     Text(String),
+   [1m[94m|[0m     [1m[33m^^^^[0m
+   [1m[94m|[0m
+   [1m[94m= [0m[1mnote[0m: `GeneratedOutput` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+[1m[33mwarning[0m[1m: fields `model`, `texts`, `output_dimension`, and `task_type` are never read[0m
+   [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/llm/mod.rs:100:9
+    [1m[94m|[0m
+[1m[94m 99[0m [1m[94m|[0m pub struct LlmEmbeddingRequest<'a> {
+    [1m[94m|[0m            [1m[94m-------------------[0m [1m[94mfields in this struct[0m
+[1m[94m100[0m [1m[94m|[0m     pub model: &'a str,
+    [1m[94m|[0m         [1m[33m^^^^^[0m
+[1m[94m101[0m [1m[94m|[0m     pub texts: Vec<Cow<'a, str>>,
+    [1m[94m|[0m         [1m[33m^^^^^[0m
+[1m[94m102[0m [1m[94m|[0m     pub output_dimension: Option<u32>,
+    [1m[94m|[0m         [1m[33m^^^^^^^^^^^^^^^^[0m
+[1m[94m103[0m [1m[94m|[0m     pub task_type: Option<Cow<'a, str>>,
+    [1m[94m|[0m         [1m[33m^^^^^^^^^[0m
+    [1m[94m|[0m
+    [1m[94m= [0m[1mnote[0m: `LlmEmbeddingRequest` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+[1m[33mwarning[0m[1m: function `detect_image_mime_type` is never used[0m
+   [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/llm/mod.rs:152:8
+    [1m[94m|[0m
+[1m[94m152[0m [1m[94m|[0m pub fn detect_image_mime_type(bytes: &[u8]) -> Result<&'static str> {
+    [1m[94m|[0m        [1m[33m^^^^^^^^^^^^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: struct `TargetFieldMapping` is never constructed[0m
+ [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/targets/shared/property_graph.rs:6:12
+  [1m[94m|[0m
+[1m[94m6[0m [1m[94m|[0m pub struct TargetFieldMapping {
+  [1m[94m|[0m            [1m[33m^^^^^^^^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: method `get_target` is never used[0m
+  [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/targets/shared/property_graph.rs:16:12
+   [1m[94m|[0m
+[1m[94m15[0m [1m[94m|[0m impl TargetFieldMapping {
+   [1m[94m|[0m [1m[94m-----------------------[0m [1m[94mmethod in this implementation[0m
+[1m[94m16[0m [1m[94m|[0m     pub fn get_target(&self) -> &spec::FieldName {
+   [1m[94m|[0m            [1m[33m^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: struct `NodeFromFieldsSpec` is never constructed[0m
+  [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/targets/shared/property_graph.rs:22:12
+   [1m[94m|[0m
+[1m[94m22[0m [1m[94m|[0m pub struct NodeFromFieldsSpec {
+   [1m[94m|[0m            [1m[33m^^^^^^^^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: struct `NodesSpec` is never constructed[0m
+  [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/targets/shared/property_graph.rs:28:12
+   [1m[94m|[0m
+[1m[94m28[0m [1m[94m|[0m pub struct NodesSpec {
+   [1m[94m|[0m            [1m[33m^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: struct `RelationshipsSpec` is never constructed[0m
+  [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/targets/shared/property_graph.rs:33:12
+   [1m[94m|[0m
+[1m[94m33[0m [1m[94m|[0m pub struct RelationshipsSpec {
+   [1m[94m|[0m            [1m[33m^^^^^^^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: enum `GraphElementMapping` is never used[0m
+  [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/targets/shared/property_graph.rs:41:10
+   [1m[94m|[0m
+[1m[94m41[0m [1m[94m|[0m pub enum GraphElementMapping {
+   [1m[94m|[0m          [1m[33m^^^^^^^^^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: struct `GraphDeclaration` is never constructed[0m
+  [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/targets/shared/property_graph.rs:47:12
+   [1m[94m|[0m
+[1m[94m47[0m [1m[94m|[0m pub struct GraphDeclaration {
+   [1m[94m|[0m            [1m[33m^^^^^^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: enum `ElementType` is never used[0m
+  [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/targets/shared/property_graph.rs:55:10
+   [1m[94m|[0m
+[1m[94m55[0m [1m[94m|[0m pub enum ElementType {
+   [1m[94m|[0m          [1m[33m^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: associated items `label`, `from_mapping_spec`, and `matcher` are never used[0m
+  [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/targets/shared/property_graph.rs:61:12
+   [1m[94m|[0m
+[1m[94m60[0m [1m[94m|[0m impl ElementType {
+   [1m[94m|[0m [1m[94m----------------[0m [1m[94massociated items in this implementation[0m
+[1m[94m61[0m [1m[94m|[0m     pub fn label(&self) -> &str {
+   [1m[94m|[0m            [1m[33m^^^^^[0m
+[1m[94m...[0m
+[1m[94m68[0m [1m[94m|[0m     pub fn from_mapping_spec(spec: &GraphElementMapping) -> Self {
+   [1m[94m|[0m            [1m[33m^^^^^^^^^^^^^^^^^[0m
+[1m[94m...[0m
+[1m[94m77[0m [1m[94m|[0m     pub fn matcher(&self, var_name: &str) -> String {
+   [1m[94m|[0m            [1m[33m^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: struct `GraphElementType` is never constructed[0m
+   [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/targets/shared/property_graph.rs:101:12
+    [1m[94m|[0m
+[1m[94m101[0m [1m[94m|[0m pub struct GraphElementType<AuthEntry> {
+    [1m[94m|[0m            [1m[33m^^^^^^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: struct `GraphElementSchema` is never constructed[0m
+   [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/targets/shared/property_graph.rs:113:12
+    [1m[94m|[0m
+[1m[94m113[0m [1m[94m|[0m pub struct GraphElementSchema {
+    [1m[94m|[0m            [1m[33m^^^^^^^^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: struct `GraphElementInputFieldsIdx` is never constructed[0m
+   [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/targets/shared/property_graph.rs:119:12
+    [1m[94m|[0m
+[1m[94m119[0m [1m[94m|[0m pub struct GraphElementInputFieldsIdx {
+    [1m[94m|[0m            [1m[33m^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: method `extract_key` is never used[0m
+   [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/targets/shared/property_graph.rs:125:12
+    [1m[94m|[0m
+[1m[94m124[0m [1m[94m|[0m impl GraphElementInputFieldsIdx {
+    [1m[94m|[0m [1m[94m-------------------------------[0m [1m[94mmethod in this implementation[0m
+[1m[94m125[0m [1m[94m|[0m     pub fn extract_key(&self, fields: &[value::Value]) -> Result<value::KeyValue> {
+    [1m[94m|[0m            [1m[33m^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: struct `AnalyzedGraphElementFieldMapping` is never constructed[0m
+   [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/targets/shared/property_graph.rs:132:12
+    [1m[94m|[0m
+[1m[94m132[0m [1m[94m|[0m pub struct AnalyzedGraphElementFieldMapping {
+    [1m[94m|[0m            [1m[33m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: method `has_value_fields` is never used[0m
+   [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/targets/shared/property_graph.rs:138:12
+    [1m[94m|[0m
+[1m[94m137[0m [1m[94m|[0m impl AnalyzedGraphElementFieldMapping {
+    [1m[94m|[0m [1m[94m-------------------------------------[0m [1m[94mmethod in this implementation[0m
+[1m[94m138[0m [1m[94m|[0m     pub fn has_value_fields(&self) -> bool {
+    [1m[94m|[0m            [1m[33m^^^^^^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: struct `AnalyzedRelationshipInfo` is never constructed[0m
+   [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/targets/shared/property_graph.rs:143:12
+    [1m[94m|[0m
+[1m[94m143[0m [1m[94m|[0m pub struct AnalyzedRelationshipInfo {
+    [1m[94m|[0m            [1m[33m^^^^^^^^^^^^^^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: struct `AnalyzedDataCollection` is never constructed[0m
+   [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/targets/shared/property_graph.rs:148:12
+    [1m[94m|[0m
+[1m[94m148[0m [1m[94m|[0m pub struct AnalyzedDataCollection {
+    [1m[94m|[0m            [1m[33m^^^^^^^^^^^^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: method `dependent_node_labels` is never used[0m
+   [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/targets/shared/property_graph.rs:156:12
+    [1m[94m|[0m
+[1m[94m155[0m [1m[94m|[0m impl AnalyzedDataCollection {
+    [1m[94m|[0m [1m[94m---------------------------[0m [1m[94mmethod in this implementation[0m
+[1m[94m156[0m [1m[94m|[0m     pub fn dependent_node_labels(&self) -> IndexSet<&str> {
+    [1m[94m|[0m            [1m[33m^^^^^^^^^^^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: struct `GraphElementSchemaBuilder` is never constructed[0m
+   [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/targets/shared/property_graph.rs:166:8
+    [1m[94m|[0m
+[1m[94m166[0m [1m[94m|[0m struct GraphElementSchemaBuilder {
+    [1m[94m|[0m        [1m[33m^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: associated items `new`, `merge_fields`, `merge`, and `build_schema` are never used[0m
+   [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/targets/shared/property_graph.rs:173:8
+    [1m[94m|[0m
+[1m[94m172[0m [1m[94m|[0m impl GraphElementSchemaBuilder {
+    [1m[94m|[0m [1m[94m------------------------------[0m [1m[94massociated items in this implementation[0m
+[1m[94m173[0m [1m[94m|[0m     fn new(elem_type: ElementType) -> Self {
+    [1m[94m|[0m        [1m[33m^^^[0m
+[1m[94m...[0m
+[1m[94m181[0m [1m[94m|[0m     fn merge_fields(
+    [1m[94m|[0m        [1m[33m^^^^^^^^^^^^[0m
+[1m[94m...[0m
+[1m[94m231[0m [1m[94m|[0m     fn merge(
+    [1m[94m|[0m        [1m[33m^^^^^[0m
+[1m[94m...[0m
+[1m[94m250[0m [1m[94m|[0m     fn build_schema(self) -> Result<GraphElementSchema> {
+    [1m[94m|[0m        [1m[33m^^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: struct `DependentNodeLabelAnalyzer` is never constructed[0m
+   [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/targets/shared/property_graph.rs:264:8
+    [1m[94m|[0m
+[1m[94m264[0m [1m[94m|[0m struct DependentNodeLabelAnalyzer<'a, AuthEntry> {
+    [1m[94m|[0m        [1m[33m^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: associated items `new`, `process_field`, and `build` are never used[0m
+   [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/targets/shared/property_graph.rs:272:8
+    [1m[94m|[0m
+[1m[94m271[0m [1m[94m|[0m impl<'a, AuthEntry> DependentNodeLabelAnalyzer<'a, AuthEntry> {
+    [1m[94m|[0m [1m[94m-------------------------------------------------------------[0m [1m[94massociated items in this implementation[0m
+[1m[94m272[0m [1m[94m|[0m     fn new(
+    [1m[94m|[0m        [1m[33m^^^[0m
+[1m[94m...[0m
+[1m[94m296[0m [1m[94m|[0m     fn process_field(&mut self, field_idx: usize, field_schema: &schema::FieldSchema) -[1m[94m...[0m
+    [1m[94m|[0m        [1m[33m^^^^^^^^^^^^^[0m
+[1m[94m...[0m
+[1m[94m308[0m [1m[94m|[0m     fn build(
+    [1m[94m|[0m        [1m[33m^^^^^[0m
+
+[1m[33mwarning[0m[1m: struct `DataCollectionGraphMappingInput` is never constructed[0m
+   [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/targets/shared/property_graph.rs:347:12
+    [1m[94m|[0m
+[1m[94m347[0m [1m[94m|[0m pub struct DataCollectionGraphMappingInput<'a, AuthEntry> {
+    [1m[94m|[0m            [1m[33m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: function `analyze_graph_mappings` is never used[0m
+   [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/ops/targets/shared/property_graph.rs:356:8
+    [1m[94m|[0m
+[1m[94m356[0m [1m[94m|[0m pub fn analyze_graph_mappings<'a, AuthEntry: 'a>(
+    [1m[94m|[0m        [1m[33m^^^^^^^^^^^^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: trait `State` is never used[0m
+ [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/setup/components.rs:5:11
+  [1m[94m|[0m
+[1m[94m5[0m [1m[94m|[0m pub trait State<Key>: Debug + Send + Sync {
+  [1m[94m|[0m           [1m[33m^^^^^[0m
+
+[1m[33mwarning[0m[1m: trait `SetupOperator` is never used[0m
+  [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/setup/components.rs:10:11
+   [1m[94m|[0m
+[1m[94m10[0m [1m[94m|[0m pub trait SetupOperator: 'static + Send + Sync {
+   [1m[94m|[0m           [1m[33m^^^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: struct `CompositeStateUpsert` is never constructed[0m
+  [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/setup/components.rs:33:8
+   [1m[94m|[0m
+[1m[94m33[0m [1m[94m|[0m struct CompositeStateUpsert<S> {
+   [1m[94m|[0m        [1m[33m^^^^^^^^^^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: struct `SetupChange` is never constructed[0m
+  [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/setup/components.rs:40:12
+   [1m[94m|[0m
+[1m[94m40[0m [1m[94m|[0m pub struct SetupChange<D: SetupOperator> {
+   [1m[94m|[0m            [1m[33m^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m[1m: associated function `create` is never used[0m
+  [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/setup/components.rs:48:12
+   [1m[94m|[0m
+[1m[94m47[0m [1m[94m|[0m impl<D: SetupOperator> SetupChange<D> {
+   [1m[94m|[0m [1m[94m-------------------------------------[0m [1m[94massociated function in this implementation[0m
+[1m[94m48[0m [1m[94m|[0m     pub fn create(
+   [1m[94m|[0m            [1m[33m^^^^^^[0m
+
+[1m[33mwarning[0m[1m: function `apply_component_changes` is never used[0m
+   [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/setup/components.rs:151:14
+    [1m[94m|[0m
+[1m[94m151[0m [1m[94m|[0m pub async fn apply_component_changes<D: SetupOperator>(
+    [1m[94m|[0m              [1m[33m^^^^^^^^^^^^^^^^^^^^^^^[0m
+
+[1m[33mwarning[0m: `cocoindex` (lib) generated 38 warnings (run `cargo fix --lib -p cocoindex` to apply 1 suggestion)
+[1m[92m    Checking[0m thread-flow v0.1.0 (/home/knitli/thread/crates/flow)
+[1m[91merror[E0432][0m[1m: unresolved import `cocoindex::base::schema::StructType`[0m
+ [1m[94m--> [0mcrates/flow/src/conversion.rs:4:63
+  [1m[94m|[0m
+[1m[94m4[0m [1m[94m|[0m use cocoindex::base::schema::{EnrichedValueType, FieldSchema, StructType, ValueType};
+  [1m[94m|[0m                                                               [1m[91m^^^^^^^^^^[0m [1m[91mno `StructType` in `base::schema`[0m
+
+[1m[91merror[E0432][0m[1m: unresolved import `cocoindex::context`[0m
+ [1m[94m--> [0mcrates/flow/src/functions/parse.rs:6:16
+  [1m[94m|[0m
+[1m[94m6[0m [1m[94m|[0m use cocoindex::context::FlowInstanceContext;
+  [1m[94m|[0m                [1m[91m^^^^^^^[0m [1m[91mcould not find `context` in `cocoindex`[0m
+
+[1m[91merror[E0433][0m[1m: failed to resolve: could not find `error` in `cocoindex`[0m
+  [1m[94m--> [0mcrates/flow/src/conversion.rs:12:31
+   [1m[94m|[0m
+[1m[94m12[0m [1m[94m|[0m ) -> Result<Value, cocoindex::error::Error> {
+   [1m[94m|[0m                               [1m[91m^^^^^[0m [1m[91mcould not find `error` in `cocoindex`[0m
+   [1m[94m|[0m
+[1m[96mhelp[0m: consider importing one of these modules
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use std::error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use serde_json::error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use thread_services::error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use tokio::sync::mpsc::error;[0m
+   [1m[94m|[0m
+   [1m[94m= [0mand 2 other candidates
+[1m[96mhelp[0m: if you import `error`, refer to it directly
+   [1m[94m|[0m
+[1m[94m12[0m [91m- [0m) -> Result<Value, [91mcocoindex::[0merror::Error> {
+[1m[94m12[0m [92m+ [0m) -> Result<Value, error::Error> {
+   [1m[94m|[0m
+
+[1m[91merror[E0433][0m[1m: failed to resolve: could not find `error` in `cocoindex`[0m
+  [1m[94m--> [0mcrates/flow/src/conversion.rs:53:68
+   [1m[94m|[0m
+[1m[94m53[0m [1m[94m|[0m fn serialize_symbol(info: &SymbolInfo) -> Result<Value, cocoindex::error::Error> {
+   [1m[94m|[0m                                                                    [1m[91m^^^^^[0m [1m[91mcould not find `error` in `cocoindex`[0m
+   [1m[94m|[0m
+[1m[96mhelp[0m: consider importing one of these modules
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use std::error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use serde_json::error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use thread_services::error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use tokio::sync::mpsc::error;[0m
+   [1m[94m|[0m
+   [1m[94m= [0mand 2 other candidates
+[1m[96mhelp[0m: if you import `error`, refer to it directly
+   [1m[94m|[0m
+[1m[94m53[0m [91m- [0mfn serialize_symbol(info: &SymbolInfo) -> Result<Value, [91mcocoindex::[0merror::Error> {
+[1m[94m53[0m [92m+ [0mfn serialize_symbol(info: &SymbolInfo) -> Result<Value, error::Error> {
+   [1m[94m|[0m
+
+[1m[91merror[E0433][0m[1m: failed to resolve: could not find `error` in `cocoindex`[0m
+  [1m[94m--> [0mcrates/flow/src/conversion.rs:65:68
+   [1m[94m|[0m
+[1m[94m65[0m [1m[94m|[0m fn serialize_import(info: &ImportInfo) -> Result<Value, cocoindex::error::Error> {
+   [1m[94m|[0m                                                                    [1m[91m^^^^^[0m [1m[91mcould not find `error` in `cocoindex`[0m
+   [1m[94m|[0m
+[1m[96mhelp[0m: consider importing one of these modules
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use std::error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use serde_json::error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use thread_services::error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use tokio::sync::mpsc::error;[0m
+   [1m[94m|[0m
+   [1m[94m= [0mand 2 other candidates
+[1m[96mhelp[0m: if you import `error`, refer to it directly
+   [1m[94m|[0m
+[1m[94m65[0m [91m- [0mfn serialize_import(info: &ImportInfo) -> Result<Value, [91mcocoindex::[0merror::Error> {
+[1m[94m65[0m [92m+ [0mfn serialize_import(info: &ImportInfo) -> Result<Value, error::Error> {
+   [1m[94m|[0m
+
+[1m[91merror[E0433][0m[1m: failed to resolve: could not find `error` in `cocoindex`[0m
+  [1m[94m--> [0mcrates/flow/src/conversion.rs:82:64
+   [1m[94m|[0m
+[1m[94m82[0m [1m[94m|[0m fn serialize_call(info: &CallInfo) -> Result<Value, cocoindex::error::Error> {
+   [1m[94m|[0m                                                                [1m[91m^^^^^[0m [1m[91mcould not find `error` in `cocoindex`[0m
+   [1m[94m|[0m
+[1m[96mhelp[0m: consider importing one of these modules
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use std::error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use serde_json::error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use thread_services::error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use tokio::sync::mpsc::error;[0m
+   [1m[94m|[0m
+   [1m[94m= [0mand 2 other candidates
+[1m[96mhelp[0m: if you import `error`, refer to it directly
+   [1m[94m|[0m
+[1m[94m82[0m [91m- [0mfn serialize_call(info: &CallInfo) -> Result<Value, [91mcocoindex::[0merror::Error> {
+[1m[94m82[0m [92m+ [0mfn serialize_call(info: &CallInfo) -> Result<Value, error::Error> {
+   [1m[94m|[0m
+
+[1m[91merror[E0433][0m[1m: failed to resolve: could not find `error` in `cocoindex`[0m
+  [1m[94m--> [0mcrates/flow/src/functions/parse.rs:21:55
+   [1m[94m|[0m
+[1m[94m21[0m [1m[94m|[0m     ) -> Result<SimpleFunctionBuildOutput, cocoindex::error::Error> {
+   [1m[94m|[0m                                                       [1m[91m^^^^^[0m [1m[91mcould not find `error` in `cocoindex`[0m
+   [1m[94m|[0m
+[1m[96mhelp[0m: consider importing one of these modules
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use std::error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use serde_json::error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use thread_services::error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use tokio::sync::mpsc::error;[0m
+   [1m[94m|[0m
+   [1m[94m= [0mand 2 other candidates
+[1m[96mhelp[0m: if you import `error`, refer to it directly
+   [1m[94m|[0m
+[1m[94m21[0m [91m- [0m    ) -> Result<SimpleFunctionBuildOutput, [91mcocoindex::[0merror::Error> {
+[1m[94m21[0m [92m+ [0m    ) -> Result<SimpleFunctionBuildOutput, error::Error> {
+   [1m[94m|[0m
+
+[1m[91merror[E0433][0m[1m: failed to resolve: could not find `error` in `cocoindex`[0m
+  [1m[94m--> [0mcrates/flow/src/functions/parse.rs:36:77
+   [1m[94m|[0m
+[1m[94m36[0m [1m[94m|[0m     async fn evaluate(&self, input: Vec<Value>) -> Result<Value, cocoindex::error::Error> {
+   [1m[94m|[0m                                                                             [1m[91m^^^^^[0m [1m[91mcould not find `error` in `cocoindex`[0m
+   [1m[94m|[0m
+[1m[96mhelp[0m: consider importing one of these modules
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use std::error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use serde_json::error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use thread_services::error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use tokio::sync::mpsc::error;[0m
+   [1m[94m|[0m
+   [1m[94m= [0mand 2 other candidates
+[1m[96mhelp[0m: if you import `error`, refer to it directly
+   [1m[94m|[0m
+[1m[94m36[0m [91m- [0m    async fn evaluate(&self, input: Vec<Value>) -> Result<Value, [91mcocoindex::[0merror::Error> {
+[1m[94m36[0m [92m+ [0m    async fn evaluate(&self, input: Vec<Value>) -> Result<Value, error::Error> {
+   [1m[94m|[0m
+
+[1m[91merror[E0433][0m[1m: failed to resolve: could not find `error` in `cocoindex`[0m
+  [1m[94m--> [0mcrates/flow/src/functions/parse.rs:40:39
+   [1m[94m|[0m
+[1m[94m40[0m [1m[94m|[0m             .ok_or_else(|| cocoindex::error::Error::msg("Missing content"))?
+   [1m[94m|[0m                                       [1m[91m^^^^^[0m [1m[91mcould not find `error` in `cocoindex`[0m
+   [1m[94m|[0m
+[1m[96mhelp[0m: consider importing one of these items
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use std::error::Error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use std::fmt::Error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use std::io::Error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use core::error::Error;[0m
+   [1m[94m|[0m
+   [1m[94m= [0mand 7 other candidates
+[1m[96mhelp[0m: if you import `Error`, refer to it directly
+   [1m[94m|[0m
+[1m[94m40[0m [91m- [0m            .ok_or_else(|| [91mcocoindex::error::[0mError::msg("Missing content"))?
+[1m[94m40[0m [92m+ [0m            .ok_or_else(|| Error::msg("Missing content"))?
+   [1m[94m|[0m
+
+[1m[91merror[E0433][0m[1m: failed to resolve: could not find `error` in `cocoindex`[0m
+  [1m[94m--> [0mcrates/flow/src/functions/parse.rs:42:37
+   [1m[94m|[0m
+[1m[94m42[0m [1m[94m|[0m             .map_err(|e| cocoindex::error::Error::msg(e.to_string()))?;
+   [1m[94m|[0m                                     [1m[91m^^^^^[0m [1m[91mcould not find `error` in `cocoindex`[0m
+   [1m[94m|[0m
+[1m[96mhelp[0m: consider importing one of these items
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use std::error::Error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use std::fmt::Error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use std::io::Error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use core::error::Error;[0m
+   [1m[94m|[0m
+   [1m[94m= [0mand 7 other candidates
+[1m[96mhelp[0m: if you import `Error`, refer to it directly
+   [1m[94m|[0m
+[1m[94m42[0m [91m- [0m            .map_err(|e| [91mcocoindex::error::[0mError::msg(e.to_string()))?;
+[1m[94m42[0m [92m+ [0m            .map_err(|e| Error::msg(e.to_string()))?;
+   [1m[94m|[0m
+
+[1m[91merror[E0433][0m[1m: failed to resolve: could not find `error` in `cocoindex`[0m
+  [1m[94m--> [0mcrates/flow/src/functions/parse.rs:46:39
+   [1m[94m|[0m
+[1m[94m46[0m [1m[94m|[0m             .ok_or_else(|| cocoindex::error::Error::msg("Missing language"))?
+   [1m[94m|[0m                                       [1m[91m^^^^^[0m [1m[91mcould not find `error` in `cocoindex`[0m
+   [1m[94m|[0m
+[1m[96mhelp[0m: consider importing one of these items
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use std::error::Error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use std::fmt::Error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use std::io::Error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use core::error::Error;[0m
+   [1m[94m|[0m
+   [1m[94m= [0mand 7 other candidates
+[1m[96mhelp[0m: if you import `Error`, refer to it directly
+   [1m[94m|[0m
+[1m[94m46[0m [91m- [0m            .ok_or_else(|| [91mcocoindex::error::[0mError::msg("Missing language"))?
+[1m[94m46[0m [92m+ [0m            .ok_or_else(|| Error::msg("Missing language"))?
+   [1m[94m|[0m
+
+[1m[91merror[E0433][0m[1m: failed to resolve: could not find `error` in `cocoindex`[0m
+  [1m[94m--> [0mcrates/flow/src/functions/parse.rs:48:37
+   [1m[94m|[0m
+[1m[94m48[0m [1m[94m|[0m             .map_err(|e| cocoindex::error::Error::msg(e.to_string()))?;
+   [1m[94m|[0m                                     [1m[91m^^^^^[0m [1m[91mcould not find `error` in `cocoindex`[0m
+   [1m[94m|[0m
+[1m[96mhelp[0m: consider importing one of these items
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use std::error::Error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use std::fmt::Error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use std::io::Error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use core::error::Error;[0m
+   [1m[94m|[0m
+   [1m[94m= [0mand 7 other candidates
+[1m[96mhelp[0m: if you import `Error`, refer to it directly
+   [1m[94m|[0m
+[1m[94m48[0m [91m- [0m            .map_err(|e| [91mcocoindex::error::[0mError::msg(e.to_string()))?;
+[1m[94m48[0m [92m+ [0m            .map_err(|e| Error::msg(e.to_string()))?;
+   [1m[94m|[0m
+
+[1m[91merror[E0433][0m[1m: failed to resolve: could not find `error` in `cocoindex`[0m
+  [1m[94m--> [0mcrates/flow/src/functions/parse.rs:66:28
+   [1m[94m|[0m
+[1m[94m66[0m [1m[94m|[0m                 cocoindex::error::Error::msg(format!("Unsupported language: {}", lang_str))
+   [1m[94m|[0m                            [1m[91m^^^^^[0m [1m[91mcould not find `error` in `cocoindex`[0m
+   [1m[94m|[0m
+[1m[96mhelp[0m: consider importing one of these items
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use std::error::Error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use std::fmt::Error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use std::io::Error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use core::error::Error;[0m
+   [1m[94m|[0m
+   [1m[94m= [0mand 7 other candidates
+[1m[96mhelp[0m: if you import `Error`, refer to it directly
+   [1m[94m|[0m
+[1m[94m66[0m [91m- [0m                [91mcocoindex::error::[0mError::msg(format!("Unsupported language: {}", lang_str))
+[1m[94m66[0m [92m+ [0m                Error::msg(format!("Unsupported language: {}", lang_str))
+   [1m[94m|[0m
+
+[1m[91merror[E0433][0m[1m: failed to resolve: could not find `error` in `cocoindex`[0m
+  [1m[94m--> [0mcrates/flow/src/functions/parse.rs:85:37
+   [1m[94m|[0m
+[1m[94m85[0m [1m[94m|[0m [1m[94m...[0m   .map_err(|e| cocoindex::error::Error::msg(format!("Extraction error: {}", e)))?;
+   [1m[94m|[0m                               [1m[91m^^^^^[0m [1m[91mcould not find `error` in `cocoindex`[0m
+   [1m[94m|[0m
+[1m[96mhelp[0m: consider importing one of these items
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use std::error::Error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use std::fmt::Error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use std::io::Error;[0m
+   [1m[94m|[0m
+[1m[94m 4[0m [92m+ use core::error::Error;[0m
+   [1m[94m|[0m
+   [1m[94m= [0mand 7 other candidates
+[1m[96mhelp[0m: if you import `Error`, refer to it directly
+   [1m[94m|[0m
+[1m[94m85[0m [91m- [0m            .map_err(|e| [91mcocoindex::error::[0mError::msg(format!("Extraction error: {}", e)))?;
+[1m[94m85[0m [92m+ [0m            .map_err(|e| Error::msg(format!("Extraction error: {}", e)))?;
+   [1m[94m|[0m
+
+[1m[91merror[E0603][0m[1m: module `base` is private[0m
+ [1m[94m--> [0mcrates/flow/src/conversion.rs:4:16
+  [1m[94m|[0m
+[1m[94m4[0m [1m[94m|[0m use cocoindex::base::schema::{EnrichedValueType, FieldSchema, StructType, ValueType};
+  [1m[94m|[0m                [1m[91m^^^^[0m  [1m[94m------[0m [1m[94mmodule `schema` is not publicly re-exported[0m
+  [1m[94m|[0m                [1m[91m|[0m
+  [1m[94m|[0m                [1m[91mprivate module[0m
+  [1m[94m|[0m
+[1m[92mnote[0m: the module `base` is defined here
+ [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/lib.rs:1:1
+  [1m[94m|[0m
+[1m[94m1[0m [1m[94m|[0m mod base;
+  [1m[94m|[0m [1m[92m^^^^^^^^[0m
+
+[1m[91merror[E0603][0m[1m: module `base` is private[0m
+ [1m[94m--> [0mcrates/flow/src/conversion.rs:4:16
+  [1m[94m|[0m
+[1m[94m4[0m [1m[94m|[0m use cocoindex::base::schema::{EnrichedValueType, FieldSchema, StructType, ValueType};
+  [1m[94m|[0m                [1m[91m^^^^[0m [1m[91mprivate module[0m                                        [1m[94m---------[0m [1m[94menum `ValueType` is not publicly re-exported[0m
+  [1m[94m|[0m
+[1m[92mnote[0m: the module `base` is defined here
+ [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/lib.rs:1:1
+  [1m[94m|[0m
+[1m[94m1[0m [1m[94m|[0m mod base;
+  [1m[94m|[0m [1m[92m^^^^^^^^[0m
+
+[1m[91merror[E0603][0m[1m: module `base` is private[0m
+ [1m[94m--> [0mcrates/flow/src/conversion.rs:5:16
+  [1m[94m|[0m
+[1m[94m5[0m [1m[94m|[0m use cocoindex::base::value::Value;
+  [1m[94m|[0m                [1m[91m^^^^[0m         [1m[94m-----[0m [1m[94menum `Value` is not publicly re-exported[0m
+  [1m[94m|[0m                [1m[91m|[0m
+  [1m[94m|[0m                [1m[91mprivate module[0m
+  [1m[94m|[0m
+[1m[92mnote[0m: the module `base` is defined here
+ [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/lib.rs:1:1
+  [1m[94m|[0m
+[1m[94m1[0m [1m[94m|[0m mod base;
+  [1m[94m|[0m [1m[92m^^^^^^^^[0m
+
+[1m[91merror[E0603][0m[1m: module `base` is private[0m
+ [1m[94m--> [0mcrates/flow/src/flows/builder.rs:4:16
+  [1m[94m|[0m
+[1m[94m4[0m [1m[94m|[0m use cocoindex::base::spec::{
+  [1m[94m|[0m                [1m[91m^^^^[0m  [1m[94m----[0m [1m[94mmodule `spec` is not publicly re-exported[0m
+  [1m[94m|[0m                [1m[91m|[0m
+  [1m[94m|[0m                [1m[91mprivate module[0m
+  [1m[94m|[0m
+[1m[92mnote[0m: the module `base` is defined here
+ [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/lib.rs:1:1
+  [1m[94m|[0m
+[1m[94m1[0m [1m[94m|[0m mod base;
+  [1m[94m|[0m [1m[92m^^^^^^^^[0m
+
+[1m[91merror[E0603][0m[1m: module `builder` is private[0m
+ [1m[94m--> [0mcrates/flow/src/flows/builder.rs:7:16
+  [1m[94m|[0m
+[1m[94m7[0m [1m[94m|[0m use cocoindex::builder::flow_builder::FlowBuilder;
+  [1m[94m|[0m                [1m[91m^^^^^^^[0m  [1m[94m------------[0m [1m[94mmodule `flow_builder` is not publicly re-exported[0m
+  [1m[94m|[0m                [1m[91m|[0m
+  [1m[94m|[0m                [1m[91mprivate module[0m
+  [1m[94m|[0m
+[1m[92mnote[0m: the module `builder` is defined here
+ [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/lib.rs:2:1
+  [1m[94m|[0m
+[1m[94m2[0m [1m[94m|[0m mod builder;
+  [1m[94m|[0m [1m[92m^^^^^^^^^^^[0m
+
+[1m[91merror[E0603][0m[1m: module `base` is private[0m
+ [1m[94m--> [0mcrates/flow/src/functions/parse.rs:5:16
+  [1m[94m|[0m
+[1m[94m5[0m [1m[94m|[0m use cocoindex::base::value::Value;
+  [1m[94m|[0m                [1m[91m^^^^[0m         [1m[94m-----[0m [1m[94menum `Value` is not publicly re-exported[0m
+  [1m[94m|[0m                [1m[91m|[0m
+  [1m[94m|[0m                [1m[91mprivate module[0m
+  [1m[94m|[0m
+[1m[92mnote[0m: the module `base` is defined here
+ [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/lib.rs:1:1
+  [1m[94m|[0m
+[1m[94m1[0m [1m[94m|[0m mod base;
+  [1m[94m|[0m [1m[92m^^^^^^^^[0m
+
+[1m[91merror[E0603][0m[1m: module `ops` is private[0m
+ [1m[94m--> [0mcrates/flow/src/functions/parse.rs:7:16
+  [1m[94m|[0m
+[1m[94m7[0m [1m[94m|[0m use cocoindex::ops::interface::{
+  [1m[94m|[0m                [1m[91m^^^[0m  [1m[94m---------[0m [1m[94mmodule `interface` is not publicly re-exported[0m
+  [1m[94m|[0m                [1m[91m|[0m
+  [1m[94m|[0m                [1m[91mprivate module[0m
+  [1m[94m|[0m
+[1m[92mnote[0m: the module `ops` is defined here
+ [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/lib.rs:6:1
+  [1m[94m|[0m
+[1m[94m6[0m [1m[94m|[0m mod ops;
+  [1m[94m|[0m [1m[92m^^^^^^^[0m
+
+[1m[91merror[E0603][0m[1m: module `ops` is private[0m
+ [1m[94m--> [0mcrates/flow/src/functions/parse.rs:7:16
+  [1m[94m|[0m
+[1m[94m7[0m [1m[94m|[0m use cocoindex::ops::interface::{
+  [1m[94m|[0m                [1m[91m^^^[0m [1m[91mprivate module[0m
+[1m[94m8[0m [1m[94m|[0m     SimpleFunctionBuildOutput, SimpleFunctionExecutor, SimpleFunctionFactory,
+  [1m[94m|[0m                                [1m[94m----------------------[0m [1m[94mtrait `SimpleFunctionExecutor` is not publicly re-exported[0m
+  [1m[94m|[0m
+[1m[92mnote[0m: the module `ops` is defined here
+ [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/lib.rs:6:1
+  [1m[94m|[0m
+[1m[94m6[0m [1m[94m|[0m mod ops;
+  [1m[94m|[0m [1m[92m^^^^^^^[0m
+
+[1m[91merror[E0603][0m[1m: module `ops` is private[0m
+ [1m[94m--> [0mcrates/flow/src/functions/parse.rs:7:16
+  [1m[94m|[0m
+[1m[94m7[0m [1m[94m|[0m use cocoindex::ops::interface::{
+  [1m[94m|[0m                [1m[91m^^^[0m [1m[91mprivate module[0m
+[1m[94m8[0m [1m[94m|[0m     SimpleFunctionBuildOutput, SimpleFunctionExecutor, SimpleFunctionFactory,
+  [1m[94m|[0m                                                        [1m[94m---------------------[0m [1m[94mtrait `SimpleFunctionFactory` is not publicly re-exported[0m
+  [1m[94m|[0m
+[1m[92mnote[0m: the module `ops` is defined here
+ [1m[94m--> [0mvendor/cocoindex/rust/cocoindex/src/lib.rs:6:1
+  [1m[94m|[0m
+[1m[94m6[0m [1m[94m|[0m mod ops;
+  [1m[94m|[0m [1m[92m^^^^^^^[0m
+
+[1mSome errors have detailed explanations: E0432, E0433, E0603.[0m
+[1mFor more information about an error, try `rustc --explain E0432`.[0m
+[1m[91merror[0m: could not compile `thread-flow` (lib) due to 23 previous errors

@@ -14,7 +14,7 @@ pub mod parser;
 #[cfg(feature = "storage-traits")]
 pub mod storage;
 
-pub use analyzer::{AnalyzerCapabilities, CodeAnalyzer};
+pub use analyzer::{AnalysisPerformanceProfile, AnalyzerCapabilities, CodeAnalyzer};
 pub use parser::{CodeParser, ParserCapabilities};
 
 #[cfg(feature = "storage-traits")]
