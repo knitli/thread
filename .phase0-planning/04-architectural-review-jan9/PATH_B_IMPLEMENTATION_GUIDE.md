@@ -21,6 +21,7 @@ Based on COCOINDEX_API_ANALYSIS.md findings, we will use CocoIndex as a **pure R
 ✅ **Direct API access** - LibContext, FlowContext, internal execution control
 ✅ **Simpler deployment** - Single Rust binary to Cloudflare
 ✅ **Better debugging** - Rust compiler errors vs Python runtime exceptions
+✅ **Vendored core** - CocoIndex is vendored in `vendor/cocoindex` for stability and control
 
 ### Critical Context: Service-First Architecture
 
@@ -100,9 +101,9 @@ Thread is **NOT** a library that returns immediate results. It is:
 ### Rust Native Integration
 
 ```rust
-// Cargo.toml
+# Cargo.toml
 [dependencies]
-cocoindex = { git = "https://github.com/cocoindex-io/cocoindex" }
+cocoindex = { path = "../../vendor/cocoindex/rust/cocoindex" }
 thread-ast-engine = { path = "../../crates/thread-ast-engine" }
 
 // Thread operators as native Rust traits
@@ -331,9 +332,9 @@ def code_embedding_flow(flow_builder, data_scope):
 
 #### Day 1 (Monday) - Rust Environment Setup
 ```bash
-# Clone CocoIndex
-git clone https://github.com/cocoindex-io/cocoindex
-cd cocoindex
+# CocoIndex is vendored in vendor/cocoindex
+# Study the source structure
+cd vendor/cocoindex/rust/cocoindex
 
 # Build CocoIndex Rust crates
 cargo build --release
@@ -939,7 +940,7 @@ def test_edge_deployment_latency():
 ```rust
 // Cargo.toml
 [dependencies]
-cocoindex = { git = "https://github.com/cocoindex-io/cocoindex", branch = "main" }
+cocoindex = { path = "../../vendor/cocoindex/rust/cocoindex" }
 thread-ast-engine = { path = "../thread-ast-engine" }
 thread-language = { path = "../thread-language" }
 tokio = { version = "1.0", features = ["full"] }
@@ -1456,7 +1457,7 @@ flow/
 ### Next Steps
 
 1. **Approve this plan** - Team review and sign-off
-2. **Day 1**: Clone CocoIndex, study Rust operator examples
+2. **Day 1**: Study vendored CocoIndex, study Rust operator examples
 3. **Day 2**: Design Thread operator traits
 4. **Day 3**: Prototype value serialization
 5. **Week 2**: Full implementation
@@ -1464,8 +1465,8 @@ flow/
 
 ---
 
-**Document Version**: 2.0 (Rust-Native)
-**Last Updated**: January 10, 2026
-**Status**: Ready for Implementation
-**Approval**: Pending team review
-**Key Change**: Eliminated Python bridge, pure Rust integration
+**Document Version**: 2.1 (Vendored)
+**Last Updated**: January 23, 2026
+**Status**: Implementation Ongoing
+**Approval**: KNITLI TEAM
+**Key Change**: Eliminated Python bridge, pure Rust integration, vendored dependency
