@@ -83,7 +83,9 @@ impl ThreadFlowBuilder {
     }
 
     pub fn build(self) -> ServiceResult<FlowInstanceSpec> {
-        let mut builder = FlowBuilder::new(&self.name);
+        let mut builder = FlowBuilder::new(&self.name).map_err(|e| {
+            ServiceError::execution_dynamic(format!("Failed to create builder: {}", e))
+        })?;
 
         let source_cfg = self
             .source
@@ -92,14 +94,19 @@ impl ThreadFlowBuilder {
         // 1. SOURCE
         let source_node = builder
             .add_source(
-                "local_file",
+                "local_file".to_string(),
                 json!({
                     "path": source_cfg.path,
                     "included_patterns": source_cfg.included,
                     "excluded_patterns": source_cfg.excluded
-                }),
-                SourceRefreshOptions::default(),
-                ExecutionOptions::default(),
+                })
+                .as_object()
+                .ok_or_else(|| ServiceError::config_static("Invalid source spec"))?
+                .clone(),
+                None,
+                "source".to_string(),
+                Some(SourceRefreshOptions::default()),
+                Some(ExecutionOptions::default()),
             )
             .map_err(|e| ServiceError::execution_dynamic(format!("Failed to add source: {}", e)))?;
 
@@ -110,9 +117,12 @@ impl ThreadFlowBuilder {
             match step {
                 Step::Parse => {
                     // 2. TRANSFORM: Parse with Thread
-                    let content_field = current_node.field("content").map_err(|e| {
-                        ServiceError::config_dynamic(format!("Missing content field: {}", e))
-                    })?;
+                    let content_field = current_node
+                        .field("content")
+                        .map_err(|e| {
+                            ServiceError::config_dynamic(format!("Missing content field: {}", e))
+                        })?
+                        .ok_or_else(|| ServiceError::config_static("Content field not found"))?;
 
                     // Attempt to get language field, fallback to path if needed or error
                     let language_field = current_node
@@ -123,14 +133,21 @@ impl ThreadFlowBuilder {
                                 "Missing language/path field: {}",
                                 e
                             ))
+                        })?
+                        .ok_or_else(|| {
+                            ServiceError::config_static("Language/Path field not found")
                         })?;
 
                     let parsed = builder
                         .transform(
-                            "thread_parse",
-                            json!({}),
-                            vec![content_field, language_field],
-                            "parsed",
+                            "thread_parse".to_string(),
+                            serde_json::Map::new(),
+                            vec![
+                                (content_field, Some("content".to_string())),
+                                (language_field, Some("language".to_string())),
+                            ],
+                            None,
+                            "parsed".to_string(),
                         )
                         .map_err(|e| {
                             ServiceError::execution_dynamic(format!(
@@ -147,46 +164,74 @@ impl ThreadFlowBuilder {
                         ServiceError::config_static("Extract symbols requires parse step first")
                     })?;
 
-                    let symbols_collector = builder.add_collector("symbols").map_err(|e| {
-                        ServiceError::execution_dynamic(format!("Failed to add collector: {}", e))
-                    })?;
+                    let mut root_scope = builder.root_scope();
+                    let symbols_collector = root_scope
+                        .add_collector("symbols".to_string())
+                        .map_err(|e| {
+                            ServiceError::execution_dynamic(format!(
+                                "Failed to add collector: {}",
+                                e
+                            ))
+                        })?;
 
                     // We need source node for file_path
-                    let path_field = current_node.field("path").map_err(|e| {
-                        ServiceError::config_dynamic(format!("Missing path field: {}", e))
-                    })?;
+                    let path_field = current_node
+                        .field("path")
+                        .map_err(|e| {
+                            ServiceError::config_dynamic(format!("Missing path field: {}", e))
+                        })?
+                        .ok_or_else(|| ServiceError::config_static("Path field not found"))?;
 
-                    let symbols = parsed.field("symbols").map_err(|e| {
-                        ServiceError::config_dynamic(format!(
-                            "Missing symbols field in parsed output: {}",
-                            e
-                        ))
-                    })?;
+                    let symbols = parsed
+                        .field("symbols")
+                        .map_err(|e| {
+                            ServiceError::config_dynamic(format!(
+                                "Missing symbols field in parsed output: {}",
+                                e
+                            ))
+                        })?
+                        .ok_or_else(|| ServiceError::config_static("Symbols field not found"))?;
 
                     builder
                         .collect(
-                            symbols_collector.clone(),
+                            &symbols_collector,
                             vec![
-                                ("file_path", path_field),
+                                ("file_path".to_string(), path_field),
                                 (
-                                    "name",
+                                    "name".to_string(),
                                     symbols
                                         .field("name")
-                                        .map_err(|e| ServiceError::config_dynamic(e.to_string()))?,
+                                        .map_err(|e| ServiceError::config_dynamic(e.to_string()))?
+                                        .ok_or_else(|| {
+                                            ServiceError::config_static(
+                                                "Symbol Name field not found",
+                                            )
+                                        })?,
                                 ),
                                 (
-                                    "kind",
+                                    "kind".to_string(),
                                     symbols
                                         .field("kind")
-                                        .map_err(|e| ServiceError::config_dynamic(e.to_string()))?,
+                                        .map_err(|e| ServiceError::config_dynamic(e.to_string()))?
+                                        .ok_or_else(|| {
+                                            ServiceError::config_static(
+                                                "Symbol Kind field not found",
+                                            )
+                                        })?,
                                 ),
                                 (
-                                    "signature",
+                                    "signature".to_string(),
                                     symbols
-                                        .field("signature")
-                                        .map_err(|e| ServiceError::config_dynamic(e.to_string()))?,
+                                        .field("scope")
+                                        .map_err(|e| ServiceError::config_dynamic(e.to_string()))?
+                                        .ok_or_else(|| {
+                                            ServiceError::config_static(
+                                                "Symbol Scope field not found",
+                                            )
+                                        })?,
                                 ),
                             ],
+                            None,
                         )
                         .map_err(|e| {
                             ServiceError::execution_dynamic(format!(
@@ -201,14 +246,27 @@ impl ThreadFlowBuilder {
                             Target::Postgres { table, primary_key } => {
                                 builder
                                     .export(
-                                        "symbols_table",
-                                        "postgres", // target type name
+                                        "symbols_table".to_string(),
+                                        "postgres".to_string(), // target type name
                                         json!({
                                             "table": table,
                                             "primary_key": primary_key
-                                        }),
-                                        symbols_collector,
-                                        IndexOptions::default(),
+                                        })
+                                        .as_object()
+                                        .ok_or_else(|| {
+                                            ServiceError::config_static("Invalid target spec")
+                                        })?
+                                        .clone(),
+                                        vec![],
+                                        IndexOptions {
+                                            primary_key_fields: Some(
+                                                primary_key.iter().map(|s| s.to_string()).collect(),
+                                            ),
+                                            vector_indexes: vec![],
+                                            fts_indexes: vec![],
+                                        },
+                                        &symbols_collector,
+                                        false, // setup_by_user
                                     )
                                     .map_err(|e| {
                                         ServiceError::execution_dynamic(format!(
@@ -223,9 +281,10 @@ impl ThreadFlowBuilder {
             }
         }
 
-        builder
+        let ctx = builder
             .build_flow()
-            .map_err(|e| ServiceError::execution_dynamic(format!("Failed to build flow: {}", e)))
-            .map_err(Into::into)
+            .map_err(|e| ServiceError::execution_dynamic(format!("Failed to build flow: {}", e)))?;
+
+        Ok(ctx.flow.flow_instance.clone())
     }
 }

@@ -7,10 +7,12 @@ use crate::setup;
 use chrono::TimeZone;
 use serde::Serialize;
 
+pub trait ExecutionContext: Send + Sync {}
+
 pub struct FlowInstanceContext {
     pub flow_instance_name: String,
     pub auth_registry: Arc<AuthRegistry>,
-    pub py_exec_ctx: Option<Arc<py_utils::PythonExecutionContext>>,
+    pub exec_ctx: Option<Arc<dyn ExecutionContext>>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]

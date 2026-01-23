@@ -9,9 +9,11 @@
 //! abstractions while preserving all ast-grep power.
 
 use crate::types::{
-    CodeMatch, ParsedDocument, Range,
+    CallInfo, CodeMatch, DocumentMetadata, ImportInfo, ImportKind, ParsedDocument, Range,
     SymbolInfo, SymbolKind, Visibility,
 };
+use crate::ServiceResult;
+use std::collections::HashMap;
 use std::path::PathBuf;
 
 cfg_if::cfg_if!(

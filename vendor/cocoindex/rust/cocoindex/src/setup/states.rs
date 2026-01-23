@@ -13,15 +13,13 @@ use crate::ops::interface::AttachmentSetupChange;
 ///   - Target
 ///     - [resource: target-specific stuff]
 use crate::prelude::*;
-
 use indenter::indented;
 use owo_colors::{AnsiColors, OwoColorize};
+
 use std::any::Any;
-use std::fmt::Debug;
-use std::fmt::{Display, Write};
+use std::fmt::{Debug, Display, Write};
 use std::hash::Hash;
 
-use super::db_metadata;
 use crate::execution::db_tracking_setup::{
     self, TrackingTableSetupChange, TrackingTableSetupState,
 };
@@ -275,14 +273,12 @@ impl PartialEq for FlowSetupState<DesiredMode> {
 
 #[derive(Debug, Clone)]
 pub struct AllSetupStates<Mode: StateMode> {
-    pub has_metadata_table: bool,
     pub flows: BTreeMap<String, FlowSetupState<Mode>>,
 }
 
 impl<Mode: StateMode> Default for AllSetupStates<Mode> {
     fn default() -> Self {
         Self {
-            has_metadata_table: false,
             flows: BTreeMap::new(),
         }
     }
@@ -404,8 +400,6 @@ pub enum ObjectStatus {
 }
 
 pub trait ObjectSetupChange {
-    fn status(&self) -> Option<ObjectStatus>;
-
     /// Returns true if it has internal changes, i.e. changes that don't need user intervention.
     fn has_internal_changes(&self) -> bool;
 
@@ -481,10 +475,6 @@ pub struct FlowSetupChange {
 }
 
 impl ObjectSetupChange for FlowSetupChange {
-    fn status(&self) -> Option<ObjectStatus> {
-        self.status
-    }
-
     fn has_internal_changes(&self) -> bool {
         self.metadata_change.is_some()
             || self
@@ -498,96 +488,12 @@ impl ObjectSetupChange for FlowSetupChange {
     }
 
     fn has_external_changes(&self) -> bool {
-        self
-            .tracking_table
+        self.tracking_table
             .as_ref()
             .is_some_and(|t| !t.is_up_to_date())
             || self
                 .target_resources
                 .iter()
                 .any(|target| !target.is_up_to_date())
-    }
-}
-
-#[derive(Debug)]
-pub struct GlobalSetupChange {
-    pub metadata_table: ResourceSetupInfo<(), (), db_metadata::MetadataTableSetup>,
-}
-
-impl GlobalSetupChange {
-    pub fn from_setup_states(setup_states: &AllSetupStates<ExistingMode>) -> Self {
-        Self {
-            metadata_table: db_metadata::MetadataTableSetup {
-                metadata_table_missing: !setup_states.has_metadata_table,
-            }
-            .into_setup_info(),
-        }
-    }
-
-    pub fn is_up_to_date(&self) -> bool {
-        self.metadata_table.is_up_to_date()
-    }
-}
-
-pub struct ObjectSetupChangeCode<'a, Status: ObjectSetupChange>(&'a Status);
-impl<Status: ObjectSetupChange> std::fmt::Display for ObjectSetupChangeCode<'_, Status> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let Some(status) = self.0.status() else {
-            return Ok(());
-        };
-        write!(
-            f,
-            "[ {:^9} ]",
-            match status {
-                ObjectStatus::New => "TO CREATE",
-                ObjectStatus::Existing =>
-                    if self.0.is_up_to_date() {
-                        "READY"
-                    } else {
-                        "TO UPDATE"
-                    },
-                ObjectStatus::Deleted => "TO DELETE",
-                ObjectStatus::Invalid => "INVALID",
-            }
-        )
-    }
-}
-
-impl std::fmt::Display for GlobalSetupChange {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        writeln!(f, "{}", self.metadata_table)
-    }
-}
-
-pub struct FormattedFlowSetupChange<'a>(pub &'a str, pub &'a FlowSetupChange);
-
-impl std::fmt::Display for FormattedFlowSetupChange<'_> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let flow_setup_change = self.1;
-        if flow_setup_change.status.is_none() {
-            return Ok(());
-        }
-
-        writeln!(
-            f,
-            "{} Flow: {}",
-            ObjectSetupChangeCode(flow_setup_change)
-                .to_string()
-                .color(AnsiColors::Cyan),
-            self.0
-        )?;
-
-        let mut f = indented(f).with_str(INDENT);
-        if let Some(tracking_table) = &flow_setup_change.tracking_table {
-            write!(f, "{tracking_table}")?;
-        }
-        for target_resource in &flow_setup_change.target_resources {
-            write!(f, "{target_resource}")?;
-        }
-        for resource in &flow_setup_change.unknown_resources {
-            writeln!(f, "[  UNKNOWN  ] {resource}")?;
-        }
-
-        Ok(())
     }
 }

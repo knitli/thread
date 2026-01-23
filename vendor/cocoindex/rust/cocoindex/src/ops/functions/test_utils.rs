@@ -45,7 +45,7 @@ pub async fn test_flow_function(
     let context = Arc::new(FlowInstanceContext {
         flow_instance_name: "test_flow_function".to_string(),
         auth_registry: Arc::new(AuthRegistry::default()),
-        py_exec_ctx: None,
+        exec_ctx: None,
     });
     let build_output = factory
         .clone()

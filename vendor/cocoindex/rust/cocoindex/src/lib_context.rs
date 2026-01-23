@@ -7,12 +7,10 @@ use crate::execution::source_indexer::SourceIndexingContext;
 use crate::service::query_handler::{QueryHandler, QueryHandlerSpec};
 use crate::settings;
 use crate::setup::ObjectSetupChange;
-use axum::http::StatusCode;
-use cocoindex_utils::error::ApiError;
-use indicatif::MultiProgress;
 use sqlx::PgPool;
 use sqlx::postgres::{PgConnectOptions, PgPoolOptions};
 use tokio::runtime::Runtime;
+use tokio::sync::OnceCell;
 use tracing_subscriber::{EnvFilter, fmt, prelude::*};
 
 pub struct FlowExecutionContext {
@@ -87,12 +85,12 @@ impl FlowExecutionContext {
         self.source_indexing_contexts[source_idx]
             .get_or_try_init(|| async move {
                 SourceIndexingContext::load(
-                        flow.clone(),
-                        source_idx,
-                        self.setup_execution_context.clone(),
-                        pool,
-                    )
-                    .await
+                    flow.clone(),
+                    source_idx,
+                    self.setup_execution_context.clone(),
+                    pool,
+                )
+                .await
             })
             .await
     }
@@ -229,7 +227,6 @@ impl DbPools {
 
 pub struct LibSetupContext {
     pub all_setup_states: setup::AllSetupStates<setup::ExistingMode>,
-    pub global_setup_change: setup::GlobalSetupChange,
 }
 pub struct PersistenceContext {
     pub builtin_db_pool: PgPool,
@@ -240,33 +237,10 @@ pub struct LibContext {
     pub db_pools: DbPools,
     pub persistence_ctx: Option<PersistenceContext>,
     pub flows: Mutex<BTreeMap<String, Arc<FlowContext>>>,
-    pub app_namespace: String,
-    // When true, failures while dropping target backends are logged and ignored.
-    pub ignore_target_drop_failures: bool,
     pub global_concurrency_controller: Arc<concur_control::ConcurrencyController>,
-    pub multi_progress_bar: LazyLock<MultiProgress>,
 }
 
 impl LibContext {
-    pub fn get_flow_context(&self, flow_name: &str) -> Result<Arc<FlowContext>> {
-        let flows = self.flows.lock().unwrap();
-        let flow_ctx = flows
-            .get(flow_name)
-            .ok_or_else(|| {
-                ApiError::new(
-                    &format!("Flow instance not found: {flow_name}"),
-                    StatusCode::NOT_FOUND,
-                )
-            })?
-            .clone();
-        Ok(flow_ctx)
-    }
-
-    pub fn remove_flow_context(&self, flow_name: &str) {
-        let mut flows = self.flows.lock().unwrap();
-        flows.remove(flow_name);
-    }
-
     pub fn require_persistence_ctx(&self) -> Result<&PersistenceContext> {
         self.persistence_ctx.as_ref().ok_or_else(|| {
             client_error!(
@@ -302,10 +276,7 @@ pub async fn create_lib_context(settings: settings::Settings) -> Result<LibConte
         let all_setup_states = setup::get_existing_setup_state(&pool).await?;
         Some(PersistenceContext {
             builtin_db_pool: pool,
-            setup_ctx: tokio::sync::RwLock::new(LibSetupContext {
-                global_setup_change: setup::GlobalSetupChange::from_setup_states(&all_setup_states),
-                all_setup_states,
-            }),
+            setup_ctx: tokio::sync::RwLock::new(LibSetupContext { all_setup_states }),
         })
     } else {
         // No database configured
@@ -316,15 +287,12 @@ pub async fn create_lib_context(settings: settings::Settings) -> Result<LibConte
         db_pools,
         persistence_ctx,
         flows: Mutex::new(BTreeMap::new()),
-        app_namespace: settings.app_namespace,
-        ignore_target_drop_failures: settings.ignore_target_drop_failures,
         global_concurrency_controller: Arc::new(concur_control::ConcurrencyController::new(
             &concur_control::Options {
                 max_inflight_rows: settings.global_execution_options.source_max_inflight_rows,
                 max_inflight_bytes: settings.global_execution_options.source_max_inflight_bytes,
             },
         )),
-        multi_progress_bar: LazyLock::new(MultiProgress::new),
     })
 }
 
@@ -340,42 +308,16 @@ fn get_settings() -> Result<settings::Settings> {
     Ok(settings)
 }
 
-pub(crate) fn set_settings_fn(
-    get_settings_fn: Box<dyn Fn() -> Result<settings::Settings> + Send + Sync>,
-) {
-    let mut get_settings_fn_locked = GET_SETTINGS_FN.lock().unwrap();
-    *get_settings_fn_locked = Some(get_settings_fn);
-}
+static LIB_CONTEXT: OnceCell<Arc<LibContext>> = OnceCell::const_new();
 
-static LIB_CONTEXT: LazyLock<tokio::sync::Mutex<Option<Arc<LibContext>>>> =
-    LazyLock::new(|| tokio::sync::Mutex::new(None));
-
-pub(crate) async fn init_lib_context(settings: Option<settings::Settings>) -> Result<()> {
-    let settings = match settings {
-        Some(settings) => settings,
-        None => get_settings()?,
-    };
-    let mut lib_context_locked = LIB_CONTEXT.lock().await;
-    *lib_context_locked = Some(Arc::new(create_lib_context(settings).await?));
-    Ok(())
-}
-
-pub(crate) async fn get_lib_context() -> Result<Arc<LibContext>> {
-    let mut lib_context_locked = LIB_CONTEXT.lock().await;
-    let lib_context = if let Some(lib_context) = &*lib_context_locked {
-        lib_context.clone()
-    } else {
-        let setting = get_settings()?;
-        let lib_context = Arc::new(create_lib_context(setting).await?);
-        *lib_context_locked = Some(lib_context.clone());
-        lib_context
-    };
-    Ok(lib_context)
-}
-
-pub(crate) async fn clear_lib_context() {
-    let mut lib_context_locked = LIB_CONTEXT.lock().await;
-    *lib_context_locked = None;
+pub async fn get_lib_context() -> Result<Arc<LibContext>> {
+    LIB_CONTEXT
+        .get_or_try_init(|| async {
+            let settings = get_settings()?;
+            create_lib_context(settings).await.map(Arc::new)
+        })
+        .await
+        .cloned()
 }
 
 #[cfg(test)]

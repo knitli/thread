@@ -25,6 +25,7 @@ pub struct Settings {
     #[serde(default)]
     pub global_execution_options: GlobalExecutionOptions,
     #[serde(default)]
+    #[allow(dead_code)]
     pub ignore_target_drop_failures: bool,
 }
 

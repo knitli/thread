@@ -6,10 +6,10 @@ use tokio::time::Duration;
 
 use crate::base::value::EstimatedByteSize;
 use crate::base::{schema, value};
-use crate::builder::{AnalyzedTransientFlow, plan::*};
+use crate::builder::plan::*;
 use utils::immutable::RefList;
 
-use super::memoization::{EvaluationMemory, EvaluationMemoryOptions, evaluate_with_cell};
+use super::memoization::{EvaluationMemory, evaluate_with_cell};
 
 const DEFAULT_TIMEOUT_THRESHOLD: Duration = Duration::from_secs(1800);
 const MIN_WARNING_THRESHOLD: Duration = Duration::from_secs(30);
@@ -235,7 +235,7 @@ impl<'a> ScopeEntry<'a> {
     ) -> Result<&value::Value<ScopeValueBuilder>> {
         let first_index = field_ref.fields_idx[0] as usize;
         let index_base = self.key.value_field_index_base();
-        let val = self.value.fields[first_index - index_base  ]
+        let val = self.value.fields[first_index - index_base]
             .get()
             .ok_or_else(|| internal_error!("Field {} is not set", first_index))?;
         Self::get_local_field(val, &field_ref.fields_idx[1..])
@@ -253,7 +253,7 @@ impl<'a> ScopeEntry<'a> {
                 Self::get_local_key_field(&key_val[first_index], &field_ref.fields_idx[1..])?;
             key_part.clone().into()
         } else {
-            let val = self.value.fields[first_index - index_base  ]
+            let val = self.value.fields[first_index - index_base]
                 .get()
                 .ok_or_else(|| internal_error!("Field {} is not set", first_index))?;
             let val_part = Self::get_local_field(val, &field_ref.fields_idx[1..])?;
@@ -266,10 +266,7 @@ impl<'a> ScopeEntry<'a> {
         &self,
         field_ref: &AnalyzedLocalFieldReference,
     ) -> Result<&schema::FieldSchema> {
-        Self::get_local_field_schema(
-            self.schema,
-            &field_ref.fields_idx,
-        )
+        Self::get_local_field_schema(self.schema, &field_ref.fields_idx)
     }
 
     fn define_field_w_builder(
@@ -598,22 +595,23 @@ async fn evaluate_op_scope(
 
                 // Handle auto_uuid_field (assumed to be at position 0 for efficiency)
                 if op.has_auto_uuid_field
-                    && let Some(uuid_idx) = op.collector_schema.auto_uuid_field_idx {
-                        let uuid = memory.next_uuid(
-                            op.fingerprinter
-                                .clone()
-                                .with(
-                                    &field_values
-                                        .iter()
-                                        .enumerate()
-                                        .filter(|(i, _)| *i != uuid_idx)
-                                        .map(|(_, v)| v)
-                                        .collect::<Vec<_>>(),
-                                )?
-                                .into_fingerprint(),
-                        )?;
-                        field_values[uuid_idx] = value::Value::Basic(value::BasicValue::Uuid(uuid));
-                    }
+                    && let Some(uuid_idx) = op.collector_schema.auto_uuid_field_idx
+                {
+                    let uuid = memory.next_uuid(
+                        op.fingerprinter
+                            .clone()
+                            .with(
+                                &field_values
+                                    .iter()
+                                    .enumerate()
+                                    .filter(|(i, _)| *i != uuid_idx)
+                                    .map(|(_, v)| v)
+                                    .collect::<Vec<_>>(),
+                            )?
+                            .into_fingerprint(),
+                    )?;
+                    field_values[uuid_idx] = value::Value::Basic(value::BasicValue::Uuid(uuid));
+                }
 
                 {
                     let mut collected_records = collector_entry.collected_values
@@ -641,7 +639,6 @@ pub struct SourceRowEvaluationContext<'a> {
 
 #[derive(Debug)]
 pub struct EvaluateSourceEntryOutput {
-    pub data_scope: ScopeValueBuilder,
     pub collected_values: Vec<Vec<value::FieldValues>>,
 }
 
@@ -706,54 +703,5 @@ pub async fn evaluate_source_entry(
         .into_iter()
         .map(|v| v.into_inner().unwrap())
         .collect::<Vec<_>>();
-    Ok(EvaluateSourceEntryOutput {
-        data_scope: root_scope_value,
-        collected_values,
-    })
-}
-
-#[instrument(name = "evaluate_transient_flow", skip_all, fields(flow_name = %flow.transient_flow_instance.name))]
-pub async fn evaluate_transient_flow(
-    flow: &AnalyzedTransientFlow,
-    input_values: &Vec<value::Value>,
-) -> Result<value::Value> {
-    let root_schema = &flow.data_schema.schema;
-    let root_scope_value = ScopeValueBuilder::new(root_schema.fields.len());
-    let root_scope_entry = ScopeEntry::new(
-        ScopeKey::None,
-        &root_scope_value,
-        root_schema,
-        &flow.execution_plan.op_scope,
-    );
-
-    if input_values.len() != flow.execution_plan.input_fields.len() {
-        client_bail!(
-            "Input values length mismatch: expect {}, got {}",
-            flow.execution_plan.input_fields.len(),
-            input_values.len()
-        );
-    }
-    for (field, value) in flow.execution_plan.input_fields.iter().zip(input_values) {
-        root_scope_entry.define_field(field, value)?;
-    }
-    let eval_memory = EvaluationMemory::new(
-        chrono::Utc::now(),
-        None,
-        EvaluationMemoryOptions {
-            enable_cache: false,
-            evaluation_only: true,
-        },
-    );
-    evaluate_op_scope(
-        &flow.execution_plan.op_scope,
-        RefList::Nil.prepend(&root_scope_entry),
-        &eval_memory,
-        None, // No operation stats for transient flows
-    )
-    .await?;
-    let output_value = assemble_value(
-        &flow.execution_plan.output_value,
-        RefList::Nil.prepend(&root_scope_entry),
-    )?;
-    Ok(output_value)
+    Ok(EvaluateSourceEntryOutput { collected_values })
 }

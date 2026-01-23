@@ -16,9 +16,7 @@ use super::stats;
 
 use crate::base::value::{self, FieldValues, KeyValue};
 use crate::builder::plan::*;
-use crate::ops::interface::{
-    ExportTargetMutation, ExportTargetUpsertEntry, Ordinal, SourceExecutorReadOptions,
-};
+use crate::ops::interface::{ExportTargetMutation, ExportTargetUpsertEntry, Ordinal};
 use utils::db::WriteAction;
 use utils::fingerprint::{Fingerprint, Fingerprinter};
 
@@ -126,10 +124,9 @@ impl SourceVersion {
             }
             _ => false,
         };
-        if should_skip
-            && let Some(update_stats) = update_stats {
-                update_stats.num_no_change.inc(1);
-            }
+        if should_skip && let Some(update_stats) = update_stats {
+            update_stats.num_no_change.inc(1);
+        }
         should_skip
     }
 }
@@ -305,9 +302,10 @@ impl<'a> RowIndexer<'a> {
 
             // Invalidate memoization cache if full reprocess is requested
             if self.mode == super::source_indexer::UpdateMode::FullReprocess
-                && let Some(ref mut info) = extracted_memoization_info {
-                    info.cache.clear();
-                }
+                && let Some(ref mut info) = extracted_memoization_info
+            {
+                info.cache.clear();
+            }
 
             match source_value {
                 interface::SourceValue::Existence(source_value) => {
@@ -503,10 +501,7 @@ impl<'a> RowIndexer<'a> {
         // Check 2: Verify the situation hasn't changed (no concurrent processing)
         match baseline {
             ContentHashBasedCollapsingBaseline::ProcessedSourceFingerprint(fp) => {
-                if existing_tracking_info
-                    .processed_source_fp.as_deref()
-                    != Some(fp)
-                {
+                if existing_tracking_info.processed_source_fp.as_deref() != Some(fp) {
                     return Ok(None);
                 }
             }
@@ -861,54 +856,6 @@ impl<'a> RowIndexer<'a> {
     pub fn process_ordinal_from_time(process_time: chrono::DateTime<chrono::Utc>) -> i64 {
         process_time.timestamp_millis()
     }
-}
-
-pub async fn evaluate_source_entry_with_memory(
-    src_eval_ctx: &SourceRowEvaluationContext<'_>,
-    key_aux_info: &serde_json::Value,
-    setup_execution_ctx: &exec_ctx::FlowSetupExecutionContext,
-    options: EvaluationMemoryOptions,
-    pool: &PgPool,
-) -> Result<Option<EvaluateSourceEntryOutput>> {
-    let stored_info = if options.enable_cache || !options.evaluation_only {
-        let source_key_json = serde_json::to_value(src_eval_ctx.key)?;
-        let source_id = setup_execution_ctx.import_ops[src_eval_ctx.import_op_idx].source_id;
-        let existing_tracking_info = read_source_tracking_info_for_processing(
-            source_id,
-            &source_key_json,
-            &setup_execution_ctx.setup_state.tracking_table,
-            pool,
-        )
-        .await?;
-        existing_tracking_info
-            .and_then(|info| info.memoization_info.map(|info| info.0))
-            .flatten()
-    } else {
-        None
-    };
-    let memory = EvaluationMemory::new(chrono::Utc::now(), stored_info, options);
-    let source_value = src_eval_ctx
-        .import_op
-        .executor
-        .get_value(
-            src_eval_ctx.key,
-            key_aux_info,
-            &SourceExecutorReadOptions {
-                include_value: true,
-                include_ordinal: false,
-                include_content_version_fp: false,
-            },
-        )
-        .await?
-        .value
-        .ok_or_else(|| internal_error!("value not returned"))?;
-    let output = match source_value {
-        interface::SourceValue::Existence(source_value) => {
-            Some(evaluate_source_entry(src_eval_ctx, source_value, &memory, None).await?)
-        }
-        interface::SourceValue::NonExistence => None,
-    };
-    Ok(output)
 }
 
 #[cfg(test)]

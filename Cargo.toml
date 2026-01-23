@@ -80,7 +80,7 @@ lasso = { version = "0.7.3" }
 smallvec = { version = "1.15.1" }
 smol_str = { version = "0.3.5" }
 # serialization
-schemars = { version = "1.2.0" }
+schemars = { version = "0.8.21" }
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = { version = "1.0.149" }
 serde_yaml = { package = "serde_yml", version = "0.0.12" }  # TODO: serde_yaml is deprecated. We need to replace it with something like serde_yaml2 or yaml-peg

@@ -1,11 +1,9 @@
 use crate::prelude::*;
 
 use crate::base::json_schema::ToJsonSchemaOptions;
-use infer::Infer;
+
 use schemars::schema::SchemaObject;
 use std::borrow::Cow;
-
-static INFER: LazyLock<Infer> = LazyLock::new(Infer::new);
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub enum LlmApiType {
@@ -57,6 +55,7 @@ pub struct LlmSpec {
     pub api_config: Option<LlmApiConfig>,
 }
 
+#[allow(dead_code)]
 #[derive(Debug)]
 pub enum OutputFormat<'a> {
     JsonSchema {
@@ -65,6 +64,7 @@ pub enum OutputFormat<'a> {
     },
 }
 
+#[allow(dead_code)]
 #[derive(Debug)]
 pub struct LlmGenerateRequest<'a> {
     pub model: &'a str,
@@ -74,6 +74,7 @@ pub struct LlmGenerateRequest<'a> {
     pub output_format: Option<OutputFormat<'a>>,
 }
 
+#[allow(dead_code)]
 #[derive(Debug)]
 pub enum GeneratedOutput {
     Json(serde_json::Value),
@@ -95,6 +96,7 @@ pub trait LlmGenerationClient: Send + Sync {
     fn json_schema_options(&self) -> ToJsonSchemaOptions;
 }
 
+#[allow(dead_code)]
 #[derive(Debug)]
 pub struct LlmEmbeddingRequest<'a> {
     pub model: &'a str,
@@ -147,12 +149,4 @@ pub async fn new_llm_embedding_client(
     _api_config: Option<LlmApiConfig>,
 ) -> Result<Box<dyn LlmEmbeddingClient>> {
     api_bail!("LLM support is disabled in this build")
-}
-
-pub fn detect_image_mime_type(bytes: &[u8]) -> Result<&'static str> {
-    let infer = &*INFER;
-    match infer.get(bytes) {
-        Some(info) if info.mime_type().starts_with("image/") => Ok(info.mime_type()),
-        _ => client_bail!("Unknown or unsupported image format"),
-    }
 }

@@ -1,7 +1,4 @@
-use super::{
-    factory_bases::*, functions, registry::ExecutorFactoryRegistry, sdk::ExecutorFactory, sources,
-    targets,
-};
+use super::{factory_bases::*, functions, registry::ExecutorFactoryRegistry, sources, targets};
 use crate::prelude::*;
 use cocoindex_utils::client_error;
 use std::sync::{LazyLock, RwLock};
@@ -91,9 +88,4 @@ pub fn get_attachment_factory(
 ) -> Result<std::sync::Arc<dyn super::interface::TargetAttachmentFactory + Send + Sync>> {
     get_optional_attachment_factory(kind)
         .ok_or_else(|| client_error!("Attachment factory not found for op kind: {}", kind))
-}
-
-pub fn register_factory(name: String, factory: ExecutorFactory) -> Result<()> {
-    let mut registry = EXECUTOR_FACTORY_REGISTRY.write().unwrap();
-    registry.register(name, factory)
 }

@@ -17,13 +17,15 @@ impl SimpleFunctionFactory for ThreadParseFactory {
     async fn build(
         self: Arc<Self>,
         _spec: serde_json::Value,
+        _args: Vec<cocoindex::base::schema::OpArgSchema>,
         _context: Arc<FlowInstanceContext>,
     ) -> Result<SimpleFunctionBuildOutput, cocoindex::error::Error> {
         Ok(SimpleFunctionBuildOutput {
-            executor: Arc::new(ThreadParseExecutor),
-            output_value_type: crate::conversion::build_output_schema(),
-            enable_cache: true,
-            timeout: None,
+            executor: Box::pin(async {
+                Ok(Box::new(ThreadParseExecutor) as Box<dyn SimpleFunctionExecutor>)
+            }),
+            output_type: crate::conversion::get_thread_parse_output_schema(),
+            behavior_version: Some(1),
         })
     }
 }
@@ -37,20 +39,21 @@ impl SimpleFunctionExecutor for ThreadParseExecutor {
         // Input: [content, language, file_path]
         let content = input
             .get(0)
-            .ok_or_else(|| cocoindex::error::Error::msg("Missing content"))?
+            .ok_or_else(|| cocoindex::error::Error::client("Missing content"))?
             .as_str()
-            .map_err(|e| cocoindex::error::Error::msg(e.to_string()))?;
+            .map_err(|e| cocoindex::error::Error::client(e.to_string()))?;
 
         let lang_str = input
             .get(1)
-            .ok_or_else(|| cocoindex::error::Error::msg("Missing language"))?
+            .ok_or_else(|| cocoindex::error::Error::client("Missing language"))?
             .as_str()
-            .map_err(|e| cocoindex::error::Error::msg(e.to_string()))?;
+            .map_err(|e| cocoindex::error::Error::client(e.to_string()))?;
 
         let path_str = input
             .get(2)
-            .map(|v| v.as_str().unwrap_or("unknown"))
-            .unwrap_or("unknown");
+            .and_then(|v| v.as_str().ok())
+            .map(|v| v.to_string())
+            .unwrap_or_else(|| "unknown".to_string());
 
         // Resolve language
         // We assume lang_str is an extension or can be resolved by from_extension_str
@@ -63,7 +66,7 @@ impl SimpleFunctionExecutor for ThreadParseExecutor {
                 thread_language::from_extension(&p)
             })
             .ok_or_else(|| {
-                cocoindex::error::Error::msg(format!("Unsupported language: {}", lang_str))
+                cocoindex::error::Error::client(format!("Unsupported language: {}", lang_str))
             })?;
 
         // Parse with Thread
@@ -74,7 +77,7 @@ impl SimpleFunctionExecutor for ThreadParseExecutor {
         let hash = thread_services::conversion::compute_content_hash(content, None);
 
         // Convert to ParsedDocument
-        let path = std::path::PathBuf::from(path_str);
+        let path = std::path::PathBuf::from(&path_str);
         let mut doc = thread_services::conversion::root_to_parsed_document(root, path, lang, hash);
 
         // Extract metadata
@@ -82,7 +85,9 @@ impl SimpleFunctionExecutor for ThreadParseExecutor {
             .map(|metadata| {
                 doc.metadata = metadata;
             })
-            .map_err(|e| cocoindex::error::Error::msg(format!("Extraction error: {}", e)))?;
+            .map_err(|e| {
+                cocoindex::error::Error::internal_msg(format!("Extraction error: {}", e))
+            })?;
 
         // Extract symbols (CodeAnalyzer::extract_symbols is what the plan mentioned, but conversion::extract_basic_metadata does it)
 

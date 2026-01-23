@@ -1,4 +1,5 @@
 use crate::builder::exec_ctx::AnalyzedSetupState;
+use crate::lib_context::get_lib_context;
 use crate::ops::{
     get_attachment_factory, get_function_factory, get_source_factory, get_target_factory,
 };
@@ -1288,12 +1289,12 @@ impl AnalyzerContext {
 
 pub fn build_flow_instance_context(
     flow_inst_name: &str,
-    py_exec_ctx: Option<Arc<crate::py::PythonExecutionContext>>,
+    exec_ctx: Option<Arc<dyn crate::ops::interface::ExecutionContext>>,
 ) -> Arc<FlowInstanceContext> {
     Arc::new(FlowInstanceContext {
         flow_instance_name: flow_inst_name.to_string(),
         auth_registry: get_auth_registry().clone(),
-        py_exec_ctx,
+        exec_ctx,
     })
 }
 

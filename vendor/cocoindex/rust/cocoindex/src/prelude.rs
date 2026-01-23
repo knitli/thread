@@ -20,7 +20,7 @@ pub(crate) use std::sync::{Arc, LazyLock, Mutex, OnceLock, RwLock, Weak};
 pub(crate) use crate::base::{self, schema, spec, value};
 pub(crate) use crate::builder::{self, exec_ctx, plan};
 pub(crate) use crate::execution;
-pub(crate) use crate::lib_context::{FlowContext, LibContext, get_lib_context, get_runtime};
+pub(crate) use crate::lib_context::{FlowContext, LibContext, get_runtime};
 pub(crate) use crate::ops::interface;
 pub(crate) use crate::setup;
 pub(crate) use crate::setup::AuthRegistry;
@@ -34,8 +34,4 @@ pub(crate) use tracing::{Span, debug, error, info, info_span, instrument, trace,
 
 pub(crate) use derivative::Derivative;
 
-pub(crate) use cocoindex_py_utils as py_utils;
-pub(crate) use cocoindex_py_utils::IntoPyResult;
-
-pub use py_utils::prelude::*;
 pub use utils::prelude::*;

@@ -252,32 +252,6 @@ impl std::fmt::Display for UpdateStats {
     }
 }
 
-#[derive(Debug, Serialize)]
-pub struct SourceUpdateInfo {
-    pub source_name: String,
-    pub stats: UpdateStats,
-}
-
-impl std::fmt::Display for SourceUpdateInfo {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}: {}", self.source_name, self.stats)
-    }
-}
-
-#[derive(Debug, Serialize)]
-pub struct IndexUpdateInfo {
-    pub sources: Vec<SourceUpdateInfo>,
-}
-
-impl std::fmt::Display for IndexUpdateInfo {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        for source in self.sources.iter() {
-            writeln!(f, "{source}")?;
-        }
-        Ok(())
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
