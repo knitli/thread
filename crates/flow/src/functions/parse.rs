@@ -91,12 +91,12 @@ impl SimpleFunctionExecutor for ThreadParseExecutor {
         use thread_ast_engine::tree_sitter::LanguageExt;
         let root = lang.ast_grep(content);
 
-        // Compute hash
-        let hash = thread_services::conversion::compute_content_hash(content, None);
+        // Compute content fingerprint using ReCoco's blake3-based system
+        let fingerprint = thread_services::conversion::compute_content_fingerprint(content);
 
         // Convert to ParsedDocument
         let path = std::path::PathBuf::from(&path_str);
-        let mut doc = thread_services::conversion::root_to_parsed_document(root, path, lang, hash);
+        let mut doc = thread_services::conversion::root_to_parsed_document(root, path, lang, fingerprint);
 
         // Extract metadata
         thread_services::conversion::extract_basic_metadata(&doc)

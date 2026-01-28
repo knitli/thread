@@ -10,6 +10,7 @@ license.workspace = true
 [dependencies]
 async-trait = { workspace = true }
 base64 = "0.22"
+bytes = "1.10"
 # ReCoco dataflow engine - using minimal features for reduced dependencies
 # See RECOCO_INTEGRATION.md for feature flag strategy
 recoco = { version = "0.2.1", default-features = false, features = ["source-local-file"] }
@@ -33,9 +34,13 @@ thread-services = { workspace = true, features = [
 ] }
 thread-utils = { workspace = true }
 tokio = { workspace = true }
+# Optional: parallel processing for CLI (not available in workers)
+rayon = { workspace = true, optional = true }
+# Optional: query result caching
+moka = { version = "0.12", features = ["future"], optional = true }
 
 [features]
-default = ["recoco-minimal"]
+default = ["recoco-minimal", "parallel"]
 
 # ReCoco integration feature flags
 # See RECOCO_INTEGRATION.md for details
@@ -47,7 +52,13 @@ recoco-postgres = ["recoco-minimal", "recoco/target-postgres"]  # Add PostgreSQL
 # recoco-cloud = ["recoco-minimal", "recoco/source-s3"]
 # recoco-full = ["recoco-postgres", "recoco-cloud", "recoco/target-qdrant"]
 
-# Edge deployment (no filesystem, alternative sources/targets needed)
+# Parallel processing (CLI only, not available in workers)
+parallel = ["dep:rayon"]
+
+# Query result caching (optional, for production deployments)
+caching = ["dep:moka"]
+
+# Edge deployment (no filesystem, no parallel processing, alternative sources/targets needed)
 worker = []
 
 [dev-dependencies]
@@ -56,6 +67,10 @@ md5 = "0.7"
 
 [[bench]]
 name = "parse_benchmark"
+harness = false
+
+[[bench]]
+name = "fingerprint_benchmark"
 harness = false
 
 [[example]]

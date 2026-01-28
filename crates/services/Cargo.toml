@@ -20,6 +20,8 @@ ignore = { workspace = true }
 # Service layer dependencies
 async-trait = "0.1.88"
 cfg-if = { workspace = true }
+# ReCoco utilities for content fingerprinting (blake3 hashing)
+recoco-utils = { version = "0.2.1", default-features = false }
 # Performance improvements
 futures = { workspace = true, optional = true }
 pin-project = { workspace = true, optional = true }

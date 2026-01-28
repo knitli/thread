@@ -41,9 +41,9 @@ pub fn root_to_parsed_document<D: Doc>(
     ast_root: Root<D>,
     file_path: PathBuf,
     language: SupportLang,
-    content_hash: u64,
+    content_fingerprint: recoco_utils::fingerprint::Fingerprint,
 ) -> ParsedDocument<D> {
-    ParsedDocument::new(ast_root, file_path, language, content_hash)
+    ParsedDocument::new(ast_root, file_path, language, content_fingerprint)
 }
 
 /// Extract basic metadata from a parsed document
@@ -230,13 +230,18 @@ pub fn create_symbol_info(name: String, kind: SymbolKind, position: Position) ->
     }
 }
 
-/// Extract content hash for deduplication
-pub fn compute_content_hash(content: &str, seed: Option<u64>) -> u64 {
-    if let Some(deterministic_seed) = seed {
-        thread_utils::hash_bytes_with_seed(content.as_bytes(), deterministic_seed)
-    } else {
-        thread_utils::hash_bytes(content.as_bytes())
-    }
+/// Compute content fingerprint for deduplication using blake3
+///
+/// This uses ReCoco's Fingerprinter which provides:
+/// - 10-100x faster hashing than SHA256 via blake3
+/// - 16-byte compact fingerprint (vs 32-byte SHA256)
+/// - Automatic integration with ReCoco's memoization system
+/// - Type-safe content-addressed caching
+pub fn compute_content_fingerprint(content: &str) -> recoco_utils::fingerprint::Fingerprint {
+    let mut fp = recoco_utils::fingerprint::Fingerprinter::default();
+    // Note: write() can fail for serialization, but with &str it won't fail
+    fp.write(content).expect("fingerprinting string should not fail");
+    fp.into_fingerprint()
 }
 
 // Conversion functions for common patterns
@@ -278,15 +283,15 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_compute_content_hash() {
+    fn test_compute_content_fingerprint() {
         let content = "fn main() {}";
-        let hash1 = compute_content_hash(content, None);
-        let hash2 = compute_content_hash(content, None);
-        assert_eq!(hash1, hash2);
+        let fp1 = compute_content_fingerprint(content);
+        let fp2 = compute_content_fingerprint(content);
+        assert_eq!(fp1, fp2, "Same content should produce same fingerprint");
 
         let different_content = "fn test() {}";
-        let hash3 = compute_content_hash(different_content, None);
-        assert_ne!(hash1, hash3);
+        let fp3 = compute_content_fingerprint(different_content);
+        assert_ne!(fp1, fp3, "Different content should produce different fingerprint");
     }
 
     #[test]

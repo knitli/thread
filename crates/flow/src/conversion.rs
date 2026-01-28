@@ -40,7 +40,10 @@ pub fn serialize_parsed_doc<D: thread_services::types::Doc>(
         .map(serialize_call)
         .collect::<Result<Vec<_>, _>>()?;
 
-    // Output is a Struct containing LTables.
+    // Convert fingerprint to bytes for serialization
+    let fingerprint_bytes = bytes::Bytes::from(doc.content_fingerprint.as_slice().to_vec());
+
+    // Output is a Struct containing LTables and fingerprint.
     // Value::Struct takes FieldValues. FieldValues takes fields: Vec<Value>.
     // Value::LTable(symbols) is Value::LTable(Vec<ScopeValue>). This is a Value.
     // So fields is Vec<Value>. Correct.
@@ -50,6 +53,7 @@ pub fn serialize_parsed_doc<D: thread_services::types::Doc>(
             Value::LTable(symbols),
             Value::LTable(imports),
             Value::LTable(calls),
+            Value::Basic(BasicValue::Bytes(fingerprint_bytes)),
         ],
     }))
 }
@@ -126,6 +130,14 @@ pub fn get_thread_parse_output_schema() -> EnrichedValueType {
                                 _ => unreachable!(),
                             },
                         }),
+                        nullable: false,
+                        attrs: Default::default(),
+                    },
+                ),
+                FieldSchema::new(
+                    "content_fingerprint".to_string(),
+                    EnrichedValueType {
+                        typ: ValueType::Basic(BasicValueType::Bytes),
                         nullable: false,
                         attrs: Default::default(),
                     },

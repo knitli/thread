@@ -199,13 +199,13 @@ pub trait AnalyticsService: Send + Sync {
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub struct AnalysisKey {
     pub operation_type: String,
-    pub content_hash: u64,
+    pub content_fingerprint: recoco_utils::fingerprint::Fingerprint,
     pub configuration_hash: u64,
     pub version: String,
 }
 
 /// Stored analysis result
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct AnalysisResult<D: Doc> {
     pub documents: Vec<ParsedDocument<D>>,
     pub relationships: Vec<CrossFileRelationship>,

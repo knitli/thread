@@ -12,7 +12,9 @@
 //! - **Builder**: Constructs analysis flows
 //! - **Strategy**: Handles runtime differences (CLI vs Edge)
 
+pub mod batch;
 pub mod bridge;
+pub mod cache;
 pub mod conversion;
 pub mod flows;
 pub mod functions;

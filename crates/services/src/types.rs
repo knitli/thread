@@ -187,8 +187,8 @@ pub struct ParsedDocument<D: Doc> {
     /// Language of this document
     pub language: SupportLang,
 
-    /// Content hash for deduplication and change detection
-    pub content_hash: u64,
+    /// Content fingerprint for deduplication and change detection (blake3 hash)
+    pub content_fingerprint: recoco_utils::fingerprint::Fingerprint,
 
     /// Codebase-level metadata (symbols, imports, exports, etc.)
     pub metadata: DocumentMetadata,
@@ -203,13 +203,13 @@ impl<D: Doc> ParsedDocument<D> {
         ast_root: Root<D>,
         file_path: PathBuf,
         language: SupportLang,
-        content_hash: u64,
+        content_fingerprint: recoco_utils::fingerprint::Fingerprint,
     ) -> Self {
         Self {
             ast_root,
             file_path,
             language,
-            content_hash,
+            content_fingerprint,
             metadata: DocumentMetadata::default(),
             internal: Box::new(()),
         }

@@ -3,8 +3,8 @@
 -- Run: wrangler d1 execute thread_test --local --file=schema.sql
 
 CREATE TABLE IF NOT EXISTS code_symbols (
-    -- Primary key: content hash for deduplication
-    content_hash TEXT PRIMARY KEY,
+    -- Primary key: content fingerprint (blake3 hash) for deduplication
+    content_fingerprint TEXT PRIMARY KEY,
 
     -- Source file information
     file_path TEXT NOT NULL,

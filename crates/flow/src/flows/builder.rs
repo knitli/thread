@@ -242,11 +242,25 @@ impl ThreadFlowBuilder {
                         })?
                         .ok_or_else(|| ServiceError::config_static("Symbols field not found"))?;
 
+                    // Get content_fingerprint field for content-addressed deduplication
+                    let content_fingerprint = parsed
+                        .field("content_fingerprint")
+                        .map_err(|e| {
+                            ServiceError::config_dynamic(format!(
+                                "Missing content_fingerprint field in parsed output: {}",
+                                e
+                            ))
+                        })?
+                        .ok_or_else(|| {
+                            ServiceError::config_static("Content fingerprint field not found")
+                        })?;
+
                     builder
                         .collect(
                             &symbols_collector,
                             vec![
                                 ("file_path".to_string(), path_field),
+                                ("content_fingerprint".to_string(), content_fingerprint),
                                 (
                                     "name".to_string(),
                                     symbols
@@ -408,11 +422,25 @@ impl ThreadFlowBuilder {
                         })?
                         .ok_or_else(|| ServiceError::config_static("Imports field not found"))?;
 
+                    // Get content_fingerprint field for content-addressed deduplication
+                    let content_fingerprint = parsed
+                        .field("content_fingerprint")
+                        .map_err(|e| {
+                            ServiceError::config_dynamic(format!(
+                                "Missing content_fingerprint field in parsed output: {}",
+                                e
+                            ))
+                        })?
+                        .ok_or_else(|| {
+                            ServiceError::config_static("Content fingerprint field not found")
+                        })?;
+
                     builder
                         .collect(
                             &imports_collector,
                             vec![
                                 ("file_path".to_string(), path_field),
+                                ("content_fingerprint".to_string(), content_fingerprint),
                                 (
                                     "symbol_name".to_string(),
                                     imports
@@ -574,11 +602,25 @@ impl ThreadFlowBuilder {
                         })?
                         .ok_or_else(|| ServiceError::config_static("Calls field not found"))?;
 
+                    // Get content_fingerprint field for content-addressed deduplication
+                    let content_fingerprint = parsed
+                        .field("content_fingerprint")
+                        .map_err(|e| {
+                            ServiceError::config_dynamic(format!(
+                                "Missing content_fingerprint field in parsed output: {}",
+                                e
+                            ))
+                        })?
+                        .ok_or_else(|| {
+                            ServiceError::config_static("Content fingerprint field not found")
+                        })?;
+
                     builder
                         .collect(
                             &calls_collector,
                             vec![
                                 ("file_path".to_string(), path_field),
+                                ("content_fingerprint".to_string(), content_fingerprint),
                                 (
                                     "function_name".to_string(),
                                     calls
