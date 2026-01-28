@@ -1,10 +1,9 @@
 // SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-use cocoindex::base::spec::{
-    ExecutionOptions, FlowInstanceSpec, IndexOptions, SourceRefreshOptions,
-};
-use cocoindex::builder::flow_builder::FlowBuilder;
+use recoco::base::spec::{ExecutionOptions, FlowInstanceSpec, IndexOptions, SourceRefreshOptions};
+use recoco::builder::flow_builder::FlowBuilder;
+use recoco::prelude::Error as RecocoError;
 use serde_json::json;
 use thread_services::error::{ServiceError, ServiceResult};
 
@@ -19,11 +18,20 @@ struct SourceConfig {
 enum Step {
     Parse,
     ExtractSymbols,
+    ExtractImports,
+    ExtractCalls,
 }
 
 #[derive(Clone)]
 enum Target {
     Postgres {
+        table: String,
+        primary_key: Vec<String>,
+    },
+    D1 {
+        account_id: String,
+        database_id: String,
+        api_token: String,
         table: String,
         primary_key: Vec<String>,
     },
@@ -74,6 +82,16 @@ impl ThreadFlowBuilder {
         self
     }
 
+    pub fn extract_imports(mut self) -> Self {
+        self.steps.push(Step::ExtractImports);
+        self
+    }
+
+    pub fn extract_calls(mut self) -> Self {
+        self.steps.push(Step::ExtractCalls);
+        self
+    }
+
     pub fn target_postgres(mut self, table: impl Into<String>, primary_key: &[&str]) -> Self {
         self.target = Some(Target::Postgres {
             table: table.into(),
@@ -82,10 +100,38 @@ impl ThreadFlowBuilder {
         self
     }
 
-    pub fn build(self) -> ServiceResult<FlowInstanceSpec> {
-        let mut builder = FlowBuilder::new(&self.name).map_err(|e| {
-            ServiceError::execution_dynamic(format!("Failed to create builder: {}", e))
-        })?;
+    /// Configure D1 as the export target
+    ///
+    /// # Arguments
+    /// * `account_id` - Cloudflare account ID
+    /// * `database_id` - D1 database ID
+    /// * `api_token` - Cloudflare API token
+    /// * `table` - Table name to export to
+    /// * `primary_key` - Primary key field names for content-addressed deduplication
+    pub fn target_d1(
+        mut self,
+        account_id: impl Into<String>,
+        database_id: impl Into<String>,
+        api_token: impl Into<String>,
+        table: impl Into<String>,
+        primary_key: &[&str],
+    ) -> Self {
+        self.target = Some(Target::D1 {
+            account_id: account_id.into(),
+            database_id: database_id.into(),
+            api_token: api_token.into(),
+            table: table.into(),
+            primary_key: primary_key.iter().map(|s| s.to_string()).collect(),
+        });
+        self
+    }
+
+    pub async fn build(self) -> ServiceResult<FlowInstanceSpec> {
+        let mut builder = FlowBuilder::new(&self.name)
+            .await
+            .map_err(|e: RecocoError| {
+                ServiceError::execution_dynamic(format!("Failed to create builder: {}", e))
+            })?;
 
         let source_cfg = self
             .source
@@ -108,7 +154,10 @@ impl ThreadFlowBuilder {
                 Some(SourceRefreshOptions::default()),
                 Some(ExecutionOptions::default()),
             )
-            .map_err(|e| ServiceError::execution_dynamic(format!("Failed to add source: {}", e)))?;
+            .await
+            .map_err(|e: RecocoError| {
+                ServiceError::execution_dynamic(format!("Failed to add source: {}", e))
+            })?;
 
         let current_node = source_node;
         let mut parsed_node = None;
@@ -149,7 +198,8 @@ impl ThreadFlowBuilder {
                             None,
                             "parsed".to_string(),
                         )
-                        .map_err(|e| {
+                        .await
+                        .map_err(|e: RecocoError| {
                             ServiceError::execution_dynamic(format!(
                                 "Failed to add parse step: {}",
                                 e
@@ -167,7 +217,7 @@ impl ThreadFlowBuilder {
                     let mut root_scope = builder.root_scope();
                     let symbols_collector = root_scope
                         .add_collector("symbols".to_string())
-                        .map_err(|e| {
+                        .map_err(|e: RecocoError| {
                             ServiceError::execution_dynamic(format!(
                                 "Failed to add collector: {}",
                                 e
@@ -201,7 +251,9 @@ impl ThreadFlowBuilder {
                                     "name".to_string(),
                                     symbols
                                         .field("name")
-                                        .map_err(|e| ServiceError::config_dynamic(e.to_string()))?
+                                        .map_err(|e: RecocoError| {
+                                            ServiceError::config_dynamic(e.to_string())
+                                        })?
                                         .ok_or_else(|| {
                                             ServiceError::config_static(
                                                 "Symbol Name field not found",
@@ -212,7 +264,9 @@ impl ThreadFlowBuilder {
                                     "kind".to_string(),
                                     symbols
                                         .field("kind")
-                                        .map_err(|e| ServiceError::config_dynamic(e.to_string()))?
+                                        .map_err(|e: RecocoError| {
+                                            ServiceError::config_dynamic(e.to_string())
+                                        })?
                                         .ok_or_else(|| {
                                             ServiceError::config_static(
                                                 "Symbol Kind field not found",
@@ -223,7 +277,9 @@ impl ThreadFlowBuilder {
                                     "signature".to_string(),
                                     symbols
                                         .field("scope")
-                                        .map_err(|e| ServiceError::config_dynamic(e.to_string()))?
+                                        .map_err(|e: RecocoError| {
+                                            ServiceError::config_dynamic(e.to_string())
+                                        })?
                                         .ok_or_else(|| {
                                             ServiceError::config_static(
                                                 "Symbol Scope field not found",
@@ -233,7 +289,8 @@ impl ThreadFlowBuilder {
                             ],
                             None,
                         )
-                        .map_err(|e| {
+                        .await
+                        .map_err(|e: RecocoError| {
                             ServiceError::execution_dynamic(format!(
                                 "Failed to configure collector: {}",
                                 e
@@ -268,7 +325,366 @@ impl ThreadFlowBuilder {
                                         &symbols_collector,
                                         false, // setup_by_user
                                     )
-                                    .map_err(|e| {
+                                    .map_err(|e: RecocoError| {
+                                        ServiceError::execution_dynamic(format!(
+                                            "Failed to add export: {}",
+                                            e
+                                        ))
+                                    })?;
+                            }
+                            Target::D1 {
+                                account_id,
+                                database_id,
+                                api_token,
+                                table,
+                                primary_key,
+                            } => {
+                                builder
+                                    .export(
+                                        "symbols_table".to_string(),
+                                        "d1".to_string(), // target type name matching D1TargetFactory::name()
+                                        json!({
+                                            "account_id": account_id,
+                                            "database_id": database_id,
+                                            "api_token": api_token,
+                                            "table_name": table
+                                        })
+                                        .as_object()
+                                        .ok_or_else(|| {
+                                            ServiceError::config_static("Invalid target spec")
+                                        })?
+                                        .clone(),
+                                        vec![],
+                                        IndexOptions {
+                                            primary_key_fields: Some(
+                                                primary_key.iter().map(|s| s.to_string()).collect(),
+                                            ),
+                                            vector_indexes: vec![],
+                                            fts_indexes: vec![],
+                                        },
+                                        &symbols_collector,
+                                        false, // setup_by_user
+                                    )
+                                    .map_err(|e: RecocoError| {
+                                        ServiceError::execution_dynamic(format!(
+                                            "Failed to add export: {}",
+                                            e
+                                        ))
+                                    })?;
+                            }
+                        }
+                    }
+                }
+                Step::ExtractImports => {
+                    // Similar to ExtractSymbols but for imports
+                    let parsed = parsed_node.as_ref().ok_or_else(|| {
+                        ServiceError::config_static("Extract imports requires parse step first")
+                    })?;
+
+                    let mut root_scope = builder.root_scope();
+                    let imports_collector = root_scope
+                        .add_collector("imports".to_string())
+                        .map_err(|e: RecocoError| {
+                            ServiceError::execution_dynamic(format!(
+                                "Failed to add collector: {}",
+                                e
+                            ))
+                        })?;
+
+                    let path_field = current_node
+                        .field("path")
+                        .map_err(|e| {
+                            ServiceError::config_dynamic(format!("Missing path field: {}", e))
+                        })?
+                        .ok_or_else(|| ServiceError::config_static("Path field not found"))?;
+
+                    let imports = parsed
+                        .field("imports")
+                        .map_err(|e| {
+                            ServiceError::config_dynamic(format!(
+                                "Missing imports field in parsed output: {}",
+                                e
+                            ))
+                        })?
+                        .ok_or_else(|| ServiceError::config_static("Imports field not found"))?;
+
+                    builder
+                        .collect(
+                            &imports_collector,
+                            vec![
+                                ("file_path".to_string(), path_field),
+                                (
+                                    "symbol_name".to_string(),
+                                    imports
+                                        .field("symbol_name")
+                                        .map_err(|e: RecocoError| {
+                                            ServiceError::config_dynamic(e.to_string())
+                                        })?
+                                        .ok_or_else(|| {
+                                            ServiceError::config_static(
+                                                "Import symbol_name field not found",
+                                            )
+                                        })?,
+                                ),
+                                (
+                                    "source_path".to_string(),
+                                    imports
+                                        .field("source_path")
+                                        .map_err(|e: RecocoError| {
+                                            ServiceError::config_dynamic(e.to_string())
+                                        })?
+                                        .ok_or_else(|| {
+                                            ServiceError::config_static(
+                                                "Import source_path field not found",
+                                            )
+                                        })?,
+                                ),
+                                (
+                                    "kind".to_string(),
+                                    imports
+                                        .field("kind")
+                                        .map_err(|e: RecocoError| {
+                                            ServiceError::config_dynamic(e.to_string())
+                                        })?
+                                        .ok_or_else(|| {
+                                            ServiceError::config_static(
+                                                "Import kind field not found",
+                                            )
+                                        })?,
+                                ),
+                            ],
+                            None,
+                        )
+                        .await
+                        .map_err(|e: RecocoError| {
+                            ServiceError::execution_dynamic(format!(
+                                "Failed to configure collector: {}",
+                                e
+                            ))
+                        })?;
+
+                    // Export if target configured
+                    if let Some(target_cfg) = &self.target {
+                        match target_cfg {
+                            Target::Postgres { table, primary_key } => {
+                                builder
+                                    .export(
+                                        "imports_table".to_string(),
+                                        "postgres".to_string(),
+                                        json!({
+                                            "table": format!("{}_imports", table),
+                                            "primary_key": primary_key
+                                        })
+                                        .as_object()
+                                        .ok_or_else(|| {
+                                            ServiceError::config_static("Invalid target spec")
+                                        })?
+                                        .clone(),
+                                        vec![],
+                                        IndexOptions {
+                                            primary_key_fields: Some(
+                                                primary_key.iter().map(|s| s.to_string()).collect(),
+                                            ),
+                                            vector_indexes: vec![],
+                                            fts_indexes: vec![],
+                                        },
+                                        &imports_collector,
+                                        false,
+                                    )
+                                    .map_err(|e: RecocoError| {
+                                        ServiceError::execution_dynamic(format!(
+                                            "Failed to add export: {}",
+                                            e
+                                        ))
+                                    })?;
+                            }
+                            Target::D1 {
+                                account_id,
+                                database_id,
+                                api_token,
+                                table,
+                                primary_key,
+                            } => {
+                                builder
+                                    .export(
+                                        "imports_table".to_string(),
+                                        "d1".to_string(),
+                                        json!({
+                                            "account_id": account_id,
+                                            "database_id": database_id,
+                                            "api_token": api_token,
+                                            "table_name": format!("{}_imports", table)
+                                        })
+                                        .as_object()
+                                        .ok_or_else(|| {
+                                            ServiceError::config_static("Invalid target spec")
+                                        })?
+                                        .clone(),
+                                        vec![],
+                                        IndexOptions {
+                                            primary_key_fields: Some(
+                                                primary_key.iter().map(|s| s.to_string()).collect(),
+                                            ),
+                                            vector_indexes: vec![],
+                                            fts_indexes: vec![],
+                                        },
+                                        &imports_collector,
+                                        false,
+                                    )
+                                    .map_err(|e: RecocoError| {
+                                        ServiceError::execution_dynamic(format!(
+                                            "Failed to add export: {}",
+                                            e
+                                        ))
+                                    })?;
+                            }
+                        }
+                    }
+                }
+                Step::ExtractCalls => {
+                    // Similar to ExtractSymbols but for function calls
+                    let parsed = parsed_node.as_ref().ok_or_else(|| {
+                        ServiceError::config_static("Extract calls requires parse step first")
+                    })?;
+
+                    let mut root_scope = builder.root_scope();
+                    let calls_collector = root_scope
+                        .add_collector("calls".to_string())
+                        .map_err(|e: RecocoError| {
+                            ServiceError::execution_dynamic(format!(
+                                "Failed to add collector: {}",
+                                e
+                            ))
+                        })?;
+
+                    let path_field = current_node
+                        .field("path")
+                        .map_err(|e| {
+                            ServiceError::config_dynamic(format!("Missing path field: {}", e))
+                        })?
+                        .ok_or_else(|| ServiceError::config_static("Path field not found"))?;
+
+                    let calls = parsed
+                        .field("calls")
+                        .map_err(|e| {
+                            ServiceError::config_dynamic(format!(
+                                "Missing calls field in parsed output: {}",
+                                e
+                            ))
+                        })?
+                        .ok_or_else(|| ServiceError::config_static("Calls field not found"))?;
+
+                    builder
+                        .collect(
+                            &calls_collector,
+                            vec![
+                                ("file_path".to_string(), path_field),
+                                (
+                                    "function_name".to_string(),
+                                    calls
+                                        .field("function_name")
+                                        .map_err(|e: RecocoError| {
+                                            ServiceError::config_dynamic(e.to_string())
+                                        })?
+                                        .ok_or_else(|| {
+                                            ServiceError::config_static(
+                                                "Call function_name field not found",
+                                            )
+                                        })?,
+                                ),
+                                (
+                                    "arguments_count".to_string(),
+                                    calls
+                                        .field("arguments_count")
+                                        .map_err(|e: RecocoError| {
+                                            ServiceError::config_dynamic(e.to_string())
+                                        })?
+                                        .ok_or_else(|| {
+                                            ServiceError::config_static(
+                                                "Call arguments_count field not found",
+                                            )
+                                        })?,
+                                ),
+                            ],
+                            None,
+                        )
+                        .await
+                        .map_err(|e: RecocoError| {
+                            ServiceError::execution_dynamic(format!(
+                                "Failed to configure collector: {}",
+                                e
+                            ))
+                        })?;
+
+                    // Export if target configured
+                    if let Some(target_cfg) = &self.target {
+                        match target_cfg {
+                            Target::Postgres { table, primary_key } => {
+                                builder
+                                    .export(
+                                        "calls_table".to_string(),
+                                        "postgres".to_string(),
+                                        json!({
+                                            "table": format!("{}_calls", table),
+                                            "primary_key": primary_key
+                                        })
+                                        .as_object()
+                                        .ok_or_else(|| {
+                                            ServiceError::config_static("Invalid target spec")
+                                        })?
+                                        .clone(),
+                                        vec![],
+                                        IndexOptions {
+                                            primary_key_fields: Some(
+                                                primary_key.iter().map(|s| s.to_string()).collect(),
+                                            ),
+                                            vector_indexes: vec![],
+                                            fts_indexes: vec![],
+                                        },
+                                        &calls_collector,
+                                        false,
+                                    )
+                                    .map_err(|e: RecocoError| {
+                                        ServiceError::execution_dynamic(format!(
+                                            "Failed to add export: {}",
+                                            e
+                                        ))
+                                    })?;
+                            }
+                            Target::D1 {
+                                account_id,
+                                database_id,
+                                api_token,
+                                table,
+                                primary_key,
+                            } => {
+                                builder
+                                    .export(
+                                        "calls_table".to_string(),
+                                        "d1".to_string(),
+                                        json!({
+                                            "account_id": account_id,
+                                            "database_id": database_id,
+                                            "api_token": api_token,
+                                            "table_name": format!("{}_calls", table)
+                                        })
+                                        .as_object()
+                                        .ok_or_else(|| {
+                                            ServiceError::config_static("Invalid target spec")
+                                        })?
+                                        .clone(),
+                                        vec![],
+                                        IndexOptions {
+                                            primary_key_fields: Some(
+                                                primary_key.iter().map(|s| s.to_string()).collect(),
+                                            ),
+                                            vector_indexes: vec![],
+                                            fts_indexes: vec![],
+                                        },
+                                        &calls_collector,
+                                        false,
+                                    )
+                                    .map_err(|e: RecocoError| {
                                         ServiceError::execution_dynamic(format!(
                                             "Failed to add export: {}",
                                             e
@@ -281,10 +697,10 @@ impl ThreadFlowBuilder {
             }
         }
 
-        let ctx = builder
-            .build_flow()
-            .map_err(|e| ServiceError::execution_dynamic(format!("Failed to build flow: {}", e)))?;
+        let ctx = builder.build_flow().await.map_err(|e: RecocoError| {
+            ServiceError::execution_dynamic(format!("Failed to build flow: {}", e))
+        })?;
 
-        Ok(ctx.flow.flow_instance.clone())
+        Ok(ctx.0.flow.flow_instance.clone())
     }
 }

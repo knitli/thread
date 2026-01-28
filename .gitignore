@@ -261,3 +261,6 @@ target/
 
 .vendored_research/
 sbom.spdx
+
+# Proprietary Cloudflare Workers deployment (not for public distribution)
+crates/cloudflare/

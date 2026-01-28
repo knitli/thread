@@ -2,52 +2,70 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 use async_trait::async_trait;
-use cocoindex::base::value::Value;
-use cocoindex::context::FlowInstanceContext;
-use cocoindex::ops::interface::{
-    SimpleFunctionBuildOutput, SimpleFunctionExecutor, SimpleFunctionFactory,
-};
+use recoco::base::value::Value;
+use recoco::ops::factory_bases::SimpleFunctionFactoryBase;
+use recoco::ops::interface::{FlowInstanceContext, SimpleFunctionExecutor};
+use recoco::ops::sdk::{OpArgsResolver, SimpleFunctionAnalysisOutput};
+use serde::Deserialize;
 use std::sync::Arc;
 
 /// Factory for creating the ThreadParseExecutor
 pub struct ThreadParseFactory;
 
+/// Spec for thread_parse operator (empty - uses default args)
+#[derive(Debug, Clone, Deserialize)]
+pub struct ThreadParseSpec {}
+
 #[async_trait]
-impl SimpleFunctionFactory for ThreadParseFactory {
-    async fn build(
-        self: Arc<Self>,
-        _spec: serde_json::Value,
-        _args: Vec<cocoindex::base::schema::OpArgSchema>,
-        _context: Arc<FlowInstanceContext>,
-    ) -> Result<SimpleFunctionBuildOutput, cocoindex::error::Error> {
-        Ok(SimpleFunctionBuildOutput {
-            executor: Box::pin(async {
-                Ok(Box::new(ThreadParseExecutor) as Box<dyn SimpleFunctionExecutor>)
-            }),
-            output_type: crate::conversion::get_thread_parse_output_schema(),
+impl SimpleFunctionFactoryBase for ThreadParseFactory {
+    type Spec = ThreadParseSpec;
+    type ResolvedArgs = ();
+
+    fn name(&self) -> &str {
+        "thread_parse"
+    }
+
+    async fn analyze<'a>(
+        &'a self,
+        _spec: &'a Self::Spec,
+        _args_resolver: &mut OpArgsResolver<'a>,
+        _context: &FlowInstanceContext,
+    ) -> Result<SimpleFunctionAnalysisOutput<Self::ResolvedArgs>, recoco::prelude::Error> {
+        Ok(SimpleFunctionAnalysisOutput {
+            resolved_args: (),
+            output_schema: crate::conversion::get_thread_parse_output_schema(),
             behavior_version: Some(1),
         })
     }
+
+    async fn build_executor(
+        self: Arc<Self>,
+        _spec: Self::Spec,
+        _resolved_args: Self::ResolvedArgs,
+        _context: Arc<FlowInstanceContext>,
+    ) -> Result<impl SimpleFunctionExecutor, recoco::prelude::Error> {
+        Ok(ThreadParseExecutor)
+    }
 }
 
-/// Adapter: Wraps Thread's imperative parsing in a CocoIndex executor
+/// Adapter: Wraps Thread's imperative parsing in a ReCoco executor
 pub struct ThreadParseExecutor;
 
 #[async_trait]
 impl SimpleFunctionExecutor for ThreadParseExecutor {
-    async fn evaluate(&self, input: Vec<Value>) -> Result<Value, cocoindex::error::Error> {
+    async fn evaluate(&self, input: Vec<Value>) -> Result<Value, recoco::prelude::Error> {
         // Input: [content, language, file_path]
         let content = input
             .get(0)
-            .ok_or_else(|| cocoindex::error::Error::client("Missing content"))?
+            .ok_or_else(|| recoco::prelude::Error::client("Missing content"))?
             .as_str()
-            .map_err(|e| cocoindex::error::Error::client(e.to_string()))?;
+            .map_err(|e| recoco::prelude::Error::client(e.to_string()))?;
 
         let lang_str = input
             .get(1)
-            .ok_or_else(|| cocoindex::error::Error::client("Missing language"))?
+            .ok_or_else(|| recoco::prelude::Error::client("Missing language"))?
             .as_str()
-            .map_err(|e| cocoindex::error::Error::client(e.to_string()))?;
+            .map_err(|e| recoco::prelude::Error::client(e.to_string()))?;
 
         let path_str = input
             .get(2)
@@ -66,7 +84,7 @@ impl SimpleFunctionExecutor for ThreadParseExecutor {
                 thread_language::from_extension(&p)
             })
             .ok_or_else(|| {
-                cocoindex::error::Error::client(format!("Unsupported language: {}", lang_str))
+                recoco::prelude::Error::client(format!("Unsupported language: {}", lang_str))
             })?;
 
         // Parse with Thread
@@ -86,7 +104,7 @@ impl SimpleFunctionExecutor for ThreadParseExecutor {
                 doc.metadata = metadata;
             })
             .map_err(|e| {
-                cocoindex::error::Error::internal_msg(format!("Extraction error: {}", e))
+                recoco::prelude::Error::internal_msg(format!("Extraction error: {}", e))
             })?;
 
         // Extract symbols (CodeAnalyzer::extract_symbols is what the plan mentioned, but conversion::extract_basic_metadata does it)

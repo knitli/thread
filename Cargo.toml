@@ -18,6 +18,10 @@ members = [
   "crates/utils",
   "crates/wasm",
   "xtask",
+  # Note: "crates/cloudflare" exists locally (gitignored) for proprietary features.
+  # It's not included here to keep public releases clean.
+  # To use locally: uncomment the line below
+  # "crates/cloudflare",
 ]
 
 [workspace.package]

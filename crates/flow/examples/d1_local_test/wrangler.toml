@@ -1,0 +1,8 @@
+name = "thread-d1-test"
+compatibility_date = "2024-01-01"
+
+# Local D1 database for testing Thread flow integration
+[[d1_databases]]
+binding = "DB"
+database_name = "thread_test"
+database_id = "local-test-db"

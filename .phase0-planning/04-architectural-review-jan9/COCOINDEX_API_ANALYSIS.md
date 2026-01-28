@@ -4,6 +4,14 @@
 **Repository**: cocoindex-io/cocoindex
 **Focus**: Rust-to-Rust API perspective (not Python bindings)
 
+**Update (January 27, 2026)**: This analysis applies to **ReCoco** (our published fork at crates.io), which maintains API compatibility with CocoIndex while adding:
+- Pure Rust-only crate (no Python dependencies)
+- Granular feature gating for all components
+- Reduced dependency footprint (150-220 crates vs 820)
+- Published to crates.io as `recoco` v0.2.1
+
+The core API structure, traits, and design patterns documented here remain accurate for ReCoco.
+
 ## Executive Summary
 
 This document analyzes the Rust API surface of CocoIndex and compares it with what's exposed to Python through PyO3 bindings. The analysis reveals that **the Python API is a carefully curated subset of the Rust API**, with significant Rust-only functionality remaining internal to the library.

@@ -1,18 +1,18 @@
 // SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-use cocoindex::base::schema::{
-    BasicValueType, EnrichedValueType, FieldSchema, StructType, TableKind, TableSchema, ValueType,
+use recoco::base::schema::{
+    BasicValueType, EnrichedValueType, FieldSchema, StructSchema, TableKind, TableSchema, ValueType,
 };
-use cocoindex::base::value::{BasicValue, FieldValues, ScopeValue, Value};
+use recoco::base::value::{BasicValue, FieldValues, ScopeValue, Value};
 
 use std::sync::Arc;
 use thread_services::types::{CallInfo, ImportInfo, ParsedDocument, SymbolInfo};
 
-/// Convert a ParsedDocument to a CocoIndex Value
+/// Convert a ParsedDocument to a ReCoco Value
 pub fn serialize_parsed_doc<D: thread_services::types::Doc>(
     doc: &ParsedDocument<D>,
-) -> Result<Value, cocoindex::error::Error> {
+) -> Result<Value, recoco::prelude::Error> {
     // Note: serialize_symbol etc now return ScopeValue.
     // Value::LTable takes Vec<ScopeValue>.
 
@@ -54,7 +54,7 @@ pub fn serialize_parsed_doc<D: thread_services::types::Doc>(
     }))
 }
 
-fn serialize_symbol(info: &SymbolInfo) -> Result<ScopeValue, cocoindex::error::Error> {
+fn serialize_symbol(info: &SymbolInfo) -> Result<ScopeValue, recoco::prelude::Error> {
     Ok(ScopeValue(FieldValues {
         fields: vec![
             Value::Basic(BasicValue::Str(info.name.clone().into())),
@@ -64,7 +64,7 @@ fn serialize_symbol(info: &SymbolInfo) -> Result<ScopeValue, cocoindex::error::E
     }))
 }
 
-fn serialize_import(info: &ImportInfo) -> Result<ScopeValue, cocoindex::error::Error> {
+fn serialize_import(info: &ImportInfo) -> Result<ScopeValue, recoco::prelude::Error> {
     Ok(ScopeValue(FieldValues {
         fields: vec![
             Value::Basic(BasicValue::Str(info.symbol_name.clone().into())),
@@ -74,7 +74,7 @@ fn serialize_import(info: &ImportInfo) -> Result<ScopeValue, cocoindex::error::E
     }))
 }
 
-fn serialize_call(info: &CallInfo) -> Result<ScopeValue, cocoindex::error::Error> {
+fn serialize_call(info: &CallInfo) -> Result<ScopeValue, recoco::prelude::Error> {
     Ok(ScopeValue(FieldValues {
         fields: vec![
             Value::Basic(BasicValue::Str(info.function_name.clone().into())),
@@ -86,7 +86,7 @@ fn serialize_call(info: &CallInfo) -> Result<ScopeValue, cocoindex::error::Error
 /// Build the schema for the output of ThreadParse
 pub fn get_thread_parse_output_schema() -> EnrichedValueType {
     EnrichedValueType {
-        typ: ValueType::Struct(StructType {
+        typ: ValueType::Struct(StructSchema {
             fields: Arc::new(vec![
                 FieldSchema::new(
                     "symbols".to_string(),
@@ -138,8 +138,8 @@ pub fn get_thread_parse_output_schema() -> EnrichedValueType {
     }
 }
 
-fn symbol_type() -> ValueType {
-    ValueType::Struct(StructType {
+pub fn symbol_type() -> ValueType {
+    ValueType::Struct(StructSchema {
         fields: vec![
             FieldSchema::new(
                 "name".to_string(),
@@ -171,8 +171,8 @@ fn symbol_type() -> ValueType {
     })
 }
 
-fn import_type() -> ValueType {
-    ValueType::Struct(StructType {
+pub fn import_type() -> ValueType {
+    ValueType::Struct(StructSchema {
         fields: vec![
             FieldSchema::new(
                 "symbol_name".to_string(),
@@ -204,8 +204,8 @@ fn import_type() -> ValueType {
     })
 }
 
-fn call_type() -> ValueType {
-    ValueType::Struct(StructType {
+pub fn call_type() -> ValueType {
+    ValueType::Struct(StructSchema {
         fields: vec![
             FieldSchema::new(
                 "function_name".to_string(),

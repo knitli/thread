@@ -3,8 +3,6 @@
 #
 # SPDX-License-Identifier: MIT OR Apache-2.0
 
-experimental_monorepo_root = true
-
 [tools]
 act = "latest"
 ast-grep = "latest"
@@ -59,7 +57,7 @@ echo "Environment deactivated"
 # ** -------------------- Tool and Setup Tasks --------------------
 
 [tasks.enter]
-hide = true  # hide this task from the list
+hide = true                                          # hide this task from the list
 description = "activate the development environment"
 silent = true
 depends = ["install-tools", "installhooks"]
@@ -92,7 +90,7 @@ run = ["cargo update", "cargo update --workspace"]
 [tasks.cleancache]
 description = "delete the cache"
 run = ["rm -rf .cache", "mise -yq prune || true"]
-hide = true  # hide this task from the list
+hide = true                                       # hide this task from the list
 
 [tasks.clean]
 depends = ["cleancache"]
@@ -104,7 +102,7 @@ run = ["cargo clean", "rm -rf crates/thread-wasm/pkg &>/dev/null || true"]
 [tasks.build]
 description = "Build everything (except wasm)"
 run = "cargo build --workspace"
-alias = "b"  # `mise run b` = build
+alias = "b"                                    # `mise run b` = build
 
 [tasks.build-fast]
 tools.rust = "nightly"
@@ -118,32 +116,32 @@ alias = "bf"
 [tasks.build-release]
 description = "Build everything in release mode (except wasm)"
 run = "cargo build --workspace --release --features inline"
-alias = "br"  # `mise run br` = build release
+alias = "br"                                                   # `mise run br` = build release
 
 [tasks.build-wasm]
 description = "Build WASM target for development"
 run = "cargo run -p xtask build-wasm"
-alias = "bw"  # `mise run bw` = build wasm
+alias = "bw"                                      # `mise run bw` = build wasm
 
 [tasks.build-wasm-browser-dev]
-description = "Build WASM target for browser development"  # we don't use the browser target, so currently this is just for testing purposes
+description = "Build WASM target for browser development" # we don't use the browser target, so currently this is just for testing purposes
 run = "cargo run -p xtask build-wasm --multi-threading"
-alias = "bwd"  # `mise run bwd` = build wasm browser dev
+alias = "bwd"                                             # `mise run bwd` = build wasm browser dev
 
 [tasks.build-wasm-profile]
 description = "Build WASM target with profiling"
 run = "cargo run -p xtask build-wasm --profiling"
-alias = "bwp"  # `mise run bwp` = build wasm profiling
+alias = "bwp"                                     # `mise run bwp` = build wasm profiling
 
 [tasks.build-wasm-browser-profile]
 description = "Build WASM target for browser to profile"
 run = "cargo run -p xtask build-wasm --profiling --multi-threading"
-alias = "bwpd"  # `mise run bwpd` = build wasm browser prod
+alias = "bwpd"                                                      # `mise run bwpd` = build wasm browser prod
 
 [tasks.build-wasm-release]
 description = "Build WASM target in release mode."
 run = "cargo run -p xtask build-wasm --release"
-alias = "bwr"  # `mise run bwr` = build wasm release
+alias = "bwr"                                      # `mise run bwr` = build wasm release
 
 # ** -------------------- Testing/Linting/Formatting Tasks --------------------
 
@@ -155,18 +153,18 @@ run = "./scripts/update-licenses.py"
 description = "Run automated tests"
 # multiple commands are run in series
 run = "hk run test"
-alias = "t"  # `mise run t` = test
+alias = "t"         # `mise run t` = test
 
 [tasks.lint]
 description = "Full linting of the codebase"
 run = "hk run check"
-alias = "c"  # `mise run c` = check
+alias = "c"                                  # `mise run c` = check
 
 [tasks.fix]
 description = "fix formatting and apply lint fixes"
 run = "hk fix"
-alias = "f"  # `mise run f` = fix
+alias = "f"                                         # `mise run f` = fix
 
-[tasks.ci]  # only dependencies to be run
+[tasks.ci] # only dependencies to be run
 description = "Run CI tasks"
 depends = ["build", "lint", "test"]

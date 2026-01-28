@@ -16,11 +16,14 @@ pub mod bridge;
 pub mod conversion;
 pub mod flows;
 pub mod functions;
+pub mod registry;
 pub mod runtime;
 pub mod sources;
 pub mod targets;
+#[cfg(test)]
 
 // Re-exports
 pub use bridge::CocoIndexAnalyzer;
 pub use flows::builder::ThreadFlowBuilder;
+pub use registry::ThreadOperators;
 pub use runtime::{EdgeStrategy, LocalStrategy, RuntimeStrategy};

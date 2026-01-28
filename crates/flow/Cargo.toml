@@ -9,8 +9,11 @@ license.workspace = true
 
 [dependencies]
 async-trait = { workspace = true }
-# CocoIndex dependency
-cocoindex = { path = "../../vendor/cocoindex/rust/cocoindex" }
+base64 = "0.22"
+# ReCoco dataflow engine - using minimal features for reduced dependencies
+# See RECOCO_INTEGRATION.md for feature flag strategy
+recoco = { version = "0.2.1", default-features = false, features = ["source-local-file"] }
+reqwest = { version = "0.12", features = ["json"] }
 serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }
@@ -32,5 +35,33 @@ thread-utils = { workspace = true }
 tokio = { workspace = true }
 
 [features]
-default = []
-worker = []  # Feature flag for Edge deployment specific logic
+default = ["recoco-minimal"]
+
+# ReCoco integration feature flags
+# See RECOCO_INTEGRATION.md for details
+recoco-minimal = ["recoco/source-local-file"]  # Just local file source
+recoco-postgres = ["recoco-minimal", "recoco/target-postgres"]  # Add PostgreSQL export
+
+# Note: recoco-cloud and recoco-full disabled due to dependency conflicts
+# TODO: Re-enable once ReCoco resolves crc version conflicts between S3 and sqlx
+# recoco-cloud = ["recoco-minimal", "recoco/source-s3"]
+# recoco-full = ["recoco-postgres", "recoco-cloud", "recoco/target-qdrant"]
+
+# Edge deployment (no filesystem, alternative sources/targets needed)
+worker = []
+
+[dev-dependencies]
+criterion = "0.5"
+md5 = "0.7"
+
+[[bench]]
+name = "parse_benchmark"
+harness = false
+
+[[example]]
+name = "d1_local_test"
+path = "examples/d1_local_test/main.rs"
+
+[[example]]
+name = "d1_integration_test"
+path = "examples/d1_integration_test/main.rs"
