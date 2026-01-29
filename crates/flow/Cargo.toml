@@ -42,6 +42,9 @@ env_logger = "0.11"
 rayon = { workspace = true, optional = true }
 # Optional: query result caching
 moka = { version = "0.12", features = ["future"], optional = true }
+# Optional: PostgreSQL storage backend for incremental updates
+tokio-postgres = { version = "0.7", optional = true }
+deadpool-postgres = { version = "0.14", optional = true }
 
 [features]
 default = ["recoco-minimal", "parallel"]
@@ -62,12 +65,23 @@ parallel = ["dep:rayon"]
 # Query result caching (optional, for production deployments)
 caching = ["dep:moka"]
 
+# PostgreSQL storage backend (CLI deployment)
+postgres-backend = ["dep:tokio-postgres", "dep:deadpool-postgres"]
+
+# Cloudflare D1 storage backend (edge deployment)
+d1-backend = []
+
 # Edge deployment (no filesystem, no parallel processing, alternative sources/targets needed)
 worker = []
 
 [dev-dependencies]
 criterion = "0.5"
 md5 = "0.7"
+testcontainers = "0.23"
+testcontainers-modules = { version = "0.11", features = ["postgres"] }
+tokio-postgres = "0.7"
+deadpool-postgres = "0.14"
+rusqlite = { version = "0.32", features = ["bundled"] }
 
 [[bench]]
 name = "parse_benchmark"
