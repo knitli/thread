@@ -104,7 +104,7 @@ let flow = ThreadFlowBuilder::new("d1_integration_test")
 4. **Implicit Testing**
    - Core ReCoco functionality tested in upstream CocoIndex
    - Thread parse/extract functions tested separately
-   - Builder primarily does configuration marshalling
+   - Builder primarily does configuration marshaling
 
 ---
 

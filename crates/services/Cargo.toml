@@ -21,7 +21,7 @@ ignore = { workspace = true }
 async-trait = "0.1.88"
 cfg-if = { workspace = true }
 # ReCoco utilities for content fingerprinting (blake3 hashing)
-recoco-utils = { version = "0.2.1", default-features = false }
+recoco-utils = { version = "0.2.1", default-features = false, features = ["fingerprint"] }
 # Performance improvements
 futures = { workspace = true, optional = true }
 pin-project = { workspace = true, optional = true }

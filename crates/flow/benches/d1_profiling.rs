@@ -39,11 +39,11 @@ use thread_flow::monitoring::performance::PerformanceMetrics;
 use thread_flow::targets::d1::D1ExportContext;
 
 /// Helper to create test FieldSchema
-fn test_field_schema(name: &str, typ: BasicValueType, nullable: bool) -> FieldSchema {
+fn test_field_schema(name: &str, value_type: BasicValueType, nullable: bool) -> FieldSchema {
     FieldSchema::new(
         name,
         EnrichedValueType {
-            typ: ValueType::Basic(typ),
+            typ: ValueType::Basic(value_type),
             nullable,
             attrs: Default::default(),
         },
