@@ -18,13 +18,13 @@ pub mod cache;
 pub mod conversion;
 pub mod flows;
 pub mod functions;
+pub mod incremental;
 pub mod monitoring;
 pub mod registry;
 pub mod runtime;
 pub mod sources;
 pub mod targets;
 #[cfg(test)]
-
 // Re-exports
 pub use bridge::CocoIndexAnalyzer;
 pub use flows::builder::ThreadFlowBuilder;
