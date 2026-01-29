@@ -25,7 +25,7 @@
 //! cargo bench -p thread-flow -- recoco  # Run ReCoco integration benchmarks
 //! ```
 
-use criterion::{black_box, criterion_group, criterion_main, Criterion, Throughput};
+use criterion::{Criterion, Throughput, black_box, criterion_group, criterion_main};
 use recoco::base::value::{BasicValue, Value};
 use recoco::ops::interface::SimpleFunctionExecutor;
 use thread_ast_engine::tree_sitter::LanguageExt;
@@ -362,12 +362,7 @@ fn benchmark_direct_parse_small(c: &mut Criterion) {
     group.throughput(Throughput::Bytes(SMALL_RUST.len() as u64));
 
     group.bench_function("rust_small_50_lines", |b| {
-        b.iter(|| {
-            black_box(parse_direct(
-                black_box(SMALL_RUST),
-                black_box("rs"),
-            ))
-        });
+        b.iter(|| black_box(parse_direct(black_box(SMALL_RUST), black_box("rs"))));
     });
 
     group.finish();
@@ -379,12 +374,7 @@ fn benchmark_direct_parse_medium(c: &mut Criterion) {
     group.throughput(Throughput::Bytes(medium_code.len() as u64));
 
     group.bench_function("rust_medium_200_lines", |b| {
-        b.iter(|| {
-            black_box(parse_direct(
-                black_box(&medium_code),
-                black_box("rs"),
-            ))
-        });
+        b.iter(|| black_box(parse_direct(black_box(&medium_code), black_box("rs"))));
     });
 
     group.finish();
@@ -396,12 +386,7 @@ fn benchmark_direct_parse_large(c: &mut Criterion) {
     group.throughput(Throughput::Bytes(large_code.len() as u64));
 
     group.bench_function("rust_large_500_lines", |b| {
-        b.iter(|| {
-            black_box(parse_direct(
-                black_box(&large_code),
-                black_box("rs"),
-            ))
-        });
+        b.iter(|| black_box(parse_direct(black_box(&large_code), black_box("rs"))));
     });
 
     group.finish();
@@ -413,16 +398,8 @@ fn benchmark_direct_parse_large(c: &mut Criterion) {
 
 fn benchmark_multi_file_sequential(c: &mut Criterion) {
     let files = vec![
-        SMALL_RUST,
-        SMALL_RUST,
-        SMALL_RUST,
-        SMALL_RUST,
-        SMALL_RUST,
-        SMALL_RUST,
-        SMALL_RUST,
-        SMALL_RUST,
-        SMALL_RUST,
-        SMALL_RUST,
+        SMALL_RUST, SMALL_RUST, SMALL_RUST, SMALL_RUST, SMALL_RUST, SMALL_RUST, SMALL_RUST,
+        SMALL_RUST, SMALL_RUST, SMALL_RUST,
     ];
 
     let total_bytes: usize = files.iter().map(|code| code.len()).sum();

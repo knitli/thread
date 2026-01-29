@@ -1,8 +1,10 @@
 use recoco::base::schema::{BasicValueType, EnrichedValueType, FieldSchema, ValueType};
 use recoco::base::value::{BasicValue, FieldValues, KeyValue, Value};
-use recoco::ops::interface::{ExportTargetMutationWithContext, ExportTargetUpsertEntry, ExportTargetDeleteEntry};
 use recoco::ops::factory_bases::TargetFactoryBase;
-use thread_flow::targets::d1::{D1Spec, D1TargetFactory, D1ExportContext};
+use recoco::ops::interface::{
+    ExportTargetDeleteEntry, ExportTargetMutationWithContext, ExportTargetUpsertEntry,
+};
+use thread_flow::targets::d1::{D1ExportContext, D1Spec, D1TargetFactory};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -28,16 +30,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("✅ Target factory: {}", factory.name());
 
     // 3. Create export context (this would normally be done by FlowBuilder)
-    let key_fields_schema = vec![
-        FieldSchema::new(
-            "content_hash",
-            EnrichedValueType {
-                typ: ValueType::Basic(BasicValueType::Str),
-                nullable: false,
-                attrs: Default::default(),
-            },
-        ),
-    ];
+    let key_fields_schema = vec![FieldSchema::new(
+        "content_hash",
+        EnrichedValueType {
+            typ: ValueType::Basic(BasicValueType::Str),
+            nullable: false,
+            attrs: Default::default(),
+        },
+    )];
 
     let value_fields_schema = vec![
         FieldSchema::new(
@@ -112,8 +112,22 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     .expect("Failed to create D1 export context");
 
     println!("🔧 Export context created");
-    println!("   Key fields: {:?}", export_context.key_fields_schema.iter().map(|f| &f.name).collect::<Vec<_>>());
-    println!("   Value fields: {:?}\n", export_context.value_fields_schema.iter().map(|f| &f.name).collect::<Vec<_>>());
+    println!(
+        "   Key fields: {:?}",
+        export_context
+            .key_fields_schema
+            .iter()
+            .map(|f| &f.name)
+            .collect::<Vec<_>>()
+    );
+    println!(
+        "   Value fields: {:?}\n",
+        export_context
+            .value_fields_schema
+            .iter()
+            .map(|f| &f.name)
+            .collect::<Vec<_>>()
+    );
 
     // 4. Create sample data (simulating parsed code symbols)
     let sample_entries = vec![
@@ -190,12 +204,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // 6. Test DELETE operation
     println!("🗑️  Testing DELETE operation...");
 
-    let delete_entries = vec![
-        ExportTargetDeleteEntry {
-            key: first_key,
-            additional_key: serde_json::Value::Null,
-        },
-    ];
+    let delete_entries = vec![ExportTargetDeleteEntry {
+        key: first_key,
+        additional_key: serde_json::Value::Null,
+    }];
 
     let delete_mutation = recoco::ops::interface::ExportTargetMutation {
         upserts: vec![],
@@ -216,7 +228,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // 7. Show what SQL would be generated
     println!("📝 Example SQL that would be generated:\n");
     println!("   UPSERT:");
-    println!("   INSERT INTO code_symbols (content_hash, file_path, symbol_name, symbol_type, start_line, end_line, source_code, language)");
+    println!(
+        "   INSERT INTO code_symbols (content_hash, file_path, symbol_name, symbol_type, start_line, end_line, source_code, language)"
+    );
     println!("   VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
     println!("   ON CONFLICT DO UPDATE SET");
     println!("     file_path = excluded.file_path,");

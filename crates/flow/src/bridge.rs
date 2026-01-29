@@ -14,6 +14,12 @@ pub struct CocoIndexAnalyzer {
     // flow_ctx: Arc<FlowContext>,
 }
 
+impl Default for CocoIndexAnalyzer {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl CocoIndexAnalyzer {
     pub fn new() -> Self {
         Self {}

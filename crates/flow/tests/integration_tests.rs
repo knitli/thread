@@ -55,9 +55,7 @@ async fn execute_parse(
     let factory = Arc::new(ThreadParseFactory);
     let context = create_mock_context();
 
-    let build_output = factory
-        .build(empty_spec(), vec![], context)
-        .await?;
+    let build_output = factory.build(empty_spec(), vec![], context).await?;
     let executor = build_output.executor.await?;
 
     let inputs = vec![
@@ -112,9 +110,7 @@ async fn test_factory_build_succeeds() {
     let factory = Arc::new(ThreadParseFactory);
     let context = create_mock_context();
 
-    let result = factory
-        .build(empty_spec(), vec![], context)
-        .await;
+    let result = factory.build(empty_spec(), vec![], context).await;
 
     assert!(result.is_ok(), "Factory build should succeed");
 }
@@ -148,14 +144,27 @@ async fn test_schema_output_type() {
 
     match output_type.typ {
         ValueType::Struct(schema) => {
-            assert_eq!(schema.fields.len(), 4, "Should have 4 fields in schema (symbols, imports, calls, content_fingerprint)");
+            assert_eq!(
+                schema.fields.len(),
+                4,
+                "Should have 4 fields in schema (symbols, imports, calls, content_fingerprint)"
+            );
 
             let field_names: Vec<&str> = schema.fields.iter().map(|f| f.name.as_str()).collect();
 
-            assert!(field_names.contains(&"symbols"), "Should have symbols field");
-            assert!(field_names.contains(&"imports"), "Should have imports field");
+            assert!(
+                field_names.contains(&"symbols"),
+                "Should have symbols field"
+            );
+            assert!(
+                field_names.contains(&"imports"),
+                "Should have imports field"
+            );
             assert!(field_names.contains(&"calls"), "Should have calls field");
-            assert!(field_names.contains(&"content_fingerprint"), "Should have content_fingerprint field");
+            assert!(
+                field_names.contains(&"content_fingerprint"),
+                "Should have content_fingerprint field"
+            );
         }
         _ => panic!("Output type should be Struct"),
     }
@@ -217,7 +226,10 @@ async fn test_executor_timeout() {
     // ThreadParseExecutor implements timeout() but it's not accessible through the wrapper
     let timeout = executor.timeout();
     // For now, we just verify the method can be called without panicking
-    assert!(timeout.is_none() || timeout.is_some(), "Timeout method should be callable");
+    assert!(
+        timeout.is_none() || timeout.is_some(),
+        "Timeout method should be callable"
+    );
 }
 
 // =============================================================================
@@ -367,7 +379,10 @@ async fn test_empty_tables_structure() {
     let calls = extract_calls(&result);
 
     // Empty file should have empty tables
-    assert!(symbols.is_empty() || symbols.len() <= 1, "Empty file should have minimal symbols");
+    assert!(
+        symbols.is_empty() || symbols.len() <= 1,
+        "Empty file should have minimal symbols"
+    );
     assert!(imports.is_empty(), "Empty file should have no imports");
     assert!(calls.is_empty(), "Empty file should have no calls");
 }
@@ -411,9 +426,15 @@ async fn test_parse_rust_code() {
 
         // Look for functions that should be extracted
         let found_function = symbol_names.iter().any(|name| {
-            name.contains("main") || name.contains("process_user") || name.contains("calculate_total")
+            name.contains("main")
+                || name.contains("process_user")
+                || name.contains("calculate_total")
         });
-        assert!(found_function, "Should find at least one function (main, process_user, or calculate_total). Found: {:?}", symbol_names);
+        assert!(
+            found_function,
+            "Should find at least one function (main, process_user, or calculate_total). Found: {:?}",
+            symbol_names
+        );
     } else {
         // If no symbols extracted, that's okay for now - pattern matching might not work for all cases
         println!("Warning: No symbols extracted - pattern matching may need improvement");
@@ -426,10 +447,7 @@ async fn test_parse_python_code() {
     let content = read_test_file("sample.py");
     let result = execute_parse(&content, "py", "sample.py").await;
 
-    assert!(
-        result.is_ok(),
-        "Parse should succeed for valid Python code"
-    );
+    assert!(result.is_ok(), "Parse should succeed for valid Python code");
 
     let output = result.unwrap();
     let symbols = extract_symbols(&output);

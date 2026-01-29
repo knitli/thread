@@ -8,11 +8,11 @@
 //! These functions bridge the ast-grep functionality with the service layer
 //! abstractions while preserving all ast-grep power.
 
+use crate::ServiceResult;
 use crate::types::{
     CallInfo, CodeMatch, DocumentMetadata, ImportInfo, ImportKind, ParsedDocument, Range,
     SymbolInfo, SymbolKind, Visibility,
 };
-use crate::ServiceResult;
 use std::collections::HashMap;
 use std::path::PathBuf;
 
@@ -240,7 +240,8 @@ pub fn create_symbol_info(name: String, kind: SymbolKind, position: Position) ->
 pub fn compute_content_fingerprint(content: &str) -> recoco_utils::fingerprint::Fingerprint {
     let mut fp = recoco_utils::fingerprint::Fingerprinter::default();
     // Note: write() can fail for serialization, but with &str it won't fail
-    fp.write(content).expect("fingerprinting string should not fail");
+    fp.write(content)
+        .expect("fingerprinting string should not fail");
     fp.into_fingerprint()
 }
 
@@ -291,7 +292,10 @@ mod tests {
 
         let different_content = "fn test() {}";
         let fp3 = compute_content_fingerprint(different_content);
-        assert_ne!(fp1, fp3, "Different content should produce different fingerprint");
+        assert_ne!(
+            fp1, fp3,
+            "Different content should produce different fingerprint"
+        );
     }
 
     #[test]

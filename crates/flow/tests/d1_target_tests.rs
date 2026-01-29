@@ -35,15 +35,17 @@
 
 use recoco::base::schema::{BasicValueType, EnrichedValueType, FieldSchema, ValueType};
 use recoco::base::spec::IndexOptions;
-use recoco::base::value::{BasicValue, FieldValues, KeyPart, KeyValue, RangeValue, ScopeValue, Value};
+use recoco::base::value::{
+    BasicValue, FieldValues, KeyPart, KeyValue, RangeValue, ScopeValue, Value,
+};
 use recoco::ops::factory_bases::TargetFactoryBase;
 use recoco::setup::{CombinedState, ResourceSetupChange, SetupChangeType};
 use serde_json::json;
 use std::collections::{BTreeMap, HashMap};
 use std::sync::Arc;
 use thread_flow::targets::d1::{
-    basic_value_to_json, key_part_to_json, value_to_json, ColumnSchema, D1ExportContext,
-    D1SetupChange, D1SetupState, D1Spec, D1TableId, D1TargetFactory, IndexSchema,
+    ColumnSchema, D1ExportContext, D1SetupChange, D1SetupState, D1Spec, D1TableId, D1TargetFactory,
+    IndexSchema, basic_value_to_json, key_part_to_json, value_to_json,
 };
 
 // ============================================================================
@@ -212,7 +214,8 @@ fn test_key_part_to_json_int64() {
     assert_eq!(json, json!(42));
 
     let key_part_negative = KeyPart::Int64(-100);
-    let json_negative = key_part_to_json(&key_part_negative).expect("Failed to convert negative int64");
+    let json_negative =
+        key_part_to_json(&key_part_negative).expect("Failed to convert negative int64");
     assert_eq!(json_negative, json!(-100));
 }
 
@@ -239,10 +242,7 @@ fn test_key_part_to_json_range() {
 
 #[test]
 fn test_key_part_to_json_struct() {
-    let key_part = KeyPart::Struct(vec![
-        KeyPart::Str("nested".into()),
-        KeyPart::Int64(123),
-    ]);
+    let key_part = KeyPart::Struct(vec![KeyPart::Str("nested".into()), KeyPart::Int64(123)]);
     let json = key_part_to_json(&key_part).expect("Failed to convert struct");
     assert_eq!(json, json!(["nested", 123]));
 }
@@ -312,11 +312,14 @@ fn test_basic_value_to_json_json() {
 
 #[test]
 fn test_basic_value_to_json_vector() {
-    let value = BasicValue::Vector(vec![
-        BasicValue::Int64(1),
-        BasicValue::Int64(2),
-        BasicValue::Int64(3),
-    ].into());
+    let value = BasicValue::Vector(
+        vec![
+            BasicValue::Int64(1),
+            BasicValue::Int64(2),
+            BasicValue::Int64(3),
+        ]
+        .into(),
+    );
     let json = basic_value_to_json(&value).expect("Failed to convert vector");
     assert_eq!(json, json!([1, 2, 3]));
 }
@@ -365,11 +368,9 @@ fn test_value_to_json_utable() {
 
 #[test]
 fn test_value_to_json_ltable() {
-    let items = vec![
-        ScopeValue(FieldValues {
-            fields: vec![Value::Basic(BasicValue::Int64(100))],
-        }),
-    ];
+    let items = vec![ScopeValue(FieldValues {
+        fields: vec![Value::Basic(BasicValue::Int64(100))],
+    })];
     let value = Value::LTable(items);
     let json = value_to_json(&value).expect("Failed to convert ltable");
     assert_eq!(json, json!([[100]]));
@@ -562,12 +563,15 @@ fn test_build_upsert_stmt_single_key() {
         key_fields.clone(),
         value_fields.clone(),
         metrics,
-    ).expect("Failed to create context");
+    )
+    .expect("Failed to create context");
 
     let key = test_key_int(42);
     let values = test_field_values(vec!["John Doe"]);
 
-    let (sql, params) = context.build_upsert_stmt(&key, &values).expect("Failed to build upsert");
+    let (sql, params) = context
+        .build_upsert_stmt(&key, &values)
+        .expect("Failed to build upsert");
 
     assert!(sql.contains("INSERT INTO users"));
     assert!(sql.contains("(id, name)"));
@@ -600,12 +604,10 @@ fn test_build_upsert_stmt_composite_key() {
         key_fields.clone(),
         value_fields.clone(),
         metrics,
-    ).expect("Failed to create context");
+    )
+    .expect("Failed to create context");
 
-    let key = test_key_composite(vec![
-        KeyPart::Str("acme".into()),
-        KeyPart::Int64(100),
-    ]);
+    let key = test_key_composite(vec![KeyPart::Str("acme".into()), KeyPart::Int64(100)]);
     let values = FieldValues {
         fields: vec![
             Value::Basic(BasicValue::Str("user@example.com".into())),
@@ -613,7 +615,9 @@ fn test_build_upsert_stmt_composite_key() {
         ],
     };
 
-    let (sql, params) = context.build_upsert_stmt(&key, &values).expect("Failed to build upsert");
+    let (sql, params) = context
+        .build_upsert_stmt(&key, &values)
+        .expect("Failed to build upsert");
 
     assert!(sql.contains("(tenant_id, user_id, email, active)"));
     assert!(sql.contains("VALUES (?, ?, ?, ?)"));
@@ -641,11 +645,14 @@ fn test_build_delete_stmt_single_key() {
         key_fields.clone(),
         value_fields.clone(),
         metrics,
-    ).expect("Failed to create context");
+    )
+    .expect("Failed to create context");
 
     let key = test_key_int(42);
 
-    let (sql, params) = context.build_delete_stmt(&key).expect("Failed to build delete");
+    let (sql, params) = context
+        .build_delete_stmt(&key)
+        .expect("Failed to build delete");
 
     assert!(sql.contains("DELETE FROM users WHERE id = ?"));
     assert_eq!(params.len(), 1);
@@ -669,14 +676,14 @@ fn test_build_delete_stmt_composite_key() {
         key_fields.clone(),
         value_fields.clone(),
         metrics,
-    ).expect("Failed to create context");
+    )
+    .expect("Failed to create context");
 
-    let key = test_key_composite(vec![
-        KeyPart::Str("acme".into()),
-        KeyPart::Int64(100),
-    ]);
+    let key = test_key_composite(vec![KeyPart::Str("acme".into()), KeyPart::Int64(100)]);
 
-    let (sql, params) = context.build_delete_stmt(&key).expect("Failed to build delete");
+    let (sql, params) = context
+        .build_delete_stmt(&key)
+        .expect("Failed to build delete");
 
     assert!(sql.contains("DELETE FROM users WHERE tenant_id = ? AND user_id = ?"));
     assert_eq!(params.len(), 2);
@@ -962,7 +969,7 @@ fn test_describe_resource() {
 
 #[tokio::test]
 async fn test_build_creates_export_contexts() {
-    use recoco::ops::sdk::{TypedExportDataCollectionSpec};
+    use recoco::ops::sdk::TypedExportDataCollectionSpec;
 
     let factory = Arc::new(D1TargetFactory);
     let spec = test_d1_spec();
@@ -1157,7 +1164,9 @@ fn test_empty_table_name() {
     };
 
     let factory = D1TargetFactory;
-    let description = factory.describe_resource(&table_id).expect("Failed to describe");
+    let description = factory
+        .describe_resource(&table_id)
+        .expect("Failed to describe");
     assert_eq!(description, "D1 table: db.");
 }
 

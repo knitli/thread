@@ -45,11 +45,7 @@ fn empty_spec() -> serde_json::Value {
 }
 
 /// Helper to create a mock parsed document struct with symbols, imports, calls, fingerprint
-fn create_mock_parsed_doc(
-    symbols_count: usize,
-    imports_count: usize,
-    calls_count: usize,
-) -> Value {
+fn create_mock_parsed_doc(symbols_count: usize, imports_count: usize, calls_count: usize) -> Value {
     // Create mock symbols table
     let symbols: Vec<ScopeValue> = (0..symbols_count)
         .map(|i| {
@@ -142,7 +138,11 @@ async fn test_extract_symbols_factory_build() {
     assert!(result.is_ok(), "Build should succeed");
 
     let build_output = result.unwrap();
-    assert_eq!(build_output.behavior_version, Some(1), "Behavior version should be 1");
+    assert_eq!(
+        build_output.behavior_version,
+        Some(1),
+        "Behavior version should be 1"
+    );
 }
 
 #[tokio::test]
@@ -271,14 +271,15 @@ async fn test_extract_symbols_missing_field() {
     let executor = build_output.executor.await.expect("Executor should build");
 
     // Create struct with zero fields - missing the symbols field (field 0)
-    let invalid_struct = Value::Struct(FieldValues {
-        fields: vec![],
-    });
+    let invalid_struct = Value::Struct(FieldValues { fields: vec![] });
 
     let result = executor.evaluate(vec![invalid_struct]).await;
     assert!(result.is_err(), "Should error on missing symbols field");
     assert!(
-        result.unwrap_err().to_string().contains("Missing symbols field"),
+        result
+            .unwrap_err()
+            .to_string()
+            .contains("Missing symbols field"),
         "Error should mention missing symbols field"
     );
 }
@@ -313,7 +314,10 @@ async fn test_extract_symbols_timeout() {
     // The executor implements timeout() but it's not accessible through the wrapper
     let timeout = executor.timeout();
     // For now, we just verify the method can be called without panicking
-    assert!(timeout.is_none() || timeout.is_some(), "Timeout method should be callable");
+    assert!(
+        timeout.is_none() || timeout.is_some(),
+        "Timeout method should be callable"
+    );
 }
 
 #[tokio::test]
@@ -365,7 +369,11 @@ async fn test_extract_imports_factory_build() {
     assert!(result.is_ok(), "Build should succeed");
 
     let build_output = result.unwrap();
-    assert_eq!(build_output.behavior_version, Some(1), "Behavior version should be 1");
+    assert_eq!(
+        build_output.behavior_version,
+        Some(1),
+        "Behavior version should be 1"
+    );
 }
 
 #[tokio::test]
@@ -532,7 +540,10 @@ async fn test_extract_imports_timeout() {
     // The executor implements timeout() but it's not accessible through the wrapper
     let timeout = executor.timeout();
     // For now, we just verify the method can be called without panicking
-    assert!(timeout.is_none() || timeout.is_some(), "Timeout method should be callable");
+    assert!(
+        timeout.is_none() || timeout.is_some(),
+        "Timeout method should be callable"
+    );
 }
 
 #[tokio::test]
@@ -584,7 +595,11 @@ async fn test_extract_calls_factory_build() {
     assert!(result.is_ok(), "Build should succeed");
 
     let build_output = result.unwrap();
-    assert_eq!(build_output.behavior_version, Some(1), "Behavior version should be 1");
+    assert_eq!(
+        build_output.behavior_version,
+        Some(1),
+        "Behavior version should be 1"
+    );
 }
 
 #[tokio::test]
@@ -721,16 +736,16 @@ async fn test_extract_calls_missing_field() {
 
     // Create struct with only 2 fields instead of 4 - missing the calls field (field 2)
     let invalid_struct = Value::Struct(FieldValues {
-        fields: vec![
-            Value::LTable(vec![]),
-            Value::LTable(vec![]),
-        ],
+        fields: vec![Value::LTable(vec![]), Value::LTable(vec![])],
     });
 
     let result = executor.evaluate(vec![invalid_struct]).await;
     assert!(result.is_err(), "Should error on missing calls field");
     assert!(
-        result.unwrap_err().to_string().contains("Missing calls field"),
+        result
+            .unwrap_err()
+            .to_string()
+            .contains("Missing calls field"),
         "Error should mention missing calls field"
     );
 }
@@ -765,7 +780,10 @@ async fn test_extract_calls_timeout() {
     // The executor implements timeout() but it's not accessible through the wrapper
     let timeout = executor.timeout();
     // For now, we just verify the method can be called without panicking
-    assert!(timeout.is_none() || timeout.is_some(), "Timeout method should be callable");
+    assert!(
+        timeout.is_none() || timeout.is_some(),
+        "Timeout method should be callable"
+    );
 }
 
 #[tokio::test]
@@ -813,7 +831,10 @@ async fn test_all_extractors_on_same_document() {
         .build(empty_spec(), vec![], context.clone())
         .await
         .expect("Build should succeed");
-    let symbols_executor = symbols_output.executor.await.expect("Executor should build");
+    let symbols_executor = symbols_output
+        .executor
+        .await
+        .expect("Executor should build");
     let symbols_result = symbols_executor.evaluate(vec![mock_doc.clone()]).await;
     assert!(symbols_result.is_ok(), "Symbols extraction should succeed");
 
@@ -827,7 +848,10 @@ async fn test_all_extractors_on_same_document() {
         .build(empty_spec(), vec![], context.clone())
         .await
         .expect("Build should succeed");
-    let imports_executor = imports_output.executor.await.expect("Executor should build");
+    let imports_executor = imports_output
+        .executor
+        .await
+        .expect("Executor should build");
     let imports_result = imports_executor.evaluate(vec![mock_doc.clone()]).await;
     assert!(imports_result.is_ok(), "Imports extraction should succeed");
 
@@ -861,7 +885,10 @@ async fn test_extractors_with_empty_tables() {
         .build(empty_spec(), vec![], context.clone())
         .await
         .expect("Build should succeed");
-    let symbols_executor = symbols_output.executor.await.expect("Executor should build");
+    let symbols_executor = symbols_output
+        .executor
+        .await
+        .expect("Executor should build");
     let symbols_result = symbols_executor.evaluate(vec![mock_doc.clone()]).await;
 
     if let Ok(Value::LTable(symbols)) = symbols_result {
@@ -873,7 +900,10 @@ async fn test_extractors_with_empty_tables() {
         .build(empty_spec(), vec![], context.clone())
         .await
         .expect("Build should succeed");
-    let imports_executor = imports_output.executor.await.expect("Executor should build");
+    let imports_executor = imports_output
+        .executor
+        .await
+        .expect("Executor should build");
     let imports_result = imports_executor.evaluate(vec![mock_doc.clone()]).await;
 
     if let Ok(Value::LTable(imports)) = imports_result {
@@ -918,13 +948,11 @@ async fn test_extractors_behavior_versions_match() {
         .expect("Calls build should succeed");
 
     assert_eq!(
-        symbols_output.behavior_version,
-        imports_output.behavior_version,
+        symbols_output.behavior_version, imports_output.behavior_version,
         "Symbols and Imports should have same behavior version"
     );
     assert_eq!(
-        imports_output.behavior_version,
-        calls_output.behavior_version,
+        imports_output.behavior_version, calls_output.behavior_version,
         "Imports and Calls should have same behavior version"
     );
 }

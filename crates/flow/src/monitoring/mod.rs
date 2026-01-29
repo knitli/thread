@@ -153,12 +153,16 @@ impl Metrics {
 
     /// Record files processed
     pub fn record_files_processed(&self, count: u64) {
-        self.inner.files_processed.fetch_add(count, Ordering::Relaxed);
+        self.inner
+            .files_processed
+            .fetch_add(count, Ordering::Relaxed);
     }
 
     /// Record symbols extracted
     pub fn record_symbols_extracted(&self, count: u64) {
-        self.inner.symbols_extracted.fetch_add(count, Ordering::Relaxed);
+        self.inner
+            .symbols_extracted
+            .fetch_add(count, Ordering::Relaxed);
     }
 
     /// Record an error by type
@@ -181,15 +185,27 @@ impl Metrics {
         };
 
         // Calculate percentiles
-        let query_latencies = self.inner.query_latencies.read().ok()
+        let query_latencies = self
+            .inner
+            .query_latencies
+            .read()
+            .ok()
             .map(|l| calculate_percentiles(&l))
             .unwrap_or_default();
 
-        let fingerprint_times = self.inner.fingerprint_times.read().ok()
+        let fingerprint_times = self
+            .inner
+            .fingerprint_times
+            .read()
+            .ok()
             .map(|t| calculate_percentiles(&t))
             .unwrap_or_default();
 
-        let parse_times = self.inner.parse_times.read().ok()
+        let parse_times = self
+            .inner
+            .parse_times
+            .read()
+            .ok()
             .map(|t| calculate_percentiles(&t))
             .unwrap_or_default();
 
@@ -203,7 +219,11 @@ impl Metrics {
             0.0
         };
 
-        let errors_by_type = self.inner.errors_by_type.read().ok()
+        let errors_by_type = self
+            .inner
+            .errors_by_type
+            .read()
+            .ok()
             .map(|e| e.clone())
             .unwrap_or_default();
 
@@ -341,10 +361,10 @@ pub struct MetricsSnapshot {
     pub query_latency_p99: u64,
 
     // Performance metrics
-    pub fingerprint_time_p50: u64,  // nanoseconds
-    pub fingerprint_time_p95: u64,  // nanoseconds
-    pub parse_time_p50: u64,        // microseconds
-    pub parse_time_p95: u64,        // microseconds
+    pub fingerprint_time_p50: u64, // nanoseconds
+    pub fingerprint_time_p95: u64, // nanoseconds
+    pub parse_time_p50: u64,       // microseconds
+    pub parse_time_p95: u64,       // microseconds
 
     // Throughput metrics
     pub files_processed: u64,
@@ -383,10 +403,7 @@ impl MetricsSnapshot {
 
         // Error rate SLO: <1%
         if self.error_rate > 1.0 {
-            violations.push(format!(
-                "Error rate {:.2}% above SLO (1%)",
-                self.error_rate
-            ));
+            violations.push(format!("Error rate {:.2}% above SLO (1%)", self.error_rate));
         }
 
         if violations.is_empty() {

@@ -7,15 +7,17 @@
 //! Validates that Document → Value serialization preserves all data integrity.
 
 use recoco::base::value::{BasicValue, FieldValues, ScopeValue, Value};
-use thread_flow::conversion::serialize_parsed_doc;
-use thread_services::conversion::{compute_content_fingerprint, extract_basic_metadata};
-use thread_services::types::{ParsedDocument, SymbolInfo, SymbolKind, Visibility};
 use std::path::PathBuf;
 use thread_ast_engine::tree_sitter::LanguageExt;
-use thread_language::{SupportLang, Rust, Python, Tsx};
+use thread_flow::conversion::serialize_parsed_doc;
+use thread_language::{Python, Rust, SupportLang, Tsx};
+use thread_services::conversion::{compute_content_fingerprint, extract_basic_metadata};
+use thread_services::types::{ParsedDocument, SymbolInfo, SymbolKind, Visibility};
 
 /// Helper to create a Rust test document
-fn create_rust_document(content: &str) -> ParsedDocument<thread_ast_engine::tree_sitter::StrDoc<Rust>> {
+fn create_rust_document(
+    content: &str,
+) -> ParsedDocument<thread_ast_engine::tree_sitter::StrDoc<Rust>> {
     let ast_root = Rust.ast_grep(content);
     let fingerprint = compute_content_fingerprint(content);
 
@@ -28,7 +30,9 @@ fn create_rust_document(content: &str) -> ParsedDocument<thread_ast_engine::tree
 }
 
 /// Helper to create a Python test document
-fn create_python_document(content: &str) -> ParsedDocument<thread_ast_engine::tree_sitter::StrDoc<Python>> {
+fn create_python_document(
+    content: &str,
+) -> ParsedDocument<thread_ast_engine::tree_sitter::StrDoc<Python>> {
     let ast_root = Python.ast_grep(content);
     let fingerprint = compute_content_fingerprint(content);
 
@@ -41,7 +45,9 @@ fn create_python_document(content: &str) -> ParsedDocument<thread_ast_engine::tr
 }
 
 /// Helper to create a TypeScript test document
-fn create_typescript_document(content: &str) -> ParsedDocument<thread_ast_engine::tree_sitter::StrDoc<Tsx>> {
+fn create_typescript_document(
+    content: &str,
+) -> ParsedDocument<thread_ast_engine::tree_sitter::StrDoc<Tsx>> {
     let ast_root = Tsx.ast_grep(content);
     let fingerprint = compute_content_fingerprint(content);
 
@@ -56,12 +62,10 @@ fn create_typescript_document(content: &str) -> ParsedDocument<thread_ast_engine
 /// Extract symbol count from ReCoco Value
 fn extract_symbol_count(value: &Value) -> usize {
     match value {
-        Value::Struct(FieldValues { fields }) => {
-            match &fields[0] {
-                Value::LTable(symbols) => symbols.len(),
-                _ => panic!("Expected LTable for symbols"),
-            }
-        }
+        Value::Struct(FieldValues { fields }) => match &fields[0] {
+            Value::LTable(symbols) => symbols.len(),
+            _ => panic!("Expected LTable for symbols"),
+        },
         _ => panic!("Expected Struct output"),
     }
 }
@@ -69,12 +73,10 @@ fn extract_symbol_count(value: &Value) -> usize {
 /// Extract import count from ReCoco Value
 fn extract_import_count(value: &Value) -> usize {
     match value {
-        Value::Struct(FieldValues { fields }) => {
-            match &fields[1] {
-                Value::LTable(imports) => imports.len(),
-                _ => panic!("Expected LTable for imports"),
-            }
-        }
+        Value::Struct(FieldValues { fields }) => match &fields[1] {
+            Value::LTable(imports) => imports.len(),
+            _ => panic!("Expected LTable for imports"),
+        },
         _ => panic!("Expected Struct output"),
     }
 }
@@ -82,12 +84,10 @@ fn extract_import_count(value: &Value) -> usize {
 /// Extract call count from ReCoco Value
 fn extract_call_count(value: &Value) -> usize {
     match value {
-        Value::Struct(FieldValues { fields }) => {
-            match &fields[2] {
-                Value::LTable(calls) => calls.len(),
-                _ => panic!("Expected LTable for calls"),
-            }
-        }
+        Value::Struct(FieldValues { fields }) => match &fields[2] {
+            Value::LTable(calls) => calls.len(),
+            _ => panic!("Expected LTable for calls"),
+        },
         _ => panic!("Expected Struct output"),
     }
 }
@@ -95,12 +95,10 @@ fn extract_call_count(value: &Value) -> usize {
 /// Extract fingerprint from ReCoco Value
 fn extract_fingerprint(value: &Value) -> Vec<u8> {
     match value {
-        Value::Struct(FieldValues { fields }) => {
-            match &fields[3] {
-                Value::Basic(BasicValue::Bytes(bytes)) => bytes.to_vec(),
-                _ => panic!("Expected Bytes for fingerprint"),
-            }
-        }
+        Value::Struct(FieldValues { fields }) => match &fields[3] {
+            Value::Basic(BasicValue::Bytes(bytes)) => bytes.to_vec(),
+            _ => panic!("Expected Bytes for fingerprint"),
+        },
         _ => panic!("Expected Struct output"),
     }
 }
@@ -108,31 +106,67 @@ fn extract_fingerprint(value: &Value) -> Vec<u8> {
 /// Validate symbol structure in ReCoco Value
 fn validate_symbol_structure(symbol: &ScopeValue) {
     let ScopeValue(FieldValues { fields }) = symbol;
-    assert_eq!(fields.len(), 3, "Symbol should have 3 fields: name, kind, scope");
+    assert_eq!(
+        fields.len(),
+        3,
+        "Symbol should have 3 fields: name, kind, scope"
+    );
 
     // Validate field types
-    assert!(matches!(&fields[0], Value::Basic(BasicValue::Str(_))), "Name should be string");
-    assert!(matches!(&fields[1], Value::Basic(BasicValue::Str(_))), "Kind should be string");
-    assert!(matches!(&fields[2], Value::Basic(BasicValue::Str(_))), "Scope should be string");
+    assert!(
+        matches!(&fields[0], Value::Basic(BasicValue::Str(_))),
+        "Name should be string"
+    );
+    assert!(
+        matches!(&fields[1], Value::Basic(BasicValue::Str(_))),
+        "Kind should be string"
+    );
+    assert!(
+        matches!(&fields[2], Value::Basic(BasicValue::Str(_))),
+        "Scope should be string"
+    );
 }
 
 /// Validate import structure in ReCoco Value
 fn validate_import_structure(import: &ScopeValue) {
     let ScopeValue(FieldValues { fields }) = import;
-    assert_eq!(fields.len(), 3, "Import should have 3 fields: symbol_name, source_path, kind");
+    assert_eq!(
+        fields.len(),
+        3,
+        "Import should have 3 fields: symbol_name, source_path, kind"
+    );
 
-    assert!(matches!(&fields[0], Value::Basic(BasicValue::Str(_))), "Symbol name should be string");
-    assert!(matches!(&fields[1], Value::Basic(BasicValue::Str(_))), "Source path should be string");
-    assert!(matches!(&fields[2], Value::Basic(BasicValue::Str(_))), "Kind should be string");
+    assert!(
+        matches!(&fields[0], Value::Basic(BasicValue::Str(_))),
+        "Symbol name should be string"
+    );
+    assert!(
+        matches!(&fields[1], Value::Basic(BasicValue::Str(_))),
+        "Source path should be string"
+    );
+    assert!(
+        matches!(&fields[2], Value::Basic(BasicValue::Str(_))),
+        "Kind should be string"
+    );
 }
 
 /// Validate call structure in ReCoco Value
 fn validate_call_structure(call: &ScopeValue) {
     let ScopeValue(FieldValues { fields }) = call;
-    assert_eq!(fields.len(), 2, "Call should have 2 fields: function_name, arguments_count");
+    assert_eq!(
+        fields.len(),
+        2,
+        "Call should have 2 fields: function_name, arguments_count"
+    );
 
-    assert!(matches!(&fields[0], Value::Basic(BasicValue::Str(_))), "Function name should be string");
-    assert!(matches!(&fields[1], Value::Basic(BasicValue::Int64(_))), "Arguments count should be int64");
+    assert!(
+        matches!(&fields[0], Value::Basic(BasicValue::Str(_))),
+        "Function name should be string"
+    );
+    assert!(
+        matches!(&fields[1], Value::Basic(BasicValue::Int64(_))),
+        "Arguments count should be int64"
+    );
 }
 
 // =============================================================================
@@ -148,13 +182,28 @@ async fn test_empty_document_round_trip() {
     assert!(matches!(value, Value::Struct(_)), "Output should be Struct");
 
     // Verify empty tables
-    assert_eq!(extract_symbol_count(&value), 0, "Empty doc should have 0 symbols");
-    assert_eq!(extract_import_count(&value), 0, "Empty doc should have 0 imports");
-    assert_eq!(extract_call_count(&value), 0, "Empty doc should have 0 calls");
+    assert_eq!(
+        extract_symbol_count(&value),
+        0,
+        "Empty doc should have 0 symbols"
+    );
+    assert_eq!(
+        extract_import_count(&value),
+        0,
+        "Empty doc should have 0 imports"
+    );
+    assert_eq!(
+        extract_call_count(&value),
+        0,
+        "Empty doc should have 0 calls"
+    );
 
     // Verify fingerprint exists
     let fingerprint_bytes = extract_fingerprint(&value);
-    assert!(!fingerprint_bytes.is_empty(), "Fingerprint should exist for empty doc");
+    assert!(
+        !fingerprint_bytes.is_empty(),
+        "Fingerprint should exist for empty doc"
+    );
 }
 
 #[tokio::test]
@@ -213,7 +262,10 @@ async fn test_fingerprint_uniqueness() {
     // Fingerprints should be different
     let fp1 = extract_fingerprint(&value1);
     let fp2 = extract_fingerprint(&value2);
-    assert_ne!(fp1, fp2, "Different content should produce different fingerprints");
+    assert_ne!(
+        fp1, fp2,
+        "Different content should produce different fingerprints"
+    );
 }
 
 // =============================================================================
@@ -250,9 +302,15 @@ async fn test_symbol_data_preservation() {
             validate_symbol_structure(symbol);
 
             // Verify symbol name
-            let ScopeValue(FieldValues { fields: symbol_fields }) = symbol;
+            let ScopeValue(FieldValues {
+                fields: symbol_fields,
+            }) = symbol;
             if let Value::Basic(BasicValue::Str(name)) = &symbol_fields[0] {
-                assert_eq!(name.as_ref(), "calculate_sum", "Symbol name should be preserved");
+                assert_eq!(
+                    name.as_ref(),
+                    "calculate_sum",
+                    "Symbol name should be preserved"
+                );
             }
         }
     }
@@ -384,7 +442,10 @@ async fn test_complex_document_round_trip() {
         }
 
         // Validate fingerprint
-        assert!(matches!(&fields[3], Value::Basic(BasicValue::Bytes(_))), "Fingerprint should be bytes");
+        assert!(
+            matches!(&fields[3], Value::Basic(BasicValue::Bytes(_))),
+            "Fingerprint should be bytes"
+        );
     }
 }
 
@@ -397,7 +458,10 @@ async fn test_unicode_content_round_trip() {
 
     // Verify fingerprint handles unicode correctly
     let fingerprint = extract_fingerprint(&value);
-    assert!(!fingerprint.is_empty(), "Unicode content should have fingerprint");
+    assert!(
+        !fingerprint.is_empty(),
+        "Unicode content should have fingerprint"
+    );
 }
 
 #[tokio::test]
@@ -448,7 +512,10 @@ def main():
     let value = serialize_parsed_doc(&doc).expect("Python serialization should succeed");
 
     // Verify structure
-    assert!(matches!(value, Value::Struct(_)), "Python output should be Struct");
+    assert!(
+        matches!(value, Value::Struct(_)),
+        "Python output should be Struct"
+    );
 }
 
 #[tokio::test]
@@ -469,7 +536,10 @@ console.log(result);
     let value = serialize_parsed_doc(&doc).expect("TypeScript serialization should succeed");
 
     // Verify structure
-    assert!(matches!(value, Value::Struct(_)), "TypeScript output should be Struct");
+    assert!(
+        matches!(value, Value::Struct(_)),
+        "TypeScript output should be Struct"
+    );
 }
 
 // =============================================================================
@@ -486,9 +556,15 @@ async fn test_malformed_content_handling() {
     let value = serialize_parsed_doc(&doc).expect("Should serialize even with invalid syntax");
 
     // Verify basic structure exists
-    assert!(matches!(value, Value::Struct(_)), "Invalid syntax should still produce Struct");
+    assert!(
+        matches!(value, Value::Struct(_)),
+        "Invalid syntax should still produce Struct"
+    );
 
     // Fingerprint should still work
     let fingerprint = extract_fingerprint(&value);
-    assert!(!fingerprint.is_empty(), "Invalid syntax should still have fingerprint");
+    assert!(
+        !fingerprint.is_empty(),
+        "Invalid syntax should still have fingerprint"
+    );
 }

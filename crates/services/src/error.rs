@@ -267,8 +267,7 @@ pub enum StorageError {
 }
 
 /// Context information for errors
-#[derive(Debug, Clone)]
-#[derive(Default)]
+#[derive(Debug, Clone, Default)]
 pub struct ErrorContext {
     /// File being processed when error occurred
     pub file_path: Option<PathBuf>,
@@ -285,7 +284,6 @@ pub struct ErrorContext {
     /// Additional context data
     pub context_data: std::collections::HashMap<String, String>,
 }
-
 
 impl ErrorContext {
     /// Create new error context

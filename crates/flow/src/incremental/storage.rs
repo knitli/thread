@@ -84,7 +84,7 @@ impl From<GraphError> for StorageError {
 /// }
 /// ```
 #[async_trait]
-pub trait StorageBackend: Send + Sync {
+pub trait StorageBackend: Send + Sync + std::fmt::Debug {
     /// Persists a fingerprint for the given file path.
     ///
     /// Uses upsert semantics: creates a new entry or updates an existing one.
@@ -159,6 +159,7 @@ pub trait StorageBackend: Send + Sync {
 ///
 /// let storage = InMemoryStorage::new();
 /// ```
+#[derive(Debug)]
 pub struct InMemoryStorage {
     fingerprints: tokio::sync::RwLock<std::collections::HashMap<PathBuf, AnalysisDefFingerprint>>,
     edges: tokio::sync::RwLock<Vec<DependencyEdge>>,

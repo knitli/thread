@@ -18,14 +18,14 @@
 //! - Small file serialize: <500µs
 //! - 100 fingerprints: <1ms (batch processing)
 
+use std::path::PathBuf;
 use std::time::Instant;
-use thread_services::conversion::compute_content_fingerprint;
+use thread_ast_engine::tree_sitter::LanguageExt;
 use thread_flow::conversion::serialize_parsed_doc;
+use thread_language::{Rust, SupportLang};
+use thread_services::conversion::compute_content_fingerprint;
 use thread_services::conversion::extract_basic_metadata;
 use thread_services::types::ParsedDocument;
-use thread_ast_engine::tree_sitter::LanguageExt;
-use thread_language::{SupportLang, Rust};
-use std::path::PathBuf;
 
 // =============================================================================
 // Test Data
@@ -391,7 +391,10 @@ fn test_fingerprint_allocation_count() {
     // Basic verification: all fingerprints should be unique for our test data
     // (This doesn't test memory directly but verifies correctness)
     assert_eq!(fingerprints.len(), TEST_SIZE);
-    println!("✓ Fingerprint memory test: {} operations completed", TEST_SIZE);
+    println!(
+        "✓ Fingerprint memory test: {} operations completed",
+        TEST_SIZE
+    );
 }
 
 #[test]
@@ -410,7 +413,10 @@ fn test_parse_does_not_leak_memory() {
         }
     }
 
-    println!("✓ Parse memory test: {} iterations without leak", ITERATIONS);
+    println!(
+        "✓ Parse memory test: {} iterations without leak",
+        ITERATIONS
+    );
 }
 
 // =============================================================================

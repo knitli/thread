@@ -18,7 +18,7 @@ use recoco::ops::sdk::{
     TypedExportDataCollectionBuildOutput, TypedExportDataCollectionSpec,
     TypedResourceSetupChangeItem,
 };
-use recoco::setup::{CombinedState, ChangeDescription, ResourceSetupChange, SetupChangeType};
+use recoco::setup::{ChangeDescription, CombinedState, ResourceSetupChange, SetupChangeType};
 use recoco::utils::prelude::Error as RecocoError;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -143,8 +143,8 @@ impl D1ExportContext {
     ) -> Result<Self, RecocoError> {
         #[cfg(feature = "caching")]
         let query_cache = QueryCache::new(CacheConfig {
-            max_capacity: 10_000,  // 10k query results
-            ttl_seconds: 300,      // 5 minutes
+            max_capacity: 10_000, // 10k query results
+            ttl_seconds: 300,     // 5 minutes
         });
 
         Ok(Self {
@@ -181,7 +181,9 @@ impl D1ExportContext {
                 .http2_keep_alive_interval(Some(Duration::from_secs(30)))
                 .timeout(Duration::from_secs(30))
                 .build()
-                .map_err(|e| RecocoError::internal_msg(format!("Failed to create HTTP client: {}", e)))?,
+                .map_err(|e| {
+                    RecocoError::internal_msg(format!("Failed to create HTTP client: {}", e))
+                })?,
         );
 
         Self::new(
@@ -234,7 +236,7 @@ impl D1ExportContext {
 
         let response = self
             .http_client
-            .post(&self.api_url())
+            .post(self.api_url())
             .header("Authorization", format!("Bearer {}", self.api_token))
             .header("Content-Type", "application/json")
             .json(&request_body)
@@ -258,13 +260,10 @@ impl D1ExportContext {
             )));
         }
 
-        let result: serde_json::Value = response
-            .json()
-            .await
-            .map_err(|e| {
-                self.metrics.record_query(start.elapsed(), false);
-                RecocoError::internal_msg(format!("Failed to parse D1 response: {}", e))
-            })?;
+        let result: serde_json::Value = response.json().await.map_err(|e| {
+            self.metrics.record_query(start.elapsed(), false);
+            RecocoError::internal_msg(format!("Failed to parse D1 response: {}", e))
+        })?;
 
         if !result["success"].as_bool().unwrap_or(false) {
             let errors = result["errors"].to_string();
@@ -339,7 +338,10 @@ impl D1ExportContext {
         Ok((sql, params))
     }
 
-    pub fn build_delete_stmt(&self, key: &KeyValue) -> Result<(String, Vec<serde_json::Value>), RecocoError> {
+    pub fn build_delete_stmt(
+        &self,
+        key: &KeyValue,
+    ) -> Result<(String, Vec<serde_json::Value>), RecocoError> {
         let mut where_clauses = vec![];
         let mut params = vec![];
 
@@ -408,7 +410,9 @@ impl D1ExportContext {
 
 /// Convert KeyPart to JSON
 /// Made public for testing purposes
-pub fn key_part_to_json(key_part: &recoco::base::value::KeyPart) -> Result<serde_json::Value, RecocoError> {
+pub fn key_part_to_json(
+    key_part: &recoco::base::value::KeyPart,
+) -> Result<serde_json::Value, RecocoError> {
     use recoco::base::value::KeyPart;
 
     Ok(match key_part {
@@ -436,8 +440,7 @@ pub fn value_to_json(value: &Value) -> Result<serde_json::Value, RecocoError> {
         Value::Null => serde_json::Value::Null,
         Value::Basic(basic) => basic_value_to_json(basic)?,
         Value::Struct(field_values) => {
-            let fields: Result<Vec<_>, _> =
-                field_values.fields.iter().map(value_to_json).collect();
+            let fields: Result<Vec<_>, _> = field_values.fields.iter().map(value_to_json).collect();
             serde_json::Value::Array(fields?)
         }
         Value::UTable(items) | Value::LTable(items) => {
@@ -541,7 +544,14 @@ impl D1SetupState {
 
         if !self.key_columns.is_empty() {
             let pk_cols: Vec<_> = self.key_columns.iter().map(|c| &c.name).collect();
-            columns.push(format!("PRIMARY KEY ({})", pk_cols.iter().map(|s| s.as_str()).collect::<Vec<_>>().join(", ")));
+            columns.push(format!(
+                "PRIMARY KEY ({})",
+                pk_cols
+                    .iter()
+                    .map(|s| s.as_str())
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            ));
         }
 
         format!(
@@ -614,13 +624,15 @@ impl TargetFactoryBase for D1TargetFactory {
         let http_client = Arc::new(
             reqwest::Client::builder()
                 // Connection pool configuration for Cloudflare D1 API
-                .pool_max_idle_per_host(10)  // Max idle connections per host
-                .pool_idle_timeout(Some(Duration::from_secs(90)))  // Keep connections warm
-                .tcp_keepalive(Some(Duration::from_secs(60)))  // Prevent firewall timeouts
-                .http2_keep_alive_interval(Some(Duration::from_secs(30)))  // HTTP/2 keep-alive pings
-                .timeout(Duration::from_secs(30))  // Per-request timeout
+                .pool_max_idle_per_host(10) // Max idle connections per host
+                .pool_idle_timeout(Some(Duration::from_secs(90))) // Keep connections warm
+                .tcp_keepalive(Some(Duration::from_secs(60))) // Prevent firewall timeouts
+                .http2_keep_alive_interval(Some(Duration::from_secs(30))) // HTTP/2 keep-alive pings
+                .timeout(Duration::from_secs(30)) // Per-request timeout
                 .build()
-                .map_err(|e| RecocoError::internal_msg(format!("Failed to create HTTP client: {}", e)))?,
+                .map_err(|e| {
+                    RecocoError::internal_msg(format!("Failed to create HTTP client: {}", e))
+                })?,
         );
 
         let mut build_outputs = vec![];
@@ -727,10 +739,7 @@ impl TargetFactoryBase for D1TargetFactory {
     }
 
     fn describe_resource(&self, key: &Self::SetupKey) -> Result<String, RecocoError> {
-        Ok(format!(
-            "D1 table: {}.{}",
-            key.database_id, key.table_name
-        ))
+        Ok(format!("D1 table: {}.{}", key.database_id, key.table_name))
     }
 
     async fn apply_mutation(

@@ -57,7 +57,7 @@ impl SimpleFunctionExecutor for ExtractSymbolsExecutor {
     async fn evaluate(&self, input: Vec<Value>) -> Result<Value, recoco::prelude::Error> {
         // Input: parsed_document (Struct with fields: symbols, imports, calls)
         let parsed_doc = input
-            .get(0)
+            .first()
             .ok_or_else(|| recoco::prelude::Error::client("Missing parsed_document input"))?;
 
         // Extract the first field (symbols table)
@@ -65,7 +65,7 @@ impl SimpleFunctionExecutor for ExtractSymbolsExecutor {
             Value::Struct(field_values) => {
                 let symbols = field_values
                     .fields
-                    .get(0)
+                    .first()
                     .ok_or_else(|| {
                         recoco::prelude::Error::client("Missing symbols field in parsed_document")
                     })?

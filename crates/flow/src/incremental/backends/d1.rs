@@ -67,6 +67,7 @@ use std::sync::Arc;
 /// # Thread Safety
 ///
 /// This type is `Send + Sync` and can be shared across async tasks.
+#[derive(Debug, Clone)]
 pub struct D1IncrementalBackend {
     /// Cloudflare account ID.
     account_id: String,

@@ -67,8 +67,8 @@ pub struct CacheConfig {
 impl Default for CacheConfig {
     fn default() -> Self {
         Self {
-            max_capacity: 10_000,  // 10k entries
-            ttl_seconds: 300,       // 5 minutes
+            max_capacity: 10_000, // 10k entries
+            ttl_seconds: 300,     // 5 minutes
         }
     }
 }

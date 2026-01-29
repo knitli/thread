@@ -44,11 +44,11 @@ async fn main() -> ServiceResult<()> {
     println!("🚀 Thread D1 Integration Test\n");
 
     // 1. Load configuration from environment
-    let account_id = env::var("CLOUDFLARE_ACCOUNT_ID")
-        .unwrap_or_else(|_| "test-account".to_string());
-    let database_id = env::var("D1_DATABASE_ID").unwrap_or_else(|_| "thread-integration".to_string());
-    let api_token = env::var("CLOUDFLARE_API_TOKEN")
-        .unwrap_or_else(|_| "test-token".to_string());
+    let account_id =
+        env::var("CLOUDFLARE_ACCOUNT_ID").unwrap_or_else(|_| "test-account".to_string());
+    let database_id =
+        env::var("D1_DATABASE_ID").unwrap_or_else(|_| "thread-integration".to_string());
+    let api_token = env::var("CLOUDFLARE_API_TOKEN").unwrap_or_else(|_| "test-token".to_string());
 
     println!("📋 Configuration:");
     println!("   Account ID: {}", account_id);
@@ -116,7 +116,9 @@ async fn main() -> ServiceResult<()> {
     println!();
 
     println!("💡 Next Steps:");
-    println!("   1. Set up local D1: wrangler d1 execute thread-integration --local --file=schema.sql");
+    println!(
+        "   1. Set up local D1: wrangler d1 execute thread-integration --local --file=schema.sql"
+    );
     println!("   2. Configure real credentials in environment variables");
     println!("   3. Implement ReCoco runtime integration");
     println!("   4. Test with actual D1 HTTP API");

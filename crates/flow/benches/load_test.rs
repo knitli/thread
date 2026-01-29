@@ -10,7 +10,7 @@
 //! - Incremental updates
 //! - Memory usage under load
 
-use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
+use criterion::{BenchmarkId, Criterion, Throughput, black_box, criterion_group, criterion_main};
 use std::time::Duration;
 use thread_services::conversion::compute_content_fingerprint;
 
@@ -73,9 +73,7 @@ fn bench_concurrent_processing(c: &mut Criterion) {
 
     let file_count = 1000;
     let files = generate_synthetic_code(file_count, 50);
-    let file_paths: Vec<String> = (0..file_count)
-        .map(|i| format!("file_{}.rs", i))
-        .collect();
+    let file_paths: Vec<String> = (0..file_count).map(|i| format!("file_{}.rs", i)).collect();
 
     group.bench_function("sequential_fingerprinting", |b| {
         b.iter(|| {
@@ -109,7 +107,7 @@ fn bench_concurrent_processing(c: &mut Criterion) {
 /// Benchmark cache hit/miss patterns
 #[cfg(feature = "caching")]
 fn bench_cache_patterns(c: &mut Criterion) {
-    use thread_flow::cache::{QueryCache, CacheConfig};
+    use thread_flow::cache::{CacheConfig, QueryCache};
 
     let mut group = c.benchmark_group("cache_patterns");
     group.warm_up_time(Duration::from_secs(2));
@@ -124,9 +122,7 @@ fn bench_cache_patterns(c: &mut Criterion) {
     // Pre-populate cache with different hit rates
     let total_keys = 1000;
     let keys: Vec<String> = (0..total_keys).map(|i| format!("key_{}", i)).collect();
-    let values: Vec<String> = (0..total_keys)
-        .map(|i| format!("value_{}", i))
-        .collect();
+    let values: Vec<String> = (0..total_keys).map(|i| format!("value_{}", i)).collect();
 
     // Test different cache hit rates
     for hit_rate in [0, 25, 50, 75, 95, 100].iter() {

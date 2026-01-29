@@ -54,6 +54,7 @@ use tokio_postgres::NoTls;
 /// # Thread Safety
 ///
 /// This type is `Send + Sync` and can be shared across async tasks.
+#[derive(Debug)]
 pub struct PostgresIncrementalBackend {
     pool: Pool,
 }

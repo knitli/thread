@@ -63,7 +63,10 @@ async fn test_error_invalid_syntax_rust() {
     let result = execute_parse(invalid_rust, "rs", "invalid.rs").await;
 
     // Should succeed even with invalid syntax (parser is resilient)
-    assert!(result.is_ok(), "Parser should handle invalid syntax gracefully");
+    assert!(
+        result.is_ok(),
+        "Parser should handle invalid syntax gracefully"
+    );
 }
 
 #[tokio::test]
@@ -79,7 +82,10 @@ async fn test_error_invalid_syntax_typescript() {
     let invalid_ts = "function broken({ incomplete destructuring";
     let result = execute_parse(invalid_ts, "ts", "invalid.ts").await;
 
-    assert!(result.is_ok(), "Parser should handle invalid TypeScript syntax");
+    assert!(
+        result.is_ok(),
+        "Parser should handle invalid TypeScript syntax"
+    );
 }
 
 #[tokio::test]
@@ -325,9 +331,8 @@ async fn test_concurrent_same_content() {
     // Parse the same content concurrently from multiple tasks
     for i in 0..5 {
         let content = content.to_string();
-        join_set.spawn(async move {
-            execute_parse(&content, "rs", &format!("shared_{}.rs", i)).await
-        });
+        join_set
+            .spawn(async move { execute_parse(&content, "rs", &format!("shared_{}.rs", i)).await });
     }
 
     let mut successes = 0;
@@ -358,7 +363,10 @@ async fn test_only_special_characters() {
     let special = "!@#$%^&*()_+-=[]{}|;':\",./<>?";
     let result = execute_parse(special, "rs", "special.rs").await;
 
-    assert!(result.is_ok(), "Should handle special characters gracefully");
+    assert!(
+        result.is_ok(),
+        "Should handle special characters gracefully"
+    );
 }
 
 #[tokio::test]

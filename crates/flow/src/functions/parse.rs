@@ -56,7 +56,7 @@ impl SimpleFunctionExecutor for ThreadParseExecutor {
     async fn evaluate(&self, input: Vec<Value>) -> Result<Value, recoco::prelude::Error> {
         // Input: [content, language, file_path]
         let content = input
-            .get(0)
+            .first()
             .ok_or_else(|| recoco::prelude::Error::client("Missing content"))?
             .as_str()
             .map_err(|e| recoco::prelude::Error::client(e.to_string()))?;
@@ -96,7 +96,8 @@ impl SimpleFunctionExecutor for ThreadParseExecutor {
 
         // Convert to ParsedDocument
         let path = std::path::PathBuf::from(&path_str);
-        let mut doc = thread_services::conversion::root_to_parsed_document(root, path, lang, fingerprint);
+        let mut doc =
+            thread_services::conversion::root_to_parsed_document(root, path, lang, fingerprint);
 
         // Extract metadata
         thread_services::conversion::extract_basic_metadata(&doc)

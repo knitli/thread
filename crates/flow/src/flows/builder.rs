@@ -576,14 +576,14 @@ impl ThreadFlowBuilder {
                     })?;
 
                     let mut root_scope = builder.root_scope();
-                    let calls_collector = root_scope
-                        .add_collector("calls".to_string())
-                        .map_err(|e: RecocoError| {
+                    let calls_collector = root_scope.add_collector("calls".to_string()).map_err(
+                        |e: RecocoError| {
                             ServiceError::execution_dynamic(format!(
                                 "Failed to add collector: {}",
                                 e
                             ))
-                        })?;
+                        },
+                    )?;
 
                     let path_field = current_node
                         .field("path")

@@ -18,8 +18,8 @@ use recoco::base::value::{BasicValue, FieldValues, KeyPart, Value};
 use recoco::ops::factory_bases::TargetFactoryBase;
 use recoco::setup::{ResourceSetupChange, SetupChangeType};
 use thread_flow::targets::d1::{
-    basic_value_to_json, key_part_to_json, value_to_json, value_type_to_sql,
     D1ExportContext, D1SetupChange, D1SetupState, D1TableId, D1TargetFactory, IndexSchema,
+    basic_value_to_json, key_part_to_json, value_to_json, value_type_to_sql,
 };
 
 // ============================================================================
@@ -73,7 +73,8 @@ fn test_key_part_to_json_int64() {
     assert_eq!(json, serde_json::json!(42));
 
     let key_part_negative = KeyPart::Int64(-100);
-    let json_negative = key_part_to_json(&key_part_negative).expect("Failed to convert negative int64");
+    let json_negative =
+        key_part_to_json(&key_part_negative).expect("Failed to convert negative int64");
     assert_eq!(json_negative, serde_json::json!(-100));
 }
 
@@ -470,7 +471,9 @@ fn test_empty_table_name() {
     };
 
     let factory = D1TargetFactory;
-    let description = factory.describe_resource(&table_id).expect("Failed to describe");
+    let description = factory
+        .describe_resource(&table_id)
+        .expect("Failed to describe");
     assert_eq!(description, "D1 table: db.");
 }
 

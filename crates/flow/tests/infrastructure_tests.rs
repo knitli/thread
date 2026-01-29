@@ -44,7 +44,7 @@
 use std::sync::Arc;
 use thread_flow::bridge::CocoIndexAnalyzer;
 use thread_flow::runtime::{EdgeStrategy, LocalStrategy, RuntimeStrategy};
-use tokio::time::{sleep, timeout, Duration};
+use tokio::time::{Duration, sleep, timeout};
 
 // ============================================================================
 // Bridge Tests - CocoIndexAnalyzer
@@ -139,7 +139,10 @@ async fn test_local_strategy_spawn_executes_future() {
 
     // Verify the spawned task executed
     let result = timeout(Duration::from_secs(1), rx).await;
-    assert!(result.is_ok(), "Spawned task should complete within timeout");
+    assert!(
+        result.is_ok(),
+        "Spawned task should complete within timeout"
+    );
     assert_eq!(result.unwrap().unwrap(), 42);
 }
 
@@ -232,7 +235,10 @@ async fn test_edge_strategy_spawn_executes_future() {
 
     // Verify the spawned task executed
     let result = timeout(Duration::from_secs(1), rx).await;
-    assert!(result.is_ok(), "Spawned task should complete within timeout");
+    assert!(
+        result.is_ok(),
+        "Spawned task should complete within timeout"
+    );
     assert_eq!(result.unwrap().unwrap(), 42);
 }
 

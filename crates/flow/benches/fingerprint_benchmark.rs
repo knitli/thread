@@ -15,9 +15,9 @@
 //! - Full pipeline with 100% cache hit: <100µs (50x+ speedup vs parse)
 //! - Memory overhead: <1KB per cached file
 
-use criterion::{black_box, criterion_group, criterion_main, Criterion, Throughput};
-use thread_services::conversion::compute_content_fingerprint;
+use criterion::{Criterion, Throughput, black_box, criterion_group, criterion_main};
 use std::collections::HashMap;
+use thread_services::conversion::compute_content_fingerprint;
 
 // ============================================================================
 // Test Data
@@ -93,26 +93,20 @@ fn benchmark_fingerprint_computation(c: &mut Criterion) {
     // Small file fingerprinting
     group.throughput(Throughput::Bytes(SMALL_CODE.len() as u64));
     group.bench_function("blake3_small_file", |b| {
-        b.iter(|| {
-            black_box(compute_content_fingerprint(black_box(SMALL_CODE)))
-        });
+        b.iter(|| black_box(compute_content_fingerprint(black_box(SMALL_CODE))));
     });
 
     // Medium file fingerprinting
     group.throughput(Throughput::Bytes(MEDIUM_CODE.len() as u64));
     group.bench_function("blake3_medium_file", |b| {
-        b.iter(|| {
-            black_box(compute_content_fingerprint(black_box(MEDIUM_CODE)))
-        });
+        b.iter(|| black_box(compute_content_fingerprint(black_box(MEDIUM_CODE))));
     });
 
     // Large file fingerprinting
     let large_code = generate_large_code();
     group.throughput(Throughput::Bytes(large_code.len() as u64));
     group.bench_function("blake3_large_file", |b| {
-        b.iter(|| {
-            black_box(compute_content_fingerprint(black_box(&large_code)))
-        });
+        b.iter(|| black_box(compute_content_fingerprint(black_box(&large_code))));
     });
 
     group.finish();
@@ -138,9 +132,7 @@ fn benchmark_cache_lookups(c: &mut Criterion) {
     let test_fp = compute_content_fingerprint(test_code);
 
     group.bench_function("cache_hit", |b| {
-        b.iter(|| {
-            black_box(cache.get(black_box(&test_fp)))
-        });
+        b.iter(|| black_box(cache.get(black_box(&test_fp))));
     });
 
     // Benchmark cache miss
@@ -148,9 +140,7 @@ fn benchmark_cache_lookups(c: &mut Criterion) {
     let miss_fp = compute_content_fingerprint(miss_code);
 
     group.bench_function("cache_miss", |b| {
-        b.iter(|| {
-            black_box(cache.get(black_box(&miss_fp)))
-        });
+        b.iter(|| black_box(cache.get(black_box(&miss_fp))));
     });
 
     group.finish();

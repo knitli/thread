@@ -50,7 +50,10 @@ mod d1_cache_tests {
         let cache_stats = context.cache_stats().await;
         assert_eq!(cache_stats.hits, 0, "Initial cache should have 0 hits");
         assert_eq!(cache_stats.misses, 0, "Initial cache should have 0 misses");
-        assert_eq!(cache_stats.total_lookups, 0, "Initial cache should have 0 lookups");
+        assert_eq!(
+            cache_stats.total_lookups, 0,
+            "Initial cache should have 0 lookups"
+        );
     }
 
     #[tokio::test]
@@ -164,6 +167,9 @@ mod d1_no_cache_tests {
         .expect("Failed to create context without caching");
 
         // Should compile and work without cache field
-        assert!(true, "D1ExportContext created successfully without caching feature");
+        assert!(
+            true,
+            "D1ExportContext created successfully without caching feature"
+        );
     }
 }

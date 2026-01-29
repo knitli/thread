@@ -30,7 +30,7 @@
 //! - Cache hit rate target: >90%
 //! - These benchmarks measure infrastructure overhead, not actual D1 API latency
 
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use criterion::{Criterion, black_box, criterion_group, criterion_main};
 use recoco::base::schema::{BasicValueType, EnrichedValueType, FieldSchema, ValueType};
 use recoco::base::value::{BasicValue, FieldValues, KeyPart, KeyValue};
 use std::sync::Arc;
@@ -147,7 +147,10 @@ fn bench_cache_operations(c: &mut Criterion) {
     runtime.block_on(async {
         for i in 0..100 {
             let key = format!("warm{:08x}", i);
-            context.query_cache.insert(key, serde_json::json!({"value": i})).await;
+            context
+                .query_cache
+                .insert(key, serde_json::json!({"value": i}))
+                .await;
         }
     });
 
@@ -173,7 +176,10 @@ fn bench_cache_operations(c: &mut Criterion) {
             runtime.block_on(async {
                 let key = format!("insert{:016x}", counter);
                 counter += 1;
-                context.query_cache.insert(key, serde_json::json!({"value": counter})).await;
+                context
+                    .query_cache
+                    .insert(key, serde_json::json!({"value": counter}))
+                    .await;
             });
         });
     });
@@ -446,7 +452,9 @@ fn bench_e2e_query_pipeline(c: &mut Criterion) {
             ]));
             let values = FieldValues {
                 fields: vec![
-                    recoco::base::value::Value::Basic(BasicValue::Str(format!("func_{}", i).into())),
+                    recoco::base::value::Value::Basic(BasicValue::Str(
+                        format!("func_{}", i).into(),
+                    )),
                     recoco::base::value::Value::Basic(BasicValue::Str("function".into())),
                     recoco::base::value::Value::Basic(BasicValue::Int64(i as i64)),
                 ],
@@ -516,9 +524,9 @@ fn bench_e2e_query_pipeline(c: &mut Criterion) {
 
                 // 90% of requests use cached queries, 10% are new
                 let query_key = if idx % 10 == 0 {
-                    format!("new_{:08x}", idx)  // Cache miss (10%)
+                    format!("new_{:08x}", idx) // Cache miss (10%)
                 } else {
-                    format!("query_{:08x}", idx % 100)  // Cache hit (90%)
+                    format!("query_{:08x}", idx % 100) // Cache hit (90%)
                 };
 
                 let cached = context.query_cache.get(&query_key).await;
@@ -615,7 +623,7 @@ fn create_test_entry(idx: usize) -> (KeyValue, FieldValues) {
 #[cfg(feature = "caching")]
 fn bench_p95_latency_validation(c: &mut Criterion) {
     let mut group = c.benchmark_group("p95_latency_validation");
-    group.sample_size(1000);  // Larger sample for accurate p95 calculation
+    group.sample_size(1000); // Larger sample for accurate p95 calculation
 
     let context = create_benchmark_context();
     let runtime = tokio::runtime::Runtime::new().unwrap();
@@ -624,7 +632,10 @@ fn bench_p95_latency_validation(c: &mut Criterion) {
     runtime.block_on(async {
         for i in 0..1000 {
             let query_key = format!("warm{:08x}", i);
-            context.query_cache.insert(query_key, serde_json::json!({"value": i})).await;
+            context
+                .query_cache
+                .insert(query_key, serde_json::json!({"value": i}))
+                .await;
         }
     });
 
@@ -647,7 +658,10 @@ fn bench_p95_latency_validation(c: &mut Criterion) {
                     let (key, values) = create_test_entry(idx);
                     let stmt = context.build_upsert_stmt(&key, &values);
                     let _ = black_box(stmt);
-                    context.query_cache.insert(query_key, serde_json::json!({"new": true})).await;
+                    context
+                        .query_cache
+                        .insert(query_key, serde_json::json!({"new": true}))
+                        .await;
                 }
 
                 idx += 1;

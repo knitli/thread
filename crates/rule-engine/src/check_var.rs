@@ -71,7 +71,10 @@ fn check_vars_in_rewriter<'r>(
     Ok(())
 }
 
-fn check_utils_defined(rule: &Rule, constraints: &RapidMap<thread_ast_engine::meta_var::MetaVariableID, Rule>) -> RResult<()> {
+fn check_utils_defined(
+    rule: &Rule,
+    constraints: &RapidMap<thread_ast_engine::meta_var::MetaVariableID, Rule>,
+) -> RResult<()> {
     rule.verify_util()?;
     for constraint in constraints.values() {
         constraint.verify_util()?;

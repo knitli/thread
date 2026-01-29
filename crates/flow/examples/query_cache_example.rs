@@ -25,7 +25,9 @@ async fn main() {
     run_cache_example().await;
 
     #[cfg(not(feature = "caching"))]
-    println!("⚠️  Caching feature not enabled. Run with: cargo run --example query_cache_example --features caching");
+    println!(
+        "⚠️  Caching feature not enabled. Run with: cargo run --example query_cache_example --features caching"
+    );
 }
 
 #[cfg(feature = "caching")]
@@ -60,7 +62,10 @@ async fn run_cache_example() {
             simulate_d1_query().await
         })
         .await;
-    println!("   ⚡ Cache hit! Retrieved {} symbols (no D1 query)", symbols2.len());
+    println!(
+        "   ⚡ Cache hit! Retrieved {} symbols (no D1 query)",
+        symbols2.len()
+    );
 
     // Example 2: Cache statistics
     println!("\n--- Example 2: Cache Statistics ---\n");
@@ -112,14 +117,26 @@ async fn run_cache_example() {
             })
             .await;
 
-        println!("   File {}: ⚡ Cache hit! {} symbols (no D1 query)", i + 1, symbols.len());
+        println!(
+            "   File {}: ⚡ Cache hit! {} symbols (no D1 query)",
+            i + 1,
+            symbols.len()
+        );
     }
 
     let final_stats = cache.stats().await;
     println!("\n📊 Final Cache Statistics:");
     println!("   Total lookups: {}", final_stats.total_lookups);
-    println!("   Cache hits:    {} ({}%)", final_stats.hits, final_stats.hit_rate() as i32);
-    println!("   Cache misses:  {} ({}%)", final_stats.misses, final_stats.miss_rate() as i32);
+    println!(
+        "   Cache hits:    {} ({}%)",
+        final_stats.hits,
+        final_stats.hit_rate() as i32
+    );
+    println!(
+        "   Cache misses:  {} ({}%)",
+        final_stats.misses,
+        final_stats.miss_rate() as i32
+    );
 
     // Calculate savings
     let d1_query_time_ms = 75.0; // Average D1 query time
@@ -128,15 +145,18 @@ async fn run_cache_example() {
     let hits = final_stats.hits as f64;
 
     let time_without_cache = total_queries * d1_query_time_ms;
-    let time_with_cache = (final_stats.misses as f64 * d1_query_time_ms)
-        + (hits * cache_hit_time_ms);
+    let time_with_cache =
+        (final_stats.misses as f64 * d1_query_time_ms) + (hits * cache_hit_time_ms);
     let savings_ms = time_without_cache - time_with_cache;
     let speedup = time_without_cache / time_with_cache;
 
     println!("\n💰 Performance Savings:");
     println!("   Without cache: {:.1}ms", time_without_cache);
     println!("   With cache:    {:.1}ms", time_with_cache);
-    println!("   Savings:       {:.1}ms ({:.1}x speedup)", savings_ms, speedup);
+    println!(
+        "   Savings:       {:.1}ms ({:.1}x speedup)",
+        savings_ms, speedup
+    );
 
     println!("\n✅ Cache example complete!");
 }

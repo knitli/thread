@@ -10,8 +10,8 @@
 //! - Memory usage
 //! - Throughput metrics
 
-use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::{Duration, Instant};
 
 /// Performance metrics collector
@@ -357,9 +357,8 @@ impl<'a> PerformanceTimer<'a> {
     /// Stop the timer and record the duration (error)
     pub fn stop_error(self) {
         let duration = self.start.elapsed();
-        match self.metric_type {
-            MetricType::Query => self.metrics.record_query(duration, false),
-            _ => {}
+        if let MetricType::Query = self.metric_type {
+            self.metrics.record_query(duration, false)
         }
     }
 }

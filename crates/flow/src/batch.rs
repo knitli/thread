@@ -72,10 +72,7 @@ where
     {
         // Parallel processing using rayon (CLI builds)
         use rayon::prelude::*;
-        paths
-            .par_iter()
-            .map(|p| processor(p.as_ref()))
-            .collect()
+        paths.par_iter().map(|p| processor(p.as_ref())).collect()
     }
 
     #[cfg(not(feature = "parallel"))]
@@ -107,7 +104,7 @@ where
     #[cfg(feature = "parallel")]
     {
         use rayon::prelude::*;
-        items.par_iter().map(|item| processor(item)).collect()
+        items.par_iter().map(processor).collect()
     }
 
     #[cfg(not(feature = "parallel"))]
@@ -135,10 +132,7 @@ where
     #[cfg(feature = "parallel")]
     {
         use rayon::prelude::*;
-        paths
-            .par_iter()
-            .map(|p| processor(p.as_ref()))
-            .collect()
+        paths.par_iter().map(|p| processor(p.as_ref())).collect()
     }
 
     #[cfg(not(feature = "parallel"))]
@@ -174,10 +168,7 @@ mod tests {
                 .to_string()
         });
 
-        assert_eq!(
-            results,
-            vec!["file1.txt", "file2.txt", "file3.txt"]
-        );
+        assert_eq!(results, vec!["file1.txt", "file2.txt", "file3.txt"]);
     }
 
     #[test]
