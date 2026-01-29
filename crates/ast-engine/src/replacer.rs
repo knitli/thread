@@ -56,6 +56,7 @@ use crate::matcher::Matcher;
 use crate::meta_var::{MetaVariableID, Underlying, is_valid_meta_var_char};
 use crate::{Doc, Node, NodeMatch, Root};
 use std::ops::Range;
+use std::sync::Arc;
 
 pub(crate) use indent::formatted_slice;
 
@@ -205,7 +206,7 @@ fn split_first_meta_var(
     if i == 0 {
         return None;
     }
-    let name = src[skipped..skipped + i].to_string();
+    let name: MetaVariableID = Arc::from(&src[skipped..skipped + i]);
     let var = if is_multi {
         MetaVarExtract::Multiple(name)
     } else if transform.contains(&name) {

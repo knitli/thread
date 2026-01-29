@@ -95,7 +95,8 @@ impl Fixer {
         let expand_start = Expansion::parse(expand_start, env)?;
         let expand_end = Expansion::parse(expand_end, env)?;
         let template = if let Some(trans) = transform {
-            let keys: Vec<_> = trans.keys().cloned().collect();
+            let keys: Vec<std::sync::Arc<str>> =
+                trans.keys().map(|k| std::sync::Arc::from(k.as_str())).collect();
             TemplateFix::with_transform(fix, &env.lang, &keys)
         } else {
             TemplateFix::try_new(fix, &env.lang)?
@@ -144,7 +145,8 @@ impl Fixer {
         transform: &Option<RapidMap<String, Transformation>>,
     ) -> Result<Self, FixerError> {
         let template = if let Some(trans) = transform {
-            let keys: Vec<_> = trans.keys().cloned().collect();
+            let keys: Vec<std::sync::Arc<str>> =
+                trans.keys().map(|k| std::sync::Arc::from(k.as_str())).collect();
             TemplateFix::with_transform(fix, &env.lang, &keys)
         } else {
             TemplateFix::try_new(fix, &env.lang)?

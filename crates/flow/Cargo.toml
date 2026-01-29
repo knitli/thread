@@ -21,6 +21,7 @@ thiserror = { workspace = true }
 # Workspace dependencies
 thread-ast-engine = { workspace = true }
 thread-language = { workspace = true, features = [
+  "go",
   "javascript",
   "matching",
   "python",
@@ -34,6 +35,9 @@ thread-services = { workspace = true, features = [
 ] }
 thread-utils = { workspace = true }
 tokio = { workspace = true }
+# Logging and observability
+log = "0.4"
+env_logger = "0.11"
 # Optional: parallel processing for CLI (not available in workers)
 rayon = { workspace = true, optional = true }
 # Optional: query result caching
@@ -71,6 +75,14 @@ harness = false
 
 [[bench]]
 name = "fingerprint_benchmark"
+harness = false
+
+[[bench]]
+name = "d1_profiling"
+harness = false
+
+[[bench]]
+name = "load_test"
 harness = false
 
 [[example]]

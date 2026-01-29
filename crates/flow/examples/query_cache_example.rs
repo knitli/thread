@@ -14,6 +14,7 @@
 
 #[cfg(feature = "caching")]
 use thread_flow::cache::{CacheConfig, QueryCache};
+#[cfg(feature = "caching")]
 use thread_services::conversion::compute_content_fingerprint;
 
 #[tokio::main]

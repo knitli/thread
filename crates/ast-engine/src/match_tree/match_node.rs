@@ -8,7 +8,7 @@ use super::Aggregator;
 use super::strictness::MatchOneNode;
 use crate::matcher::MatchStrictness;
 use crate::matcher::{PatternNode, kind_utils};
-use crate::meta_var::MetaVariable;
+use crate::meta_var::{MetaVariable, MetaVariableID};
 use crate::{Doc, Node};
 use std::iter::Peekable;
 
@@ -215,20 +215,20 @@ fn match_single_node_while_skip_trivial<'p, 't: 'p, D: Doc>(
 
 /// Returns Ok if ellipsis pattern is found. If the ellipsis is named, returns it name.
 /// If the ellipsis is unnamed, returns None. If it is not ellipsis node, returns Err.
-fn try_get_ellipsis_mode(node: &PatternNode) -> Result<Option<String>, ()> {
+fn try_get_ellipsis_mode(node: &PatternNode) -> Result<Option<MetaVariableID>, ()> {
     let PatternNode::MetaVar { meta_var, .. } = node else {
         return Err(());
     };
     match meta_var {
         MetaVariable::Multiple => Ok(None),
-        MetaVariable::MultiCapture(n) => Ok(Some(n.into())),
+        MetaVariable::MultiCapture(n) => Ok(Some(n.clone())),
         _ => Err(()),
     }
 }
 
 fn match_ellipsis<'t, D: Doc>(
     agg: &mut impl Aggregator<'t, D>,
-    optional_name: &Option<String>,
+    optional_name: &Option<MetaVariableID>,
     mut matched: Vec<Node<'t, D>>,
     cand_children: impl Iterator<Item = Node<'t, D>>,
     skipped_anonymous: usize,

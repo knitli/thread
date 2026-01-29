@@ -31,7 +31,11 @@ impl TemplateFix {
         Ok(create_template(template, lang.meta_var_char(), &[]))
     }
 
-    pub fn with_transform<L: Language>(tpl: &str, lang: &L, trans: &[String]) -> Self {
+    pub fn with_transform<L: Language>(
+        tpl: &str,
+        lang: &L,
+        trans: &[crate::meta_var::MetaVariableID],
+    ) -> Self {
         create_template(tpl, lang.meta_var_char(), trans)
     }
 
@@ -63,7 +67,11 @@ pub struct Template {
     vars: Vec<(MetaVarExtract, Indent)>,
 }
 
-fn create_template(tmpl: &str, mv_char: char, transforms: &[String]) -> TemplateFix {
+fn create_template(
+    tmpl: &str,
+    mv_char: char,
+    transforms: &[crate::meta_var::MetaVariableID],
+) -> TemplateFix {
     let mut fragments = vec![];
     let mut vars = vec![];
     let mut offset = 0;
@@ -171,6 +179,7 @@ mod test {
     use crate::matcher::NodeMatch;
     use crate::meta_var::{MetaVarEnv, MetaVariable};
     use crate::tree_sitter::LanguageExt;
+    use std::sync::Arc;
     use thread_utils::RapidMap;
 
     #[test]
@@ -347,7 +356,7 @@ if (true) {
 
     #[test]
     fn test_replace_rewriter() {
-        let tf = TemplateFix::with_transform("if (a)\n  $A", &Tsx, &["A".to_string()]);
+        let tf = TemplateFix::with_transform("if (a)\n  $A", &Tsx, &[Arc::from("A")]);
         let mut env = MetaVarEnv::new();
         env.insert_transformation(
             &MetaVariable::Multiple,

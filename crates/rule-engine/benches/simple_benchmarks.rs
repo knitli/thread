@@ -45,7 +45,6 @@ rule:
     - pattern: var $VAR = $VALUE
 "#,
             ],
-            test_code: include_str!("../test_data/sample_typescript.ts"),
         }
     }
 }

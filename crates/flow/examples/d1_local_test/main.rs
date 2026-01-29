@@ -98,15 +98,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         ),
     ];
 
-    let export_context = D1ExportContext {
-        database_id: d1_spec.database_id.clone(),
-        table_name: d1_spec.table_name.clone().unwrap(),
-        account_id: d1_spec.account_id.clone(),
-        api_token: d1_spec.api_token.clone(),
-        http_client: reqwest::Client::new(),
+    let metrics = thread_flow::monitoring::performance::PerformanceMetrics::new();
+
+    let export_context = D1ExportContext::new_with_default_client(
+        d1_spec.database_id.clone(),
+        d1_spec.table_name.clone().unwrap(),
+        d1_spec.account_id.clone(),
+        d1_spec.api_token.clone(),
         key_fields_schema,
         value_fields_schema,
-    };
+        metrics,
+    )
+    .expect("Failed to create D1 export context");
 
     println!("🔧 Export context created");
     println!("   Key fields: {:?}", export_context.key_fields_schema.iter().map(|f| &f.name).collect::<Vec<_>>());

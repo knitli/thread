@@ -18,6 +18,7 @@ pub mod cache;
 pub mod conversion;
 pub mod flows;
 pub mod functions;
+pub mod monitoring;
 pub mod registry;
 pub mod runtime;
 pub mod sources;

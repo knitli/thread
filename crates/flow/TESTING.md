@@ -1,180 +1,355 @@
-# Thread-Flow Testing Summary
-
-## Overview
-
-Comprehensive integration test suite created for the thread-flow crate, testing ReCoco dataflow integration and multi-language code parsing.
-
-## Test Suite Status
-
-### ✅ Implemented (19 tests total)
-- **10 tests passing** - All factory, schema, and error handling tests
-- **9 tests blocked** - Awaiting bug fix in thread-services conversion module
-
-### Test Categories
-
-1. **Factory & Schema Tests** (6 tests, all passing)
-   - Factory creation and executor instantiation
-   - Schema validation (3-field struct: symbols, imports, calls)
-   - Behavior versioning
-   - Cache and timeout configuration
-
-2. **Error Handling Tests** (4 tests, all passing)
-   - Unsupported language detection
-   - Missing/invalid input validation
-   - Type checking for Value inputs
-
-3. **Value Serialization Tests** (2 tests, blocked)
-   - Output structure validation
-   - Empty file handling
-
-4. **Language Support Tests** (5 tests, blocked)
-   - Rust, Python, TypeScript, Go parsing
-   - Multi-language sequential processing
-
-5. **Performance Tests** (2 tests, blocked/manual)
-   - Large file parsing (<1s target)
-   - Minimal code fast path (<100ms target)
-
-## Test Data
-
-### Sample Code Files (`tests/test_data/`)
-- **`sample.rs`** - 58 lines of realistic Rust (structs, enums, functions, imports)
-- **`sample.py`** - 56 lines of Python (classes, decorators, dataclasses)
-- **`sample.ts`** - 84 lines of TypeScript (interfaces, classes, generics)
-- **`sample.go`** - 91 lines of Go (structs, interfaces, methods)
-- **`empty.rs`** - Empty file edge case
-- **`syntax_error.rs`** - Intentional syntax errors
-- **`large.rs`** - Performance testing (~100 lines)
-
-### Test Coverage
-Each sample file includes:
-- Multiple symbol types (classes, functions, structs)
-- Import statements from standard libraries
-- Function calls with varying argument counts
-- Language-specific constructs (enums, interfaces, decorators)
-
-## Known Issues
-
-### Pattern Matching Bug
-
-**Blocker**: `extract_functions()` in `thread-services/src/conversion.rs` panics when trying multi-language patterns.
-
-**Root Cause**:
-```rust
-// In crates/ast-engine/src/matchers/pattern.rs:220
-pub fn new<L: Language>(src: &str, lang: &L) -> Self {
-    Self::try_new(src, lang).unwrap()  // ❌ Panics on parse error
-}
-```
-
-**Problem Flow**:
-1. `extract_functions()` tries all language patterns sequentially
-2. JavaScript pattern `function $NAME($$$PARAMS) { $$$BODY }` attempted on Rust code
-3. `Pattern::new()` calls `.unwrap()` on parse error
-4. Thread panics with `MultipleNode` error
-
-**Impact**:
-- Blocks all end-to-end parsing tests
-- Even minimal/empty files trigger the bug
-- 9 of 19 tests marked `#[ignore]`
-
-**Required Fix**:
-```rust
-// Option 1: Use try_new everywhere
-pub fn new<L: Language>(src: &str, lang: &L) -> Result<Self, PatternError> {
-    Self::try_new(src, lang)
-}
-
-// Option 2: Handle errors in extract_functions
-for pattern in &patterns {
-    match Pattern::try_new(pattern, root_node.lang()) {
-        Ok(p) => { /* search with pattern */ },
-        Err(_) => continue, // Try next pattern
-    }
-}
-```
-
-## Running Tests
-
-### Run Passing Tests Only
-```bash
-cargo test -p thread-flow --test integration_tests
-# Result: 10 passed; 0 failed; 9 ignored
-```
-
-### Run All Tests (will fail)
-```bash
-cargo test -p thread-flow --test integration_tests -- --include-ignored
-# Result: 10 passed; 9 failed; 0 ignored
-```
-
-### Run Specific Test
-```bash
-cargo test -p thread-flow --test integration_tests test_factory_build_succeeds
-```
-
-## Post-Fix Checklist
-
-When the pattern matching bug is fixed:
-
-- [ ] Remove `#[ignore]` attributes from 9 blocked tests
-- [ ] Run `cargo test -p thread-flow --test integration_tests`
-- [ ] Verify all 19 tests pass
-- [ ] Validate symbol extraction for all languages
-- [ ] Check performance targets (<100ms minimal, <1s large)
-- [ ] Update this document with results
-
-## Test Quality Metrics
-
-### Code Coverage
-- ✅ ReCoco integration (factory, schema, executor)
-- ✅ Error handling (all error paths)
-- ⏸️ Value serialization (structure validation)
-- ⏸️ Multi-language parsing (4 languages)
-- ⏸️ Symbol extraction (imports, functions, calls)
-- ⏸️ Performance characteristics
-
-### Test Data Quality
-- ✅ Realistic code samples (not minimal examples)
-- ✅ Multiple languages (Rust, Python, TypeScript, Go)
-- ✅ Edge cases (empty files, syntax errors)
-- ✅ Performance data (large files)
-
-### Documentation Quality
-- ✅ Comprehensive test README
-- ✅ Inline test documentation
-- ✅ Known issues documented with root cause
-- ✅ Clear blockers and workarounds
-
-## Future Enhancements
-
-### Additional Test Coverage
-- [ ] Incremental parsing with content-addressed caching
-- [ ] Complex language constructs (generics, macros, lifetimes)
-- [ ] Cross-language symbol resolution
-- [ ] Large codebase performance (1000+ files)
-- [ ] Unicode and non-ASCII identifiers
-- [ ] Nested module structures
-
-### Performance Testing
-- [ ] Benchmark suite with criterion
-- [ ] Cache hit rate validation
-- [ ] Memory usage profiling
-- [ ] Concurrent parsing performance
-
-### Integration Testing
-- [ ] End-to-end flow execution with sources/targets
-- [ ] Multi-step dataflow pipelines
-- [ ] Error recovery and retry logic
-- [ ] Storage backend integration (Postgres, D1)
-
-## Summary
-
-A comprehensive, well-documented integration test suite has been created for thread-flow, with:
-- **19 total tests** covering all major functionality
-- **10 tests passing** validating ReCoco integration
-- **9 tests blocked** by a known, fixable bug
-- **Realistic test data** for 4 programming languages
-- **Clear documentation** of issues and resolution path
-
-The test suite is production-ready and will provide full coverage once the pattern matching bug is resolved.
+[38;5;238m─────┬──────────────────────────────────────────────────────────────────────────[0m
+     [38;5;238m│ [0m[1mSTDIN[0m
+[38;5;238m─────┼──────────────────────────────────────────────────────────────────────────[0m
+[38;5;238m   1[0m [38;5;238m│[0m [38;2;248;248;242m# Testing Guide - Thread Flow Crate[0m
+[38;5;238m   2[0m [38;5;238m│[0m 
+[38;5;238m   3[0m [38;5;238m│[0m [38;2;248;248;242mComprehensive guide for running, writing, and maintaining tests for the Thread Flow crate.[0m
+[38;5;238m   4[0m [38;5;238m│[0m 
+[38;5;238m   5[0m [38;5;238m│[0m [38;2;248;248;242m## Table of Contents[0m
+[38;5;238m   6[0m [38;5;238m│[0m 
+[38;5;238m   7[0m [38;5;238m│[0m [38;2;248;248;242m1. [Quick Start](#quick-start)[0m
+[38;5;238m   8[0m [38;5;238m│[0m [38;2;248;248;242m2. [Test Organization](#test-organization)[0m
+[38;5;238m   9[0m [38;5;238m│[0m [38;2;248;248;242m3. [Running Tests](#running-tests)[0m
+[38;5;238m  10[0m [38;5;238m│[0m [38;2;248;248;242m4. [Writing Tests](#writing-tests)[0m
+[38;5;238m  11[0m [38;5;238m│[0m [38;2;248;248;242m5. [Code Coverage](#code-coverage)[0m
+[38;5;238m  12[0m [38;5;238m│[0m [38;2;248;248;242m6. [Performance Testing](#performance-testing)[0m
+[38;5;238m  13[0m [38;5;238m│[0m [38;2;248;248;242m7. [Continuous Integration](#continuous-integration)[0m
+[38;5;238m  14[0m [38;5;238m│[0m [38;2;248;248;242m8. [Troubleshooting](#troubleshooting)[0m
+[38;5;238m  15[0m [38;5;238m│[0m 
+[38;5;238m  16[0m [38;5;238m│[0m [38;2;248;248;242m---[0m
+[38;5;238m  17[0m [38;5;238m│[0m 
+[38;5;238m  18[0m [38;5;238m│[0m [38;2;248;248;242m## Quick Start[0m
+[38;5;238m  19[0m [38;5;238m│[0m 
+[38;5;238m  20[0m [38;5;238m│[0m [38;2;248;248;242m### Prerequisites[0m
+[38;5;238m  21[0m [38;5;238m│[0m 
+[38;5;238m  22[0m [38;5;238m│[0m [38;2;248;248;242m```bash[0m
+[38;5;238m  23[0m [38;5;238m│[0m [38;2;248;248;242m# Rust toolchain (already installed if you can build the project)[0m
+[38;5;238m  24[0m [38;5;238m│[0m [38;2;248;248;242mrustc --version[0m
+[38;5;238m  25[0m [38;5;238m│[0m 
+[38;5;238m  26[0m [38;5;238m│[0m [38;2;248;248;242m# Install cargo-nextest (recommended test runner)[0m
+[38;5;238m  27[0m [38;5;238m│[0m [38;2;248;248;242mcargo install cargo-nextest[0m
+[38;5;238m  28[0m [38;5;238m│[0m 
+[38;5;238m  29[0m [38;5;238m│[0m [38;2;248;248;242m# Install coverage tool (optional)[0m
+[38;5;238m  30[0m [38;5;238m│[0m [38;2;248;248;242mcargo install cargo-llvm-cov[0m
+[38;5;238m  31[0m [38;5;238m│[0m [38;2;248;248;242m```[0m
+[38;5;238m  32[0m [38;5;238m│[0m 
+[38;5;238m  33[0m [38;5;238m│[0m [38;2;248;248;242m### Run All Tests[0m
+[38;5;238m  34[0m [38;5;238m│[0m 
+[38;5;238m  35[0m [38;5;238m│[0m [38;2;248;248;242m```bash[0m
+[38;5;238m  36[0m [38;5;238m│[0m [38;2;248;248;242m# Using cargo (standard)[0m
+[38;5;238m  37[0m [38;5;238m│[0m [38;2;248;248;242mcargo test -p thread-flow --all-features[0m
+[38;5;238m  38[0m [38;5;238m│[0m 
+[38;5;238m  39[0m [38;5;238m│[0m [38;2;248;248;242m# Using nextest (faster, better output)[0m
+[38;5;238m  40[0m [38;5;238m│[0m [38;2;248;248;242mcargo nextest run -p thread-flow --all-features[0m
+[38;5;238m  41[0m [38;5;238m│[0m 
+[38;5;238m  42[0m [38;5;238m│[0m [38;2;248;248;242m# Run in release mode (for performance tests)[0m
+[38;5;238m  43[0m [38;5;238m│[0m [38;2;248;248;242mcargo test -p thread-flow --all-features --release[0m
+[38;5;238m  44[0m [38;5;238m│[0m [38;2;248;248;242m```[0m
+[38;5;238m  45[0m [38;5;238m│[0m 
+[38;5;238m  46[0m [38;5;238m│[0m [38;2;248;248;242m### Expected Output[0m
+[38;5;238m  47[0m [38;5;238m│[0m 
+[38;5;238m  48[0m [38;5;238m│[0m [38;2;248;248;242m```[0m
+[38;5;238m  49[0m [38;5;238m│[0m [38;2;248;248;242mrunning 86 tests[0m
+[38;5;238m  50[0m [38;5;238m│[0m [38;2;248;248;242mtest result: ok. 86 passed; 0 failed; 1 ignored[0m
+[38;5;238m  51[0m [38;5;238m│[0m [38;2;248;248;242mExecution time: ~75 seconds[0m
+[38;5;238m  52[0m [38;5;238m│[0m [38;2;248;248;242m```[0m
+[38;5;238m  53[0m [38;5;238m│[0m 
+[38;5;238m  54[0m [38;5;238m│[0m [38;2;248;248;242m---[0m
+[38;5;238m  55[0m [38;5;238m│[0m 
+[38;5;238m  56[0m [38;5;238m│[0m [38;2;248;248;242m## Test Organization[0m
+[38;5;238m  57[0m [38;5;238m│[0m 
+[38;5;238m  58[0m [38;5;238m│[0m [38;2;248;248;242m### Directory Structure[0m
+[38;5;238m  59[0m [38;5;238m│[0m 
+[38;5;238m  60[0m [38;5;238m│[0m [38;2;248;248;242m```[0m
+[38;5;238m  61[0m [38;5;238m│[0m [38;2;248;248;242mcrates/flow/[0m
+[38;5;238m  62[0m [38;5;238m│[0m [38;2;248;248;242m├── src/[0m
+[38;5;238m  63[0m [38;5;238m│[0m [38;2;248;248;242m│   ├── lib.rs                    # Unit tests (inline)[0m
+[38;5;238m  64[0m [38;5;238m│[0m [38;2;248;248;242m│   ├── cache.rs                  # Cache module tests[0m
+[38;5;238m  65[0m [38;5;238m│[0m [38;2;248;248;242m│   ├── registry.rs               # Registry tests[0m
+[38;5;238m  66[0m [38;5;238m│[0m [38;2;248;248;242m│   └── batch.rs                  # Batch processing tests[0m
+[38;5;238m  67[0m [38;5;238m│[0m [38;2;248;248;242m├── tests/[0m
+[38;5;238m  68[0m [38;5;238m│[0m [38;2;248;248;242m│   ├── integration_tests.rs      # 18 integration tests[0m
+[38;5;238m  69[0m [38;5;238m│[0m [38;2;248;248;242m│   ├── type_system_tests.rs      # 14 type safety tests[0m
+[38;5;238m  70[0m [38;5;238m│[0m [38;2;248;248;242m│   ├── performance_regression_tests.rs  # 13 performance tests[0m
+[38;5;238m  71[0m [38;5;238m│[0m [38;2;248;248;242m│   └── error_handling_tests.rs   # 27 error handling tests[0m
+[38;5;238m  72[0m [38;5;238m│[0m [38;2;248;248;242m└── TESTING.md                     # This file[0m
+[38;5;238m  73[0m [38;5;238m│[0m [38;2;248;248;242m```[0m
+[38;5;238m  74[0m [38;5;238m│[0m 
+[38;5;238m  75[0m [38;5;238m│[0m [38;2;248;248;242m### Test Categories[0m
+[38;5;238m  76[0m [38;5;238m│[0m 
+[38;5;238m  77[0m [38;5;238m│[0m [38;2;248;248;242m| Category | Location | Count | Purpose |[0m
+[38;5;238m  78[0m [38;5;238m│[0m [38;2;248;248;242m|----------|----------|-------|---------|[0m
+[38;5;238m  79[0m [38;5;238m│[0m [38;2;248;248;242m| **Unit Tests** | \`src/*.rs\` | 14 | Module-level functionality |[0m
+[38;5;238m  80[0m [38;5;238m│[0m [38;2;248;248;242m| **Integration Tests** | \`tests/integration_tests.rs\` | 18 | End-to-end workflows |[0m
+[38;5;238m  81[0m [38;5;238m│[0m [38;2;248;248;242m| **Type System Tests** | \`tests/type_system_tests.rs\` | 14 | Serialization integrity |[0m
+[38;5;238m  82[0m [38;5;238m│[0m [38;2;248;248;242m| **Performance Tests** | \`tests/performance_regression_tests.rs\` | 13 | Performance baselines |[0m
+[38;5;238m  83[0m [38;5;238m│[0m [38;2;248;248;242m| **Error Handling Tests** | \`tests/error_handling_tests.rs\` | 27 | Edge cases & failures |[0m
+[38;5;238m  84[0m [38;5;238m│[0m 
+[38;5;238m  85[0m [38;5;238m│[0m [38;2;248;248;242m---[0m
+[38;5;238m  86[0m [38;5;238m│[0m 
+[38;5;238m  87[0m [38;5;238m│[0m [38;2;248;248;242m## Running Tests[0m
+[38;5;238m  88[0m [38;5;238m│[0m 
+[38;5;238m  89[0m [38;5;238m│[0m [38;2;248;248;242m### Basic Commands[0m
+[38;5;238m  90[0m [38;5;238m│[0m 
+[38;5;238m  91[0m [38;5;238m│[0m [38;2;248;248;242m#### Run All Tests[0m
+[38;5;238m  92[0m [38;5;238m│[0m [38;2;248;248;242m```bash[0m
+[38;5;238m  93[0m [38;5;238m│[0m [38;2;248;248;242mcargo test -p thread-flow --all-features[0m
+[38;5;238m  94[0m [38;5;238m│[0m [38;2;248;248;242m```[0m
+[38;5;238m  95[0m [38;5;238m│[0m 
+[38;5;238m  96[0m [38;5;238m│[0m [38;2;248;248;242m#### Run Specific Test Suite[0m
+[38;5;238m  97[0m [38;5;238m│[0m [38;2;248;248;242m```bash[0m
+[38;5;238m  98[0m [38;5;238m│[0m [38;2;248;248;242m# Unit tests only (in src/)[0m
+[38;5;238m  99[0m [38;5;238m│[0m [38;2;248;248;242mcargo test -p thread-flow --lib --all-features[0m
+[38;5;238m 100[0m [38;5;238m│[0m 
+[38;5;238m 101[0m [38;5;238m│[0m [38;2;248;248;242m# Integration tests[0m
+[38;5;238m 102[0m [38;5;238m│[0m [38;2;248;248;242mcargo test -p thread-flow --test integration_tests --all-features[0m
+[38;5;238m 103[0m [38;5;238m│[0m 
+[38;5;238m 104[0m [38;5;238m│[0m [38;2;248;248;242m# Error handling tests[0m
+[38;5;238m 105[0m [38;5;238m│[0m [38;2;248;248;242mcargo test -p thread-flow --test error_handling_tests --all-features[0m
+[38;5;238m 106[0m [38;5;238m│[0m 
+[38;5;238m 107[0m [38;5;238m│[0m [38;2;248;248;242m# Performance tests (release mode recommended)[0m
+[38;5;238m 108[0m [38;5;238m│[0m [38;2;248;248;242mcargo test -p thread-flow --test performance_regression_tests --all-features --release[0m
+[38;5;238m 109[0m [38;5;238m│[0m 
+[38;5;238m 110[0m [38;5;238m│[0m [38;2;248;248;242m# Type system tests[0m
+[38;5;238m 111[0m [38;5;238m│[0m [38;2;248;248;242mcargo test -p thread-flow --test type_system_tests --all-features[0m
+[38;5;238m 112[0m [38;5;238m│[0m [38;2;248;248;242m```[0m
+[38;5;238m 113[0m [38;5;238m│[0m 
+[38;5;238m 114[0m [38;5;238m│[0m [38;2;248;248;242m#### Run Specific Test[0m
+[38;5;238m 115[0m [38;5;238m│[0m [38;2;248;248;242m```bash[0m
+[38;5;238m 116[0m [38;5;238m│[0m [38;2;248;248;242m# Run single test by name[0m
+[38;5;238m 117[0m [38;5;238m│[0m [38;2;248;248;242mcargo test -p thread-flow test_cache_basic_operations --all-features[0m
+[38;5;238m 118[0m [38;5;238m│[0m 
+[38;5;238m 119[0m [38;5;238m│[0m [38;2;248;248;242m# Run tests matching pattern[0m
+[38;5;238m 120[0m [38;5;238m│[0m [38;2;248;248;242mcargo test -p thread-flow cache --all-features[0m
+[38;5;238m 121[0m [38;5;238m│[0m [38;2;248;248;242m```[0m
+[38;5;238m 122[0m [38;5;238m│[0m 
+[38;5;238m 123[0m [38;5;238m│[0m [38;2;248;248;242m### Advanced Options[0m
+[38;5;238m 124[0m [38;5;238m│[0m 
+[38;5;238m 125[0m [38;5;238m│[0m [38;2;248;248;242m#### Verbose Output[0m
+[38;5;238m 126[0m [38;5;238m│[0m [38;2;248;248;242m```bash[0m
+[38;5;238m 127[0m [38;5;238m│[0m [38;2;248;248;242m# Show all test output (including println!)[0m
+[38;5;238m 128[0m [38;5;238m│[0m [38;2;248;248;242mcargo test -p thread-flow --all-features -- --nocapture[0m
+[38;5;238m 129[0m [38;5;238m│[0m 
+[38;5;238m 130[0m [38;5;238m│[0m [38;2;248;248;242m# Show test names as they run[0m
+[38;5;238m 131[0m [38;5;238m│[0m [38;2;248;248;242mcargo test -p thread-flow --all-features -- --test-threads=1 --nocapture[0m
+[38;5;238m 132[0m [38;5;238m│[0m [38;2;248;248;242m```[0m
+[38;5;238m 133[0m [38;5;238m│[0m 
+[38;5;238m 134[0m [38;5;238m│[0m [38;2;248;248;242m#### Parallel Execution[0m
+[38;5;238m 135[0m [38;5;238m│[0m [38;2;248;248;242m```bash[0m
+[38;5;238m 136[0m [38;5;238m│[0m [38;2;248;248;242m# Single-threaded (useful for debugging)[0m
+[38;5;238m 137[0m [38;5;238m│[0m [38;2;248;248;242mcargo test -p thread-flow --all-features -- --test-threads=1[0m
+[38;5;238m 138[0m [38;5;238m│[0m 
+[38;5;238m 139[0m [38;5;238m│[0m [38;2;248;248;242m# Default (parallel)[0m
+[38;5;238m 140[0m [38;5;238m│[0m [38;2;248;248;242mcargo test -p thread-flow --all-features[0m
+[38;5;238m 141[0m [38;5;238m│[0m [38;2;248;248;242m```[0m
+[38;5;238m 142[0m [38;5;238m│[0m 
+[38;5;238m 143[0m [38;5;238m│[0m [38;2;248;248;242m#### Ignored Tests[0m
+[38;5;238m 144[0m [38;5;238m│[0m [38;2;248;248;242m```bash[0m
+[38;5;238m 145[0m [38;5;238m│[0m [38;2;248;248;242m# Run only ignored tests[0m
+[38;5;238m 146[0m [38;5;238m│[0m [38;2;248;248;242mcargo test -p thread-flow --all-features -- --ignored[0m
+[38;5;238m 147[0m [38;5;238m│[0m 
+[38;5;238m 148[0m [38;5;238m│[0m [38;2;248;248;242m# Run all tests including ignored[0m
+[38;5;238m 149[0m [38;5;238m│[0m [38;2;248;248;242mcargo test -p thread-flow --all-features -- --include-ignored[0m
+[38;5;238m 150[0m [38;5;238m│[0m [38;2;248;248;242m```[0m
+[38;5;238m 151[0m [38;5;238m│[0m 
+[38;5;238m 152[0m [38;5;238m│[0m [38;2;248;248;242m### Using cargo-nextest[0m
+[38;5;238m 153[0m [38;5;238m│[0m 
+[38;5;238m 154[0m [38;5;238m│[0m [38;2;248;248;242mcargo-nextest provides better performance and output:[0m
+[38;5;238m 155[0m [38;5;238m│[0m 
+[38;5;238m 156[0m [38;5;238m│[0m [38;2;248;248;242m```bash[0m
+[38;5;238m 157[0m [38;5;238m│[0m [38;2;248;248;242m# Install (first time only)[0m
+[38;5;238m 158[0m [38;5;238m│[0m [38;2;248;248;242mcargo install cargo-nextest[0m
+[38;5;238m 159[0m [38;5;238m│[0m 
+[38;5;238m 160[0m [38;5;238m│[0m [38;2;248;248;242m# Run all tests[0m
+[38;5;238m 161[0m [38;5;238m│[0m [38;2;248;248;242mcargo nextest run -p thread-flow --all-features[0m
+[38;5;238m 162[0m [38;5;238m│[0m 
+[38;5;238m 163[0m [38;5;238m│[0m [38;2;248;248;242m# Run with failure output[0m
+[38;5;238m 164[0m [38;5;238m│[0m [38;2;248;248;242mcargo nextest run -p thread-flow --all-features --no-fail-fast[0m
+[38;5;238m 165[0m [38;5;238m│[0m 
+[38;5;238m 166[0m [38;5;238m│[0m [38;2;248;248;242m# Run specific test[0m
+[38;5;238m 167[0m [38;5;238m│[0m [38;2;248;248;242mcargo nextest run -p thread-flow --all-features -E 'test(cache)'[0m
+[38;5;238m 168[0m [38;5;238m│[0m [38;2;248;248;242m```[0m
+[38;5;238m 169[0m [38;5;238m│[0m 
+[38;5;238m 170[0m [38;5;238m│[0m [38;2;248;248;242m---[0m
+[38;5;238m 171[0m [38;5;238m│[0m 
+[38;5;238m 172[0m [38;5;238m│[0m [38;2;248;248;242m## Writing Tests[0m
+[38;5;238m 173[0m [38;5;238m│[0m 
+[38;5;238m 174[0m [38;5;238m│[0m [38;2;248;248;242m(Content continues...)[0m
+[38;5;238m 175[0m [38;5;238m│[0m 
+[38;5;238m 176[0m [38;5;238m│[0m [38;2;248;248;242m---[0m
+[38;5;238m 177[0m [38;5;238m│[0m 
+[38;5;238m 178[0m [38;5;238m│[0m [38;2;248;248;242m**Last Updated**: 2026-01-28[0m
+[38;5;238m 179[0m [38;5;238m│[0m [38;2;248;248;242m**Test Count**: 86 tests across 5 suites[0m
+[38;5;238m 180[0m [38;5;238m│[0m [38;2;248;248;242m**Maintainers**: Thread Development Team[0m
+[38;5;238m─────┴──────────────────────────────────────────────────────────────────────────[0m
+[38;5;238m─────┬──────────────────────────────────────────────────────────────────────────[0m
+     [38;5;238m│ [0m[1mSTDIN[0m
+[38;5;238m─────┼──────────────────────────────────────────────────────────────────────────[0m
+[38;5;238m   1[0m [38;5;238m│[0m 
+[38;5;238m   2[0m [38;5;238m│[0m [38;2;248;248;242m## Writing Tests (Complete Section)[0m
+[38;5;238m   3[0m [38;5;238m│[0m 
+[38;5;238m   4[0m [38;5;238m│[0m [38;2;248;248;242m### Test Naming Conventions[0m
+[38;5;238m   5[0m [38;5;238m│[0m 
+[38;5;238m   6[0m [38;5;238m│[0m [38;2;248;248;242m```rust[0m
+[38;5;238m   7[0m [38;5;238m│[0m [38;2;248;248;242m// Unit tests: test_<functionality>[0m
+[38;5;238m   8[0m [38;5;238m│[0m [38;2;248;248;242m#[test][0m
+[38;5;238m   9[0m [38;5;238m│[0m [38;2;248;248;242mfn test_cache_basic_operations() { /* ... */ }[0m
+[38;5;238m  10[0m [38;5;238m│[0m 
+[38;5;238m  11[0m [38;5;238m│[0m [38;2;248;248;242m// Integration tests: test_<feature>_<scenario>[0m
+[38;5;238m  12[0m [38;5;238m│[0m [38;2;248;248;242m#[tokio::test][0m
+[38;5;238m  13[0m [38;5;238m│[0m [38;2;248;248;242masync fn test_parse_rust_code() { /* ... */ }[0m
+[38;5;238m  14[0m [38;5;238m│[0m 
+[38;5;238m  15[0m [38;5;238m│[0m [38;2;248;248;242m// Error handling: test_error_<condition>[0m
+[38;5;238m  16[0m [38;5;238m│[0m [38;2;248;248;242m#[tokio::test][0m
+[38;5;238m  17[0m [38;5;238m│[0m [38;2;248;248;242masync fn test_error_unsupported_language() { /* ... */ }[0m
+[38;5;238m  18[0m [38;5;238m│[0m 
+[38;5;238m  19[0m [38;5;238m│[0m [38;2;248;248;242m// Performance: test_<operation>_<metric>[0m
+[38;5;238m  20[0m [38;5;238m│[0m [38;2;248;248;242m#[test][0m
+[38;5;238m  21[0m [38;5;238m│[0m [38;2;248;248;242mfn test_fingerprint_speed_small_file() { /* ... */ }[0m
+[38;5;238m  22[0m [38;5;238m│[0m [38;2;248;248;242m```[0m
+[38;5;238m  23[0m [38;5;238m│[0m 
+[38;5;238m  24[0m [38;5;238m│[0m [38;2;248;248;242m### Unit Test Template[0m
+[38;5;238m  25[0m [38;5;238m│[0m 
+[38;5;238m  26[0m [38;5;238m│[0m [38;2;248;248;242m```rust[0m
+[38;5;238m  27[0m [38;5;238m│[0m [38;2;248;248;242m#[cfg(test)][0m
+[38;5;238m  28[0m [38;5;238m│[0m [38;2;248;248;242mmod tests {[0m
+[38;5;238m  29[0m [38;5;238m│[0m [38;2;248;248;242m    use super::*;[0m
+[38;5;238m  30[0m [38;5;238m│[0m 
+[38;5;238m  31[0m [38;5;238m│[0m [38;2;248;248;242m    #[test][0m
+[38;5;238m  32[0m [38;5;238m│[0m [38;2;248;248;242m    fn test_feature_name() {[0m
+[38;5;238m  33[0m [38;5;238m│[0m [38;2;248;248;242m        // Arrange: Set up test data[0m
+[38;5;238m  34[0m [38;5;238m│[0m [38;2;248;248;242m        let input = create_test_input();[0m
+[38;5;238m  35[0m [38;5;238m│[0m 
+[38;5;238m  36[0m [38;5;238m│[0m [38;2;248;248;242m        // Act: Execute the functionality[0m
+[38;5;238m  37[0m [38;5;238m│[0m [38;2;248;248;242m        let result = function_under_test(input);[0m
+[38;5;238m  38[0m [38;5;238m│[0m 
+[38;5;238m  39[0m [38;5;238m│[0m [38;2;248;248;242m        // Assert: Verify expectations[0m
+[38;5;238m  40[0m [38;5;238m│[0m [38;2;248;248;242m        assert!(result.is_ok());[0m
+[38;5;238m  41[0m [38;5;238m│[0m [38;2;248;248;242m        assert_eq!(result.unwrap(), expected_value);[0m
+[38;5;238m  42[0m [38;5;238m│[0m [38;2;248;248;242m    }[0m
+[38;5;238m  43[0m [38;5;238m│[0m 
+[38;5;238m  44[0m [38;5;238m│[0m [38;2;248;248;242m    #[test][0m
+[38;5;238m  45[0m [38;5;238m│[0m [38;2;248;248;242m    fn test_error_condition() {[0m
+[38;5;238m  46[0m [38;5;238m│[0m [38;2;248;248;242m        let invalid_input = create_invalid_input();[0m
+[38;5;238m  47[0m [38;5;238m│[0m [38;2;248;248;242m        let result = function_under_test(invalid_input);[0m
+[38;5;238m  48[0m [38;5;238m│[0m 
+[38;5;238m  49[0m [38;5;238m│[0m [38;2;248;248;242m        assert!(result.is_err());[0m
+[38;5;238m  50[0m [38;5;238m│[0m [38;2;248;248;242m        assert!(result.unwrap_err().to_string().contains("expected error"));[0m
+[38;5;238m  51[0m [38;5;238m│[0m [38;2;248;248;242m    }[0m
+[38;5;238m  52[0m [38;5;238m│[0m [38;2;248;248;242m}[0m
+[38;5;238m  53[0m [38;5;238m│[0m [38;2;248;248;242m```[0m
+[38;5;238m  54[0m [38;5;238m│[0m 
+[38;5;238m  55[0m [38;5;238m│[0m [38;2;248;248;242m### Async Integration Test Template[0m
+[38;5;238m  56[0m [38;5;238m│[0m 
+[38;5;238m  57[0m [38;5;238m│[0m [38;2;248;248;242m```rust[0m
+[38;5;238m  58[0m [38;5;238m│[0m [38;2;248;248;242m#[tokio::test][0m
+[38;5;238m  59[0m [38;5;238m│[0m [38;2;248;248;242masync fn test_async_operation() {[0m
+[38;5;238m  60[0m [38;5;238m│[0m [38;2;248;248;242m    // Setup[0m
+[38;5;238m  61[0m [38;5;238m│[0m [38;2;248;248;242m    let factory = Arc::new(MyFactory);[0m
+[38;5;238m  62[0m [38;5;238m│[0m [38;2;248;248;242m    let context = create_mock_context();[0m
+[38;5;238m  63[0m [38;5;238m│[0m 
+[38;5;238m  64[0m [38;5;238m│[0m [38;2;248;248;242m    // Build[0m
+[38;5;238m  65[0m [38;5;238m│[0m [38;2;248;248;242m    let build_output = factory[0m
+[38;5;238m  66[0m [38;5;238m│[0m [38;2;248;248;242m        .build(empty_spec(), vec![], context)[0m
+[38;5;238m  67[0m [38;5;238m│[0m [38;2;248;248;242m        .await[0m
+[38;5;238m  68[0m [38;5;238m│[0m [38;2;248;248;242m        .expect("Build should succeed");[0m
+[38;5;238m  69[0m [38;5;238m│[0m 
+[38;5;238m  70[0m [38;5;238m│[0m [38;2;248;248;242m    let executor = build_output.executor.await[0m
+[38;5;238m  71[0m [38;5;238m│[0m [38;2;248;248;242m        .expect("Executor should build");[0m
+[38;5;238m  72[0m [38;5;238m│[0m 
+[38;5;238m  73[0m [38;5;238m│[0m [38;2;248;248;242m    // Execute[0m
+[38;5;238m  74[0m [38;5;238m│[0m [38;2;248;248;242m    let inputs = vec![/* test inputs */];[0m
+[38;5;238m  75[0m [38;5;238m│[0m [38;2;248;248;242m    let result = executor.evaluate(inputs).await;[0m
+[38;5;238m  76[0m [38;5;238m│[0m 
+[38;5;238m  77[0m [38;5;238m│[0m [38;2;248;248;242m    // Verify[0m
+[38;5;238m  78[0m [38;5;238m│[0m [38;2;248;248;242m    assert!(result.is_ok());[0m
+[38;5;238m  79[0m [38;5;238m│[0m [38;2;248;248;242m    let value = result.unwrap();[0m
+[38;5;238m  80[0m [38;5;238m│[0m [38;2;248;248;242m    // ... additional assertions[0m
+[38;5;238m  81[0m [38;5;238m│[0m [38;2;248;248;242m}[0m
+[38;5;238m  82[0m [38;5;238m│[0m [38;2;248;248;242m```[0m
+[38;5;238m  83[0m [38;5;238m│[0m 
+[38;5;238m  84[0m [38;5;238m│[0m [38;2;248;248;242m---[0m
+[38;5;238m  85[0m [38;5;238m│[0m 
+[38;5;238m  86[0m [38;5;238m│[0m [38;2;248;248;242m## Code Coverage[0m
+[38;5;238m  87[0m [38;5;238m│[0m 
+[38;5;238m  88[0m [38;5;238m│[0m [38;2;248;248;242m### Generate Coverage Report[0m
+[38;5;238m  89[0m [38;5;238m│[0m 
+[38;5;238m  90[0m [38;5;238m│[0m [38;2;248;248;242m```bash[0m
+[38;5;238m  91[0m [38;5;238m│[0m [38;2;248;248;242m# Install cargo-llvm-cov (first time only)[0m
+[38;5;238m  92[0m [38;5;238m│[0m [38;2;248;248;242mcargo install cargo-llvm-cov[0m
+[38;5;238m  93[0m [38;5;238m│[0m 
+[38;5;238m  94[0m [38;5;238m│[0m [38;2;248;248;242m# Generate HTML report[0m
+[38;5;238m  95[0m [38;5;238m│[0m [38;2;248;248;242mcargo llvm-cov --package thread-flow --all-features --html[0m
+[38;5;238m  96[0m [38;5;238m│[0m 
+[38;5;238m  97[0m [38;5;238m│[0m [38;2;248;248;242m# View in browser[0m
+[38;5;238m  98[0m [38;5;238m│[0m [38;2;248;248;242mopen target/llvm-cov/html/index.html[0m
+[38;5;238m  99[0m [38;5;238m│[0m [38;2;248;248;242m```[0m
+[38;5;238m 100[0m [38;5;238m│[0m 
+[38;5;238m 101[0m [38;5;238m│[0m [38;2;248;248;242m### Coverage Summary[0m
+[38;5;238m 102[0m [38;5;238m│[0m 
+[38;5;238m 103[0m [38;5;238m│[0m [38;2;248;248;242m```bash[0m
+[38;5;238m 104[0m [38;5;238m│[0m [38;2;248;248;242m# Text summary only (fast)[0m
+[38;5;238m 105[0m [38;5;238m│[0m [38;2;248;248;242mcargo llvm-cov --package thread-flow --all-features --summary-only[0m
+[38;5;238m 106[0m [38;5;238m│[0m [38;2;248;248;242m```[0m
+[38;5;238m 107[0m [38;5;238m│[0m 
+[38;5;238m 108[0m [38;5;238m│[0m [38;2;248;248;242m### Expected Coverage[0m
+[38;5;238m 109[0m [38;5;238m│[0m 
+[38;5;238m 110[0m [38;5;238m│[0m [38;2;248;248;242m**Core Modules**: 92-99% coverage[0m
+[38;5;238m 111[0m [38;5;238m│[0m [38;2;248;248;242m**Overall**: 30.79% (due to untested infrastructure)[0m
+[38;5;238m 112[0m [38;5;238m│[0m 
+[38;5;238m 113[0m [38;5;238m│[0m [38;2;248;248;242m---[0m
+[38;5;238m 114[0m [38;5;238m│[0m 
+[38;5;238m 115[0m [38;5;238m│[0m [38;2;248;248;242m## Performance Testing[0m
+[38;5;238m 116[0m [38;5;238m│[0m 
+[38;5;238m 117[0m [38;5;238m│[0m [38;2;248;248;242m### Running Performance Tests[0m
+[38;5;238m 118[0m [38;5;238m│[0m 
+[38;5;238m 119[0m [38;5;238m│[0m [38;2;248;248;242m```bash[0m
+[38;5;238m 120[0m [38;5;238m│[0m [38;2;248;248;242m# Always run in release mode[0m
+[38;5;238m 121[0m [38;5;238m│[0m [38;2;248;248;242mcargo test -p thread-flow --test performance_regression_tests --all-features --release[0m
+[38;5;238m 122[0m [38;5;238m│[0m [38;2;248;248;242m```[0m
+[38;5;238m 123[0m [38;5;238m│[0m 
+[38;5;238m 124[0m [38;5;238m│[0m [38;2;248;248;242m### Performance Baselines[0m
+[38;5;238m 125[0m [38;5;238m│[0m 
+[38;5;238m 126[0m [38;5;238m│[0m [38;2;248;248;242m| Operation | Threshold |[0m
+[38;5;238m 127[0m [38;5;238m│[0m [38;2;248;248;242m|-----------|-----------|[0m
+[38;5;238m 128[0m [38;5;238m│[0m [38;2;248;248;242m| Fingerprint (small) | 5µs |[0m
+[38;5;238m 129[0m [38;5;238m│[0m [38;2;248;248;242m| Parse (small) | 1ms |[0m
+[38;5;238m 130[0m [38;5;238m│[0m [38;2;248;248;242m| Full pipeline | 100ms |[0m
+[38;5;238m 131[0m [38;5;238m│[0m 
+[38;5;238m 132[0m [38;5;238m│[0m [38;2;248;248;242m---[0m
+[38;5;238m 133[0m [38;5;238m│[0m 
+[38;5;238m 134[0m [38;5;238m│[0m [38;2;248;248;242m## Troubleshooting[0m
+[38;5;238m 135[0m [38;5;238m│[0m 
+[38;5;238m 136[0m [38;5;238m│[0m [38;2;248;248;242m### Common Issues[0m
+[38;5;238m 137[0m [38;5;238m│[0m 
+[38;5;238m 138[0m [38;5;238m│[0m [38;2;248;248;242m1. **Tests Timing Out**: Run with `--test-threads=1`[0m
+[38;5;238m 139[0m [38;5;238m│[0m [38;2;248;248;242m2. **Performance Failures**: Always use `--release` mode[0m
+[38;5;238m 140[0m [38;5;238m│[0m [38;2;248;248;242m3. **Async Test Errors**: Use `#[tokio::test]` attribute[0m
+[38;5;238m 141[0m [38;5;238m│[0m 
+[38;5;238m 142[0m [38;5;238m│[0m [38;2;248;248;242m### Debugging[0m
+[38;5;238m 143[0m [38;5;238m│[0m 
+[38;5;238m 144[0m [38;5;238m│[0m [38;2;248;248;242m```bash[0m
+[38;5;238m 145[0m [38;5;238m│[0m [38;2;248;248;242m# Detailed output[0m
+[38;5;238m 146[0m [38;5;238m│[0m [38;2;248;248;242mcargo test -p thread-flow --all-features -- --nocapture[0m
+[38;5;238m 147[0m [38;5;238m│[0m 
+[38;5;238m 148[0m [38;5;238m│[0m [38;2;248;248;242m# With backtrace[0m
+[38;5;238m 149[0m [38;5;238m│[0m [38;2;248;248;242mRUST_BACKTRACE=1 cargo test -p thread-flow --all-features[0m
+[38;5;238m 150[0m [38;5;238m│[0m [38;2;248;248;242m```[0m
+[38;5;238m 151[0m [38;5;238m│[0m 
+[38;5;238m 152[0m [38;5;238m│[0m [38;2;248;248;242m---[0m
+[38;5;238m 153[0m [38;5;238m│[0m 
+[38;5;238m 154[0m [38;5;238m│[0m [38;2;248;248;242m## Best Practices[0m
+[38;5;238m 155[0m [38;5;238m│[0m 
+[38;5;238m 156[0m [38;5;238m│[0m [38;2;248;248;242m### DO ✅[0m
+[38;5;238m 157[0m [38;5;238m│[0m [38;2;248;248;242m- Write descriptive test names[0m
+[38;5;238m 158[0m [38;5;238m│[0m [38;2;248;248;242m- Test both success and failure paths[0m
+[38;5;238m 159[0m [38;5;238m│[0m [38;2;248;248;242m- Run performance tests in release mode[0m
+[38;5;238m 160[0m [38;5;238m│[0m [38;2;248;248;242m- Keep tests independent[0m
+[38;5;238m 161[0m [38;5;238m│[0m 
+[38;5;238m 162[0m [38;5;238m│[0m [38;2;248;248;242m### DON'T ❌[0m
+[38;5;238m 163[0m [38;5;238m│[0m [38;2;248;248;242m- Skip tests for bug fixes[0m
+[38;5;238m 164[0m [38;5;238m│[0m [38;2;248;248;242m- Use random data without seeding[0m
+[38;5;238m 165[0m [38;5;238m│[0m [38;2;248;248;242m- Commit ignored tests without explanation[0m
+[38;5;238m 166[0m [38;5;238m│[0m [38;2;248;248;242m- Test implementation details[0m
+[38;5;238m 167[0m [38;5;238m│[0m 
+[38;5;238m─────┴──────────────────────────────────────────────────────────────────────────[0m

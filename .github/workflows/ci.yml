@@ -2,87 +2,370 @@
 # SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
 #
 # SPDX-License-Identifier: MIT OR Apache-2.0
-# ! GitHub Action to run the CI pipeline for Rust projects
-# ! This action is triggered on pushes and pull requests to the main and staging branches.
+# ! GitHub Action to run the CI pipeline for Thread
+# ! Comprehensive CI with multi-platform testing, WASM builds, and security scanning
 name: CI
+
 on:
   push:
-    branches: [main, staging]
+    branches: [main, develop, staging, "001-*"]
   pull_request:
-    branches: [main, staging]
+    branches: [main, develop, staging]
+  workflow_dispatch:
+
 env:
+  RUST_BACKTRACE: 1
   CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0
+  RUSTFLAGS: "-D warnings"
+
 jobs:
-  test:
-    name: Test Suite
+  # Quick formatting and linting checks that fail fast
+  quick-checks:
+    name: Quick Checks
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        rust:
-          - stable
-          - beta
-          - nightly
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
+
       - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          cache-on-failure: true
+
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+      - name: Run clippy
+        run: cargo clippy --workspace --all-features --all-targets -- -D warnings
+
+      - name: Check typos
+        uses: crate-ci/typos@v1.16.23
+
+  # Test matrix for multiple platforms and Rust versions
+  test:
+    name: Test (${{ matrix.os }}, ${{ matrix.rust }})
+    needs: quick-checks
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        rust: [stable]
+        include:
+          # Also test on beta and nightly on Linux
+          - os: ubuntu-latest
+            rust: beta
+          - os: ubuntu-latest
+            rust: nightly
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Rust ${{ matrix.rust }}
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.rust }}
-          components: rustfmt, clippy
-      - name: Cache cargo registry
-        uses: actions/cache@v4
-        with:
-          path: ~/.cargo/registry
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
-      - name: Cache cargo index
-        uses: actions/cache@v4
-        with:
-          path: ~/.cargo/git
-          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
-      - name: Cache cargo build
-        uses: actions/cache@v4
-        with:
-          path: target
-          key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
-      - name: Set up mise
-        run: |
-          chmod -R +x ./scripts
-          ./install-mise.sh
-          MISE="$HOME/.local/bin/mise"
-          echo \"eval "$($MISE activate bash)"\" >> "$HOME/.bashrc"
-          source "$HOME/.bashrc"
-          $MISE run install
-      - name: Run hk ci workflow
-        run: >
-          "$HOME/.local/bin/mise" run ci
 
-  security_audit:
-    name: Security Audit
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: rustsec/audit-check@v1.4.1
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-  coverage:
-    name: Code Coverage
+          key: ${{ matrix.os }}-${{ matrix.rust }}
+          cache-on-failure: true
+
+      - name: Install cargo-nextest
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-nextest
+
+      - name: Run tests (nextest)
+        run: cargo nextest run --all-features --no-fail-fast
+
+      - name: Run doc tests
+        run: cargo test --doc --all-features
+
+  # Build and test WASM target for Edge deployment
+  wasm:
+    name: WASM Build & Test
+    needs: quick-checks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          cache-on-failure: true
+
+      - name: Install wasm-pack
+        uses: jetli/wasm-pack-action@v0.4.0
+
+      - name: Build WASM (dev)
+        run: cargo run -p xtask build-wasm
+
+      - name: Build WASM (release)
+        run: cargo run -p xtask build-wasm --release
+
+      - name: Upload WASM artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: wasm-build-${{ github.sha }}
+          path: |
+            thread_wasm_bg.wasm
+            thread_wasm.js
+            thread_wasm.d.ts
+          retention-days: 7
+
+  # Performance benchmarks (only on main branch or manual trigger)
+  benchmark:
+    name: Benchmarks
+    needs: quick-checks
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          cache-on-failure: true
+
+      - name: Run benchmarks
+        run: cargo bench --workspace --no-fail-fast -- --output-format bencher | tee benchmark-results.txt
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results-${{ github.sha }}
+          path: benchmark-results.txt
+          retention-days: 30
+
+  # Security audit with cargo-audit
+  security_audit:
+    name: Security Audit
+    needs: quick-checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+
+      - name: Run cargo-audit
+        uses: rustsec/audit-check@v1.4.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  # License compliance check with REUSE
+  license:
+    name: License Compliance
+    needs: quick-checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: REUSE Compliance Check
+        uses: fsfe/reuse-action@v2
+
+  # Code coverage (only on main or PRs to main)
+  coverage:
+    name: Code Coverage
+    needs: quick-checks
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
           components: llvm-tools-preview
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+
       - name: Install cargo-llvm-cov
-        uses: taiki-e/install-action@cargo-llvm-cov
-      - name: Generate code coverage
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-llvm-cov
+
+      - name: Generate coverage
         run: cargo llvm-cov --all-features --workspace --lcov --output-path lcov.info
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
           files: lcov.info
-          fail_ci_if_error: true
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  # Integration tests with Postgres (only on main or manual)
+  integration:
+    name: Integration Tests
+    needs: test
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: thread_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install cargo-nextest
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-nextest
+
+      - name: Run integration tests
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/thread_test
+        run: cargo nextest run --all-features --test integration_tests --test d1_integration_test
+
+  # Performance regression tests (on PRs and main)
+  performance_regression:
+    name: Performance Regression Tests
+    needs: quick-checks
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          cache-on-failure: true
+
+      - name: Install cargo-nextest
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-nextest
+
+      - name: Run performance regression tests
+        run: |
+          cargo nextest run --manifest-path crates/flow/Cargo.toml \
+            --all-features \
+            --test performance_regression_tests \
+            -- --nocapture
+
+      - name: Check for regressions
+        if: failure()
+        run: |
+          echo "⚠️ Performance regression detected!"
+          echo "Review test output above for specific failures."
+          exit 1
+
+  # Load testing benchmarks (manual trigger or main branch only)
+  load_testing:
+    name: Load Testing Benchmarks
+    needs: quick-checks
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          cache-on-failure: true
+
+      - name: Run load test benchmarks
+        run: |
+          cargo bench --manifest-path crates/flow/Cargo.toml \
+            --bench load_test \
+            --all-features \
+            -- --output-format bencher | tee load-test-results.txt
+
+      - name: Upload load test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: load-test-results-${{ github.sha }}
+          path: load-test-results.txt
+          retention-days: 90
+
+      - name: Compare with baseline (if exists)
+        continue-on-error: true
+        run: |
+          if [ -f .benchmark-baseline/load-test-baseline.txt ]; then
+            echo "📊 Comparing with baseline..."
+            # Simple diff for now - could enhance with criterion-compare
+            diff .benchmark-baseline/load-test-baseline.txt load-test-results.txt || true
+          else
+            echo "📝 No baseline found - this will become the baseline"
+            mkdir -p .benchmark-baseline
+            cp load-test-results.txt .benchmark-baseline/load-test-baseline.txt
+          fi
+
+  # Final success check - all required jobs must pass
+  ci-success:
+    name: CI Success
+    needs: [quick-checks, test, wasm, security_audit, license, performance_regression]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check all jobs
+        run: |
+          if [[ "${{ needs.quick-checks.result }}" != "success" ]] || \
+             [[ "${{ needs.test.result }}" != "success" ]] || \
+             [[ "${{ needs.wasm.result }}" != "success" ]] || \
+             [[ "${{ needs.security_audit.result }}" != "success" ]] || \
+             [[ "${{ needs.license.result }}" != "success" ]] || \
+             [[ "${{ needs.performance_regression.result }}" != "success" ]]; then
+            echo "❌ One or more required jobs failed"
+            exit 1
+          fi
+          echo "✅ All required jobs passed!"

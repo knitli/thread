@@ -1,0 +1,343 @@
+[38;5;238m─────┬──────────────────────────────────────────────────────────────────────────[0m
+     [38;5;238m│ [0m[1mSTDIN[0m
+[38;5;238m─────┼──────────────────────────────────────────────────────────────────────────[0m
+[38;5;238m   1[0m [38;5;238m│[0m [38;5;231m# SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>[0m
+[38;5;238m   2[0m [38;5;238m│[0m [38;5;231m# SPDX-FileContributor: Adam Poulemanos <adam@knit.li>[0m
+[38;5;238m   3[0m [38;5;238m│[0m [38;5;231m#[0m
+[38;5;238m   4[0m [38;5;238m│[0m [38;5;231m# SPDX-License-Identifier: MIT OR Apache-2.0[0m
+[38;5;238m   5[0m [38;5;238m│[0m [38;5;231m# ! GitHub Action for comprehensive security scanning[0m
+[38;5;238m   6[0m [38;5;238m│[0m [38;5;231m# ! Runs on schedule, PRs, and manual triggers[0m
+[38;5;238m   7[0m [38;5;238m│[0m [38;5;231mname: Security Audit[0m
+[38;5;238m   8[0m [38;5;238m│[0m 
+[38;5;238m   9[0m [38;5;238m│[0m [38;5;231mon:[0m
+[38;5;238m  10[0m [38;5;238m│[0m [38;5;231m  # Run daily at 2 AM UTC[0m
+[38;5;238m  11[0m [38;5;238m│[0m [38;5;231m  schedule:[0m
+[38;5;238m  12[0m [38;5;238m│[0m [38;5;231m    - cron: '0 2 * * *'[0m
+[38;5;238m  13[0m [38;5;238m│[0m 
+[38;5;238m  14[0m [38;5;238m│[0m [38;5;231m  # Run on PRs to main[0m
+[38;5;238m  15[0m [38;5;238m│[0m [38;5;231m  pull_request:[0m
+[38;5;238m  16[0m [38;5;238m│[0m [38;5;231m    branches: [main][0m
+[38;5;238m  17[0m [38;5;238m│[0m [38;5;231m    paths:[0m
+[38;5;238m  18[0m [38;5;238m│[0m [38;5;231m      - 'Cargo.toml'[0m
+[38;5;238m  19[0m [38;5;238m│[0m [38;5;231m      - 'Cargo.lock'[0m
+[38;5;238m  20[0m [38;5;238m│[0m [38;5;231m      - '**/Cargo.toml'[0m
+[38;5;238m  21[0m [38;5;238m│[0m 
+[38;5;238m  22[0m [38;5;238m│[0m [38;5;231m  # Run on push to main[0m
+[38;5;238m  23[0m [38;5;238m│[0m [38;5;231m  push:[0m
+[38;5;238m  24[0m [38;5;238m│[0m [38;5;231m    branches: [main][0m
+[38;5;238m  25[0m [38;5;238m│[0m [38;5;231m    paths:[0m
+[38;5;238m  26[0m [38;5;238m│[0m [38;5;231m      - 'Cargo.toml'[0m
+[38;5;238m  27[0m [38;5;238m│[0m [38;5;231m      - 'Cargo.lock'[0m
+[38;5;238m  28[0m [38;5;238m│[0m [38;5;231m      - '**/Cargo.toml'[0m
+[38;5;238m  29[0m [38;5;238m│[0m 
+[38;5;238m  30[0m [38;5;238m│[0m [38;5;231m  # Manual trigger[0m
+[38;5;238m  31[0m [38;5;238m│[0m [38;5;231m  workflow_dispatch:[0m
+[38;5;238m  32[0m [38;5;238m│[0m 
+[38;5;238m  33[0m [38;5;238m│[0m [38;5;231menv:[0m
+[38;5;238m  34[0m [38;5;238m│[0m [38;5;231m  RUST_BACKTRACE: 1[0m
+[38;5;238m  35[0m [38;5;238m│[0m [38;5;231m  CARGO_TERM_COLOR: always[0m
+[38;5;238m  36[0m [38;5;238m│[0m 
+[38;5;238m  37[0m [38;5;238m│[0m [38;5;231mpermissions:[0m
+[38;5;238m  38[0m [38;5;238m│[0m [38;5;231m  contents: read[0m
+[38;5;238m  39[0m [38;5;238m│[0m [38;5;231m  issues: write[0m
+[38;5;238m  40[0m [38;5;238m│[0m [38;5;231m  security-events: write[0m
+[38;5;238m  41[0m [38;5;238m│[0m 
+[38;5;238m  42[0m [38;5;238m│[0m [38;5;231mjobs:[0m
+[38;5;238m  43[0m [38;5;238m│[0m [38;5;231m  # Vulnerability scanning with cargo-audit[0m
+[38;5;238m  44[0m [38;5;238m│[0m [38;5;231m  cargo-audit:[0m
+[38;5;238m  45[0m [38;5;238m│[0m [38;5;231m    name: Cargo Audit[0m
+[38;5;238m  46[0m [38;5;238m│[0m [38;5;231m    runs-on: ubuntu-latest[0m
+[38;5;238m  47[0m [38;5;238m│[0m [38;5;231m    steps:[0m
+[38;5;238m  48[0m [38;5;238m│[0m [38;5;231m      - uses: actions/checkout@v4[0m
+[38;5;238m  49[0m [38;5;238m│[0m 
+[38;5;238m  50[0m [38;5;238m│[0m [38;5;231m      - name: Install Rust[0m
+[38;5;238m  51[0m [38;5;238m│[0m [38;5;231m        uses: dtolnay/rust-toolchain@stable[0m
+[38;5;238m  52[0m [38;5;238m│[0m 
+[38;5;238m  53[0m [38;5;238m│[0m [38;5;231m      - name: Cache Rust dependencies[0m
+[38;5;238m  54[0m [38;5;238m│[0m [38;5;231m        uses: Swatinem/rust-cache@v2[0m
+[38;5;238m  55[0m [38;5;238m│[0m 
+[38;5;238m  56[0m [38;5;238m│[0m [38;5;231m      - name: Install cargo-audit[0m
+[38;5;238m  57[0m [38;5;238m│[0m [38;5;231m        run: cargo install cargo-audit --locked[0m
+[38;5;238m  58[0m [38;5;238m│[0m 
+[38;5;238m  59[0m [38;5;238m│[0m [38;5;231m      - name: Run cargo audit[0m
+[38;5;238m  60[0m [38;5;238m│[0m [38;5;231m        id: audit[0m
+[38;5;238m  61[0m [38;5;238m│[0m [38;5;231m        run: |[0m
+[38;5;238m  62[0m [38;5;238m│[0m [38;5;231m          cargo audit --json > audit-results.json || true[0m
+[38;5;238m  63[0m [38;5;238m│[0m [38;5;231m          cat audit-results.json[0m
+[38;5;238m  64[0m [38;5;238m│[0m 
+[38;5;238m  65[0m [38;5;238m│[0m [38;5;231m      - name: Parse audit results[0m
+[38;5;238m  66[0m [38;5;238m│[0m [38;5;231m        id: parse[0m
+[38;5;238m  67[0m [38;5;238m│[0m [38;5;231m        run: |[0m
+[38;5;238m  68[0m [38;5;238m│[0m [38;5;231m          VULNERABILITIES=$(jq '.vulnerabilities.count' audit-results.json)[0m
+[38;5;238m  69[0m [38;5;238m│[0m [38;5;231m          echo "vulnerabilities=${VULNERABILITIES}" >> $GITHUB_OUTPUT[0m
+[38;5;238m  70[0m [38;5;238m│[0m 
+[38;5;238m  71[0m [38;5;238m│[0m [38;5;231m          if [ "${VULNERABILITIES}" -gt 0 ]; then[0m
+[38;5;238m  72[0m [38;5;238m│[0m [38;5;231m            echo "::warning::Found ${VULNERABILITIES} vulnerabilities"[0m
+[38;5;238m  73[0m [38;5;238m│[0m [38;5;231m            jq -r '.vulnerabilities.list[] | "::warning file=Cargo.toml,title=\(.advisory.id)::\(.advisory.title) in \(.package.name) \(.package.version)"' audit-results.json[0m
+[38;5;238m  74[0m [38;5;238m│[0m [38;5;231m          fi[0m
+[38;5;238m  75[0m [38;5;238m│[0m 
+[38;5;238m  76[0m [38;5;238m│[0m [38;5;231m      - name: Upload audit results[0m
+[38;5;238m  77[0m [38;5;238m│[0m [38;5;231m        uses: actions/upload-artifact@v4[0m
+[38;5;238m  78[0m [38;5;238m│[0m [38;5;231m        if: always()[0m
+[38;5;238m  79[0m [38;5;238m│[0m [38;5;231m        with:[0m
+[38;5;238m  80[0m [38;5;238m│[0m [38;5;231m          name: cargo-audit-results[0m
+[38;5;238m  81[0m [38;5;238m│[0m [38;5;231m          path: audit-results.json[0m
+[38;5;238m  82[0m [38;5;238m│[0m [38;5;231m          retention-days: 30[0m
+[38;5;238m  83[0m [38;5;238m│[0m 
+[38;5;238m  84[0m [38;5;238m│[0m [38;5;231m      - name: Create issue for vulnerabilities[0m
+[38;5;238m  85[0m [38;5;238m│[0m [38;5;231m        if: steps.parse.outputs.vulnerabilities != '0' && github.event_name == 'schedule'[0m
+[38;5;238m  86[0m [38;5;238m│[0m [38;5;231m        uses: actions/github-script@v7[0m
+[38;5;238m  87[0m [38;5;238m│[0m [38;5;231m        with:[0m
+[38;5;238m  88[0m [38;5;238m│[0m [38;5;231m          script: |[0m
+[38;5;238m  89[0m [38;5;238m│[0m [38;5;231m            const fs = require('fs');[0m
+[38;5;238m  90[0m [38;5;238m│[0m [38;5;231m            const audit = JSON.parse(fs.readFileSync('audit-results.json', 'utf8'));[0m
+[38;5;238m  91[0m [38;5;238m│[0m 
+[38;5;238m  92[0m [38;5;238m│[0m [38;5;231m            if (audit.vulnerabilities.count === 0) return;[0m
+[38;5;238m  93[0m [38;5;238m│[0m 
+[38;5;238m  94[0m [38;5;238m│[0m [38;5;231m            const vulns = audit.vulnerabilities.list.map(v => {[0m
+[38;5;238m  95[0m [38;5;238m│[0m [38;5;231m              return `### ${v.advisory.id}: ${v.advisory.title}[0m
+[38;5;238m  96[0m [38;5;238m│[0m 
+[38;5;238m  97[0m [38;5;238m│[0m [38;5;231m**Package**: \`${v.package.name}@${v.package.version}\`[0m
+[38;5;238m  98[0m [38;5;238m│[0m [38;5;231m**Severity**: ${v.advisory.metadata?.severity || 'Unknown'}[0m
+[38;5;238m  99[0m [38;5;238m│[0m [38;5;231m**URL**: ${v.advisory.url}[0m
+[38;5;238m 100[0m [38;5;238m│[0m 
+[38;5;238m 101[0m [38;5;238m│[0m [38;5;231m${v.advisory.description}[0m
+[38;5;238m 102[0m [38;5;238m│[0m 
+[38;5;238m 103[0m [38;5;238m│[0m [38;5;231m**Patched Versions**: ${v.versions.patched.join(', ') || 'None'}[0m
+[38;5;238m 104[0m [38;5;238m│[0m [38;5;231m`;[0m
+[38;5;238m 105[0m [38;5;238m│[0m [38;5;231m            }).join('\n\n---\n\n');[0m
+[38;5;238m 106[0m [38;5;238m│[0m 
+[38;5;238m 107[0m [38;5;238m│[0m [38;5;231m            const title = `Security: ${audit.vulnerabilities.count} vulnerabilities found`;[0m
+[38;5;238m 108[0m [38;5;238m│[0m [38;5;231m            const body = `## Security Audit Report[0m
+[38;5;238m 109[0m [38;5;238m│[0m 
+[38;5;238m 110[0m [38;5;238m│[0m [38;5;231m**Date**: ${new Date().toISOString()}[0m
+[38;5;238m 111[0m [38;5;238m│[0m [38;5;231m**Vulnerabilities**: ${audit.vulnerabilities.count}[0m
+[38;5;238m 112[0m [38;5;238m│[0m 
+[38;5;238m 113[0m [38;5;238m│[0m [38;5;231m${vulns}[0m
+[38;5;238m 114[0m [38;5;238m│[0m 
+[38;5;238m 115[0m [38;5;238m│[0m [38;5;231m---[0m
+[38;5;238m 116[0m [38;5;238m│[0m 
+[38;5;238m 117[0m [38;5;238m│[0m [38;5;231mThis issue was automatically created by the security audit workflow.`;[0m
+[38;5;238m 118[0m [38;5;238m│[0m 
+[38;5;238m 119[0m [38;5;238m│[0m [38;5;231m            await github.rest.issues.create({[0m
+[38;5;238m 120[0m [38;5;238m│[0m [38;5;231m              owner: context.repo.owner,[0m
+[38;5;238m 121[0m [38;5;238m│[0m [38;5;231m              repo: context.repo.repo,[0m
+[38;5;238m 122[0m [38;5;238m│[0m [38;5;231m              title: title,[0m
+[38;5;238m 123[0m [38;5;238m│[0m [38;5;231m              body: body,[0m
+[38;5;238m 124[0m [38;5;238m│[0m [38;5;231m              labels: ['security', 'dependencies'][0m
+[38;5;238m 125[0m [38;5;238m│[0m [38;5;231m            });[0m
+[38;5;238m 126[0m [38;5;238m│[0m 
+[38;5;238m 127[0m [38;5;238m│[0m [38;5;231m  # Dependency review for PRs[0m
+[38;5;238m 128[0m [38;5;238m│[0m [38;5;231m  dependency-review:[0m
+[38;5;238m 129[0m [38;5;238m│[0m [38;5;231m    name: Dependency Review[0m
+[38;5;238m 130[0m [38;5;238m│[0m [38;5;231m    runs-on: ubuntu-latest[0m
+[38;5;238m 131[0m [38;5;238m│[0m [38;5;231m    if: github.event_name == 'pull_request'[0m
+[38;5;238m 132[0m [38;5;238m│[0m [38;5;231m    steps:[0m
+[38;5;238m 133[0m [38;5;238m│[0m [38;5;231m      - uses: actions/checkout@v4[0m
+[38;5;238m 134[0m [38;5;238m│[0m 
+[38;5;238m 135[0m [38;5;238m│[0m [38;5;231m      - name: Dependency Review[0m
+[38;5;238m 136[0m [38;5;238m│[0m [38;5;231m        uses: actions/dependency-review-action@v4[0m
+[38;5;238m 137[0m [38;5;238m│[0m [38;5;231m        with:[0m
+[38;5;238m 138[0m [38;5;238m│[0m [38;5;231m          fail-on-severity: moderate[0m
+[38;5;238m 139[0m [38;5;238m│[0m [38;5;231m          deny-licenses: GPL-3.0, AGPL-3.0[0m
+[38;5;238m 140[0m [38;5;238m│[0m [38;5;231m          comment-summary-in-pr: always[0m
+[38;5;238m 141[0m [38;5;238m│[0m 
+[38;5;238m 142[0m [38;5;238m│[0m [38;5;231m  # SAST scanning with Semgrep[0m
+[38;5;238m 143[0m [38;5;238m│[0m [38;5;231m  semgrep:[0m
+[38;5;238m 144[0m [38;5;238m│[0m [38;5;231m    name: Semgrep SAST[0m
+[38;5;238m 145[0m [38;5;238m│[0m [38;5;231m    runs-on: ubuntu-latest[0m
+[38;5;238m 146[0m [38;5;238m│[0m [38;5;231m    if: github.event_name != 'schedule'[0m
+[38;5;238m 147[0m [38;5;238m│[0m [38;5;231m    steps:[0m
+[38;5;238m 148[0m [38;5;238m│[0m [38;5;231m      - uses: actions/checkout@v4[0m
+[38;5;238m 149[0m [38;5;238m│[0m 
+[38;5;238m 150[0m [38;5;238m│[0m [38;5;231m      - name: Run Semgrep[0m
+[38;5;238m 151[0m [38;5;238m│[0m [38;5;231m        uses: returntocorp/semgrep-action@v1[0m
+[38;5;238m 152[0m [38;5;238m│[0m [38;5;231m        with:[0m
+[38;5;238m 153[0m [38;5;238m│[0m [38;5;231m          config: >-[0m
+[38;5;238m 154[0m [38;5;238m│[0m [38;5;231m            p/rust[0m
+[38;5;238m 155[0m [38;5;238m│[0m [38;5;231m            p/security-audit[0m
+[38;5;238m 156[0m [38;5;238m│[0m [38;5;231m            p/secrets[0m
+[38;5;238m 157[0m [38;5;238m│[0m 
+[38;5;238m 158[0m [38;5;238m│[0m [38;5;231m      - name: Upload SARIF results[0m
+[38;5;238m 159[0m [38;5;238m│[0m [38;5;231m        if: always()[0m
+[38;5;238m 160[0m [38;5;238m│[0m [38;5;231m        uses: github/codeql-action/upload-sarif@v3[0m
+[38;5;238m 161[0m [38;5;238m│[0m [38;5;231m        with:[0m
+[38;5;238m 162[0m [38;5;238m│[0m [38;5;231m          sarif_file: semgrep.sarif[0m
+[38;5;238m 163[0m [38;5;238m│[0m 
+[38;5;238m 164[0m [38;5;238m│[0m [38;5;231m  # License compliance scanning[0m
+[38;5;238m 165[0m [38;5;238m│[0m [38;5;231m  license-check:[0m
+[38;5;238m 166[0m [38;5;238m│[0m [38;5;231m    name: License Compliance[0m
+[38;5;238m 167[0m [38;5;238m│[0m [38;5;231m    runs-on: ubuntu-latest[0m
+[38;5;238m 168[0m [38;5;238m│[0m [38;5;231m    steps:[0m
+[38;5;238m 169[0m [38;5;238m│[0m [38;5;231m      - uses: actions/checkout@v4[0m
+[38;5;238m 170[0m [38;5;238m│[0m 
+[38;5;238m 171[0m [38;5;238m│[0m [38;5;231m      - name: Install Rust[0m
+[38;5;238m 172[0m [38;5;238m│[0m [38;5;231m        uses: dtolnay/rust-toolchain@stable[0m
+[38;5;238m 173[0m [38;5;238m│[0m 
+[38;5;238m 174[0m [38;5;238m│[0m [38;5;231m      - name: Install cargo-license[0m
+[38;5;238m 175[0m [38;5;238m│[0m [38;5;231m        run: cargo install cargo-license --locked[0m
+[38;5;238m 176[0m [38;5;238m│[0m 
+[38;5;238m 177[0m [38;5;238m│[0m [38;5;231m      - name: Check licenses[0m
+[38;5;238m 178[0m [38;5;238m│[0m [38;5;231m        run: |[0m
+[38;5;238m 179[0m [38;5;238m│[0m [38;5;231m          cargo license --json > licenses.json[0m
+[38;5;238m 180[0m [38;5;238m│[0m 
+[38;5;238m 181[0m [38;5;238m│[0m [38;5;231m          # Check for incompatible licenses[0m
+[38;5;238m 182[0m [38;5;238m│[0m [38;5;231m          INCOMPATIBLE=$(jq -r '.[] | select(.license | contains("GPL-3.0") or contains("AGPL-3.0")) | .name' licenses.json)[0m
+[38;5;238m 183[0m [38;5;238m│[0m 
+[38;5;238m 184[0m [38;5;238m│[0m [38;5;231m          if [ -n "$INCOMPATIBLE" ]; then[0m
+[38;5;238m 185[0m [38;5;238m│[0m [38;5;231m            echo "::error::Found incompatible licenses:"[0m
+[38;5;238m 186[0m [38;5;238m│[0m [38;5;231m            echo "$INCOMPATIBLE"[0m
+[38;5;238m 187[0m [38;5;238m│[0m [38;5;231m            exit 1[0m
+[38;5;238m 188[0m [38;5;238m│[0m [38;5;231m          fi[0m
+[38;5;238m 189[0m [38;5;238m│[0m 
+[38;5;238m 190[0m [38;5;238m│[0m [38;5;231m      - name: Upload license report[0m
+[38;5;238m 191[0m [38;5;238m│[0m [38;5;231m        uses: actions/upload-artifact@v4[0m
+[38;5;238m 192[0m [38;5;238m│[0m [38;5;231m        if: always()[0m
+[38;5;238m 193[0m [38;5;238m│[0m [38;5;231m        with:[0m
+[38;5;238m 194[0m [38;5;238m│[0m [38;5;231m          name: license-report[0m
+[38;5;238m 195[0m [38;5;238m│[0m [38;5;231m          path: licenses.json[0m
+[38;5;238m 196[0m [38;5;238m│[0m [38;5;231m          retention-days: 30[0m
+[38;5;238m 197[0m [38;5;238m│[0m 
+[38;5;238m 198[0m [38;5;238m│[0m [38;5;231m  # Supply chain security with cargo-deny[0m
+[38;5;238m 199[0m [38;5;238m│[0m [38;5;231m  cargo-deny:[0m
+[38;5;238m 200[0m [38;5;238m│[0m [38;5;231m    name: Cargo Deny[0m
+[38;5;238m 201[0m [38;5;238m│[0m [38;5;231m    runs-on: ubuntu-latest[0m
+[38;5;238m 202[0m [38;5;238m│[0m [38;5;231m    steps:[0m
+[38;5;238m 203[0m [38;5;238m│[0m [38;5;231m      - uses: actions/checkout@v4[0m
+[38;5;238m 204[0m [38;5;238m│[0m 
+[38;5;238m 205[0m [38;5;238m│[0m [38;5;231m      - name: Install Rust[0m
+[38;5;238m 206[0m [38;5;238m│[0m [38;5;231m        uses: dtolnay/rust-toolchain@stable[0m
+[38;5;238m 207[0m [38;5;238m│[0m 
+[38;5;238m 208[0m [38;5;238m│[0m [38;5;231m      - name: Install cargo-deny[0m
+[38;5;238m 209[0m [38;5;238m│[0m [38;5;231m        run: cargo install cargo-deny --locked[0m
+[38;5;238m 210[0m [38;5;238m│[0m 
+[38;5;238m 211[0m [38;5;238m│[0m [38;5;231m      - name: Check advisories[0m
+[38;5;238m 212[0m [38;5;238m│[0m [38;5;231m        run: cargo deny check advisories[0m
+[38;5;238m 213[0m [38;5;238m│[0m 
+[38;5;238m 214[0m [38;5;238m│[0m [38;5;231m      - name: Check licenses[0m
+[38;5;238m 215[0m [38;5;238m│[0m [38;5;231m        run: cargo deny check licenses[0m
+[38;5;238m 216[0m [38;5;238m│[0m 
+[38;5;238m 217[0m [38;5;238m│[0m [38;5;231m      - name: Check bans[0m
+[38;5;238m 218[0m [38;5;238m│[0m [38;5;231m        run: cargo deny check bans[0m
+[38;5;238m 219[0m [38;5;238m│[0m 
+[38;5;238m 220[0m [38;5;238m│[0m [38;5;231m      - name: Check sources[0m
+[38;5;238m 221[0m [38;5;238m│[0m [38;5;231m        run: cargo deny check sources[0m
+[38;5;238m 222[0m [38;5;238m│[0m 
+[38;5;238m 223[0m [38;5;238m│[0m [38;5;231m  # Outdated dependency check[0m
+[38;5;238m 224[0m [38;5;238m│[0m [38;5;231m  outdated:[0m
+[38;5;238m 225[0m [38;5;238m│[0m [38;5;231m    name: Outdated Dependencies[0m
+[38;5;238m 226[0m [38;5;238m│[0m [38;5;231m    runs-on: ubuntu-latest[0m
+[38;5;238m 227[0m [38;5;238m│[0m [38;5;231m    if: github.event_name == 'schedule'[0m
+[38;5;238m 228[0m [38;5;238m│[0m [38;5;231m    steps:[0m
+[38;5;238m 229[0m [38;5;238m│[0m [38;5;231m      - uses: actions/checkout@v4[0m
+[38;5;238m 230[0m [38;5;238m│[0m 
+[38;5;238m 231[0m [38;5;238m│[0m [38;5;231m      - name: Install Rust[0m
+[38;5;238m 232[0m [38;5;238m│[0m [38;5;231m        uses: dtolnay/rust-toolchain@stable[0m
+[38;5;238m 233[0m [38;5;238m│[0m 
+[38;5;238m 234[0m [38;5;238m│[0m [38;5;231m      - name: Install cargo-outdated[0m
+[38;5;238m 235[0m [38;5;238m│[0m [38;5;231m        run: cargo install cargo-outdated --locked[0m
+[38;5;238m 236[0m [38;5;238m│[0m 
+[38;5;238m 237[0m [38;5;238m│[0m [38;5;231m      - name: Check for outdated dependencies[0m
+[38;5;238m 238[0m [38;5;238m│[0m [38;5;231m        id: outdated[0m
+[38;5;238m 239[0m [38;5;238m│[0m [38;5;231m        run: |[0m
+[38;5;238m 240[0m [38;5;238m│[0m [38;5;231m          cargo outdated --format json > outdated.json || true[0m
+[38;5;238m 241[0m [38;5;238m│[0m 
+[38;5;238m 242[0m [38;5;238m│[0m [38;5;231m          OUTDATED_COUNT=$(jq '[.dependencies[] | select(.latest != .project)] | length' outdated.json)[0m
+[38;5;238m 243[0m [38;5;238m│[0m [38;5;231m          echo "outdated=${OUTDATED_COUNT}" >> $GITHUB_OUTPUT[0m
+[38;5;238m 244[0m [38;5;238m│[0m 
+[38;5;238m 245[0m [38;5;238m│[0m [38;5;231m      - name: Upload outdated report[0m
+[38;5;238m 246[0m [38;5;238m│[0m [38;5;231m        uses: actions/upload-artifact@v4[0m
+[38;5;238m 247[0m [38;5;238m│[0m [38;5;231m        if: always()[0m
+[38;5;238m 248[0m [38;5;238m│[0m [38;5;231m        with:[0m
+[38;5;238m 249[0m [38;5;238m│[0m [38;5;231m          name: outdated-dependencies[0m
+[38;5;238m 250[0m [38;5;238m│[0m [38;5;231m          path: outdated.json[0m
+[38;5;238m 251[0m [38;5;238m│[0m [38;5;231m          retention-days: 30[0m
+[38;5;238m 252[0m [38;5;238m│[0m 
+[38;5;238m 253[0m [38;5;238m│[0m [38;5;231m      - name: Create issue for outdated dependencies[0m
+[38;5;238m 254[0m [38;5;238m│[0m [38;5;231m        if: steps.outdated.outputs.outdated != '0'[0m
+[38;5;238m 255[0m [38;5;238m│[0m [38;5;231m        uses: actions/github-script@v7[0m
+[38;5;238m 256[0m [38;5;238m│[0m [38;5;231m        with:[0m
+[38;5;238m 257[0m [38;5;238m│[0m [38;5;231m          script: |[0m
+[38;5;238m 258[0m [38;5;238m│[0m [38;5;231m            const fs = require('fs');[0m
+[38;5;238m 259[0m [38;5;238m│[0m [38;5;231m            const outdated = JSON.parse(fs.readFileSync('outdated.json', 'utf8'));[0m
+[38;5;238m 260[0m [38;5;238m│[0m 
+[38;5;238m 261[0m [38;5;238m│[0m [38;5;231m            const deps = outdated.dependencies[0m
+[38;5;238m 262[0m [38;5;238m│[0m [38;5;231m              .filter(d => d.latest !== d.project)[0m
+[38;5;238m 263[0m [38;5;238m│[0m [38;5;231m              .map(d => `- \`${d.name}\`: ${d.project} → ${d.latest}`)[0m
+[38;5;238m 264[0m [38;5;238m│[0m [38;5;231m              .join('\n');[0m
+[38;5;238m 265[0m [38;5;238m│[0m 
+[38;5;238m 266[0m [38;5;238m│[0m [38;5;231m            if (!deps) return;[0m
+[38;5;238m 267[0m [38;5;238m│[0m 
+[38;5;238m 268[0m [38;5;238m│[0m [38;5;231m            const title = `Dependencies: ${outdated.dependencies.length} packages outdated`;[0m
+[38;5;238m 269[0m [38;5;238m│[0m [38;5;231m            const body = `## Outdated Dependencies Report[0m
+[38;5;238m 270[0m [38;5;238m│[0m 
+[38;5;238m 271[0m [38;5;238m│[0m [38;5;231m**Date**: ${new Date().toISOString()}[0m
+[38;5;238m 272[0m [38;5;238m│[0m 
+[38;5;238m 273[0m [38;5;238m│[0m [38;5;231mThe following dependencies have newer versions available:[0m
+[38;5;238m 274[0m [38;5;238m│[0m 
+[38;5;238m 275[0m [38;5;238m│[0m [38;5;231m${deps}[0m
+[38;5;238m 276[0m [38;5;238m│[0m 
+[38;5;238m 277[0m [38;5;238m│[0m [38;5;231m---[0m
+[38;5;238m 278[0m [38;5;238m│[0m 
+[38;5;238m 279[0m [38;5;238m│[0m [38;5;231mThis issue was automatically created by the security audit workflow.[0m
+[38;5;238m 280[0m [38;5;238m│[0m [38;5;231mConsider updating these dependencies and running tests.`;[0m
+[38;5;238m 281[0m [38;5;238m│[0m 
+[38;5;238m 282[0m [38;5;238m│[0m [38;5;231m            await github.rest.issues.create({[0m
+[38;5;238m 283[0m [38;5;238m│[0m [38;5;231m              owner: context.repo.owner,[0m
+[38;5;238m 284[0m [38;5;238m│[0m [38;5;231m              repo: context.repo.repo,[0m
+[38;5;238m 285[0m [38;5;238m│[0m [38;5;231m              title: title,[0m
+[38;5;238m 286[0m [38;5;238m│[0m [38;5;231m              body: body,[0m
+[38;5;238m 287[0m [38;5;238m│[0m [38;5;231m              labels: ['dependencies', 'maintenance'][0m
+[38;5;238m 288[0m [38;5;238m│[0m [38;5;231m            });[0m
+[38;5;238m 289[0m [38;5;238m│[0m 
+[38;5;238m 290[0m [38;5;238m│[0m [38;5;231m  # Security policy validation[0m
+[38;5;238m 291[0m [38;5;238m│[0m [38;5;231m  security-policy:[0m
+[38;5;238m 292[0m [38;5;238m│[0m [38;5;231m    name: Security Policy Check[0m
+[38;5;238m 293[0m [38;5;238m│[0m [38;5;231m    runs-on: ubuntu-latest[0m
+[38;5;238m 294[0m [38;5;238m│[0m [38;5;231m    steps:[0m
+[38;5;238m 295[0m [38;5;238m│[0m [38;5;231m      - uses: actions/checkout@v4[0m
+[38;5;238m 296[0m [38;5;238m│[0m 
+[38;5;238m 297[0m [38;5;238m│[0m [38;5;231m      - name: Check SECURITY.md exists[0m
+[38;5;238m 298[0m [38;5;238m│[0m [38;5;231m        run: |[0m
+[38;5;238m 299[0m [38;5;238m│[0m [38;5;231m          if [ ! -f "SECURITY.md" ]; then[0m
+[38;5;238m 300[0m [38;5;238m│[0m [38;5;231m            echo "::error::SECURITY.md file not found"[0m
+[38;5;238m 301[0m [38;5;238m│[0m [38;5;231m            exit 1[0m
+[38;5;238m 302[0m [38;5;238m│[0m [38;5;231m          fi[0m
+[38;5;238m 303[0m [38;5;238m│[0m 
+[38;5;238m 304[0m [38;5;238m│[0m [38;5;231m      - name: Validate security policy[0m
+[38;5;238m 305[0m [38;5;238m│[0m [38;5;231m        run: |[0m
+[38;5;238m 306[0m [38;5;238m│[0m [38;5;231m          # Check for required sections[0m
+[38;5;238m 307[0m [38;5;238m│[0m [38;5;231m          for section in "Supported Versions" "Reporting" "Disclosure"; do[0m
+[38;5;238m 308[0m [38;5;238m│[0m [38;5;231m            if ! grep -qi "$section" SECURITY.md; then[0m
+[38;5;238m 309[0m [38;5;238m│[0m [38;5;231m              echo "::warning::SECURITY.md missing section: $section"[0m
+[38;5;238m 310[0m [38;5;238m│[0m [38;5;231m            fi[0m
+[38;5;238m 311[0m [38;5;238m│[0m [38;5;231m          done[0m
+[38;5;238m 312[0m [38;5;238m│[0m 
+[38;5;238m 313[0m [38;5;238m│[0m [38;5;231m  # Summary report[0m
+[38;5;238m 314[0m [38;5;238m│[0m [38;5;231m  security-summary:[0m
+[38;5;238m 315[0m [38;5;238m│[0m [38;5;231m    name: Security Summary[0m
+[38;5;238m 316[0m [38;5;238m│[0m [38;5;231m    needs: [cargo-audit, license-check, cargo-deny][0m
+[38;5;238m 317[0m [38;5;238m│[0m [38;5;231m    runs-on: ubuntu-latest[0m
+[38;5;238m 318[0m [38;5;238m│[0m [38;5;231m    if: always()[0m
+[38;5;238m 319[0m [38;5;238m│[0m [38;5;231m    steps:[0m
+[38;5;238m 320[0m [38;5;238m│[0m [38;5;231m      - name: Generate summary[0m
+[38;5;238m 321[0m [38;5;238m│[0m [38;5;231m        run: |[0m
+[38;5;238m 322[0m [38;5;238m│[0m [38;5;231m          echo "## Security Audit Summary" >> $GITHUB_STEP_SUMMARY[0m
+[38;5;238m 323[0m [38;5;238m│[0m [38;5;231m          echo "" >> $GITHUB_STEP_SUMMARY[0m
+[38;5;238m 324[0m [38;5;238m│[0m [38;5;231m          echo "**Date**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> $GITHUB_STEP_SUMMARY[0m
+[38;5;238m 325[0m [38;5;238m│[0m [38;5;231m          echo "" >> $GITHUB_STEP_SUMMARY[0m
+[38;5;238m 326[0m [38;5;238m│[0m [38;5;231m          echo "### Job Results" >> $GITHUB_STEP_SUMMARY[0m
+[38;5;238m 327[0m [38;5;238m│[0m [38;5;231m          echo "" >> $GITHUB_STEP_SUMMARY[0m
+[38;5;238m 328[0m [38;5;238m│[0m [38;5;231m          echo "- Cargo Audit: ${{ needs.cargo-audit.result }}" >> $GITHUB_STEP_SUMMARY[0m
+[38;5;238m 329[0m [38;5;238m│[0m [38;5;231m          echo "- License Check: ${{ needs.license-check.result }}" >> $GITHUB_STEP_SUMMARY[0m
+[38;5;238m 330[0m [38;5;238m│[0m [38;5;231m          echo "- Cargo Deny: ${{ needs.cargo-deny.result }}" >> $GITHUB_STEP_SUMMARY[0m
+[38;5;238m 331[0m [38;5;238m│[0m [38;5;231m          echo "" >> $GITHUB_STEP_SUMMARY[0m
+[38;5;238m 332[0m [38;5;238m│[0m 
+[38;5;238m 333[0m [38;5;238m│[0m [38;5;231m          if [ "${{ needs.cargo-audit.result }}" == "success" ] && \[0m
+[38;5;238m 334[0m [38;5;238m│[0m [38;5;231m             [ "${{ needs.license-check.result }}" == "success" ] && \[0m
+[38;5;238m 335[0m [38;5;238m│[0m [38;5;231m             [ "${{ needs.cargo-deny.result }}" == "success" ]; then[0m
+[38;5;238m 336[0m [38;5;238m│[0m [38;5;231m            echo "✅ **All security checks passed**" >> $GITHUB_STEP_SUMMARY[0m
+[38;5;238m 337[0m [38;5;238m│[0m [38;5;231m          else[0m
+[38;5;238m 338[0m [38;5;238m│[0m [38;5;231m            echo "❌ **Some security checks failed**" >> $GITHUB_STEP_SUMMARY[0m
+[38;5;238m 339[0m [38;5;238m│[0m [38;5;231m          fi[0m
+[38;5;238m─────┴──────────────────────────────────────────────────────────────────────────[0m

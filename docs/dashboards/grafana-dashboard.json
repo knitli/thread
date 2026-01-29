@@ -1,0 +1,371 @@
+{
+  "dashboard": {
+    "id": null,
+    "uid": "thread-flow-monitoring",
+    "title": "Thread Flow Production Monitoring",
+    "tags": ["thread-flow", "monitoring", "performance"],
+    "timezone": "browser",
+    "schemaVersion": 38,
+    "version": 1,
+    "refresh": "30s",
+    "panels": [
+      {
+        "id": 1,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 0
+        },
+        "type": "graph",
+        "title": "Cache Hit Rate",
+        "targets": [
+          {
+            "expr": "thread_cache_hit_rate",
+            "refId": "A",
+            "legendFormat": "Hit Rate %"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "percent",
+            "max": 100,
+            "min": 0,
+            "label": "Hit Rate"
+          },
+          {
+            "format": "short"
+          }
+        ],
+        "thresholds": [
+          {
+            "value": 90,
+            "colorMode": "critical",
+            "op": "lt",
+            "fill": true,
+            "line": true,
+            "yaxis": "left"
+          }
+        ],
+        "alert": {
+          "name": "Low Cache Hit Rate",
+          "message": "Cache hit rate below 90% SLO",
+          "frequency": "5m",
+          "conditions": [
+            {
+              "evaluator": {
+                "params": [90],
+                "type": "lt"
+              },
+              "operator": {
+                "type": "and"
+              },
+              "query": {
+                "params": ["A", "5m", "now"]
+              },
+              "reducer": {
+                "params": [],
+                "type": "avg"
+              },
+              "type": "query"
+            }
+          ]
+        }
+      },
+      {
+        "id": 2,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 0
+        },
+        "type": "graph",
+        "title": "Query Latency (ms)",
+        "targets": [
+          {
+            "expr": "thread_query_latency_milliseconds{quantile=\"0.5\"}",
+            "refId": "A",
+            "legendFormat": "p50"
+          },
+          {
+            "expr": "thread_query_latency_milliseconds{quantile=\"0.95\"}",
+            "refId": "B",
+            "legendFormat": "p95"
+          },
+          {
+            "expr": "thread_query_latency_milliseconds{quantile=\"0.99\"}",
+            "refId": "C",
+            "legendFormat": "p99"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "ms",
+            "label": "Latency"
+          }
+        ],
+        "thresholds": [
+          {
+            "value": 10,
+            "colorMode": "custom",
+            "op": "gt",
+            "fill": false,
+            "line": true,
+            "yaxis": "left"
+          },
+          {
+            "value": 50,
+            "colorMode": "critical",
+            "op": "gt",
+            "fill": true,
+            "line": true,
+            "yaxis": "left"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "gridPos": {
+          "h": 8,
+          "w": 8,
+          "x": 0,
+          "y": 8
+        },
+        "type": "stat",
+        "title": "Throughput (files/sec)",
+        "targets": [
+          {
+            "expr": "rate(thread_files_processed_total[5m])",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "graphMode": "area",
+          "colorMode": "value",
+          "justifyMode": "auto",
+          "textMode": "auto"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "ops",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "value": null,
+                  "color": "green"
+                },
+                {
+                  "value": 1000,
+                  "color": "yellow"
+                },
+                {
+                  "value": 2000,
+                  "color": "red"
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 4,
+        "gridPos": {
+          "h": 8,
+          "w": 8,
+          "x": 8,
+          "y": 8
+        },
+        "type": "stat",
+        "title": "Total Files Processed",
+        "targets": [
+          {
+            "expr": "thread_files_processed_total",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "graphMode": "area",
+          "colorMode": "value"
+        }
+      },
+      {
+        "id": 5,
+        "gridPos": {
+          "h": 8,
+          "w": 8,
+          "x": 16,
+          "y": 8
+        },
+        "type": "stat",
+        "title": "Total Symbols Extracted",
+        "targets": [
+          {
+            "expr": "thread_symbols_extracted_total",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "graphMode": "area",
+          "colorMode": "value"
+        }
+      },
+      {
+        "id": 6,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 16
+        },
+        "type": "graph",
+        "title": "Performance Metrics",
+        "targets": [
+          {
+            "expr": "thread_fingerprint_time_nanoseconds{quantile=\"0.95\"}",
+            "refId": "A",
+            "legendFormat": "Fingerprint p95 (ns)"
+          },
+          {
+            "expr": "thread_parse_time_microseconds{quantile=\"0.95\"}",
+            "refId": "B",
+            "legendFormat": "Parse p95 (µs)"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "ns",
+            "label": "Time"
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 16
+        },
+        "type": "graph",
+        "title": "Error Rate",
+        "targets": [
+          {
+            "expr": "thread_error_rate",
+            "refId": "A",
+            "legendFormat": "Error Rate %"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "percent",
+            "max": 5,
+            "min": 0,
+            "label": "Error Rate"
+          }
+        ],
+        "thresholds": [
+          {
+            "value": 1,
+            "colorMode": "critical",
+            "op": "gt",
+            "fill": true,
+            "line": true,
+            "yaxis": "left"
+          }
+        ],
+        "alert": {
+          "name": "High Error Rate",
+          "message": "Error rate above 1% SLO",
+          "frequency": "1m",
+          "conditions": [
+            {
+              "evaluator": {
+                "params": [1],
+                "type": "gt"
+              },
+              "operator": {
+                "type": "and"
+              },
+              "query": {
+                "params": ["A", "5m", "now"]
+              },
+              "reducer": {
+                "params": [],
+                "type": "avg"
+              },
+              "type": "query"
+            }
+          ]
+        }
+      },
+      {
+        "id": 8,
+        "gridPos": {
+          "h": 8,
+          "w": 24,
+          "x": 0,
+          "y": 24
+        },
+        "type": "table",
+        "title": "Cache Statistics",
+        "targets": [
+          {
+            "expr": "thread_cache_hits_total",
+            "refId": "A",
+            "format": "table",
+            "instant": true
+          },
+          {
+            "expr": "thread_cache_misses_total",
+            "refId": "B",
+            "format": "table",
+            "instant": true
+          },
+          {
+            "expr": "thread_cache_hit_rate",
+            "refId": "C",
+            "format": "table",
+            "instant": true
+          }
+        ],
+        "transformations": [
+          {
+            "id": "merge",
+            "options": {}
+          }
+        ]
+      }
+    ],
+    "templating": {
+      "list": [
+        {
+          "name": "environment",
+          "type": "query",
+          "query": "label_values(thread_cache_hits_total, environment)",
+          "refresh": 1,
+          "multi": false
+        },
+        {
+          "name": "deployment",
+          "type": "query",
+          "query": "label_values(thread_cache_hits_total, deployment)",
+          "refresh": 1,
+          "multi": false
+        }
+      ]
+    },
+    "annotations": {
+      "list": [
+        {
+          "name": "Deployments",
+          "datasource": "-- Grafana --",
+          "enable": true,
+          "iconColor": "rgba(0, 211, 255, 1)",
+          "tags": ["deployment"]
+        }
+      ]
+    }
+  }
+}
