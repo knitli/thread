@@ -2,7 +2,7 @@
 
 Visual mapping of test coverage to production code.
 
-## ExtractSymbolsFactory (calls.rs)
+## ExtractSymbolsFactory (symbols.rs)
 
 ### Production Code Coverage
 

@@ -1,5 +1,5 @@
 <!--
-SPDX-FileCopyrightText: 2026 Github
+SPDX-FileCopyrightText: 2026 GitHub
 
 SPDX-License-Identifier: MIT
 -->
