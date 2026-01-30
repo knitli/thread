@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2026 Knitli Inc.
+
+SPDX-License-Identifier: MIT OR Apache-2.0
+-->
+
 [38;5;238m─────┬──────────────────────────────────────────────────────────────────────────[0m
      [38;5;238m│ [0m[1mSTDIN[0m
 [38;5;238m─────┼──────────────────────────────────────────────────────────────────────────[0m
@@ -10,7 +16,7 @@
 [38;5;238m   7[0m [38;5;238m│[0m 
 [38;5;238m   8[0m [38;5;238m│[0m [38;5;231m**AWS Secrets Manager** (CLI/Kubernetes): Centralized secrets with rotation[0m
 [38;5;238m   9[0m [38;5;238m│[0m [38;5;231m**GitHub Secrets** (Edge): Encrypted CI/CD secrets[0m
-[38;5;238m  10[0m [38;5;238m│[0m [38;5;231m**HashiCorp Vault** (Enterprise): Advanced secrets management[0m
+[38;5;238m  10[0m [38;5;238m│[0m [38;5;231m**HashCorp Vault** (Enterprise): Advanced secrets management[0m
 [38;5;238m  11[0m [38;5;238m│[0m 
 [38;5;238m  12[0m [38;5;238m│[0m [38;5;231m## Best Practices[0m
 [38;5;238m  13[0m [38;5;238m│[0m 

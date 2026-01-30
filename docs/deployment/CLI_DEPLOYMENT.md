@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2026 Knitli Inc.
+
+SPDX-License-Identifier: MIT OR Apache-2.0
+-->
+
 # Thread Flow CLI Deployment Guide
 
 Comprehensive guide for deploying Thread Flow in CLI/local environments with PostgreSQL backend and parallel processing.
@@ -563,7 +569,7 @@ cargo bench --features "parallel,caching"
 
 ### Related Documentation
 
-- **Edge Deployment**: `docs/deployment/EDGE_DEPLOYMENT.md`
+- **Edge Deployment**: `crates/cloudflare/docs/EDGE_DEPLOYMENT.md` (segregated - see crates/cloudflare/)
 - **Performance Tuning**: `docs/operations/PERFORMANCE_TUNING.md`
 - **Troubleshooting**: `docs/operations/TROUBLESHOOTING.md`
 - **Architecture Overview**: `docs/architecture/THREAD_FLOW_ARCHITECTURE.md`

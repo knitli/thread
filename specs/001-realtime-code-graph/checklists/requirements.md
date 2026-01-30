@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2026 Knitli Inc.
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 # Specification Quality Checklist: Real-Time Code Graph Intelligence
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning

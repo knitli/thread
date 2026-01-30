@@ -626,6 +626,10 @@ impl StorageBackend for PostgresIncrementalBackend {
 
         Ok(())
     }
+
+    fn name(&self) -> &'static str {
+        "postgres"
+    }
 }
 
 // ─── Helper Functions ───────────────────────────────────────────────────────

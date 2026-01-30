@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+# SPDX-FileCopyrightText: 2026 Github
+#
+# SPDX-License-Identifier: MIT
+
 # Update agent context files with information from plan.md
 #
 # This script maintains AI agent context files by parsing feature specifications 

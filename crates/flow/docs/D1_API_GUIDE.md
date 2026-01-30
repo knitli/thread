@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2026 Knitli Inc.
+
+SPDX-License-Identifier: MIT OR Apache-2.0
+-->
+
 # Cloudflare D1 API Integration Guide
 
 **Purpose**: Comprehensive guide for implementing D1 target factory for Thread code analysis storage

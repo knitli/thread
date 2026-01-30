@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2026 Knitli Inc.
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 # Quickstart Guide: Real-Time Code Graph Intelligence
 
 **Feature**: Real-Time Code Graph Intelligence  

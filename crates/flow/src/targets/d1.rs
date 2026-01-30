@@ -131,6 +131,7 @@ pub struct D1ExportContext {
 
 impl D1ExportContext {
     /// Create a new D1 export context with a shared HTTP client
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         database_id: String,
         table_name: String,

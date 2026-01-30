@@ -1,9 +1,11 @@
 #!/bin/bash
-# Heavily based on a script by @inventorblack, and
-# shared on [ClaudeLog](https://claudelog.com/multi-file-system/)
+
 # SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+# SPDX-FileCopyrightText: 2026 Github
+# SPDX-FileCopyrightText: 2026 Knitli Inc.
 # SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
 #
+# SPDX-License-Identifier: MIT
 # SPDX-License-Identifier: MIT OR Apache-2.0
 
 # shellcheck disable=SC2317,SC2034

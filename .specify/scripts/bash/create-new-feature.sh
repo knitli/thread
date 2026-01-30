@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+# SPDX-FileCopyrightText: 2026 Github
+#
+# SPDX-License-Identifier: MIT
+
 set -e
 
 JSON_MODE=false
@@ -157,7 +161,7 @@ clean_branch_name() {
 
 # Resolve repository root. Prefer git information when available, but fall back
 # to searching for repository markers so the workflow still functions in repositories that
-# were initialised with --no-git.
+# were initialized with --no-git.
 SCRIPT_DIR="$(CDPATH="" cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 if git rev-parse --show-toplevel >/dev/null 2>&1; then

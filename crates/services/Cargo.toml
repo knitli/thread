@@ -16,15 +16,17 @@ categories = ["ast", "interface", "pattern", "services"]
 include.workspace = true
 
 [dependencies]
-ignore = { workspace = true }
 # Service layer dependencies
 async-trait = "0.1.88"
 cfg-if = { workspace = true }
-# ReCoco utilities for content fingerprinting (blake3 hashing)
-recoco-utils = { version = "0.2.1", default-features = false, features = ["fingerprint"] }
 # Performance improvements
 futures = { workspace = true, optional = true }
+ignore = { workspace = true }
 pin-project = { workspace = true, optional = true }
+# ReCoco utilities for content fingerprinting (blake3 hashing)
+recoco-utils = { version = "0.2.1", default-features = false, features = [
+  "fingerprint"
+] }
 serde = { workspace = true, optional = true }
 thiserror = { workspace = true }
 thread-ast-engine = { workspace = true, default-features = false, features = [

@@ -248,7 +248,7 @@ impl<D: Doc> ParsedDocument<D> {
             let doc = root_node.get_doc();
             let range = root_node.range();
             let bytes = doc.get_source().get_range(range);
-            return D::Source::encode_bytes(bytes).into_owned();
+            D::Source::encode_bytes(bytes).into_owned()
         }
         #[cfg(not(feature = "ast-grep-backend"))]
         self.ast_root.generate()

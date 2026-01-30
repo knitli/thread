@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2026 Knitli Inc.
+
+SPDX-License-Identifier: MIT OR Apache-2.0
+-->
+
 # ReCoco Target Factory Pattern Guide
 
 **Purpose**: Document the correct pattern for implementing D1 target factory following ReCoco conventions

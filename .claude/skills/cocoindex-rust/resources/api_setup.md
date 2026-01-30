@@ -1,3 +1,10 @@
+<!--
+SPDX-FileCopyrightText: 2026 CocoIndex
+SPDX-FileCopyrightText: 2026 Knitli Inc
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 # CocoIndex Rust API: Setup & Context
 
 Using `cocoindex::lib_context` and `cocoindex::settings`.

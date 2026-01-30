@@ -118,8 +118,7 @@ pub trait SgNode<'r>: Clone + std::fmt::Debug + Send + Sync {
         let mut stack = vec![self.clone()];
         std::iter::from_fn(move || {
             if let Some(node) = stack.pop() {
-                let children: Vec<_> = node.children().collect();
-                stack.extend(children.into_iter().rev());
+                stack.extend(node.children().collect::<Vec<_>>().into_iter().rev());
                 Some(node)
             } else {
                 None

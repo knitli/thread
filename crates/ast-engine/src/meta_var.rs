@@ -357,6 +357,9 @@ pub(crate) const fn is_valid_meta_var_char(c: char) -> bool {
     is_valid_first_char(c) || c.is_ascii_digit()
 }
 
+// RapidMap is intentionally specific (not generic over BuildHasher) for performance.
+// This conversion is in the pattern matching hot path and should use rapidhash.
+#[allow(clippy::implicit_hasher)]
 impl<'tree, D: Doc> From<MetaVarEnv<'tree, D>> for RapidMap<String, String>
 where
     D::Source: Content,

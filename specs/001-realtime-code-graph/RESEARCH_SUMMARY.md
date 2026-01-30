@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2026 Knitli Inc.
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 # Research Summary: CocoIndex Provenance for Real-Time Code Graph
 
 **Date**: January 11, 2026

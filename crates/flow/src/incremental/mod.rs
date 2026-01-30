@@ -163,23 +163,33 @@
 //! thread-flow = { version = "*" }  # InMemory always available
 //! ```
 
+pub mod analyzer;
 pub mod backends;
+pub mod concurrency;
+pub mod dependency_builder;
+pub mod extractors;
 pub mod graph;
+pub mod invalidation;
 pub mod storage;
 pub mod types;
 
 // Re-export core types for ergonomic use
+pub use analyzer::{AnalysisResult, AnalyzerError, IncrementalAnalyzer};
 pub use graph::DependencyGraph;
+pub use invalidation::{InvalidationDetector, InvalidationError, InvalidationResult};
 pub use types::{
     AnalysisDefFingerprint, DependencyEdge, DependencyStrength, DependencyType, SymbolDependency,
     SymbolKind,
 };
 
 // Re-export backend factory and configuration for runtime backend selection
-pub use backends::{create_backend, BackendConfig, BackendType, IncrementalError};
+pub use backends::{BackendConfig, BackendType, IncrementalError, create_backend};
 
 // Re-export storage trait for custom backend implementations
 pub use storage::{InMemoryStorage, StorageBackend, StorageError};
+
+// Re-export concurrency layer for parallel execution - TODO: Phase 4.3
+// pub use concurrency::{create_executor, ConcurrencyMode, ExecutionError, Executor};
 
 // Feature-gated backend re-exports
 #[cfg(feature = "postgres-backend")]

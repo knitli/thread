@@ -1,0 +1,10 @@
+version = 1
+SPDX-PackageName = "thread"
+SPDX-PackageSupplier = "Knitli Inc. <knitli@knit.li>"
+SPDX-PackageDownloadLocation = "https://github.com/knitli/thread"
+
+[[annotations]]
+path = ["claudedocs/**", "crates/**/claudedocs/**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2025 Knitli Inc. <knitli@knit.li>"
+SPDX-License-Identifier = "MIT OR Apache-2.0"

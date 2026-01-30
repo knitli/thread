@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2026 Knitli Inc.
+
+SPDX-License-Identifier: MIT OR Apache-2.0
+-->
+
 # CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
@@ -44,6 +50,38 @@ Thread follows a **service-library dual architecture** (Constitution v2.0.0, Pri
 ### Build System
 
 - **`xtask`** - Custom build tasks, primarily for WASM compilation with optimization
+
+## Deployment Architecture Separation
+
+**Thread maintains a clear separation between core library functionality and deployment-specific machinery:**
+
+### Core Library (Open Source)
+
+The **D1 storage backend** is a first-class library feature in `crates/flow/src/incremental/backends/d1.rs`:
+- ✅ Part of Thread's multi-backend storage abstraction
+- ✅ API documentation in `docs/api/D1_INTEGRATION_API.md`
+- ✅ Integration tests in `crates/flow/tests/incremental_d1_tests.rs`
+- ✅ SQL migrations embedded in binary via `include_str!()` from `crates/flow/migrations/`
+
+**Why D1 is core**: D1 is SQLite-based storage that can be used in any environment (Cloudflare Workers, edge runtimes, embedded systems), not just Cloudflare-specific deployments.
+
+### Deployment Machinery (Segregated)
+
+**Cloudflare Workers deployment materials** are segregated in the **gitignored** `crates/cloudflare/` directory:
+- 🔒 **Configuration**: `config/wrangler.production.toml.example` - Production Wrangler configuration
+- 📚 **Documentation**: `docs/EDGE_DEPLOYMENT.md` - Comprehensive deployment guide (17KB)
+- 🚀 **Scripts**: `scripts/deploy.sh` - Automated deployment automation (5.9KB)
+- 🏗️ **Worker Implementation**: `worker/` - Complete Cloudflare Worker codebase
+
+**Access**: The `crates/cloudflare/` directory is gitignored (line 266 of `.gitignore`) to prevent accidental commits of proprietary deployment configurations and credentials.
+
+**Documentation**: See `crates/cloudflare/docs/README.md` for complete inventory of deployment materials, workflows, secrets management, and troubleshooting guides.
+
+### Deployment Documentation
+
+- **CLI Deployment** (Postgres + Rayon): `docs/deployment/CLI_DEPLOYMENT.md`
+- **Edge Deployment** (D1 + Cloudflare Workers): `crates/cloudflare/docs/EDGE_DEPLOYMENT.md` (segregated)
+- **D1 Backend API**: `docs/api/D1_INTEGRATION_API.md` (core library documentation)
 
 ## Development Commands
 

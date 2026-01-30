@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2026 Knitli Inc.
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 # Implementation Plan: Real-Time Code Graph Intelligence
 
 **Branch**: `001-realtime-code-graph` | **Date**: 2026-01-11 | **Spec**: [spec.md](./spec.md)  

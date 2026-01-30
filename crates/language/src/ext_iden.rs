@@ -20,7 +20,7 @@ use std::sync::LazyLock;
 
 /// Aho-Corasick automaton for efficient multi-pattern matching.
 /// Built lazily on first use with all extensions normalized to lowercase.
-const AHO_CORASICK: LazyLock<AhoCorasick> = LazyLock::new(|| {
+static AHO_CORASICK: LazyLock<AhoCorasick> = LazyLock::new(|| {
     // Use LeftmostLongest to prefer longer matches (e.g., "cpp" over "c")
     AhoCorasickBuilder::new()
         .match_kind(MatchKind::LeftmostLongest)

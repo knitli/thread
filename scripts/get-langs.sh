@@ -1,8 +1,11 @@
 #!/bin/bash
 
 # SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+# SPDX-FileCopyrightText: 2026 Github
+# SPDX-FileCopyrightText: 2026 Knitli Inc.
 # SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
 #
+# SPDX-License-Identifier: MIT
 # SPDX-License-Identifier: MIT OR Apache-2.0
 
 # Script to pull or add tree-sitter language parsers. Not yet implemented. We want to get things fairly stable as-is before we start adding new languages.

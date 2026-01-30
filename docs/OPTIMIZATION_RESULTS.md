@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2026 Knitli Inc.
+
+SPDX-License-Identifier: MIT OR Apache-2.0
+-->
+
 # Thread Optimization Results
 
 **Optimization Period**: 2026-01-15 to 2026-01-28

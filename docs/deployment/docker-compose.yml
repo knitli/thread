@@ -1,8 +1,7 @@
 # SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
-# SPDX-License-Identifier: MIT OR Apache-2.0
+# SPDX-FileCopyrightText: 2026 Knitli Inc.
 #
-# Thread Docker Compose Configuration
-# Production deployment with Postgres and monitoring
+# SPDX-License-Identifier: MIT OR Apache-2.0
 
 version: '3.8'
 

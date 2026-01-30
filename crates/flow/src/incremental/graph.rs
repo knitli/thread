@@ -17,6 +17,7 @@
 //! `is_op_scope_descendant` ancestor chain traversal.
 
 use super::types::{AnalysisDefFingerprint, DependencyEdge, DependencyStrength};
+use metrics::gauge;
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::fmt;
 use std::path::{Path, PathBuf};
@@ -115,6 +116,32 @@ impl DependencyGraph {
         }
     }
 
+    /// Ensures a file node exists in the graph without adding any edges.
+    ///
+    /// This is useful when a file has been processed but no dependency edges
+    /// were extracted (e.g., a file with no imports, or a Go file where all
+    /// imports resolve to external packages without a configured module path).
+    ///
+    /// # Arguments
+    ///
+    /// * `file` - Path of the file to add as a node.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use thread_flow::incremental::graph::DependencyGraph;
+    /// use std::path::Path;
+    ///
+    /// let mut graph = DependencyGraph::new();
+    /// graph.add_node(Path::new("main.go"));
+    /// assert!(graph.contains_node(Path::new("main.go")));
+    /// assert_eq!(graph.node_count(), 1);
+    /// assert_eq!(graph.edge_count(), 0);
+    /// ```
+    pub fn add_node(&mut self, file: &Path) {
+        self.ensure_node(file);
+    }
+
     /// Adds a dependency edge to the graph.
     ///
     /// Both the source (`from`) and target (`to`) nodes are automatically
@@ -159,6 +186,10 @@ impl DependencyGraph {
             .push(idx);
 
         self.edges.push(edge);
+
+        // Update metrics
+        gauge!("graph_nodes").set(self.nodes.len() as f64);
+        gauge!("graph_edges").set(self.edges.len() as f64);
     }
 
     /// Returns all direct dependencies of a file (files it depends on).

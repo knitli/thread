@@ -1,3 +1,10 @@
+<!--
+SPDX-FileCopyrightText: 2026 Knitli Inc.
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+SPDX-License-Identifier: MIT OR Apache-2.0
+-->
+
 # Thread-Flow Integration Tests
 
 Comprehensive integration test suite for the thread-flow crate, validating ReCoco dataflow integration and multi-language code parsing capabilities.

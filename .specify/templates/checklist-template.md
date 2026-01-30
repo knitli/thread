@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2026 Github
+
+SPDX-License-Identifier: MIT
+-->
+
 # [CHECKLIST TYPE] Checklist: [FEATURE NAME]
 
 **Purpose**: [Brief description of what this checklist covers]

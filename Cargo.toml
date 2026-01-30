@@ -18,10 +18,7 @@ members = [
   "crates/utils",
   "crates/wasm",
   "xtask",
-  # Note: "crates/cloudflare" exists locally (gitignored) for proprietary features.
-  # It's not included here to keep public releases clean.
-  # To use locally: uncomment the line below
-  # "crates/cloudflare",
+  # crates/cloudflare (proprietary)
 ]
 
 [workspace.package]
@@ -62,7 +59,7 @@ include = [
 aho-corasick = { version = "1.1.4" }
 bit-set = { version = "0.8.0" }
 memchr = { version = "2.7.6", features = ["std"] }
-rapidhash = { version = "4.2.0" }
+rapidhash = { version = "4.2.1" }
 regex = { version = "1.12.2" }
 simdeez = { version = "2.0.0" }
 # speed, but parallelism for local deployment
@@ -91,7 +88,7 @@ serde_yaml = { package = "serde_yml", version = "0.0.12" }  # TODO: serde_yaml i
 thiserror = { version = "2.0.17" }
 # Thread
 thread-ast-engine = { path = "crates/ast-engine", default-features = false }
-# thread-flow = { path = "crates/flow", default-features = false }
+thread-flow = { path = "crates/flow", default-features = false }
 thread-language = { path = "crates/language", default-features = false }
 thread-rule-engine = { path = "crates/rule-engine", default-features = false }
 thread-services = { path = "crates/services", default-features = false }
@@ -126,6 +123,9 @@ missing_errors_doc = "allow"
 missing_panics_doc = "allow"
 module_name_repetitions = "allow"
 multiple_crate_versions = "allow"
+# The "no-enabled-langs" feature in thread-language is intentionally negative
+# It's used for builds where no tree-sitter parsers should be compiled (e.g., WASM)
+negative_feature_names = "allow"
 nursery = { level = "warn", priority = -1 }
 obfuscated_if_else = "allow"
 option_if_let_else = "allow"

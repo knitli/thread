@@ -1,4 +1,6 @@
 // SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+// SPDX-FileCopyrightText: 2026 Knitli Inc.
+//
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 //! Integration tests for the D1 incremental backend.
@@ -15,7 +17,7 @@
 //! - Performance characteristics are validated locally
 
 use recoco::utils::fingerprint::{Fingerprint, Fingerprinter};
-use rusqlite::{params, Connection};
+use rusqlite::{Connection, params};
 use std::time::Instant;
 
 /// Creates an in-memory SQLite database with the D1 schema applied.
@@ -181,11 +183,9 @@ fn test_d1_fingerprint_upsert() {
 
     // Verify v2 is stored (only 1 row).
     let count: i64 = conn
-        .query_row(
-            "SELECT COUNT(*) FROM analysis_fingerprints",
-            [],
-            |row| row.get(0),
-        )
+        .query_row("SELECT COUNT(*) FROM analysis_fingerprints", [], |row| {
+            row.get(0)
+        })
         .unwrap();
     assert_eq!(count, 1);
 
@@ -314,7 +314,10 @@ fn test_d1_source_files_cascade_delete() {
             |row| row.get(0),
         )
         .unwrap();
-    assert_eq!(count, 0, "CASCADE delete should remove source_files entries");
+    assert_eq!(
+        count, 0,
+        "CASCADE delete should remove source_files entries"
+    );
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -329,14 +332,20 @@ fn test_d1_save_and_load_edge() {
         "INSERT INTO dependency_edges \
          (from_path, to_path, dep_type, symbol_from, symbol_to, symbol_kind, dependency_strength) \
          VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
-        params!["main.rs", "utils.rs", "import", None::<String>, None::<String>, None::<String>, None::<String>],
+        params![
+            "main.rs",
+            "utils.rs",
+            "import",
+            None::<String>,
+            None::<String>,
+            None::<String>,
+            None::<String>
+        ],
     )
     .unwrap();
 
     let rows: Vec<(String, String, String)> = conn
-        .prepare(
-            "SELECT from_path, to_path, dep_type FROM dependency_edges WHERE from_path = ?1",
-        )
+        .prepare("SELECT from_path, to_path, dep_type FROM dependency_edges WHERE from_path = ?1")
         .unwrap()
         .query_map(params!["main.rs"], |row| {
             Ok((row.get(0)?, row.get(1)?, row.get(2)?))
@@ -346,7 +355,14 @@ fn test_d1_save_and_load_edge() {
         .collect();
 
     assert_eq!(rows.len(), 1);
-    assert_eq!(rows[0], ("main.rs".to_string(), "utils.rs".to_string(), "import".to_string()));
+    assert_eq!(
+        rows[0],
+        (
+            "main.rs".to_string(),
+            "utils.rs".to_string(),
+            "import".to_string()
+        )
+    );
 }
 
 #[test]
@@ -363,7 +379,15 @@ fn test_d1_edge_upsert_on_conflict() {
              symbol_to = excluded.symbol_to, \
              symbol_kind = excluded.symbol_kind, \
              dependency_strength = excluded.dependency_strength",
-        params!["a.rs", "b.rs", "import", None::<String>, None::<String>, None::<String>, None::<String>],
+        params![
+            "a.rs",
+            "b.rs",
+            "import",
+            None::<String>,
+            None::<String>,
+            None::<String>,
+            None::<String>
+        ],
     )
     .unwrap();
 
@@ -377,13 +401,17 @@ fn test_d1_edge_upsert_on_conflict() {
              symbol_to = excluded.symbol_to, \
              symbol_kind = excluded.symbol_kind, \
              dependency_strength = excluded.dependency_strength",
-        params!["a.rs", "b.rs", "import", "main", "helper", "function", "strong"],
+        params![
+            "a.rs", "b.rs", "import", "main", "helper", "function", "strong"
+        ],
     )
     .unwrap();
 
     // Should be 1 row with updated symbol info.
     let count: i64 = conn
-        .query_row("SELECT COUNT(*) FROM dependency_edges", [], |row| row.get(0))
+        .query_row("SELECT COUNT(*) FROM dependency_edges", [], |row| {
+            row.get(0)
+        })
         .unwrap();
     assert_eq!(count, 1);
 
@@ -405,7 +433,15 @@ fn test_d1_edge_with_symbol_data() {
         "INSERT INTO dependency_edges \
          (from_path, to_path, dep_type, symbol_from, symbol_to, symbol_kind, dependency_strength) \
          VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
-        params!["api.rs", "router.rs", "import", "handler", "Router", "class", "strong"],
+        params![
+            "api.rs",
+            "router.rs",
+            "import",
+            "handler",
+            "Router",
+            "class",
+            "strong"
+        ],
     )
     .unwrap();
 
@@ -484,7 +520,9 @@ fn test_d1_delete_edges_for_file() {
     assert_eq!(changes, 2); // Both edges involving a.rs
 
     let remaining: i64 = conn
-        .query_row("SELECT COUNT(*) FROM dependency_edges", [], |row| row.get(0))
+        .query_row("SELECT COUNT(*) FROM dependency_edges", [], |row| {
+            row.get(0)
+        })
         .unwrap();
     assert_eq!(remaining, 1); // Only d.rs -> e.rs remains
 }
@@ -531,16 +569,16 @@ fn test_d1_full_graph_roundtrip() {
 
     // Load and verify.
     let fp_count: i64 = conn
-        .query_row(
-            "SELECT COUNT(*) FROM analysis_fingerprints",
-            [],
-            |row| row.get(0),
-        )
+        .query_row("SELECT COUNT(*) FROM analysis_fingerprints", [], |row| {
+            row.get(0)
+        })
         .unwrap();
     assert_eq!(fp_count, 3);
 
     let edge_count: i64 = conn
-        .query_row("SELECT COUNT(*) FROM dependency_edges", [], |row| row.get(0))
+        .query_row("SELECT COUNT(*) FROM dependency_edges", [], |row| {
+            row.get(0)
+        })
         .unwrap();
     assert_eq!(edge_count, 2);
 
@@ -580,16 +618,16 @@ fn test_d1_full_graph_clear_and_replace() {
     .unwrap();
 
     let fp_count: i64 = conn
-        .query_row(
-            "SELECT COUNT(*) FROM analysis_fingerprints",
-            [],
-            |row| row.get(0),
-        )
+        .query_row("SELECT COUNT(*) FROM analysis_fingerprints", [], |row| {
+            row.get(0)
+        })
         .unwrap();
     assert_eq!(fp_count, 0);
 
     let edge_count: i64 = conn
-        .query_row("SELECT COUNT(*) FROM dependency_edges", [], |row| row.get(0))
+        .query_row("SELECT COUNT(*) FROM dependency_edges", [], |row| {
+            row.get(0)
+        })
         .unwrap();
     assert_eq!(edge_count, 0);
 }
@@ -733,7 +771,11 @@ fn test_d1_performance_edge_traversal() {
     for i in 0..100 {
         conn.execute(
             "INSERT INTO dependency_edges (from_path, to_path, dep_type) VALUES (?1, ?2, ?3)",
-            params![format!("file_{i}.rs"), format!("dep_{}.rs", i % 10), "import"],
+            params![
+                format!("file_{i}.rs"),
+                format!("dep_{}.rs", i % 10),
+                "import"
+            ],
         )
         .unwrap();
     }
@@ -804,7 +846,9 @@ fn test_d1_batch_edge_insertion() {
     }
 
     let count: i64 = conn
-        .query_row("SELECT COUNT(*) FROM dependency_edges", [], |row| row.get(0))
+        .query_row("SELECT COUNT(*) FROM dependency_edges", [], |row| {
+            row.get(0)
+        })
         .unwrap();
     assert_eq!(count, 4);
 }
@@ -824,7 +868,10 @@ fn test_d1_unique_constraint_prevents_duplicate_edges() {
         "INSERT INTO dependency_edges (from_path, to_path, dep_type) VALUES (?1, ?2, ?3)",
         params!["a.rs", "b.rs", "import"],
     );
-    assert!(result.is_err(), "Duplicate edge should violate UNIQUE constraint");
+    assert!(
+        result.is_err(),
+        "Duplicate edge should violate UNIQUE constraint"
+    );
 
     // But same files with different dep_type should succeed.
     conn.execute(
@@ -834,7 +881,9 @@ fn test_d1_unique_constraint_prevents_duplicate_edges() {
     .unwrap();
 
     let count: i64 = conn
-        .query_row("SELECT COUNT(*) FROM dependency_edges", [], |row| row.get(0))
+        .query_row("SELECT COUNT(*) FROM dependency_edges", [], |row| {
+            row.get(0)
+        })
         .unwrap();
     assert_eq!(count, 2);
 }
@@ -887,11 +936,9 @@ fn test_d1_path_with_special_characters() {
     }
 
     let count: i64 = conn
-        .query_row(
-            "SELECT COUNT(*) FROM analysis_fingerprints",
-            [],
-            |row| row.get(0),
-        )
+        .query_row("SELECT COUNT(*) FROM analysis_fingerprints", [], |row| {
+            row.get(0)
+        })
         .unwrap();
     assert_eq!(count, 3);
 }

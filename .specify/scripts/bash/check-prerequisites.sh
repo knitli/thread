@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+# SPDX-FileCopyrightText: 2026 Github
+#
+# SPDX-License-Identifier: MIT
+
 # Consolidated prerequisite checking script
 #
 # This script provides unified prerequisite checking for Spec-Driven Development workflow.

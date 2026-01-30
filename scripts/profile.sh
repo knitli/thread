@@ -1,4 +1,11 @@
 #!/usr/bin/env bash
+
+# SPDX-FileCopyrightText: 2026 Github
+# SPDX-FileCopyrightText: 2026 Knitli Inc.
+#
+# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
 # Performance profiling script for Thread
 # Supports flamegraphs, perf, memory profiling, and custom benchmarks
 

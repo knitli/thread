@@ -8,13 +8,15 @@
 //! These functions bridge the ast-grep functionality with the service layer
 //! abstractions while preserving all ast-grep power.
 
-use crate::ServiceResult;
-use crate::types::{
-    CallInfo, CodeMatch, DocumentMetadata, ImportInfo, ImportKind, ParsedDocument, Range,
-    SymbolInfo, SymbolKind, Visibility,
-};
-use std::collections::HashMap;
+use crate::types::{CodeMatch, ParsedDocument, Range, SymbolInfo, SymbolKind, Visibility};
 use std::path::PathBuf;
+
+#[cfg(feature = "matching")]
+use crate::error::ServiceResult;
+#[cfg(feature = "matching")]
+use crate::types::{CallInfo, DocumentMetadata, ImportInfo, ImportKind};
+#[cfg(feature = "matching")]
+use std::collections::HashMap;
 
 cfg_if::cfg_if!(
     if #[cfg(feature = "ast-grep-backend")] {

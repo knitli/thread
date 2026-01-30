@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2026 Knitli Inc.
+
+SPDX-License-Identifier: MIT OR Apache-2.0
+-->
+
 # Thread Service Level Indicators (SLI) & Objectives (SLO)
 
 **Purpose**: Formal definitions of performance targets and measurement methodologies

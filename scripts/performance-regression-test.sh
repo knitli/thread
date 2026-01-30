@@ -1,4 +1,11 @@
 #!/bin/bash
+
+# SPDX-FileCopyrightText: 2026 Github
+# SPDX-FileCopyrightText: 2026 Knitli Inc.
+#
+# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
 # Performance Regression Detection Script
 # Compares current deployment performance against baseline
 

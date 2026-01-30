@@ -1,4 +1,8 @@
 ---
+# SPDX-FileCopyrightText: 2026 Github
+#
+# SPDX-License-Identifier: MIT
+
 description: Create or update the feature specification from a natural language feature description.
 handoffs: 
   - label: Build Technical Plan

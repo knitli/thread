@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Knitli Inc.
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 use recoco::base::schema::{BasicValueType, EnrichedValueType, FieldSchema, ValueType};
 use recoco::base::value::{BasicValue, FieldValues, KeyValue, Value};
 use recoco::ops::factory_bases::TargetFactoryBase;

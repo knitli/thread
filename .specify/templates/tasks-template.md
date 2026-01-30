@@ -1,4 +1,7 @@
 ---
+# SPDX-FileCopyrightText: 2026 Github
+#
+# SPDX-License-Identifier: MIT
 
 description: "Task list template for feature implementation"
 ---

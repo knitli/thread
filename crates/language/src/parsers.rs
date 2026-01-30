@@ -272,12 +272,12 @@ pub fn language_c_sharp() -> TSLanguage {
         .get_or_init(|| into_lang!(tree_sitter_c_sharp))
         .clone()
 }
-#[cfg(all(any(
+#[cfg(any(
     feature = "css",
     feature = "all-parsers",
     feature = "css-napi",
     feature = "napi-compatible"
-)))]
+))]
 pub fn language_css() -> TSLanguage {
     CSS_LANG
         .get_or_init(|| into_napi_lang!(tree_sitter_css::LANGUAGE))

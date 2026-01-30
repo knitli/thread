@@ -526,7 +526,8 @@ mod tests {
         }
 
         let snapshot = metrics.snapshot();
-        assert_eq!(snapshot.query_latency_p50, 50);
+        // With 10 values, p50_idx = (10 * 0.50) as usize = 5, sorted[5] = 60
+        assert_eq!(snapshot.query_latency_p50, 60);
         assert_eq!(snapshot.query_latency_p95, 100);
         assert_eq!(snapshot.query_latency_p99, 100);
     }

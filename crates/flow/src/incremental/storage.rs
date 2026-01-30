@@ -18,7 +18,9 @@
 use super::graph::{DependencyGraph, GraphError};
 use super::types::{AnalysisDefFingerprint, DependencyEdge};
 use async_trait::async_trait;
+use metrics::{counter, histogram};
 use std::path::{Path, PathBuf};
+use tracing::{debug, instrument};
 
 /// Errors that can occur during storage operations.
 #[derive(Debug)]
@@ -145,6 +147,11 @@ pub trait StorageBackend: Send + Sync + std::fmt::Debug {
     /// This performs a full replacement of the stored graph.
     /// Used after graph rebuilds or major updates.
     async fn save_full_graph(&self, graph: &DependencyGraph) -> Result<(), StorageError>;
+
+    /// Returns the name of this storage backend for observability.
+    ///
+    /// Used in tracing spans and metrics to identify the storage implementation.
+    fn name(&self) -> &'static str;
 }
 
 /// In-memory storage backend for testing purposes.
@@ -183,22 +190,33 @@ impl Default for InMemoryStorage {
 
 #[async_trait]
 impl StorageBackend for InMemoryStorage {
+    #[instrument(skip(self, fingerprint), fields(backend = "inmemory"))]
     async fn save_fingerprint(
         &self,
         file_path: &Path,
         fingerprint: &AnalysisDefFingerprint,
     ) -> Result<(), StorageError> {
+        debug!(file_path = ?file_path, "saving fingerprint");
+        let start = std::time::Instant::now();
         let mut fps = self.fingerprints.write().await;
         fps.insert(file_path.to_path_buf(), fingerprint.clone());
+        histogram!("storage_write_latency_ms").record(start.elapsed().as_micros() as f64 / 1000.0);
+        counter!("storage_writes_total", "backend" => "inmemory").increment(1);
         Ok(())
     }
 
+    #[instrument(skip(self), fields(backend = "inmemory"))]
     async fn load_fingerprint(
         &self,
         file_path: &Path,
     ) -> Result<Option<AnalysisDefFingerprint>, StorageError> {
+        debug!(file_path = ?file_path, "loading fingerprint");
+        let start = std::time::Instant::now();
         let fps = self.fingerprints.read().await;
-        Ok(fps.get(file_path).cloned())
+        let result = fps.get(file_path).cloned();
+        histogram!("storage_read_latency_ms").record(start.elapsed().as_micros() as f64 / 1000.0);
+        counter!("storage_reads_total", "backend" => "inmemory").increment(1);
+        Ok(result)
     }
 
     async fn delete_fingerprint(&self, file_path: &Path) -> Result<bool, StorageError> {
@@ -269,6 +287,10 @@ impl StorageBackend for InMemoryStorage {
         edges.extend(graph.edges.iter().cloned());
 
         Ok(())
+    }
+
+    fn name(&self) -> &'static str {
+        "inmemory"
     }
 }
 

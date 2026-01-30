@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Knitli Inc.
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 /// Simple calculator with basic arithmetic operations
 pub struct Calculator {
     result: f64,

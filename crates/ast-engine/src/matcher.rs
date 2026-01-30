@@ -115,7 +115,7 @@ use std::ops::Deref;
 
 use crate::replacer::Replacer;
 
-/// Thread-local cache for compiled patterns, keyed by (`pattern_source`e``language_type_id`_id`).
+/// Thread-local cache for compiled patterns, keyed by (`pattern_source`, `language_type_id`).
 ///
 /// Pattern compilation via `Pattern::try_new` involves tree-sitter parsing which is
 /// expensive (~100µs). This cache eliminates redundant compilations when the same

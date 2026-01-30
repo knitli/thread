@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2026 Knitli Inc.
+
+SPDX-License-Identifier: MIT OR Apache-2.0
+-->
+
 # Dashboard Deployment Guide
 
 **Purpose**: Instructions for deploying Thread performance dashboards to Grafana and DataDog

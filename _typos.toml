@@ -1,5 +1,6 @@
 # SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
 # SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+# SPDX-FileContributor: Claude Sonnet 4.5 <noreply@anthropic.com>
 #
 # SPDX-License-Identifier: MIT OR Apache-2.0
 [default]
@@ -8,6 +9,8 @@ check-file = true
 check-filename = true
 extend-ignore-re = [
   "(?s)(#|//)\\s*spellchecker:off.*?\\n\\s*(#|//)\\s*spellchecker:on",
+  "\\[\\d+;\\d+m",  # ANSI color codes (e.g., [38;5;231m)
+  "\\[\\d+m",  # Simple ANSI codes (e.g., [0m)
 ]
 extend-ignore-identifiers-re = [
   "iif",
@@ -18,6 +21,7 @@ extend-ignore-identifiers-re = [
   "i18n-tc",
   "strat",
   "Inferrable",
+  "mis",  # Appears in ANSI escape sequences like [38;5;231m
 ]
 
 [files]
@@ -39,4 +43,5 @@ extend-exclude = [
   "src/assets/videos/**/*",
   "src/assets/fonts/**/*",
   "src/assets/images/**/*",
+  "**/claudedocs/**/*",  # Claude-generated docs may contain terminal output with ANSI codes
 ]

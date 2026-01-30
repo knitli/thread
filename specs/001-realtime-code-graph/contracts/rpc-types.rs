@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Knitli Inc.
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 //! RPC Type Definitions for Real-Time Code Graph Intelligence
 //!
 //! These types are shared across CLI and Edge deployments for API consistency.

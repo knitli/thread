@@ -264,3 +264,4 @@ sbom.spdx
 
 # Proprietary Cloudflare Workers deployment (not for public distribution)
 crates/cloudflare/
+crates/cloudflare/**/

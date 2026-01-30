@@ -1,373 +1,368 @@
-[38;5;238m─────┬──────────────────────────────────────────────────────────────────────────[0m
-     [38;5;238m│ [0m[1mSTDIN[0m
-[38;5;238m─────┼──────────────────────────────────────────────────────────────────────────[0m
-[38;5;238m   1[0m [38;5;238m│[0m [38;5;231m# SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>[0m
-[38;5;238m   2[0m [38;5;238m│[0m [38;5;231m# SPDX-FileContributor: Adam Poulemanos <adam@knit.li>[0m
-[38;5;238m   3[0m [38;5;238m│[0m [38;5;231m#[0m
-[38;5;238m   4[0m [38;5;238m│[0m [38;5;231m# SPDX-License-Identifier: MIT OR Apache-2.0[0m
-[38;5;238m   5[0m [38;5;238m│[0m [38;5;231m# ! GitHub Action for automated releases[0m
-[38;5;238m   6[0m [38;5;238m│[0m [38;5;231m# ! Builds and publishes releases for multiple platforms[0m
-[38;5;238m   7[0m [38;5;238m│[0m [38;5;231mname: Release[0m
-[38;5;238m   8[0m [38;5;238m│[0m 
-[38;5;238m   9[0m [38;5;238m│[0m [38;5;231mon:[0m
-[38;5;238m  10[0m [38;5;238m│[0m [38;5;231m  push:[0m
-[38;5;238m  11[0m [38;5;238m│[0m [38;5;231m    tags:[0m
-[38;5;238m  12[0m [38;5;238m│[0m [38;5;231m      - "v*.*.*"[0m
-[38;5;238m  13[0m [38;5;238m│[0m [38;5;231m  workflow_dispatch:[0m
-[38;5;238m  14[0m [38;5;238m│[0m [38;5;231m    inputs:[0m
-[38;5;238m  15[0m [38;5;238m│[0m [38;5;231m      version:[0m
-[38;5;238m  16[0m [38;5;238m│[0m [38;5;231m        description: "Version to release (e.g., 0.1.0)"[0m
-[38;5;238m  17[0m [38;5;238m│[0m [38;5;231m        required: true[0m
-[38;5;238m  18[0m [38;5;238m│[0m [38;5;231m        type: string[0m
-[38;5;238m  19[0m [38;5;238m│[0m 
-[38;5;238m  20[0m [38;5;238m│[0m [38;5;231menv:[0m
-[38;5;238m  21[0m [38;5;238m│[0m [38;5;231m  CARGO_TERM_COLOR: always[0m
-[38;5;238m  22[0m [38;5;238m│[0m [38;5;231m  CARGO_INCREMENTAL: 0[0m
-[38;5;238m  23[0m [38;5;238m│[0m 
-[38;5;238m  24[0m [38;5;238m│[0m [38;5;231mpermissions:[0m
-[38;5;238m  25[0m [38;5;238m│[0m [38;5;231m  contents: write[0m
-[38;5;238m  26[0m [38;5;238m│[0m [38;5;231m  packages: write[0m
-[38;5;238m  27[0m [38;5;238m│[0m 
-[38;5;238m  28[0m [38;5;238m│[0m [38;5;231mjobs:[0m
-[38;5;238m  29[0m [38;5;238m│[0m [38;5;231m  # Create GitHub release[0m
-[38;5;238m  30[0m [38;5;238m│[0m [38;5;231m  create-release:[0m
-[38;5;238m  31[0m [38;5;238m│[0m [38;5;231m    name: Create Release[0m
-[38;5;238m  32[0m [38;5;238m│[0m [38;5;231m    runs-on: ubuntu-latest[0m
-[38;5;238m  33[0m [38;5;238m│[0m [38;5;231m    outputs:[0m
-[38;5;238m  34[0m [38;5;238m│[0m [38;5;231m      upload_url: ${{ steps.create_release.outputs.upload_url }}[0m
-[38;5;238m  35[0m [38;5;238m│[0m [38;5;231m      version: ${{ steps.get_version.outputs.version }}[0m
-[38;5;238m  36[0m [38;5;238m│[0m [38;5;231m    steps:[0m
-[38;5;238m  37[0m [38;5;238m│[0m [38;5;231m      - uses: actions/checkout@v4[0m
-[38;5;238m  38[0m [38;5;238m│[0m [38;5;231m        with:[0m
-[38;5;238m  39[0m [38;5;238m│[0m [38;5;231m          fetch-depth: 0[0m
-[38;5;238m  40[0m [38;5;238m│[0m 
-[38;5;238m  41[0m [38;5;238m│[0m [38;5;231m      - name: Get version[0m
-[38;5;238m  42[0m [38;5;238m│[0m [38;5;231m        id: get_version[0m
-[38;5;238m  43[0m [38;5;238m│[0m [38;5;231m        env:[0m
-[38;5;238m  44[0m [38;5;238m│[0m [38;5;231m          INPUT_VERSION: ${{ github.event.inputs.version }}[0m
-[38;5;238m  45[0m [38;5;238m│[0m [38;5;231m          REF_NAME: ${{ github.ref }}[0m
-[38;5;238m  46[0m [38;5;238m│[0m [38;5;231m        run: |[0m
-[38;5;238m  47[0m [38;5;238m│[0m [38;5;231m          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then[0m
-[38;5;238m  48[0m [38;5;238m│[0m [38;5;231m            VERSION="${INPUT_VERSION}"[0m
-[38;5;238m  49[0m [38;5;238m│[0m [38;5;231m          else[0m
-[38;5;238m  50[0m [38;5;238m│[0m [38;5;231m            VERSION=${REF_NAME#refs/tags/v}[0m
-[38;5;238m  51[0m [38;5;238m│[0m [38;5;231m          fi[0m
-[38;5;238m  52[0m [38;5;238m│[0m [38;5;231m          echo "version=${VERSION}" >> $GITHUB_OUTPUT[0m
-[38;5;238m  53[0m [38;5;238m│[0m [38;5;231m          echo "Version: ${VERSION}"[0m
-[38;5;238m  54[0m [38;5;238m│[0m 
-[38;5;238m  55[0m [38;5;238m│[0m [38;5;231m      - name: Generate changelog[0m
-[38;5;238m  56[0m [38;5;238m│[0m [38;5;231m        id: changelog[0m
-[38;5;238m  57[0m [38;5;238m│[0m [38;5;231m        env:[0m
-[38;5;238m  58[0m [38;5;238m│[0m [38;5;231m          VERSION: ${{ steps.get_version.outputs.version }}[0m
-[38;5;238m  59[0m [38;5;238m│[0m [38;5;231m        run: |[0m
-[38;5;238m  60[0m [38;5;238m│[0m [38;5;231m          # Extract changelog for this version[0m
-[38;5;238m  61[0m [38;5;238m│[0m [38;5;231m          if [ -f "CHANGELOG.md" ]; then[0m
-[38;5;238m  62[0m [38;5;238m│[0m [38;5;231m            CHANGELOG=$(sed -n "/## \[${VERSION}\]/,/## \[/p" CHANGELOG.md | sed '$ d')[0m
-[38;5;238m  63[0m [38;5;238m│[0m [38;5;231m          else[0m
-[38;5;238m  64[0m [38;5;238m│[0m [38;5;231m            CHANGELOG="Release ${VERSION}"[0m
-[38;5;238m  65[0m [38;5;238m│[0m [38;5;231m          fi[0m
-[38;5;238m  66[0m [38;5;238m│[0m [38;5;231m          echo "changelog<<EOF" >> $GITHUB_OUTPUT[0m
-[38;5;238m  67[0m [38;5;238m│[0m [38;5;231m          echo "${CHANGELOG}" >> $GITHUB_OUTPUT[0m
-[38;5;238m  68[0m [38;5;238m│[0m [38;5;231m          echo "EOF" >> $GITHUB_OUTPUT[0m
-[38;5;238m  69[0m [38;5;238m│[0m 
-[38;5;238m  70[0m [38;5;238m│[0m [38;5;231m      - name: Create GitHub Release[0m
-[38;5;238m  71[0m [38;5;238m│[0m [38;5;231m        id: create_release[0m
-[38;5;238m  72[0m [38;5;238m│[0m [38;5;231m        uses: actions/create-release@v1[0m
-[38;5;238m  73[0m [38;5;238m│[0m [38;5;231m        env:[0m
-[38;5;238m  74[0m [38;5;238m│[0m [38;5;231m          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}[0m
-[38;5;238m  75[0m [38;5;238m│[0m [38;5;231m        with:[0m
-[38;5;238m  76[0m [38;5;238m│[0m [38;5;231m          tag_name: v${{ steps.get_version.outputs.version }}[0m
-[38;5;238m  77[0m [38;5;238m│[0m [38;5;231m          release_name: Release ${{ steps.get_version.outputs.version }}[0m
-[38;5;238m  78[0m [38;5;238m│[0m [38;5;231m          body: ${{ steps.changelog.outputs.changelog }}[0m
-[38;5;238m  79[0m [38;5;238m│[0m [38;5;231m          draft: false[0m
-[38;5;238m  80[0m [38;5;238m│[0m [38;5;231m          prerelease: false[0m
-[38;5;238m  81[0m [38;5;238m│[0m 
-[38;5;238m  82[0m [38;5;238m│[0m [38;5;231m  # Build CLI binaries for multiple platforms[0m
-[38;5;238m  83[0m [38;5;238m│[0m [38;5;231m  build-cli:[0m
-[38;5;238m  84[0m [38;5;238m│[0m [38;5;231m    name: Build CLI (${{ matrix.target }})[0m
-[38;5;238m  85[0m [38;5;238m│[0m [38;5;231m    needs: create-release[0m
-[38;5;238m  86[0m [38;5;238m│[0m [38;5;231m    strategy:[0m
-[38;5;238m  87[0m [38;5;238m│[0m [38;5;231m      fail-fast: false[0m
-[38;5;238m  88[0m [38;5;238m│[0m [38;5;231m      matrix:[0m
-[38;5;238m  89[0m [38;5;238m│[0m [38;5;231m        include:[0m
-[38;5;238m  90[0m [38;5;238m│[0m [38;5;231m          # Linux x86_64[0m
-[38;5;238m  91[0m [38;5;238m│[0m [38;5;231m          - target: x86_64-unknown-linux-gnu[0m
-[38;5;238m  92[0m [38;5;238m│[0m [38;5;231m            os: ubuntu-latest[0m
-[38;5;238m  93[0m [38;5;238m│[0m [38;5;231m            cross: false[0m
-[38;5;238m  94[0m [38;5;238m│[0m [38;5;231m            strip: true[0m
-[38;5;238m  95[0m [38;5;238m│[0m 
-[38;5;238m  96[0m [38;5;238m│[0m [38;5;231m          # Linux x86_64 (musl for static linking)[0m
-[38;5;238m  97[0m [38;5;238m│[0m [38;5;231m          - target: x86_64-unknown-linux-musl[0m
-[38;5;238m  98[0m [38;5;238m│[0m [38;5;231m            os: ubuntu-latest[0m
-[38;5;238m  99[0m [38;5;238m│[0m [38;5;231m            cross: true[0m
-[38;5;238m 100[0m [38;5;238m│[0m [38;5;231m            strip: true[0m
-[38;5;238m 101[0m [38;5;238m│[0m 
-[38;5;238m 102[0m [38;5;238m│[0m [38;5;231m          # Linux ARM64[0m
-[38;5;238m 103[0m [38;5;238m│[0m [38;5;231m          - target: aarch64-unknown-linux-gnu[0m
-[38;5;238m 104[0m [38;5;238m│[0m [38;5;231m            os: ubuntu-latest[0m
-[38;5;238m 105[0m [38;5;238m│[0m [38;5;231m            cross: true[0m
-[38;5;238m 106[0m [38;5;238m│[0m [38;5;231m            strip: false[0m
-[38;5;238m 107[0m [38;5;238m│[0m 
-[38;5;238m 108[0m [38;5;238m│[0m [38;5;231m          # macOS x86_64[0m
-[38;5;238m 109[0m [38;5;238m│[0m [38;5;231m          - target: x86_64-apple-darwin[0m
-[38;5;238m 110[0m [38;5;238m│[0m [38;5;231m            os: macos-latest[0m
-[38;5;238m 111[0m [38;5;238m│[0m [38;5;231m            cross: false[0m
-[38;5;238m 112[0m [38;5;238m│[0m [38;5;231m            strip: true[0m
-[38;5;238m 113[0m [38;5;238m│[0m 
-[38;5;238m 114[0m [38;5;238m│[0m [38;5;231m          # macOS ARM64 (Apple Silicon)[0m
-[38;5;238m 115[0m [38;5;238m│[0m [38;5;231m          - target: aarch64-apple-darwin[0m
-[38;5;238m 116[0m [38;5;238m│[0m [38;5;231m            os: macos-latest[0m
-[38;5;238m 117[0m [38;5;238m│[0m [38;5;231m            cross: false[0m
-[38;5;238m 118[0m [38;5;238m│[0m [38;5;231m            strip: true[0m
-[38;5;238m 119[0m [38;5;238m│[0m 
-[38;5;238m 120[0m [38;5;238m│[0m [38;5;231m          # Windows x86_64[0m
-[38;5;238m 121[0m [38;5;238m│[0m [38;5;231m          - target: x86_64-pc-windows-msvc[0m
-[38;5;238m 122[0m [38;5;238m│[0m [38;5;231m            os: windows-latest[0m
-[38;5;238m 123[0m [38;5;238m│[0m [38;5;231m            cross: false[0m
-[38;5;238m 124[0m [38;5;238m│[0m [38;5;231m            strip: false[0m
-[38;5;238m 125[0m [38;5;238m│[0m [38;5;231m            ext: .exe[0m
-[38;5;238m 126[0m [38;5;238m│[0m 
-[38;5;238m 127[0m [38;5;238m│[0m [38;5;231m    runs-on: ${{ matrix.os }}[0m
-[38;5;238m 128[0m [38;5;238m│[0m [38;5;231m    steps:[0m
-[38;5;238m 129[0m [38;5;238m│[0m [38;5;231m      - uses: actions/checkout@v4[0m
-[38;5;238m 130[0m [38;5;238m│[0m [38;5;231m        with:[0m
-[38;5;238m 131[0m [38;5;238m│[0m [38;5;231m          submodules: recursive[0m
-[38;5;238m 132[0m [38;5;238m│[0m 
-[38;5;238m 133[0m [38;5;238m│[0m [38;5;231m      - name: Install Rust[0m
-[38;5;238m 134[0m [38;5;238m│[0m [38;5;231m        uses: dtolnay/rust-toolchain@stable[0m
-[38;5;238m 135[0m [38;5;238m│[0m [38;5;231m        with:[0m
-[38;5;238m 136[0m [38;5;238m│[0m [38;5;231m          targets: ${{ matrix.target }}[0m
-[38;5;238m 137[0m [38;5;238m│[0m 
-[38;5;238m 138[0m [38;5;238m│[0m [38;5;231m      - name: Cache Rust dependencies[0m
-[38;5;238m 139[0m [38;5;238m│[0m [38;5;231m        uses: Swatinem/rust-cache@v2[0m
-[38;5;238m 140[0m [38;5;238m│[0m [38;5;231m        with:[0m
-[38;5;238m 141[0m [38;5;238m│[0m [38;5;231m          key: ${{ matrix.target }}[0m
-[38;5;238m 142[0m [38;5;238m│[0m 
-[38;5;238m 143[0m [38;5;238m│[0m [38;5;231m      - name: Install cross (if needed)[0m
-[38;5;238m 144[0m [38;5;238m│[0m [38;5;231m        if: matrix.cross[0m
-[38;5;238m 145[0m [38;5;238m│[0m [38;5;231m        run: cargo install cross --git https://github.com/cross-rs/cross[0m
-[38;5;238m 146[0m [38;5;238m│[0m 
-[38;5;238m 147[0m [38;5;238m│[0m [38;5;231m      - name: Build release binary[0m
-[38;5;238m 148[0m [38;5;238m│[0m [38;5;231m        env:[0m
-[38;5;238m 149[0m [38;5;238m│[0m [38;5;231m          TARGET: ${{ matrix.target }}[0m
-[38;5;238m 150[0m [38;5;238m│[0m [38;5;231m          USE_CROSS: ${{ matrix.cross }}[0m
-[38;5;238m 151[0m [38;5;238m│[0m [38;5;231m        run: |[0m
-[38;5;238m 152[0m [38;5;238m│[0m [38;5;231m          if [ "${USE_CROSS}" == "true" ]; then[0m
-[38;5;238m 153[0m [38;5;238m│[0m [38;5;231m            cross build --release --target "${TARGET}" --features parallel,caching[0m
-[38;5;238m 154[0m [38;5;238m│[0m [38;5;231m          else[0m
-[38;5;238m 155[0m [38;5;238m│[0m [38;5;231m            cargo build --release --target "${TARGET}" --features parallel,caching[0m
-[38;5;238m 156[0m [38;5;238m│[0m [38;5;231m          fi[0m
-[38;5;238m 157[0m [38;5;238m│[0m [38;5;231m        shell: bash[0m
-[38;5;238m 158[0m [38;5;238m│[0m 
-[38;5;238m 159[0m [38;5;238m│[0m [38;5;231m      - name: Strip binary (if applicable)[0m
-[38;5;238m 160[0m [38;5;238m│[0m [38;5;231m        if: matrix.strip[0m
-[38;5;238m 161[0m [38;5;238m│[0m [38;5;231m        env:[0m
-[38;5;238m 162[0m [38;5;238m│[0m [38;5;231m          TARGET: ${{ matrix.target }}[0m
-[38;5;238m 163[0m [38;5;238m│[0m [38;5;231m          EXT: ${{ matrix.ext }}[0m
-[38;5;238m 164[0m [38;5;238m│[0m [38;5;231m        run: |[0m
-[38;5;238m 165[0m [38;5;238m│[0m [38;5;231m          strip "target/${TARGET}/release/thread${EXT}"[0m
-[38;5;238m 166[0m [38;5;238m│[0m [38;5;231m        shell: bash[0m
-[38;5;238m 167[0m [38;5;238m│[0m 
-[38;5;238m 168[0m [38;5;238m│[0m [38;5;231m      - name: Create archive[0m
-[38;5;238m 169[0m [38;5;238m│[0m [38;5;231m        id: archive[0m
-[38;5;238m 170[0m [38;5;238m│[0m [38;5;231m        env:[0m
-[38;5;238m 171[0m [38;5;238m│[0m [38;5;231m          VERSION: ${{ needs.create-release.outputs.version }}[0m
-[38;5;238m 172[0m [38;5;238m│[0m [38;5;231m          TARGET: ${{ matrix.target }}[0m
-[38;5;238m 173[0m [38;5;238m│[0m [38;5;231m          OS_TYPE: ${{ matrix.os }}[0m
-[38;5;238m 174[0m [38;5;238m│[0m [38;5;231m        run: |[0m
-[38;5;238m 175[0m [38;5;238m│[0m [38;5;231m          ARCHIVE_NAME="thread-${VERSION}-${TARGET}"[0m
-[38;5;238m 176[0m [38;5;238m│[0m 
-[38;5;238m 177[0m [38;5;238m│[0m [38;5;231m          if [ "${OS_TYPE}" == "windows-latest" ]; then[0m
-[38;5;238m 178[0m [38;5;238m│[0m [38;5;231m            7z a "${ARCHIVE_NAME}.zip" "./target/${TARGET}/release/thread.exe"[0m
-[38;5;238m 179[0m [38;5;238m│[0m [38;5;231m            echo "asset_path=${ARCHIVE_NAME}.zip" >> $GITHUB_OUTPUT[0m
-[38;5;238m 180[0m [38;5;238m│[0m [38;5;231m            echo "asset_content_type=application/zip" >> $GITHUB_OUTPUT[0m
-[38;5;238m 181[0m [38;5;238m│[0m [38;5;231m          else[0m
-[38;5;238m 182[0m [38;5;238m│[0m [38;5;231m            tar czf "${ARCHIVE_NAME}.tar.gz" -C "target/${TARGET}/release" thread[0m
-[38;5;238m 183[0m [38;5;238m│[0m [38;5;231m            echo "asset_path=${ARCHIVE_NAME}.tar.gz" >> $GITHUB_OUTPUT[0m
-[38;5;238m 184[0m [38;5;238m│[0m [38;5;231m            echo "asset_content_type=application/gzip" >> $GITHUB_OUTPUT[0m
-[38;5;238m 185[0m [38;5;238m│[0m [38;5;231m          fi[0m
-[38;5;238m 186[0m [38;5;238m│[0m [38;5;231m          echo "asset_name=${ARCHIVE_NAME}" >> $GITHUB_OUTPUT[0m
-[38;5;238m 187[0m [38;5;238m│[0m [38;5;231m        shell: bash[0m
-[38;5;238m 188[0m [38;5;238m│[0m 
-[38;5;238m 189[0m [38;5;238m│[0m [38;5;231m      - name: Upload release asset[0m
-[38;5;238m 190[0m [38;5;238m│[0m [38;5;231m        uses: actions/upload-release-asset@v1[0m
-[38;5;238m 191[0m [38;5;238m│[0m [38;5;231m        env:[0m
-[38;5;238m 192[0m [38;5;238m│[0m [38;5;231m          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}[0m
-[38;5;238m 193[0m [38;5;238m│[0m [38;5;231m        with:[0m
-[38;5;238m 194[0m [38;5;238m│[0m [38;5;231m          upload_url: ${{ needs.create-release.outputs.upload_url }}[0m
-[38;5;238m 195[0m [38;5;238m│[0m [38;5;231m          asset_path: ${{ steps.archive.outputs.asset_path }}[0m
-[38;5;238m 196[0m [38;5;238m│[0m [38;5;231m          asset_name: ${{ steps.archive.outputs.asset_name }}${{ matrix.os == 'windows-latest' && '.zip' || '.tar.gz' }}[0m
-[38;5;238m 197[0m [38;5;238m│[0m [38;5;231m          asset_content_type: ${{ steps.archive.outputs.asset_content_type }}[0m
-[38;5;238m 198[0m [38;5;238m│[0m 
-[38;5;238m 199[0m [38;5;238m│[0m [38;5;231m  # Build and publish WASM package[0m
-[38;5;238m 200[0m [38;5;238m│[0m [38;5;231m  build-wasm:[0m
-[38;5;238m 201[0m [38;5;238m│[0m [38;5;231m    name: Build & Publish WASM[0m
-[38;5;238m 202[0m [38;5;238m│[0m [38;5;231m    needs: create-release[0m
-[38;5;238m 203[0m [38;5;238m│[0m [38;5;231m    runs-on: ubuntu-latest[0m
-[38;5;238m 204[0m [38;5;238m│[0m [38;5;231m    steps:[0m
-[38;5;238m 205[0m [38;5;238m│[0m [38;5;231m      - uses: actions/checkout@v4[0m
-[38;5;238m 206[0m [38;5;238m│[0m [38;5;231m        with:[0m
-[38;5;238m 207[0m [38;5;238m│[0m [38;5;231m          submodules: recursive[0m
-[38;5;238m 208[0m [38;5;238m│[0m 
-[38;5;238m 209[0m [38;5;238m│[0m [38;5;231m      - name: Install Rust[0m
-[38;5;238m 210[0m [38;5;238m│[0m [38;5;231m        uses: dtolnay/rust-toolchain@stable[0m
-[38;5;238m 211[0m [38;5;238m│[0m [38;5;231m        with:[0m
-[38;5;238m 212[0m [38;5;238m│[0m [38;5;231m          targets: wasm32-unknown-unknown[0m
-[38;5;238m 213[0m [38;5;238m│[0m 
-[38;5;238m 214[0m [38;5;238m│[0m [38;5;231m      - name: Cache Rust dependencies[0m
-[38;5;238m 215[0m [38;5;238m│[0m [38;5;231m        uses: Swatinem/rust-cache@v2[0m
-[38;5;238m 216[0m [38;5;238m│[0m 
-[38;5;238m 217[0m [38;5;238m│[0m [38;5;231m      - name: Install wasm-pack[0m
-[38;5;238m 218[0m [38;5;238m│[0m [38;5;231m        uses: jetli/wasm-pack-action@v0.4.0[0m
-[38;5;238m 219[0m [38;5;238m│[0m 
-[38;5;238m 220[0m [38;5;238m│[0m [38;5;231m      - name: Build WASM package[0m
-[38;5;238m 221[0m [38;5;238m│[0m [38;5;231m        run: cargo run -p xtask build-wasm --release[0m
-[38;5;238m 222[0m [38;5;238m│[0m 
-[38;5;238m 223[0m [38;5;238m│[0m [38;5;231m      - name: Create WASM archive[0m
-[38;5;238m 224[0m [38;5;238m│[0m [38;5;231m        env:[0m
-[38;5;238m 225[0m [38;5;238m│[0m [38;5;231m          VERSION: ${{ needs.create-release.outputs.version }}[0m
-[38;5;238m 226[0m [38;5;238m│[0m [38;5;231m        run: |[0m
-[38;5;238m 227[0m [38;5;238m│[0m [38;5;231m          ARCHIVE_NAME="thread-wasm-${VERSION}"[0m
-[38;5;238m 228[0m [38;5;238m│[0m [38;5;231m          tar czf "${ARCHIVE_NAME}.tar.gz" \[0m
-[38;5;238m 229[0m [38;5;238m│[0m [38;5;231m            thread_wasm_bg.wasm \[0m
-[38;5;238m 230[0m [38;5;238m│[0m [38;5;231m            thread_wasm.js \[0m
-[38;5;238m 231[0m [38;5;238m│[0m [38;5;231m            thread_wasm.d.ts \[0m
-[38;5;238m 232[0m [38;5;238m│[0m [38;5;231m            package.json[0m
-[38;5;238m 233[0m [38;5;238m│[0m 
-[38;5;238m 234[0m [38;5;238m│[0m [38;5;231m      - name: Upload WASM archive[0m
-[38;5;238m 235[0m [38;5;238m│[0m [38;5;231m        uses: actions/upload-release-asset@v1[0m
-[38;5;238m 236[0m [38;5;238m│[0m [38;5;231m        env:[0m
-[38;5;238m 237[0m [38;5;238m│[0m [38;5;231m          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}[0m
-[38;5;238m 238[0m [38;5;238m│[0m [38;5;231m          VERSION: ${{ needs.create-release.outputs.version }}[0m
-[38;5;238m 239[0m [38;5;238m│[0m [38;5;231m        with:[0m
-[38;5;238m 240[0m [38;5;238m│[0m [38;5;231m          upload_url: ${{ needs.create-release.outputs.upload_url }}[0m
-[38;5;238m 241[0m [38;5;238m│[0m [38;5;231m          asset_path: thread-wasm-${{ needs.create-release.outputs.version }}.tar.gz[0m
-[38;5;238m 242[0m [38;5;238m│[0m [38;5;231m          asset_name: thread-wasm-${{ needs.create-release.outputs.version }}.tar.gz[0m
-[38;5;238m 243[0m [38;5;238m│[0m [38;5;231m          asset_content_type: application/gzip[0m
-[38;5;238m 244[0m [38;5;238m│[0m 
-[38;5;238m 245[0m [38;5;238m│[0m [38;5;231m  # Build Docker images[0m
-[38;5;238m 246[0m [38;5;238m│[0m [38;5;231m  build-docker:[0m
-[38;5;238m 247[0m [38;5;238m│[0m [38;5;231m    name: Build Docker Images[0m
-[38;5;238m 248[0m [38;5;238m│[0m [38;5;231m    needs: create-release[0m
-[38;5;238m 249[0m [38;5;238m│[0m [38;5;231m    runs-on: ubuntu-latest[0m
-[38;5;238m 250[0m [38;5;238m│[0m [38;5;231m    steps:[0m
-[38;5;238m 251[0m [38;5;238m│[0m [38;5;231m      - uses: actions/checkout@v4[0m
-[38;5;238m 252[0m [38;5;238m│[0m [38;5;231m        with:[0m
-[38;5;238m 253[0m [38;5;238m│[0m [38;5;231m          submodules: recursive[0m
-[38;5;238m 254[0m [38;5;238m│[0m 
-[38;5;238m 255[0m [38;5;238m│[0m [38;5;231m      - name: Set up Docker Buildx[0m
-[38;5;238m 256[0m [38;5;238m│[0m [38;5;231m        uses: docker/setup-buildx-action@v3[0m
-[38;5;238m 257[0m [38;5;238m│[0m 
-[38;5;238m 258[0m [38;5;238m│[0m [38;5;231m      - name: Login to GitHub Container Registry[0m
-[38;5;238m 259[0m [38;5;238m│[0m [38;5;231m        uses: docker/login-action@v3[0m
-[38;5;238m 260[0m [38;5;238m│[0m [38;5;231m        with:[0m
-[38;5;238m 261[0m [38;5;238m│[0m [38;5;231m          registry: ghcr.io[0m
-[38;5;238m 262[0m [38;5;238m│[0m [38;5;231m          username: ${{ github.actor }}[0m
-[38;5;238m 263[0m [38;5;238m│[0m [38;5;231m          password: ${{ secrets.GITHUB_TOKEN }}[0m
-[38;5;238m 264[0m [38;5;238m│[0m 
-[38;5;238m 265[0m [38;5;238m│[0m [38;5;231m      - name: Build metadata[0m
-[38;5;238m 266[0m [38;5;238m│[0m [38;5;231m        id: meta[0m
-[38;5;238m 267[0m [38;5;238m│[0m [38;5;231m        uses: docker/metadata-action@v5[0m
-[38;5;238m 268[0m [38;5;238m│[0m [38;5;231m        with:[0m
-[38;5;238m 269[0m [38;5;238m│[0m [38;5;231m          images: ghcr.io/${{ github.repository }}[0m
-[38;5;238m 270[0m [38;5;238m│[0m [38;5;231m          tags: |[0m
-[38;5;238m 271[0m [38;5;238m│[0m [38;5;231m            type=semver,pattern={{version}},value=v${{ needs.create-release.outputs.version }}[0m
-[38;5;238m 272[0m [38;5;238m│[0m [38;5;231m            type=semver,pattern={{major}}.{{minor}},value=v${{ needs.create-release.outputs.version }}[0m
-[38;5;238m 273[0m [38;5;238m│[0m [38;5;231m            type=semver,pattern={{major}},value=v${{ needs.create-release.outputs.version }}[0m
-[38;5;238m 274[0m [38;5;238m│[0m [38;5;231m            type=raw,value=latest[0m
-[38;5;238m 275[0m [38;5;238m│[0m 
-[38;5;238m 276[0m [38;5;238m│[0m [38;5;231m      - name: Build and push[0m
-[38;5;238m 277[0m [38;5;238m│[0m [38;5;231m        uses: docker/build-push-action@v5[0m
-[38;5;238m 278[0m [38;5;238m│[0m [38;5;231m        with:[0m
-[38;5;238m 279[0m [38;5;238m│[0m [38;5;231m          context: .[0m
-[38;5;238m 280[0m [38;5;238m│[0m [38;5;231m          platforms: linux/amd64,linux/arm64[0m
-[38;5;238m 281[0m [38;5;238m│[0m [38;5;231m          push: true[0m
-[38;5;238m 282[0m [38;5;238m│[0m [38;5;231m          tags: ${{ steps.meta.outputs.tags }}[0m
-[38;5;238m 283[0m [38;5;238m│[0m [38;5;231m          labels: ${{ steps.meta.outputs.labels }}[0m
-[38;5;238m 284[0m [38;5;238m│[0m [38;5;231m          cache-from: type=gha[0m
-[38;5;238m 285[0m [38;5;238m│[0m [38;5;231m          cache-to: type=gha,mode=max[0m
-[38;5;238m 286[0m [38;5;238m│[0m 
-[38;5;238m 287[0m [38;5;238m│[0m [38;5;231m  # Publish to crates.io (optional, requires CARGO_REGISTRY_TOKEN)[0m
-[38;5;238m 288[0m [38;5;238m│[0m [38;5;231m  publish-crates:[0m
-[38;5;238m 289[0m [38;5;238m│[0m [38;5;231m    name: Publish to crates.io[0m
-[38;5;238m 290[0m [38;5;238m│[0m [38;5;231m    needs: [create-release, build-cli][0m
-[38;5;238m 291[0m [38;5;238m│[0m [38;5;231m    runs-on: ubuntu-latest[0m
-[38;5;238m 292[0m [38;5;238m│[0m [38;5;231m    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')[0m
-[38;5;238m 293[0m [38;5;238m│[0m [38;5;231m    steps:[0m
-[38;5;238m 294[0m [38;5;238m│[0m [38;5;231m      - uses: actions/checkout@v4[0m
-[38;5;238m 295[0m [38;5;238m│[0m [38;5;231m        with:[0m
-[38;5;238m 296[0m [38;5;238m│[0m [38;5;231m          submodules: recursive[0m
-[38;5;238m 297[0m [38;5;238m│[0m 
-[38;5;238m 298[0m [38;5;238m│[0m [38;5;231m      - name: Install Rust[0m
-[38;5;238m 299[0m [38;5;238m│[0m [38;5;231m        uses: dtolnay/rust-toolchain@stable[0m
-[38;5;238m 300[0m [38;5;238m│[0m 
-[38;5;238m 301[0m [38;5;238m│[0m [38;5;231m      - name: Cache Rust dependencies[0m
-[38;5;238m 302[0m [38;5;238m│[0m [38;5;231m        uses: Swatinem/rust-cache@v2[0m
-[38;5;238m 303[0m [38;5;238m│[0m 
-[38;5;238m 304[0m [38;5;238m│[0m [38;5;231m      - name: Publish to crates.io[0m
-[38;5;238m 305[0m [38;5;238m│[0m [38;5;231m        env:[0m
-[38;5;238m 306[0m [38;5;238m│[0m [38;5;231m          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}[0m
-[38;5;238m 307[0m [38;5;238m│[0m [38;5;231m        run: |[0m
-[38;5;238m 308[0m [38;5;238m│[0m [38;5;231m          # Publish in dependency order[0m
-[38;5;238m 309[0m [38;5;238m│[0m [38;5;231m          cargo publish -p thread-utils --allow-dirty || echo "Package already published"[0m
-[38;5;238m 310[0m [38;5;238m│[0m [38;5;231m          cargo publish -p thread-language --allow-dirty || echo "Package already published"[0m
-[38;5;238m 311[0m [38;5;238m│[0m [38;5;231m          cargo publish -p thread-ast-engine --allow-dirty || echo "Package already published"[0m
-[38;5;238m 312[0m [38;5;238m│[0m [38;5;231m          cargo publish -p thread-rule-engine --allow-dirty || echo "Package already published"[0m
-[38;5;238m 313[0m [38;5;238m│[0m [38;5;231m          cargo publish -p thread-services --allow-dirty || echo "Package already published"[0m
-[38;5;238m 314[0m [38;5;238m│[0m [38;5;231m          cargo publish -p thread-flow --allow-dirty || echo "Package already published"[0m
-[38;5;238m 315[0m [38;5;238m│[0m [38;5;231m          cargo publish -p thread-wasm --allow-dirty || echo "Package already published"[0m
-[38;5;238m 316[0m [38;5;238m│[0m 
-[38;5;238m 317[0m [38;5;238m│[0m [38;5;231m  # Deploy to Cloudflare Workers (Edge deployment)[0m
-[38;5;238m 318[0m [38;5;238m│[0m [38;5;231m  deploy-edge:[0m
-[38;5;238m 319[0m [38;5;238m│[0m [38;5;231m    name: Deploy to Cloudflare Edge[0m
-[38;5;238m 320[0m [38;5;238m│[0m [38;5;231m    needs: [create-release, build-wasm][0m
-[38;5;238m 321[0m [38;5;238m│[0m [38;5;231m    runs-on: ubuntu-latest[0m
-[38;5;238m 322[0m [38;5;238m│[0m [38;5;231m    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')[0m
-[38;5;238m 323[0m [38;5;238m│[0m [38;5;231m    environment:[0m
-[38;5;238m 324[0m [38;5;238m│[0m [38;5;231m      name: production-edge[0m
-[38;5;238m 325[0m [38;5;238m│[0m [38;5;231m      url: https://thread.knit.li[0m
-[38;5;238m 326[0m [38;5;238m│[0m [38;5;231m    steps:[0m
-[38;5;238m 327[0m [38;5;238m│[0m [38;5;231m      - uses: actions/checkout@v4[0m
-[38;5;238m 328[0m [38;5;238m│[0m [38;5;231m        with:[0m
-[38;5;238m 329[0m [38;5;238m│[0m [38;5;231m          submodules: recursive[0m
-[38;5;238m 330[0m [38;5;238m│[0m 
-[38;5;238m 331[0m [38;5;238m│[0m [38;5;231m      - name: Install Rust[0m
-[38;5;238m 332[0m [38;5;238m│[0m [38;5;231m        uses: dtolnay/rust-toolchain@stable[0m
-[38;5;238m 333[0m [38;5;238m│[0m [38;5;231m        with:[0m
-[38;5;238m 334[0m [38;5;238m│[0m [38;5;231m          targets: wasm32-unknown-unknown[0m
-[38;5;238m 335[0m [38;5;238m│[0m 
-[38;5;238m 336[0m [38;5;238m│[0m [38;5;231m      - name: Cache Rust dependencies[0m
-[38;5;238m 337[0m [38;5;238m│[0m [38;5;231m        uses: Swatinem/rust-cache@v2[0m
-[38;5;238m 338[0m [38;5;238m│[0m 
-[38;5;238m 339[0m [38;5;238m│[0m [38;5;231m      - name: Install wasm-pack[0m
-[38;5;238m 340[0m [38;5;238m│[0m [38;5;231m        uses: jetli/wasm-pack-action@v0.4.0[0m
-[38;5;238m 341[0m [38;5;238m│[0m 
-[38;5;238m 342[0m [38;5;238m│[0m [38;5;231m      - name: Build WASM for Workers[0m
-[38;5;238m 343[0m [38;5;238m│[0m [38;5;231m        run: cargo run -p xtask build-wasm --release[0m
-[38;5;238m 344[0m [38;5;238m│[0m 
-[38;5;238m 345[0m [38;5;238m│[0m [38;5;231m      - name: Deploy to Cloudflare Workers[0m
-[38;5;238m 346[0m [38;5;238m│[0m [38;5;231m        uses: cloudflare/wrangler-action@v3[0m
-[38;5;238m 347[0m [38;5;238m│[0m [38;5;231m        with:[0m
-[38;5;238m 348[0m [38;5;238m│[0m [38;5;231m          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}[0m
-[38;5;238m 349[0m [38;5;238m│[0m [38;5;231m          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}[0m
-[38;5;238m 350[0m [38;5;238m│[0m [38;5;231m          command: deploy --env production[0m
-[38;5;238m 351[0m [38;5;238m│[0m 
-[38;5;238m 352[0m [38;5;238m│[0m [38;5;231m  # Release notification[0m
-[38;5;238m 353[0m [38;5;238m│[0m [38;5;231m  notify:[0m
-[38;5;238m 354[0m [38;5;238m│[0m [38;5;231m    name: Release Notification[0m
-[38;5;238m 355[0m [38;5;238m│[0m [38;5;231m    needs: [create-release, build-cli, build-wasm, build-docker][0m
-[38;5;238m 356[0m [38;5;238m│[0m [38;5;231m    runs-on: ubuntu-latest[0m
-[38;5;238m 357[0m [38;5;238m│[0m [38;5;231m    if: always()[0m
-[38;5;238m 358[0m [38;5;238m│[0m [38;5;231m    steps:[0m
-[38;5;238m 359[0m [38;5;238m│[0m [38;5;231m      - name: Check release status[0m
-[38;5;238m 360[0m [38;5;238m│[0m [38;5;231m        env:[0m
-[38;5;238m 361[0m [38;5;238m│[0m [38;5;231m          VERSION: ${{ needs.create-release.outputs.version }}[0m
-[38;5;238m 362[0m [38;5;238m│[0m [38;5;231m          CLI_RESULT: ${{ needs.build-cli.result }}[0m
-[38;5;238m 363[0m [38;5;238m│[0m [38;5;231m          WASM_RESULT: ${{ needs.build-wasm.result }}[0m
-[38;5;238m 364[0m [38;5;238m│[0m [38;5;231m          DOCKER_RESULT: ${{ needs.build-docker.result }}[0m
-[38;5;238m 365[0m [38;5;238m│[0m [38;5;231m        run: |[0m
-[38;5;238m 366[0m [38;5;238m│[0m [38;5;231m          echo "Release v${VERSION} completed"[0m
-[38;5;238m 367[0m [38;5;238m│[0m [38;5;231m          echo "CLI builds: ${CLI_RESULT}"[0m
-[38;5;238m 368[0m [38;5;238m│[0m [38;5;231m          echo "WASM build: ${WASM_RESULT}"[0m
-[38;5;238m 369[0m [38;5;238m│[0m [38;5;231m          echo "Docker build: ${DOCKER_RESULT}"[0m
-[38;5;238m─────┴──────────────────────────────────────────────────────────────────────────[0m
+# SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+# SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# ! GitHub Action for automated releases
+# ! Builds and publishes releases for multiple platforms
+name: Release
+
+on:
+    push:
+        tags:
+            - "v*.*.*"
+    workflow_dispatch:
+        inputs:
+            version:
+                description: "Version to release (e.g., 0.1.0)"
+                required: true
+                type: string
+
+env:
+    CARGO_TERM_COLOR: always
+    CARGO_INCREMENTAL: 0
+
+permissions:
+    contents: write
+    packages: write
+
+jobs:
+    # Create GitHub release
+    create-release:
+        name: Create Release
+        runs-on: ubuntu-latest
+        outputs:
+            upload_url: ${{ steps.create_release.outputs.upload_url }}
+            version: ${{ steps.get_version.outputs.version }}
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Get version
+              id: get_version
+              env:
+                  INPUT_VERSION: ${{ github.event.inputs.version }}
+                  REF_NAME: ${{ github.ref }}
+              run: |
+                  if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+                    VERSION="${INPUT_VERSION}"
+                  else
+                    VERSION="${REF_NAME#refs/tags/v}"
+                  fi
+                  echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+                  echo "Version: ${VERSION}"
+
+            - name: Generate changelog
+              id: changelog
+              env:
+                  VERSION: ${{ steps.get_version.outputs.version }}
+              run: |
+                  # Extract changelog for this version
+                  if [ -f "CHANGELOG.md" ]; then
+                      CHANGELOG="$(sed -n "/## \[${VERSION}\]/,/## \[/p" CHANGELOG.md | sed '$ d')"
+                  else
+                      CHANGELOG="Release ${VERSION}"
+                  fi
+                  echo "changelog<<EOF" >> "$GITHUB_OUTPUT"
+                  echo "${CHANGELOG}" >> "$GITHUB_OUTPUT"
+                  echo "EOF" >> "$GITHUB_OUTPUT"
+
+            - name: Create GitHub Release
+              id: create_release
+              uses: actions/create-release@v1
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  tag_name: v${{ steps.get_version.outputs.version }}
+                  release_name: Release ${{ steps.get_version.outputs.version }}
+                  body: ${{ steps.changelog.outputs.changelog }}
+                  draft: false
+                  prerelease: false
+
+    # Build CLI binaries for multiple platforms
+    build-cli:
+        name: Build CLI (${{ matrix.target }})
+        needs: create-release
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    # Linux x86_64
+                    - target: x86_64-unknown-linux-gnu
+                      os: ubuntu-latest
+                      cross: false
+                      strip: true
+
+                    # Linux x86_64 (musl for static linking)
+                    - target: x86_64-unknown-linux-musl
+                      os: ubuntu-latest
+                      cross: true
+                      strip: true
+
+                    # Linux ARM64
+                    - target: aarch64-unknown-linux-gnu
+                      os: ubuntu-latest
+                      cross: true
+                      strip: false
+
+                    # macOS x86_64
+                    - target: x86_64-apple-darwin
+                      os: macos-latest
+                      cross: false
+                      strip: true
+
+                    # macOS ARM64 (Apple Silicon)
+                    - target: aarch64-apple-darwin
+                      os: macos-latest
+                      cross: false
+                      strip: true
+
+                    # Windows x86_64
+                    - target: x86_64-pc-windows-msvc
+                      os: windows-latest
+                      cross: false
+                      strip: false
+                      ext: .exe
+
+        runs-on: ${{ matrix.os }}
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  submodules: recursive
+
+            - name: Install Rust
+              uses: dtolnay/rust-toolchain@stable
+              with:
+                  targets: ${{ matrix.target }}
+
+            - name: Cache Rust dependencies
+              uses: Swatinem/rust-cache@v2
+              with:
+                  key: ${{ matrix.target }}
+
+            - name: Install cross (if needed)
+              if: matrix.cross
+              run: cargo install cross --git https://github.com/cross-rs/cross
+
+            - name: Build release binary
+              env:
+                  TARGET: ${{ matrix.target }}
+                  USE_CROSS: ${{ matrix.cross }}
+              run: |
+                  if [ "${USE_CROSS}" == "true" ]; then
+                      cross build --release --target "${TARGET}" --features parallel,caching
+                  else
+                      cargo build --release --target "${TARGET}" --features parallel,caching
+                  fi
+              shell: bash
+
+            - name: Strip binary (if applicable)
+              if: matrix.strip
+              env:
+                  TARGET: ${{ matrix.target }}
+                  EXT: ${{ matrix.ext }}
+              run: |
+                  strip "target/${TARGET}/release/thread${EXT}"
+              shell: bash
+
+            - name: Create archive
+              id: archive
+              env:
+                  VERSION: ${{ needs.create-release.outputs.version }}
+                  TARGET: ${{ matrix.target }}
+                  OS_TYPE: ${{ matrix.os }}
+              run: |
+                  ARCHIVE_NAME="thread-${VERSION}-${TARGET}"
+                  if [ "${OS_TYPE}" == "windows-latest" ]; then
+                      7z a "${ARCHIVE_NAME}.zip" "./target/${TARGET}/release/thread.exe"
+                      echo "asset_path=${ARCHIVE_NAME}.zip" >> "$GITHUB_OUTPUT"
+                      echo "asset_content_type=application/zip" >> "$GITHUB_OUTPUT"
+                  else
+                      tar czf "${ARCHIVE_NAME}.tar.gz" -C "target/${TARGET}/release" thread
+                      echo "asset_path=${ARCHIVE_NAME}.tar.gz" >> "$GITHUB_OUTPUT"
+                      echo "asset_content_type=application/gzip" >> "$GITHUB_OUTPUT"
+                  fi
+                  echo "asset_name=${ARCHIVE_NAME}" >> "$GITHUB_OUTPUT"
+              shell: bash
+
+            - name: Upload release asset
+              uses: actions/upload-release-asset@v1
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  upload_url: ${{ needs.create-release.outputs.upload_url }}
+                  asset_path: ${{ steps.archive.outputs.asset_path }}
+                  asset_name: ${{ steps.archive.outputs.asset_name }}${{ matrix.os == 'windows-latest' && '.zip' || '.tar.gz' }}
+                  asset_content_type: ${{ steps.archive.outputs.asset_content_type }}
+
+    # Build and publish WASM package
+    build-wasm:
+        name: Build & Publish WASM
+        needs: create-release
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  submodules: recursive
+
+            - name: Install Rust
+              uses: dtolnay/rust-toolchain@stable
+              with:
+                  targets: wasm32-unknown-unknown
+
+            - name: Cache Rust dependencies
+              uses: Swatinem/rust-cache@v2
+
+            - name: Install wasm-pack
+              uses: jetli/wasm-pack-action@v0.4.0
+
+            - name: Build WASM package
+              run: cargo run -p xtask build-wasm --release
+
+            - name: Create WASM archive
+              env:
+                  VERSION: ${{ needs.create-release.outputs.version }}
+              run: |
+                  ARCHIVE_NAME="thread-wasm-${VERSION}"
+                  tar czf "${ARCHIVE_NAME}.tar.gz" \
+                      thread_wasm_bg.wasm \
+                      thread_wasm.js \
+                      thread_wasm.d.ts \
+                      package.json
+
+            - name: Upload WASM archive
+              uses: actions/upload-release-asset@v1
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  VERSION: ${{ needs.create-release.outputs.version }}
+              with:
+                  upload_url: ${{ needs.create-release.outputs.upload_url }}
+                  asset_path: thread-wasm-${{ needs.create-release.outputs.version }}.tar.gz
+                  asset_name: thread-wasm-${{ needs.create-release.outputs.version }}.tar.gz
+                  asset_content_type: application/gzip
+
+    # Build Docker images
+    build-docker:
+        name: Build Docker Images
+        needs: create-release
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  submodules: recursive
+
+            - name: Set up Docker Buildx
+              uses: docker/setup-buildx-action@v3
+
+            - name: Login to GitHub Container Registry
+              uses: docker/login-action@v3
+              with:
+                  registry: ghcr.io
+                  username: ${{ github.actor }}
+                  password: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Build metadata
+              id: meta
+              uses: docker/metadata-action@v5
+              with:
+                  images: ghcr.io/${{ github.repository }}
+                  tags: |
+                      type=semver,pattern={{version}},value=v${{ needs.create-release.outputs.version }}
+                      type=semver,pattern={{major}}.{{minor}},value=v${{ needs.create-release.outputs.version }}
+                      type=semver,pattern={{major}},value=v${{ needs.create-release.outputs.version }}
+                      type=raw,value=latest
+
+            - name: Build and push
+              uses: docker/build-push-action@v5
+              with:
+                  context: .
+                  platforms: linux/amd64,linux/arm64
+                  push: true
+                  tags: ${{ steps.meta.outputs.tags }}
+                  labels: ${{ steps.meta.outputs.labels }}
+                  cache-from: type=gha
+                  cache-to: type=gha,mode=max
+
+    # Publish to crates.io (optional, requires CARGO_REGISTRY_TOKEN)
+    publish-crates:
+        name: Publish to crates.io
+        needs: [create-release, build-cli]
+        runs-on: ubuntu-latest
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  submodules: recursive
+
+            - name: Install Rust
+              uses: dtolnay/rust-toolchain@stable
+
+            - name: Cache Rust dependencies
+              uses: Swatinem/rust-cache@v2
+
+            - name: Publish to crates.io
+              env:
+                  CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+              run: |
+                  # Publish in dependency order
+                  cargo publish -p thread-utils --allow-dirty || echo "Package already published"
+                  cargo publish -p thread-language --allow-dirty || echo "Package already published"
+                  cargo publish -p thread-ast-engine --allow-dirty || echo "Package already published"
+                  cargo publish -p thread-rule-engine --allow-dirty || echo "Package already published"
+                  cargo publish -p thread-services --allow-dirty || echo "Package already published"
+                  cargo publish -p thread-flow --allow-dirty || echo "Package already published"
+                  cargo publish -p thread-wasm --allow-dirty || echo "Package already published"
+
+    # Deploy to Cloudflare Workers (Edge deployment)
+    deploy-edge:
+        name: Deploy to Cloudflare Edge
+        needs: [create-release, build-wasm]
+        runs-on: ubuntu-latest
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        environment:
+            name: production-edge
+            url: https://thread.knit.li
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  submodules: recursive
+
+            - name: Install Rust
+              uses: dtolnay/rust-toolchain@stable
+              with:
+                  targets: wasm32-unknown-unknown
+
+            - name: Cache Rust dependencies
+              uses: Swatinem/rust-cache@v2
+
+            - name: Install wasm-pack
+              uses: jetli/wasm-pack-action@v0.4.0
+
+            - name: Build WASM for Workers
+              run: cargo run -p xtask build-wasm --release
+
+            - name: Deploy to Cloudflare Workers
+              uses: cloudflare/wrangler-action@v3
+              with:
+                  apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+                  accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+                  command: deploy --env production
+
+    # Release notification
+    notify:
+        name: Release Notification
+        needs: [create-release, build-cli, build-wasm, build-docker]
+        runs-on: ubuntu-latest
+        if: always()
+        steps:
+            - name: Check release status
+              env:
+                  VERSION: ${{ needs.create-release.outputs.version }}
+                  CLI_RESULT: ${{ needs.build-cli.result }}
+                  WASM_RESULT: ${{ needs.build-wasm.result }}
+                  DOCKER_RESULT: ${{ needs.build-docker.result }}
+              run: |
+                  echo "Release v${VERSION} completed"
+                  echo "CLI builds: ${CLI_RESULT}"
+                  echo "WASM build: ${WASM_RESULT}"
+                  echo "Docker build: ${DOCKER_RESULT}"

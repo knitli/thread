@@ -1,9 +1,9 @@
 #!/bin/bash
+
 # SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
-# SPDX-License-Identifier: MIT OR Apache-2.0
+# SPDX-FileCopyrightText: 2026 Knitli Inc.
 #
-# Thread CLI Deployment Script
-# Automated deployment of Thread CLI to production servers
+# SPDX-License-Identifier: MIT OR Apache-2.0
 
 set -euo pipefail
 

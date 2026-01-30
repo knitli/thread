@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2026 Knitli Inc.
+
+SPDX-License-Identifier: MIT OR Apache-2.0
+-->
+
 # D1 Integration API Reference
 
 **Version**: 1.0.0
@@ -980,7 +986,7 @@ wrangler d1 execute my-db --local --command="SELECT * FROM sqlite_master WHERE t
 
 ## Next Steps
 
-- **Deployment Guide**: See `docs/deployment/EDGE_DEPLOYMENT.md` for Cloudflare Workers setup
+- **Deployment Guide**: See `crates/cloudflare/docs/EDGE_DEPLOYMENT.md` for Cloudflare Workers setup (segregated in cloudflare directory)
 - **Performance Tuning**: See `docs/operations/PERFORMANCE_TUNING.md` for optimization strategies
 - **Troubleshooting**: See `docs/operations/TROUBLESHOOTING.md` for common issues
 

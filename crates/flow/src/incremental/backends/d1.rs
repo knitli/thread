@@ -150,9 +150,7 @@ impl D1IncrementalBackend {
                 .tcp_keepalive(Some(Duration::from_secs(60)))
                 .timeout(Duration::from_secs(30))
                 .build()
-                .map_err(|e| {
-                    StorageError::Backend(format!("Failed to create HTTP client: {e}"))
-                })?,
+                .map_err(|e| StorageError::Backend(format!("Failed to create HTTP client: {e}")))?,
         );
 
         Ok(Self {
@@ -519,10 +517,7 @@ impl StorageBackend for D1IncrementalBackend {
         let fp = file_path.to_string_lossy().to_string();
 
         let result = self
-            .execute_sql(
-                SELECT_EDGES_FROM_SQL,
-                vec![serde_json::Value::String(fp)],
-            )
+            .execute_sql(SELECT_EDGES_FROM_SQL, vec![serde_json::Value::String(fp)])
             .await?;
 
         result.results.iter().map(json_to_edge).collect()
@@ -532,10 +527,7 @@ impl StorageBackend for D1IncrementalBackend {
         let fp = file_path.to_string_lossy().to_string();
 
         let result = self
-            .execute_sql(
-                SELECT_EDGES_TO_SQL,
-                vec![serde_json::Value::String(fp)],
-            )
+            .execute_sql(SELECT_EDGES_TO_SQL, vec![serde_json::Value::String(fp)])
             .await?;
 
         result.results.iter().map(json_to_edge).collect()
@@ -545,10 +537,7 @@ impl StorageBackend for D1IncrementalBackend {
         let fp = file_path.to_string_lossy().to_string();
 
         let result = self
-            .execute_sql(
-                DELETE_EDGES_FOR_SQL,
-                vec![serde_json::Value::String(fp)],
-            )
+            .execute_sql(DELETE_EDGES_FOR_SQL, vec![serde_json::Value::String(fp)])
             .await?;
 
         Ok(result.meta.changes as usize)
@@ -558,18 +547,23 @@ impl StorageBackend for D1IncrementalBackend {
         let mut graph = DependencyGraph::new();
 
         // Load all fingerprints.
-        let fp_result = self.execute_sql(SELECT_ALL_FINGERPRINTS_SQL, vec![]).await?;
+        let fp_result = self
+            .execute_sql(SELECT_ALL_FINGERPRINTS_SQL, vec![])
+            .await?;
 
         // Load all source files.
-        let src_result = self.execute_sql(SELECT_ALL_SOURCE_FILES_SQL, vec![]).await?;
+        let src_result = self
+            .execute_sql(SELECT_ALL_SOURCE_FILES_SQL, vec![])
+            .await?;
 
         // Build source files map grouped by fingerprint_path.
         let mut source_map: std::collections::HashMap<String, HashSet<PathBuf>> =
             std::collections::HashMap::new();
         for row in &src_result.results {
-            if let (Some(fp_path), Some(src_path)) =
-                (row["fingerprint_path"].as_str(), row["source_path"].as_str())
-            {
+            if let (Some(fp_path), Some(src_path)) = (
+                row["fingerprint_path"].as_str(),
+                row["source_path"].as_str(),
+            ) {
                 source_map
                     .entry(fp_path.to_string())
                     .or_default()
@@ -583,11 +577,9 @@ impl StorageBackend for D1IncrementalBackend {
                 .as_str()
                 .ok_or_else(|| StorageError::Corruption("Missing file_path".to_string()))?;
 
-            let fp_b64 = row["content_fingerprint"]
-                .as_str()
-                .ok_or_else(|| {
-                    StorageError::Corruption("Missing content_fingerprint".to_string())
-                })?;
+            let fp_b64 = row["content_fingerprint"].as_str().ok_or_else(|| {
+                StorageError::Corruption("Missing content_fingerprint".to_string())
+            })?;
 
             let fp_bytes = b64_to_bytes(fp_b64)?;
             let fingerprint = bytes_to_fingerprint(&fp_bytes)?;
@@ -677,6 +669,10 @@ impl StorageBackend for D1IncrementalBackend {
         }
 
         Ok(())
+    }
+
+    fn name(&self) -> &'static str {
+        "d1"
     }
 }
 

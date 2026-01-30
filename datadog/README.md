@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2026 Knitli Inc.
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 # DataDog Monitoring Configuration
 
 This directory contains DataDog dashboard and monitor configurations for Thread performance monitoring and constitutional compliance validation.

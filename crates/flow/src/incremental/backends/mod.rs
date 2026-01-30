@@ -298,7 +298,10 @@ pub async fn create_backend(
                     .await
                     .map(|b| Box::new(b) as Box<dyn StorageBackend>)
                     .map_err(|e| {
-                        IncrementalError::InitializationFailed(format!("Postgres init failed: {}", e))
+                        IncrementalError::InitializationFailed(format!(
+                            "Postgres init failed: {}",
+                            e
+                        ))
                     })
             }
             #[cfg(not(feature = "postgres-backend"))]
@@ -367,10 +370,7 @@ mod tests {
         .await;
         assert!(result.is_err());
         if let Err(err) = result {
-            assert!(matches!(
-                err,
-                IncrementalError::InitializationFailed(_)
-            ));
+            assert!(matches!(err, IncrementalError::InitializationFailed(_)));
         }
     }
 
@@ -407,10 +407,7 @@ mod tests {
         .await;
         assert!(result.is_err());
         if let Err(err) = result {
-            assert!(matches!(
-                err,
-                IncrementalError::UnsupportedBackend("d1")
-            ));
+            assert!(matches!(err, IncrementalError::UnsupportedBackend("d1")));
         }
     }
 

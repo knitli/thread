@@ -23,10 +23,10 @@
 //!
 //! ### Always Available
 //! - [`types`] - Core pattern matching types and traits
-//!        - exported here if `matching` feature is not enabled
-//!        - exported in `matcher.rs` if `matching` feature is enabled
-//!        - Types **always** available from lib.rs:
-//!             ```rust,ignore
+//!   - exported here if `matching` feature is not enabled
+//!   - exported in `matcher.rs` if `matching` feature is enabled
+//!   - Types **always** available from lib.rs:
+//!     ```rust,ignore
 //!            use thread_ast_engine::{
 //!              Matcher, MatcherExt, Pattern, MatchStrictness,
 //!              NodeMatch, PatternNode, PatternBuilder, PatternError,

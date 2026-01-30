@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2026 Knitli Inc.
+
+SPDX-License-Identifier: MIT OR Apache-2.0
+-->
+
 # Thread Flow Performance Tuning Guide
 
 Comprehensive guide for optimizing Thread Flow performance across CLI and Edge deployments.

@@ -1,4 +1,6 @@
 // SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+// SPDX-FileCopyrightText: 2026 Knitli Inc.
+//
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 //! Integration tests for the incremental update system.
@@ -8,19 +10,22 @@
 
 use std::collections::HashSet;
 use std::path::{Path, PathBuf};
-use thread_flow::incremental::backends::{create_backend, BackendConfig, BackendType};
+use thread_flow::incremental::DependencyGraph;
+use thread_flow::incremental::backends::{BackendConfig, BackendType, create_backend};
 use thread_flow::incremental::storage::StorageBackend;
 use thread_flow::incremental::types::{
     AnalysisDefFingerprint, DependencyEdge, DependencyType, SymbolDependency, SymbolKind,
 };
-use thread_flow::incremental::DependencyGraph;
 
 // ─── Backend Factory Tests ────────────────────────────────────────────────────
 
 #[tokio::test]
 async fn test_backend_factory_in_memory() {
     let result = create_backend(BackendType::InMemory, BackendConfig::InMemory).await;
-    assert!(result.is_ok(), "InMemory backend should always be available");
+    assert!(
+        result.is_ok(),
+        "InMemory backend should always be available"
+    );
 }
 
 #[tokio::test]
@@ -186,7 +191,10 @@ async fn test_e2e_fingerprint_lifecycle() {
         .await
         .expect("Failed to delete fingerprint");
 
-    assert!(deleted, "Should return true when deleting existing fingerprint");
+    assert!(
+        deleted,
+        "Should return true when deleting existing fingerprint"
+    );
 
     // 5. Verify deletion
     let loaded = backend
@@ -258,7 +266,10 @@ async fn test_e2e_dependency_edge_lifecycle() {
         .await
         .expect("Failed to delete edges");
 
-    assert_eq!(deleted_count, 2, "Should delete both edges involving utils.rs");
+    assert_eq!(
+        deleted_count, 2,
+        "Should delete both edges involving utils.rs"
+    );
 
     // 5. Verify deletion
     let remaining_from_main = backend
@@ -266,11 +277,7 @@ async fn test_e2e_dependency_edge_lifecycle() {
         .await
         .expect("Failed to verify deletion");
 
-    assert_eq!(
-        remaining_from_main.len(),
-        0,
-        "All edges should be deleted"
-    );
+    assert_eq!(remaining_from_main.len(), 0, "All edges should be deleted");
 }
 
 /// Test full graph persistence: save → load → verify structure
@@ -402,7 +409,10 @@ async fn test_e2e_incremental_invalidation() {
         .expect("Failed to load config.rs fingerprint")
         .expect("config.rs fingerprint should exist");
 
-    assert!(!old_config_fp.content_matches(b"config v2"), "Content changed");
+    assert!(
+        !old_config_fp.content_matches(b"config v2"),
+        "Content changed"
+    );
 
     // Find affected files
     let changed = HashSet::from([PathBuf::from("config.rs")]);
@@ -446,9 +456,12 @@ async fn test_backend_behavior_consistency() {
         #[cfg(feature = "postgres-backend")]
         {
             if let Ok(url) = std::env::var("TEST_DATABASE_URL") {
-                create_backend(BackendType::Postgres, BackendConfig::Postgres { database_url: url })
-                    .await
-                    .ok()
+                create_backend(
+                    BackendType::Postgres,
+                    BackendConfig::Postgres { database_url: url },
+                )
+                .await
+                .ok()
             } else {
                 None
             }

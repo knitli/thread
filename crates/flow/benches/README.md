@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2026 Knitli Inc.
+
+SPDX-License-Identifier: MIT OR Apache-2.0
+-->
+
 # thread-flow Benchmarks
 
 Performance benchmarks for the thread-flow crate measuring parsing performance and overhead analysis.

@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2026 Knitli Inc.
+
+SPDX-License-Identifier: MIT OR Apache-2.0
+-->
+
 # Thread Flow Monitoring & Observability Guide
 
 Comprehensive guide for monitoring Thread Flow in production environments with metrics, logging, dashboards, and alerting.

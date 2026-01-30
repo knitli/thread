@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2026 Knitli Inc.
+--
+-- SPDX-License-Identifier: AGPL-3.0-or-later
+
 -- Thread code analysis results table
 -- This schema is created manually via Wrangler CLI
 -- Run: wrangler d1 execute thread_test --local --file=schema.sql

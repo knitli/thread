@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Knitli Inc.
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 use std::env;
 use thread_services::error::ServiceResult;
 

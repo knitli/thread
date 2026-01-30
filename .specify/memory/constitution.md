@@ -1,4 +1,10 @@
 <!--
+SPDX-FileCopyrightText: 2026 Knitli Inc.
+
+SPDX-License-Identifier: MIT
+-->
+
+<!--
 ================================================================================
 SYNC IMPACT REPORT - Constitution Update
 ================================================================================

@@ -1,3 +1,10 @@
+<!--
+SPDX-FileCopyrightText: 2026 Knitli Inc.
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+SPDX-License-Identifier: MIT OR Apache-2.0
+-->
+
 # Thread D1 Target Factory Test
 
 This example demonstrates the D1 target factory implementation for exporting Thread code analysis results to Cloudflare D1 databases.

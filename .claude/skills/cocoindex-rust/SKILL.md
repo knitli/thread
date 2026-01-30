@@ -1,4 +1,9 @@
 ---
+# SPDX-FileCopyrightText: 2026 CocoIndex
+# SPDX-FileCopyrightText: 2026 Knitli Inc
+#
+# SPDX-License-Identifier: Apache-2.0
+
 name: cocoindex-rust
 description: Comprehensive toolkit for developing with the CocoIndex Rust API. Use when building high-performance operators, embedding the engine in Rust applications, or extending the core framework. Covers LibContext management, custom native operators, and direct execution control.
 ---

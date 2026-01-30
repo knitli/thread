@@ -1,4 +1,5 @@
 // SPDX-FileCopyrightText: 2026 Knitli Inc.
+//
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 //! D1 QueryCache Integration Tests
@@ -155,7 +156,7 @@ mod d1_no_cache_tests {
 
         let value_schema = vec![test_field_schema("content", BasicValueType::Str, false)];
 
-        let context = D1ExportContext::new_with_default_client(
+        let _context = D1ExportContext::new_with_default_client(
             "test-database".to_string(),
             "test_table".to_string(),
             "test-account".to_string(),
