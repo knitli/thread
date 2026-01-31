@@ -23,10 +23,10 @@
 //!
 //! ### Always Available
 //! - [`types`] - Core pattern matching types and traits
-//!        - exported here if `matching` feature is not enabled
-//!        - exported in `matcher.rs` if `matching` feature is enabled
-//!        - Types **always** available from lib.rs:
-//!             ```rust,ignore
+//!   - exported here if `matching` feature is not enabled
+//!   - exported in `matcher.rs` if `matching` feature is enabled
+//!   - Types **always** available from lib.rs:
+//!     ```rust,ignore
 //!            use thread_ast_engine::{
 //!              Matcher, MatcherExt, Pattern, MatchStrictness,
 //!              NodeMatch, PatternNode, PatternBuilder, PatternError,
@@ -72,9 +72,7 @@ pub(crate) mod text;
 
 pub(crate) mod types;
 #[cfg(not(feature = "matching"))]
-pub use types::{
-    MatchStrictness, Pattern, PatternBuilder, PatternError, PatternNode
-};
+pub use types::{MatchStrictness, Pattern, PatternBuilder, PatternError, PatternNode};
 
 pub(crate) mod matcher {
     pub use super::types::{Matcher, MatcherExt, NodeMatch};

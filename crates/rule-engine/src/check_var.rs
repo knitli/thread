@@ -27,7 +27,7 @@ pub enum CheckHint<'r> {
 pub fn check_rule_with_hint<'r>(
     rule: &'r Rule,
     utils: &'r RuleRegistration,
-    constraints: &'r RapidMap<String, Rule>,
+    constraints: &'r RapidMap<thread_ast_engine::meta_var::MetaVariableID, Rule>,
     transform: &'r Option<Transform>,
     fixer: &Vec<Fixer>,
     hint: CheckHint<'r>,
@@ -56,7 +56,7 @@ pub fn check_rule_with_hint<'r>(
 fn check_vars_in_rewriter<'r>(
     rule: &'r Rule,
     utils: &'r RuleRegistration,
-    constraints: &'r RapidMap<String, Rule>,
+    constraints: &'r RapidMap<thread_ast_engine::meta_var::MetaVariableID, Rule>,
     transform: &'r Option<Transform>,
     fixer: &Vec<Fixer>,
     upper_var: &RapidSet<&str>,
@@ -71,7 +71,10 @@ fn check_vars_in_rewriter<'r>(
     Ok(())
 }
 
-fn check_utils_defined(rule: &Rule, constraints: &RapidMap<String, Rule>) -> RResult<()> {
+fn check_utils_defined(
+    rule: &Rule,
+    constraints: &RapidMap<thread_ast_engine::meta_var::MetaVariableID, Rule>,
+) -> RResult<()> {
     rule.verify_util()?;
     for constraint in constraints.values() {
         constraint.verify_util()?;
@@ -82,7 +85,7 @@ fn check_utils_defined(rule: &Rule, constraints: &RapidMap<String, Rule>) -> RRe
 fn check_vars<'r>(
     rule: &'r Rule,
     utils: &'r RuleRegistration,
-    constraints: &'r RapidMap<String, Rule>,
+    constraints: &'r RapidMap<thread_ast_engine::meta_var::MetaVariableID, Rule>,
     transform: &'r Option<Transform>,
     fixer: &Vec<Fixer>,
 ) -> RResult<()> {
@@ -103,7 +106,7 @@ fn get_vars_from_rules<'r>(rule: &'r Rule, utils: &'r RuleRegistration) -> Rapid
 
 fn check_var_in_constraints<'r>(
     mut vars: RapidSet<&'r str>,
-    constraints: &'r RapidMap<String, Rule>,
+    constraints: &'r RapidMap<thread_ast_engine::meta_var::MetaVariableID, Rule>,
 ) -> RResult<RapidSet<&'r str>> {
     for rule in constraints.values() {
         for var in rule.defined_vars() {

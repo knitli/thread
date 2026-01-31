@@ -78,7 +78,7 @@ pub struct Edit<S: Content> {
 
 /// Generic interface for AST nodes across different parser backends.
 ///
-/// `SgNode` (SourceGraph Node) provides a consistent API for working with
+/// `SgNode` (`SourceGraph` Node) provides a consistent API for working with
 /// AST nodes regardless of the underlying parser implementation. Supports
 /// navigation, introspection, and traversal operations.
 ///
@@ -92,7 +92,7 @@ pub struct Edit<S: Content> {
 /// if there are naming conflicts with tree-sitter imports.
 ///
 /// See: <https://stackoverflow.com/a/44445976/2198656>
-pub trait SgNode<'r>: Clone {
+pub trait SgNode<'r>: Clone + std::fmt::Debug + Send + Sync {
     fn parent(&self) -> Option<Self>;
     fn children(&self) -> impl ExactSizeIterator<Item = Self>;
     fn kind(&self) -> Cow<'_, str>;
@@ -118,8 +118,7 @@ pub trait SgNode<'r>: Clone {
         let mut stack = vec![self.clone()];
         std::iter::from_fn(move || {
             if let Some(node) = stack.pop() {
-                let children: Vec<_> = node.children().collect();
-                stack.extend(children.into_iter().rev());
+                stack.extend(node.children().collect::<Vec<_>>().into_iter().rev());
                 Some(node)
             } else {
                 None
@@ -218,7 +217,7 @@ pub trait SgNode<'r>: Clone {
 /// // Extract text from specific nodes
 /// let node_text = doc.get_node_text(&some_node);
 /// ```
-pub trait Doc: Clone + 'static {
+pub trait Doc: Clone + std::fmt::Debug + Send + Sync + 'static {
     /// The source code representation (String, UTF-16, etc.)
     type Source: Content;
     /// The programming language implementation
@@ -260,9 +259,9 @@ pub trait Doc: Clone + 'static {
 /// let bytes = content.get_range(0..5);  // [72, 101, 108, 108, 111] for UTF-8
 /// let column = content.get_char_column(0, 7); // Character position
 /// ```
-pub trait Content: Sized {
+pub trait Content: Sized + Send + Sync {
     /// The underlying data type (u8, u16, char, etc.)
-    type Underlying: Clone + PartialEq;
+    type Underlying: Clone + PartialEq + std::fmt::Debug + Send + Sync;
 
     /// Get a slice of the underlying data for the given byte range
     fn get_range(&self, range: Range<usize>) -> &[Self::Underlying];

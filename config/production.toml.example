@@ -1,0 +1,455 @@
+# SPDX-FileCopyrightText: 2026 Knitli Inc.
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+# Thread CLI Production Configuration Template
+#
+# Copy this file to config/production.toml and update all values for your deployment.
+# This configuration assumes:
+# - PostgreSQL backend for persistent caching
+# - Rayon-based parallel processing (multi-core CLI)
+# - Production logging and monitoring
+#
+# Security Note: Do NOT commit actual credentials. Use environment variables or secrets management.
+# Example: DATABASE_URL environment variable overrides database.url setting
+
+################################################################################
+# Database Configuration - PostgreSQL
+################################################################################
+
+[database]
+# PostgreSQL connection string
+# Format: postgresql://user:password@host:port/database
+# WARNING: DO NOT commit actual password. Use DATABASE_URL environment variable.
+url = "postgresql://thread:PASSWORD@localhost:5432/thread"
+
+# Connection pooling settings
+# Minimum: 4 connections for production safety
+# Maximum: 32 connections to prevent resource exhaustion
+min_connections = 4
+max_connections = 32
+
+# Connection timeout (seconds)
+connection_timeout = 30
+
+# Idle connection timeout (seconds)
+idle_timeout = 300
+
+# Maximum connection lifetime (seconds) - forces reconnection for long-lived pools
+max_lifetime = 3600
+
+# SSL mode for database connection
+# Options: disable, allow, prefer, require, verify-ca, verify-full
+# Production: require or verify-full (verify-full recommended)
+ssl_mode = "require"
+
+# Query timeout (milliseconds)
+statement_timeout = 30000
+
+################################################################################
+# Cache Configuration
+################################################################################
+
+[cache]
+# Enable in-memory caching layer (recommended for production)
+enabled = true
+
+# Cache type: lru (Least Recently Used), lfu (Least Frequently Used), arc (Adaptive Replacement Cache)
+cache_type = "arc"
+
+# Maximum cache size (supports units: B, KB, MB, GB)
+# Production target: 512MB for small deployments, 2GB+ for larger deployments
+max_size = "1GB"
+
+# Default time-to-live for cached entries (seconds)
+ttl_seconds = 3600
+
+# Time interval for background cache maintenance (seconds)
+maintenance_interval_seconds = 300
+
+# Enable cache metrics collection
+metrics_enabled = true
+
+# Cache name/identifier (used in metrics)
+cache_name = "thread-production"
+
+################################################################################
+# Content-Addressed Cache (Constitutional Principle VI)
+################################################################################
+
+[incremental]
+# Enable content-addressed caching for incremental updates
+# This is REQUIRED for Constitutional compliance (Principle VI)
+enabled = true
+
+# Target cache hit rate (as percentage)
+# Constitutional requirement: >90% hit rate on repeated queries
+target_hit_rate = 0.90
+
+# Fingerprinting algorithm: blake3 (recommended), sha256, md5
+fingerprint_algorithm = "blake3"
+
+# Storage backend: postgres (recommended), d1, in_memory
+storage_backend = "postgres"
+
+# Enable incremental analysis (only re-analyze changed components)
+incremental_analysis = true
+
+# Enable dependency tracking for intelligent invalidation
+dependency_tracking = true
+
+################################################################################
+# Parallelism Configuration - Rayon (CPU-Bound Processing)
+################################################################################
+
+[parallelism]
+# Parallelism engine: rayon (CPU-bound), tokio (async I/O - edge only)
+# CLI deployments use Rayon for efficient multi-core utilization
+engine = "rayon"
+
+# Number of threads for parallel processing
+# 0 = auto-detect (recommended)
+# >0 = fixed number of threads
+# Production recommendation: num_cpus or num_cpus - 1 (leave headroom)
+num_threads = 0
+
+# Stack size per thread (MB)
+# Increase if parsing large files causes stack overflow
+stack_size_mb = 4
+
+# Thread pool scheduling: work_stealing (default, recommended), fifo
+scheduling = "work_stealing"
+
+# Batch size for parallel operations
+# Larger batches = better cache locality but higher latency
+# Smaller batches = more responsive but more context switching
+batch_size = 100
+
+# Enable work stealing (improves load balancing)
+work_stealing = true
+
+# Enable thread affinity (pins threads to CPU cores)
+thread_affinity = false
+
+################################################################################
+# Logging Configuration
+################################################################################
+
+[logging]
+# Log level: trace, debug, info, warn, error
+# Production: info (detailed but not verbose)
+# Debug troubleshooting: debug or trace
+level = "info"
+
+# Log format: json (structured, recommended), pretty (human-readable), compact
+# Production: json for centralized logging systems (ELK, Datadog, etc.)
+format = "json"
+
+# Log output: stdout, file, both
+# stdout: logs to standard output (suitable for containers/systemd)
+# file: logs to specified file
+# both: logs to both destinations
+output = "stdout"
+
+# Log file path (only used if output = "file" or "both")
+file_path = "/var/log/thread/thread.log"
+
+# Log file rotation: none, daily, size_based
+# daily: rotate at midnight (UTC)
+# size_based: rotate when file exceeds max_file_size
+rotation = "daily"
+
+# Maximum log file size before rotation (MB) - only used if rotation = "size_based"
+max_file_size_mb = 100
+
+# Number of rotated log files to retain
+max_backups = 30
+
+# Log compression for rotated files (gzip)
+compress_rotated = true
+
+# Enable request/response logging
+request_logging = false
+
+# Enable slow query logging (>threshold_ms)
+slow_query_logging = true
+slow_query_threshold_ms = 100
+
+# Include span context in logs (for distributed tracing)
+include_spans = true
+
+# Include thread ID in logs
+include_thread_id = true
+
+################################################################################
+# Monitoring & Metrics
+################################################################################
+
+[monitoring]
+# Enable Prometheus metrics collection
+enabled = true
+
+# Metrics export format: prometheus (recommended), json
+format = "prometheus"
+
+# Metrics endpoint port
+# Access metrics at http://localhost:<port>/metrics
+port = 9090
+
+# Metrics collection interval (seconds)
+collection_interval_seconds = 15
+
+# Enable histogram buckets for latency metrics
+# Buckets define precision of latency measurements
+histogram_buckets = [1, 5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5000]
+
+# Metrics retention in memory (seconds)
+# Older metrics are aggregated/compressed
+retention_seconds = 3600
+
+# Enable detailed metrics (may impact performance)
+detailed_metrics = false
+
+# Enable per-query metrics (high cardinality - use with caution)
+per_query_metrics = false
+
+################################################################################
+# Performance Tuning
+################################################################################
+
+[performance]
+# Enable SIMD optimizations (if supported by CPU)
+# Provides 2-5x speedup on string operations
+enable_simd = true
+
+# Enable inline optimizations for hot paths
+enable_inlining = true
+
+# Enable profile-guided optimizations (PGO)
+# Requires additional profiling step during build
+enable_pgo = false
+
+# Memory allocator: jemalloc (recommended), system
+# jemalloc: better fragmentation characteristics
+allocator = "jemalloc"
+
+# Enable memory pooling for allocations
+enable_memory_pool = true
+
+# Initial memory pool size (MB)
+memory_pool_size_mb = 256
+
+# Query result buffering: all, streaming, none
+# all: buffer entire result set in memory (faster, higher memory)
+# streaming: process results in chunks (lower memory)
+# none: process one result at a time (slowest, minimal memory)
+buffering_strategy = "streaming"
+
+# Buffer size for streaming results (MB)
+buffer_size_mb = 50
+
+# Enable query result caching
+query_result_caching = true
+
+# Query cache TTL (seconds)
+query_cache_ttl_seconds = 300
+
+################################################################################
+# Storage Backend Configuration
+################################################################################
+
+[storage.postgres]
+# PostgreSQL specific settings
+
+# Connection pooling: true (recommended for production)
+pooling_enabled = true
+
+# Prepared statement caching: true (recommended)
+prepared_statements = true
+
+# Query timeout for long-running operations (seconds)
+query_timeout_seconds = 60
+
+# Enable PGVector extension (for semantic search)
+# Requires PGVector extension installed on PostgreSQL
+pgvector_enabled = false
+
+# Vector dimension for embeddings (if pgvector_enabled = true)
+pgvector_dimensions = 1536
+
+# Enable full-text search indexes
+full_text_search_enabled = true
+
+# Analyze tables for query optimization (periodic)
+auto_analyze = true
+
+# VACUUM dead tuples (periodic maintenance)
+auto_vacuum = true
+
+################################################################################
+# Security Configuration
+################################################################################
+
+[security]
+# Enable CORS (Cross-Origin Resource Sharing)
+cors_enabled = false
+
+# Allowed CORS origins (comma-separated)
+# Example: "https://example.com, https://app.example.com"
+cors_allowed_origins = ""
+
+# Rate limiting: per IP address
+rate_limiting_enabled = true
+
+# Maximum requests per minute per IP
+max_requests_per_minute = 1000
+
+# Burst limit (requests per second)
+burst_limit = 100
+
+# IP allowlist (empty = allow all)
+# Format: comma-separated CIDR ranges
+allowlist_ips = ""
+
+# IP blocklist (empty = no blocking)
+blocklist_ips = ""
+
+# Require authentication for API access
+require_authentication = false
+
+# Authentication method: none, api_key, jwt, oauth2
+auth_method = "none"
+
+# API key length (if auth_method = "api_key")
+api_key_length = 32
+
+# JWT secret key (if auth_method = "jwt")
+# WARNING: DO NOT commit actual secret. Use JWT_SECRET environment variable.
+jwt_secret = "CHANGE_ME_IN_PRODUCTION"
+
+# JWT expiration (seconds)
+jwt_expiration_seconds = 86400
+
+################################################################################
+# Advanced Configuration
+################################################################################
+
+[advanced]
+# Enable experimental features (use with caution)
+experimental_features = false
+
+# Developer mode: extra diagnostics and looser error handling
+dev_mode = false
+
+# Panic on error instead of graceful shutdown (testing only)
+panic_on_error = false
+
+# Enable internal tracing (very verbose)
+internal_tracing = false
+
+# Maximum AST depth for recursive structures (prevents stack overflow)
+max_ast_depth = 1000
+
+# Maximum string length for pattern matching (bytes)
+max_pattern_length = 1000000
+
+# Enable AST caching (significant performance improvement)
+ast_caching = true
+
+# AST cache size (number of entries)
+ast_cache_entries = 10000
+
+# Regex compilation cache size
+regex_cache_size = 1000
+
+################################################################################
+# Deployment Information
+################################################################################
+
+[deployment]
+# Environment: development, staging, production
+environment = "production"
+
+# Deployment version (should match semantic version)
+version = "0.1.0"
+
+# Deployment region/datacenter
+region = "us-east-1"
+
+# Instance/server identifier
+instance_id = "thread-prod-001"
+
+# Enable health check endpoint
+health_check_enabled = true
+
+# Health check interval (seconds)
+health_check_interval_seconds = 30
+
+# Graceful shutdown timeout (seconds)
+shutdown_timeout_seconds = 30
+
+################################################################################
+# Example: Environment Variable Overrides
+################################################################################
+
+# These settings can be overridden with environment variables:
+#
+# DATABASE_URL=postgresql://user:pass@host/db
+# RUST_LOG=info
+# THREAD_CACHE_SIZE=2GB
+# THREAD_NUM_WORKERS=8
+# THREAD_ENABLE_METRICS=true
+# THREAD_METRICS_PORT=9090
+# THREAD_LOG_LEVEL=info
+# THREAD_LOG_FORMAT=json
+
+################################################################################
+# Notes & Best Practices
+################################################################################
+
+# 1. SECRETS MANAGEMENT
+#    - Never commit actual credentials to this file
+#    - Use environment variables or secret management services
+#    - Rotate credentials regularly (recommended: 90 days)
+#
+# 2. PERFORMANCE TUNING
+#    - Start with default values
+#    - Profile with: `cargo bench --all --all-features`
+#    - Adjust based on measured performance
+#    - Monitor cache hit rate (target: >90%)
+#
+# 3. MONITORING
+#    - Enable metrics collection (monitoring.enabled = true)
+#    - Set up Prometheus scraping at http://localhost:9090/metrics
+#    - Create Grafana dashboards for visualization
+#    - Configure alerts for SLO violations
+#
+# 4. DATABASE TUNING
+#    - Connection pool: match expected concurrency
+#    - Statement timeout: based on query patterns
+#    - SSL mode: require for production
+#    - Backups: daily snapshots with 30-day retention
+#
+# 5. LOGGING
+#    - Production: use JSON format for structured logging
+#    - Include correlation IDs for request tracing
+#    - Aggregate logs to centralized service (ELK, Datadog)
+#    - Retention: minimum 7 days hot, 30 days archived
+#
+# 6. SECURITY
+#    - Enable rate limiting
+#    - Configure CORS appropriately
+#    - Use TLS 1.2+ for all connections
+#    - Audit access logs regularly
+#
+# 7. CONSTITUTIONAL COMPLIANCE
+#    - Principle VI: Cache hit rate >90% (monitored)
+#    - Principle VI: Postgres latency <10ms p95 (monitored)
+#    - Principle VI: Incremental updates enabled
+#    - All requirements met for production deployment
+
+################################################################################
+
+# Last Modified: 2026-01-29
+# This is a template. Customize for your specific environment.
+# See docs/deployment/README.md for detailed configuration guidance.

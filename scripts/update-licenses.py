@@ -1,13 +1,13 @@
 #!/usr/bin/env -S uv run -s
-# /// script
-# requires-python = ">=3.11"
-# dependencies = ["rignore", "cyclopts"]
-# ///
-# sourcery skip: avoid-global-variables
+
 # SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+# SPDX-FileCopyrightText: 2026 Github
+# SPDX-FileCopyrightText: 2026 Knitli Inc.
 # SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: MIT OR Apache-2.0
 
 """Update licenses for files in the repository.
 

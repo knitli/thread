@@ -300,7 +300,10 @@ mod test {
     }
 
     fn make_rule(target: &str, relation: Rule) -> impl Matcher {
-        o::All::new(vec![Rule::Pattern(Pattern::new(target, &TS::Tsx)), relation])
+        o::All::new(vec![
+            Rule::Pattern(Pattern::new(target, &TS::Tsx)),
+            relation,
+        ])
     }
 
     #[test]

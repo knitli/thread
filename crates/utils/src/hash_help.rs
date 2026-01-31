@@ -25,7 +25,8 @@ pub type RapidSet<T> = rapidhash::RapidHashSet<T>;
 
 /// Creates a new `RapidMap` with the specified capacity; returning the initialized map for use.
 #[inline(always)]
-#[must_use] pub fn map_with_capacity<K, V>(capacity: usize) -> RapidMap<K, V>
+#[must_use]
+pub fn map_with_capacity<K, V>(capacity: usize) -> RapidMap<K, V>
 where
     K: std::hash::Hash + Eq,
     V: Default,
@@ -35,7 +36,8 @@ where
 
 /// Creates a new `RapidInlineHashSet` with the specified capacity; returning the initialized set for use.
 #[inline(always)]
-#[must_use] pub fn set_with_capacity<T>(capacity: usize) -> RapidSet<T>
+#[must_use]
+pub fn set_with_capacity<T>(capacity: usize) -> RapidSet<T>
 where
     T: std::hash::Hash + Eq,
 {
@@ -44,13 +46,15 @@ where
 
 /// Returns a new `RapidMap` with default values.
 #[inline(always)]
-#[must_use] pub fn get_map<K, V>() -> RapidMap<K, V> {
+#[must_use]
+pub fn get_map<K, V>() -> RapidMap<K, V> {
     RapidMap::default()
 }
 
 /// Returns a new `RapidSet` with default values (a [`rapidhash::RapidHashSet`]).
 #[inline(always)]
-#[must_use] pub fn get_set<T>() -> RapidSet<T> {
+#[must_use]
+pub fn get_set<T>() -> RapidSet<T> {
     RapidSet::default()
 }
 

@@ -4,10 +4,7 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
 
-use super::kind::{
-    KindMatcher,
-    kind_utils,
-};
+use super::kind::{KindMatcher, kind_utils};
 use super::matcher::Matcher;
 pub use super::types::{MatchStrictness, Pattern, PatternBuilder, PatternError, PatternNode};
 use crate::language::Language;
@@ -79,16 +76,16 @@ impl PatternNode {
         match &self {
             Self::Terminal { text, .. } => Cow::Borrowed(text),
             Self::MetaVar { .. } => Cow::Borrowed(""),
-            Self::Internal { children, .. } => children
-                .iter()
-                .map(|n| n.fixed_string())
-                .fold(Cow::Borrowed(""), |longest, curr| {
+            Self::Internal { children, .. } => children.iter().map(|n| n.fixed_string()).fold(
+                Cow::Borrowed(""),
+                |longest, curr| {
                     if longest.len() >= curr.len() {
                         longest
                     } else {
                         curr
                     }
-                }),
+                },
+            ),
         }
     }
 }
@@ -157,8 +154,9 @@ impl Pattern {
     #[must_use]
     pub const fn has_error(&self) -> bool {
         let kind = match &self.node {
-            PatternNode::Terminal { kind_id, .. } |
-            PatternNode::Internal { kind_id, .. } => *kind_id,
+            PatternNode::Terminal { kind_id, .. } | PatternNode::Internal { kind_id, .. } => {
+                *kind_id
+            }
             PatternNode::MetaVar { .. } => match self.root_kind {
                 Some(k) => k,
                 None => return false,
@@ -185,10 +183,8 @@ impl Pattern {
 fn meta_var_name(meta_var: &MetaVariable) -> Option<&str> {
     use MetaVariable as MV;
     match meta_var {
-        MV::Capture(name, _) |
-        MV::MultiCapture(name) => Some(name),
-        MV::Dropped(_) |
-        MV::Multiple => None,
+        MV::Capture(name, _) | MV::MultiCapture(name) => Some(name),
+        MV::Dropped(_) | MV::Multiple => None,
     }
 }
 

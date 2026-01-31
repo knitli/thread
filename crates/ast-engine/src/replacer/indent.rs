@@ -1,5 +1,4 @@
 #![allow(clippy::doc_overindented_list_items)]
-
 // SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
 // SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
 // SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
@@ -184,7 +183,16 @@ pub fn formatted_slice<'a, C: Content>(
     if !slice.contains(&get_new_line::<C>()) {
         return Cow::Borrowed(slice);
     }
-    Cow::Owned(indent_lines::<C>(0, &DeindentedExtract::MultiLine(slice, get_indent_at_offset::<C>(content.get_range(0..start)))).into_owned())
+    Cow::Owned(
+        indent_lines::<C>(
+            0,
+            &DeindentedExtract::MultiLine(
+                slice,
+                get_indent_at_offset::<C>(content.get_range(0..start)),
+            ),
+        )
+        .into_owned(),
+    )
 }
 
 pub fn indent_lines<'a, C: Content>(
@@ -260,8 +268,7 @@ pub fn get_indent_at_offset<C: Content>(src: &[C::Underlying]) -> usize {
 // NOTE: we assume input is well indented.
 // following lines should have fewer indentations than initial line
 fn remove_indent<C: Content>(indent: usize, src: &[C::Underlying]) -> Vec<C::Underlying> {
-    let indentation: Vec<_> = std::iter::repeat_n(get_space::<C>(), indent)
-        .collect();
+    let indentation: Vec<_> = std::iter::repeat_n(get_space::<C>(), indent).collect();
     let new_line = get_new_line::<C>();
     let lines: Vec<_> = src
         .split(|b| *b == new_line)

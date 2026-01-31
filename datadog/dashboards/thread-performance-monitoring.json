@@ -1,0 +1,574 @@
+{
+  "title": "Thread Performance Monitoring",
+  "description": "Constitutional compliance and performance monitoring for Thread AST analysis service",
+  "widgets": [
+    {
+      "id": 1,
+      "definition": {
+        "title": "Constitutional Compliance Overview",
+        "type": "group",
+        "layout_type": "ordered",
+        "widgets": [
+          {
+            "id": 2,
+            "definition": {
+              "title": "Cache Hit Rate (Constitutional: >90%)",
+              "title_size": "16",
+              "title_align": "left",
+              "type": "query_value",
+              "requests": [
+                {
+                  "q": "avg:thread.cache_hit_rate_percent{$environment}",
+                  "aggregator": "avg"
+                }
+              ],
+              "autoscale": true,
+              "custom_unit": "%",
+              "precision": 2,
+              "text_align": "left"
+            },
+            "layout": {
+              "x": 0,
+              "y": 0,
+              "width": 4,
+              "height": 2
+            }
+          },
+          {
+            "id": 3,
+            "definition": {
+              "title": "Query Latency p95 (Constitutional: <50ms)",
+              "title_size": "16",
+              "title_align": "left",
+              "type": "query_value",
+              "requests": [
+                {
+                  "q": "avg:thread.query_avg_duration_seconds{$environment} * 1000",
+                  "aggregator": "avg"
+                }
+              ],
+              "autoscale": true,
+              "custom_unit": "ms",
+              "precision": 2,
+              "text_align": "left"
+            },
+            "layout": {
+              "x": 4,
+              "y": 0,
+              "width": 4,
+              "height": 2
+            }
+          },
+          {
+            "id": 4,
+            "definition": {
+              "title": "Cache Hit Rate Trend",
+              "title_size": "16",
+              "title_align": "left",
+              "show_legend": true,
+              "legend_layout": "auto",
+              "legend_columns": [
+                "avg",
+                "min",
+                "max",
+                "value",
+                "sum"
+              ],
+              "type": "timeseries",
+              "requests": [
+                {
+                  "q": "avg:thread.cache_hit_rate_percent{$environment}",
+                  "display_type": "line",
+                  "style": {
+                    "palette": "dog_classic",
+                    "line_type": "solid",
+                    "line_width": "normal"
+                  }
+                }
+              ],
+              "yaxis": {
+                "include_zero": true,
+                "min": "0",
+                "max": "100",
+                "scale": "linear",
+                "label": ""
+              },
+              "markers": [
+                {
+                  "value": "y = 90",
+                  "display_type": "error dashed",
+                  "label": "Constitutional Minimum"
+                }
+              ]
+            },
+            "layout": {
+              "x": 8,
+              "y": 0,
+              "width": 4,
+              "height": 2
+            }
+          }
+        ]
+      },
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "width": 12,
+        "height": 3
+      }
+    },
+    {
+      "id": 5,
+      "definition": {
+        "title": "Performance Metrics",
+        "type": "group",
+        "layout_type": "ordered",
+        "widgets": [
+          {
+            "id": 6,
+            "definition": {
+              "title": "Fingerprint Computation Performance",
+              "title_size": "16",
+              "title_align": "left",
+              "show_legend": true,
+              "legend_layout": "auto",
+              "legend_columns": [
+                "avg",
+                "min",
+                "max",
+                "value",
+                "sum"
+              ],
+              "type": "timeseries",
+              "requests": [
+                {
+                  "q": "avg:thread.fingerprint_avg_duration_seconds{$environment} * 1000000",
+                  "display_type": "line",
+                  "style": {
+                    "palette": "dog_classic",
+                    "line_type": "solid",
+                    "line_width": "normal"
+                  }
+                }
+              ],
+              "yaxis": {
+                "include_zero": true,
+                "scale": "linear",
+                "label": "Microseconds"
+              }
+            },
+            "layout": {
+              "x": 0,
+              "y": 0,
+              "width": 6,
+              "height": 2
+            }
+          },
+          {
+            "id": 7,
+            "definition": {
+              "title": "Query Execution Performance",
+              "title_size": "16",
+              "title_align": "left",
+              "show_legend": true,
+              "legend_layout": "auto",
+              "legend_columns": [
+                "avg",
+                "min",
+                "max",
+                "value",
+                "sum"
+              ],
+              "type": "timeseries",
+              "requests": [
+                {
+                  "q": "avg:thread.query_avg_duration_seconds{$environment} * 1000",
+                  "display_type": "line",
+                  "style": {
+                    "palette": "dog_classic",
+                    "line_type": "solid",
+                    "line_width": "normal"
+                  }
+                }
+              ],
+              "yaxis": {
+                "include_zero": true,
+                "scale": "linear",
+                "label": "Milliseconds"
+              },
+              "markers": [
+                {
+                  "value": "y = 50",
+                  "display_type": "error dashed",
+                  "label": "Constitutional Maximum"
+                }
+              ]
+            },
+            "layout": {
+              "x": 6,
+              "y": 0,
+              "width": 6,
+              "height": 2
+            }
+          }
+        ]
+      },
+      "layout": {
+        "x": 0,
+        "y": 3,
+        "width": 12,
+        "height": 3
+      }
+    },
+    {
+      "id": 8,
+      "definition": {
+        "title": "Throughput & Operations",
+        "type": "group",
+        "layout_type": "ordered",
+        "widgets": [
+          {
+            "id": 9,
+            "definition": {
+              "title": "File Processing Rate",
+              "title_size": "16",
+              "title_align": "left",
+              "show_legend": true,
+              "legend_layout": "auto",
+              "legend_columns": [
+                "avg",
+                "min",
+                "max",
+                "value",
+                "sum"
+              ],
+              "type": "timeseries",
+              "requests": [
+                {
+                  "q": "per_second(avg:thread.files_processed_total{$environment})",
+                  "display_type": "line",
+                  "style": {
+                    "palette": "dog_classic",
+                    "line_type": "solid",
+                    "line_width": "normal"
+                  }
+                }
+              ],
+              "yaxis": {
+                "include_zero": true,
+                "scale": "linear",
+                "label": "Files/sec"
+              }
+            },
+            "layout": {
+              "x": 0,
+              "y": 0,
+              "width": 4,
+              "height": 2
+            }
+          },
+          {
+            "id": 10,
+            "definition": {
+              "title": "Data Throughput",
+              "title_size": "16",
+              "title_align": "left",
+              "show_legend": true,
+              "legend_layout": "auto",
+              "legend_columns": [
+                "avg",
+                "min",
+                "max",
+                "value",
+                "sum"
+              ],
+              "type": "timeseries",
+              "requests": [
+                {
+                  "q": "per_second(avg:thread.bytes_processed_total{$environment}) / 1024 / 1024",
+                  "display_type": "line",
+                  "style": {
+                    "palette": "dog_classic",
+                    "line_type": "solid",
+                    "line_width": "normal"
+                  }
+                }
+              ],
+              "yaxis": {
+                "include_zero": true,
+                "scale": "linear",
+                "label": "MB/sec"
+              }
+            },
+            "layout": {
+              "x": 4,
+              "y": 0,
+              "width": 4,
+              "height": 2
+            }
+          },
+          {
+            "id": 11,
+            "definition": {
+              "title": "Batch Processing Rate",
+              "title_size": "16",
+              "title_align": "left",
+              "show_legend": true,
+              "legend_layout": "auto",
+              "legend_columns": [
+                "avg",
+                "min",
+                "max",
+                "value",
+                "sum"
+              ],
+              "type": "timeseries",
+              "requests": [
+                {
+                  "q": "per_second(avg:thread.batches_processed_total{$environment})",
+                  "display_type": "line",
+                  "style": {
+                    "palette": "dog_classic",
+                    "line_type": "solid",
+                    "line_width": "normal"
+                  }
+                }
+              ],
+              "yaxis": {
+                "include_zero": true,
+                "scale": "linear",
+                "label": "Batches/sec"
+              }
+            },
+            "layout": {
+              "x": 8,
+              "y": 0,
+              "width": 4,
+              "height": 2
+            }
+          }
+        ]
+      },
+      "layout": {
+        "x": 0,
+        "y": 6,
+        "width": 12,
+        "height": 3
+      }
+    },
+    {
+      "id": 12,
+      "definition": {
+        "title": "Cache Operations",
+        "type": "group",
+        "layout_type": "ordered",
+        "widgets": [
+          {
+            "id": 13,
+            "definition": {
+              "title": "Cache Hit/Miss Rate",
+              "title_size": "16",
+              "title_align": "left",
+              "show_legend": true,
+              "legend_layout": "auto",
+              "legend_columns": [
+                "avg",
+                "min",
+                "max",
+                "value",
+                "sum"
+              ],
+              "type": "timeseries",
+              "requests": [
+                {
+                  "q": "per_second(avg:thread.cache_hits_total{$environment})",
+                  "display_type": "area",
+                  "style": {
+                    "palette": "green",
+                    "line_type": "solid",
+                    "line_width": "normal"
+                  },
+                  "metadata": [
+                    {
+                      "expression": "per_second(avg:thread.cache_hits_total{$environment})",
+                      "alias_name": "Cache Hits"
+                    }
+                  ]
+                },
+                {
+                  "q": "per_second(avg:thread.cache_misses_total{$environment})",
+                  "display_type": "area",
+                  "style": {
+                    "palette": "red",
+                    "line_type": "solid",
+                    "line_width": "normal"
+                  },
+                  "metadata": [
+                    {
+                      "expression": "per_second(avg:thread.cache_misses_total{$environment})",
+                      "alias_name": "Cache Misses"
+                    }
+                  ]
+                }
+              ],
+              "yaxis": {
+                "include_zero": true,
+                "scale": "linear",
+                "label": "Operations/sec"
+              }
+            },
+            "layout": {
+              "x": 0,
+              "y": 0,
+              "width": 6,
+              "height": 2
+            }
+          },
+          {
+            "id": 14,
+            "definition": {
+              "title": "Cache Eviction Rate",
+              "title_size": "16",
+              "title_align": "left",
+              "show_legend": true,
+              "legend_layout": "auto",
+              "legend_columns": [
+                "avg",
+                "min",
+                "max",
+                "value",
+                "sum"
+              ],
+              "type": "timeseries",
+              "requests": [
+                {
+                  "q": "per_second(avg:thread.cache_evictions_total{$environment})",
+                  "display_type": "line",
+                  "style": {
+                    "palette": "dog_classic",
+                    "line_type": "solid",
+                    "line_width": "normal"
+                  }
+                }
+              ],
+              "yaxis": {
+                "include_zero": true,
+                "scale": "linear",
+                "label": "Evictions/sec"
+              }
+            },
+            "layout": {
+              "x": 6,
+              "y": 0,
+              "width": 6,
+              "height": 2
+            }
+          }
+        ]
+      },
+      "layout": {
+        "x": 0,
+        "y": 9,
+        "width": 12,
+        "height": 3
+      }
+    },
+    {
+      "id": 15,
+      "definition": {
+        "title": "Error Tracking",
+        "type": "group",
+        "layout_type": "ordered",
+        "widgets": [
+          {
+            "id": 16,
+            "definition": {
+              "title": "Query Error Rate",
+              "title_size": "16",
+              "title_align": "left",
+              "type": "query_value",
+              "requests": [
+                {
+                  "q": "avg:thread.query_error_rate_percent{$environment}",
+                  "aggregator": "avg"
+                }
+              ],
+              "autoscale": true,
+              "custom_unit": "%",
+              "precision": 2,
+              "text_align": "left"
+            },
+            "layout": {
+              "x": 0,
+              "y": 0,
+              "width": 3,
+              "height": 2
+            }
+          },
+          {
+            "id": 17,
+            "definition": {
+              "title": "Query Error Rate Over Time",
+              "title_size": "16",
+              "title_align": "left",
+              "show_legend": true,
+              "legend_layout": "auto",
+              "legend_columns": [
+                "avg",
+                "min",
+                "max",
+                "value",
+                "sum"
+              ],
+              "type": "timeseries",
+              "requests": [
+                {
+                  "q": "per_second(avg:thread.query_errors_total{$environment})",
+                  "display_type": "line",
+                  "style": {
+                    "palette": "warm",
+                    "line_type": "solid",
+                    "line_width": "normal"
+                  }
+                }
+              ],
+              "yaxis": {
+                "include_zero": true,
+                "scale": "linear",
+                "label": "Errors/sec"
+              }
+            },
+            "layout": {
+              "x": 3,
+              "y": 0,
+              "width": 9,
+              "height": 2
+            }
+          }
+        ]
+      },
+      "layout": {
+        "x": 0,
+        "y": 12,
+        "width": 12,
+        "height": 3
+      }
+    }
+  ],
+  "template_variables": [
+    {
+      "name": "environment",
+      "default": "production",
+      "prefix": "environment",
+      "available_values": [
+        "production",
+        "staging",
+        "development"
+      ]
+    }
+  ],
+  "layout_type": "ordered",
+  "is_read_only": false,
+  "notify_list": [],
+  "reflow_type": "fixed"
+}

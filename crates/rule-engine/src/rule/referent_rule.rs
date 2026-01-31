@@ -42,7 +42,7 @@ impl GlobalRules {
             return Err(ReferentRuleError::DuplicateRule(id.into()));
         }
         map.insert(id.to_string(), rule);
-        let rule = map.get(id).unwrap();
+        let _rule = map.get(id).unwrap();
         Ok(())
     }
 }
@@ -89,7 +89,7 @@ impl RuleRegistration {
             return Err(ReferentRuleError::DuplicateRule(id.into()));
         }
         map.insert(id.to_string(), rule);
-        let rule = map.get(id).unwrap();
+        let _rule = map.get(id).unwrap();
         Ok(())
     }
 

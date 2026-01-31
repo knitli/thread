@@ -1,0 +1,16 @@
+# SPDX-FileCopyrightText: 2026 Knitli Inc.
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+Key corrections needed:
+
+1. Import FieldValue from recoco::prelude::value
+2. Import FieldType from recoco::base::schema
+3. Use recoco::setup::{ResourceSetupChange, states::{ChangeDescription, SetupChangeType}}
+4. Use recoco::ops::sdk::setup::CombinedState instead of just setup
+5. Use Error::Internal instead of ExecFlow
+6. Use Error::client instead of Setup
+7. Implement change_type() method returning SetupChangeType
+8. Return Vec<ChangeDescription> from describe_changes()
+9. Use FlowInstanceContext from recoco::ops::sdk (not setup::driver)
+10. Fix base64 encoding deprecation

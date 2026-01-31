@@ -8,7 +8,7 @@
 //!
 //! Provides matchers that filter AST nodes based on their syntactic type (kind).
 //! Every AST node has a "kind" that describes what syntax element it represents
-//! (e.g., "function_declaration", "identifier", "string_literal").
+//! (e.g., "`function_declaration`", "identifier", "`string_literal`").
 //!
 //! ## Core Types
 //!
@@ -123,12 +123,14 @@ impl KindMatcher {
         }
     }
 
-    #[must_use] pub const fn from_id(kind: KindId) -> Self {
+    #[must_use]
+    pub const fn from_id(kind: KindId) -> Self {
         Self { kind }
     }
 
     /// Whether the kind matcher contains undefined tree-sitter kind.
-    #[must_use] pub const fn is_invalid(&self) -> bool {
+    #[must_use]
+    pub const fn is_invalid(&self) -> bool {
         self.kind == TS_BUILTIN_SYM_END
     }
 

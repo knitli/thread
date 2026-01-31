@@ -26,7 +26,7 @@
 //! A similar attempt to frontload most common extensions before falling back to Aho-Corasick, was very fast for common extensions, but at the expense of uncommon extensions (~3ms/extension).
 //!
 
-use criterion::{criterion_group, criterion_main, Criterion, BenchmarkId};
+use criterion::{BenchmarkId, Criterion, criterion_group, criterion_main};
 use std::hint::black_box;
 use std::path::Path;
 use thread_language::{SupportLang, ext_iden, from_extension};
@@ -56,7 +56,6 @@ fn get_test_cases() -> Vec<(&'static str, &'static str)> {
         ("main.go", "go"),
         ("style.css", "css"),
         ("component.tsx", "tsx"),
-
         // Less common extensions (benefit most from optimization)
         ("build.gradle.kts", "kts"),
         ("config.yml", "yml"),
@@ -68,12 +67,10 @@ fn get_test_cases() -> Vec<(&'static str, &'static str)> {
         ("script.rb", "rb"),
         ("main.scala", "scala"),
         ("app.kt", "kt"),
-
         // Case variations
         ("Main.RS", "RS"),
         ("App.JS", "JS"),
         ("Config.YML", "YML"),
-
         // Non-existent extensions (worst case)
         ("file.xyz", "xyz"),
         ("test.unknown", "unknown"),
@@ -139,46 +136,66 @@ fn bench_by_extension_type(c: &mut Criterion) {
     }
 
     for ext in common_extensions {
-        group.bench_with_input(BenchmarkId::new("common_aho_corasick", ext), &ext, |b, &ext| {
-            b.iter(|| {
-                black_box(ext_iden::match_by_aho_corasick(ext));
-            })
-        });
+        group.bench_with_input(
+            BenchmarkId::new("common_aho_corasick", ext),
+            &ext,
+            |b, &ext| {
+                b.iter(|| {
+                    black_box(ext_iden::match_by_aho_corasick(ext));
+                })
+            },
+        );
     }
 
     let uncommon_extensions = ["kts", "swift", "scala", "rb", "hpp", "scss"];
     for ext in uncommon_extensions {
-        group.bench_with_input(BenchmarkId::new("uncommon_original", ext), &ext, |b, &ext| {
-            b.iter(|| {
-                black_box(original_match(ext));
-            })
-        });
+        group.bench_with_input(
+            BenchmarkId::new("uncommon_original", ext),
+            &ext,
+            |b, &ext| {
+                b.iter(|| {
+                    black_box(original_match(ext));
+                })
+            },
+        );
     }
 
     for ext in uncommon_extensions {
-        group.bench_with_input(BenchmarkId::new("uncommon_aho_corasick", ext), &ext, |b, &ext| {
-            b.iter(|| {
-                black_box(ext_iden::match_by_aho_corasick(ext));
-            })
-        });
+        group.bench_with_input(
+            BenchmarkId::new("uncommon_aho_corasick", ext),
+            &ext,
+            |b, &ext| {
+                b.iter(|| {
+                    black_box(ext_iden::match_by_aho_corasick(ext));
+                })
+            },
+        );
     }
 
     // Non-existent extensions (worst case)
     let nonexistent_extensions = ["xyz", "unknown", "fake", "test"];
     for ext in nonexistent_extensions {
-        group.bench_with_input(BenchmarkId::new("nonexistent_original", ext), &ext, |b, &ext| {
-            b.iter(|| {
-                black_box(original_match(ext));
-            })
-        });
+        group.bench_with_input(
+            BenchmarkId::new("nonexistent_original", ext),
+            &ext,
+            |b, &ext| {
+                b.iter(|| {
+                    black_box(original_match(ext));
+                })
+            },
+        );
     }
 
     for ext in nonexistent_extensions {
-        group.bench_with_input(BenchmarkId::new("nonexistent_aho_corasick", ext), &ext, |b, &ext| {
-            b.iter(|| {
-                black_box(ext_iden::match_by_aho_corasick(ext));
-            })
-        });
+        group.bench_with_input(
+            BenchmarkId::new("nonexistent_aho_corasick", ext),
+            &ext,
+            |b, &ext| {
+                b.iter(|| {
+                    black_box(ext_iden::match_by_aho_corasick(ext));
+                })
+            },
+        );
     }
 
     group.finish();
@@ -196,37 +213,51 @@ fn bench_case_sensitivity(c: &mut Criterion) {
     ];
 
     for (lower, upper) in &test_extensions {
-        group.bench_with_input(BenchmarkId::new("lowercase_original", lower), &lower, |b, &ext| {
-            b.iter(|| {
-                black_box(original_match(ext));
-            })
-        });
+        group.bench_with_input(
+            BenchmarkId::new("lowercase_original", lower),
+            &lower,
+            |b, &ext| {
+                b.iter(|| {
+                    black_box(original_match(ext));
+                })
+            },
+        );
 
-        group.bench_with_input(BenchmarkId::new("uppercase_original", upper), &upper, |b, &ext| {
-            b.iter(|| {
-                black_box(original_match(ext));
-            })
-        });
+        group.bench_with_input(
+            BenchmarkId::new("uppercase_original", upper),
+            &upper,
+            |b, &ext| {
+                b.iter(|| {
+                    black_box(original_match(ext));
+                })
+            },
+        );
     }
 
     for (lower, upper) in test_extensions {
-        group.bench_with_input(BenchmarkId::new("lowercase_aho_corasick", lower), &lower, |b, &ext| {
-            b.iter(|| {
-                black_box(ext_iden::match_by_aho_corasick(ext));
-            })
-        });
+        group.bench_with_input(
+            BenchmarkId::new("lowercase_aho_corasick", lower),
+            &lower,
+            |b, &ext| {
+                b.iter(|| {
+                    black_box(ext_iden::match_by_aho_corasick(ext));
+                })
+            },
+        );
 
-        group.bench_with_input(BenchmarkId::new("uppercase_aho_corasick", upper), &upper, |b, &ext| {
-            b.iter(|| {
-                black_box(ext_iden::match_by_aho_corasick(ext));
-            })
-        });
+        group.bench_with_input(
+            BenchmarkId::new("uppercase_aho_corasick", upper),
+            &upper,
+            |b, &ext| {
+                b.iter(|| {
+                    black_box(ext_iden::match_by_aho_corasick(ext));
+                })
+            },
+        );
     }
 
     group.finish();
 }
-
-
 
 criterion_group!(
     benches,

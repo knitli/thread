@@ -1,0 +1,133 @@
+# SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+# SPDX-FileContributor: Claude Sonnet 4.5 <noreply@anthropic.com>
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+[package]
+name = "thread-flow"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+description = "Thread dataflow integration for data processing pipelines, using CocoIndex."
+readme = "README.md"
+repository.workspace = true
+license.workspace = true
+keywords = ["analysis", "ast", "caching", "dataflow", "incremental"]
+categories = ["algorithms", "caching", "development-tools", "parsing"]
+
+[[example]]
+name = "d1_local_test"
+path = "examples/d1_local_test/main.rs"
+
+[[example]]
+name = "d1_integration_test"
+path = "examples/d1_integration_test/main.rs"
+
+[[example]]
+name = "observability_example"
+path = "examples/observability_example.rs"
+
+[[bench]]
+harness = false
+name = "parse_benchmark"
+
+[[bench]]
+harness = false
+name = "fingerprint_benchmark"
+
+[[bench]]
+harness = false
+name = "d1_profiling"
+
+[[bench]]
+harness = false
+name = "load_test"
+
+[dependencies]
+async-trait = { workspace = true }
+base64 = "0.22"
+bytes = "1.10"
+deadpool-postgres = { version = "0.14", optional = true }
+env_logger = "0.11"
+# Logging and observability
+log = "0.4"
+metrics = "0.23"
+# Optional: query result caching
+moka = { version = "0.12", features = ["future"], optional = true }
+# Optional: parallel processing for CLI (not available in workers)
+rayon = { workspace = true, optional = true }
+# ReCoco dataflow engine - using minimal features for reduced dependencies
+# See RECOCO_INTEGRATION.md for feature flag strategy
+recoco = { version = "0.2.1", default-features = false, features = [
+  "source-local-file",
+] }
+reqwest = { version = "0.12", features = ["json"] }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+# Workspace dependencies
+thread-ast-engine = { workspace = true }
+thread-language = { workspace = true, features = [
+  "go",
+  "javascript",
+  "matching",
+  "python",
+  "rust",
+  "tsx",
+  "typescript",
+] }
+thread-services = { workspace = true, features = [
+  "ast-grep-backend",
+  "serialization",
+] }
+thread-utils = { workspace = true }
+tokio = { workspace = true }
+# Optional: PostgreSQL storage backend for incremental updates
+tokio-postgres = { version = "0.7", optional = true }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = [
+  "env-filter",
+  "fmt",
+  "json",
+] }
+tree-sitter = { workspace = true }
+
+[dev-dependencies]
+criterion = "0.5"
+deadpool-postgres = "0.14"
+futures = "0.3"
+md5 = "0.7"
+metrics-exporter-prometheus = "0.16"
+rusqlite = { version = "0.32", features = ["bundled"] }
+tempfile = "3.13"
+testcontainers = "0.23"
+testcontainers-modules = { version = "0.11", features = ["postgres"] }
+tokio-postgres = "0.7"
+
+[features]
+default = ["parallel", "postgres-backend", "recoco-minimal"]
+# Query result caching (optional, for production deployments)
+caching = ["dep:moka"]
+# Cloudflare D1 storage backend (edge deployment)
+d1-backend = []
+# Note: recoco-cloud and recoco-full disabled due to dependency conflicts
+# TODO: Re-enable once ReCoco resolves crc version conflicts between S3 and sqlx
+# recoco-cloud = ["recoco-minimal", "recoco/source-s3"]
+# recoco-full = ["recoco-postgres", "recoco-cloud", "recoco/target-qdrant"]
+# Parallel processing (CLI only, not available in workers)
+parallel = ["dep:rayon"]
+# PostgreSQL storage backend (CLI deployment)
+postgres-backend = [
+  "dep:deadpool-postgres",
+  "dep:tokio-postgres",
+  "recoco-postgres",
+]
+# ReCoco integration feature flags
+# See RECOCO_INTEGRATION.md for details
+recoco-minimal = ["recoco/source-local-file"]  # Just local file source
+recoco-postgres = [
+  "recoco-minimal",
+  "recoco/target-postgres",
+]  # Add PostgreSQL export
+# Edge deployment (no filesystem, no parallel processing, alternative sources/targets needed)
+worker = []

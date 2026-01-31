@@ -1,0 +1,178 @@
+# SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+# SPDX-FileCopyrightText: 2026 Knitli Inc.
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+version: '3.8'
+
+services:
+  # Thread application service
+  thread:
+    image: ghcr.io/knitli/thread:latest
+    container_name: thread-app
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+      - "9090:9090"  # Prometheus metrics
+    environment:
+      # Database configuration
+      - DATABASE_URL=postgresql://thread:${DB_PASSWORD}@postgres:5432/thread
+
+      # Logging
+      - RUST_LOG=info
+      - LOG_FORMAT=json
+
+      # Performance
+      - RUST_BACKTRACE=1
+      - CARGO_INCREMENTAL=0
+
+      # Feature flags
+      - ENABLE_CACHING=true
+      - ENABLE_PARALLEL=true
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      # Persistent cache storage
+      - thread_cache:/var/lib/thread/cache
+
+      # Log files
+      - thread_logs:/var/log/thread
+    networks:
+      - thread_network
+    healthcheck:
+      test: ["CMD", "thread", "health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # PostgreSQL database
+  postgres:
+    image: postgres:15-alpine
+    container_name: thread-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=thread
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=thread
+      - POSTGRES_INITDB_ARGS=--encoding=UTF-8 --lc-collate=C --lc-ctype=C
+    volumes:
+      # Persistent database storage
+      - postgres_data:/var/lib/postgresql/data
+
+      # Custom PostgreSQL configuration
+      - ./postgres.conf:/etc/postgresql/postgresql.conf:ro
+
+      # Initialization scripts
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    ports:
+      - "5432:5432"
+    networks:
+      - thread_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U thread"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
+
+  # Redis for caching
+  redis:
+    image: redis:7-alpine
+    container_name: thread-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - thread_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+
+  # Prometheus monitoring
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: thread-prometheus
+    restart: unless-stopped
+    ports:
+      - "9091:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    networks:
+      - thread_network
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.enable-lifecycle'
+
+  # Grafana dashboard
+  grafana:
+    image: grafana/grafana:latest
+    container_name: thread-grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_INSTALL_PLUGINS=
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    networks:
+      - thread_network
+    depends_on:
+      - prometheus
+
+  # Nginx reverse proxy (optional)
+  nginx:
+    image: nginx:alpine
+    container_name: thread-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - nginx_logs:/var/log/nginx
+    networks:
+      - thread_network
+    depends_on:
+      - thread
+
+# Networks
+networks:
+  thread_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+# Volumes
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  thread_cache:
+    driver: local
+  thread_logs:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+  nginx_logs:
+    driver: local

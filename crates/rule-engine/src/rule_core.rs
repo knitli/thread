@@ -82,7 +82,7 @@ impl SerializableRuleCore {
     fn get_constraints<L: Language>(
         &self,
         env: &DeserializeEnv<L>,
-    ) -> RResult<RapidMap<String, Rule>> {
+    ) -> RResult<RapidMap<thread_ast_engine::meta_var::MetaVariableID, Rule>> {
         let mut constraints = RapidMap::default();
         let Some(serde_cons) = &self.constraints else {
             return Ok(constraints);
@@ -91,7 +91,7 @@ impl SerializableRuleCore {
             let constraint = env
                 .deserialize_rule(ser.clone())
                 .map_err(RuleCoreError::Constraints)?;
-            constraints.insert(key.to_string(), constraint);
+            constraints.insert(std::sync::Arc::from(key.as_str()), constraint);
         }
         Ok(constraints)
     }
@@ -147,7 +147,7 @@ impl SerializableRuleCore {
 #[derive(Clone, Debug)]
 pub struct RuleCore {
     rule: Rule,
-    constraints: RapidMap<String, Rule>,
+    constraints: RapidMap<thread_ast_engine::meta_var::MetaVariableID, Rule>,
     kinds: Option<BitSet>,
     pub(crate) transform: Option<Transform>,
     pub fixer: Vec<Fixer>,
@@ -167,7 +167,10 @@ impl RuleCore {
     }
 
     #[inline]
-    pub fn with_matchers(self, constraints: RapidMap<String, Rule>) -> Self {
+    pub fn with_matchers(
+        self,
+        constraints: RapidMap<thread_ast_engine::meta_var::MetaVariableID, Rule>,
+    ) -> Self {
         Self {
             constraints,
             ..self
@@ -369,7 +372,7 @@ transform:
     fn test_rule_with_constraints() {
         let mut constraints = RapidMap::default();
         constraints.insert(
-            "A".to_string(),
+            std::sync::Arc::from("A"),
             Rule::Regex(RegexMatcher::try_new("a").unwrap()),
         );
         let rule = RuleCore::new(Rule::Pattern(Pattern::new("$A", &TypeScript::Tsx)))

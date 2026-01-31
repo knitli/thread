@@ -81,7 +81,12 @@ mod bash;
 mod cpp;
 #[cfg(any(feature = "csharp", feature = "all-parsers"))]
 mod csharp;
-#[cfg(any(feature = "css", feature = "all-parsers", feature = "css-napi", feature = "napi-compatible"))]
+#[cfg(any(
+    feature = "css",
+    feature = "all-parsers",
+    feature = "css-napi",
+    feature = "napi-compatible"
+))]
 mod css;
 #[cfg(any(feature = "elixir", feature = "all-parsers"))]
 mod elixir;
@@ -142,8 +147,6 @@ use thread_ast_engine::Node;
 use thread_ast_engine::meta_var::MetaVariable;
 #[cfg(feature = "matching")]
 use thread_ast_engine::tree_sitter::{StrDoc, TSRange};
-#[cfg(feature = "matching")]
-use thread_utils::RapidMap;
 #[cfg(any(
     feature = "all-parsers",
     feature = "napi-compatible",
@@ -176,7 +179,12 @@ use thread_utils::RapidMap;
     feature = "typescript",
     feature = "yaml"
 ))]
-pub use thread_ast_engine::{{language::Language}, tree_sitter::{LanguageExt, TSLanguage}};
+pub use thread_ast_engine::{
+    language::Language,
+    tree_sitter::{LanguageExt, TSLanguage},
+};
+#[cfg(feature = "matching")]
+use thread_utils::RapidMap;
 
 /// Implements standard [`Language`] and [`LanguageExt`] traits for languages that accept `$` in identifiers.
 ///
@@ -407,38 +415,40 @@ pub trait Alias: Display {
 
 /// Implements the `ALIAS` associated constant for the given lang, which is
 /// then used to define the `alias` const fn and a `Deserialize` impl.
-#[cfg(all(any(
-    feature = "all-parsers",
-    feature = "napi-compatible",
-    feature = "css-napi",
-    feature = "html-napi",
-    feature = "javascript-napi",
-    feature = "typescript-napi",
-    feature = "tsx-napi",
-    feature = "bash",
-    feature = "c",
-    feature = "cpp",
-    feature = "csharp",
-    feature = "css",
-    feature = "elixir",
-    feature = "go",
-    feature = "haskell",
-    feature = "html",
-    feature = "java",
-    feature = "javascript",
-    feature = "json",
-    feature = "kotlin",
-    feature = "lua",
-    feature = "php",
-    feature = "python",
-    feature = "ruby",
-    feature = "rust",
-    feature = "scala",
-    feature = "swift",
-    feature = "tsx",
-    feature = "typescript",
-    feature = "yaml"
-), not(feature = "no-enabled-langs")
+#[cfg(all(
+    any(
+        feature = "all-parsers",
+        feature = "napi-compatible",
+        feature = "css-napi",
+        feature = "html-napi",
+        feature = "javascript-napi",
+        feature = "typescript-napi",
+        feature = "tsx-napi",
+        feature = "bash",
+        feature = "c",
+        feature = "cpp",
+        feature = "csharp",
+        feature = "css",
+        feature = "elixir",
+        feature = "go",
+        feature = "haskell",
+        feature = "html",
+        feature = "java",
+        feature = "javascript",
+        feature = "json",
+        feature = "kotlin",
+        feature = "lua",
+        feature = "php",
+        feature = "python",
+        feature = "ruby",
+        feature = "rust",
+        feature = "scala",
+        feature = "swift",
+        feature = "tsx",
+        feature = "typescript",
+        feature = "yaml"
+    ),
+    not(feature = "no-enabled-langs")
 ))]
 macro_rules! impl_alias {
     ($lang:ident => $as:expr) => {
@@ -474,37 +484,39 @@ macro_rules! impl_alias {
 }
 /// Generates as convenience conversions between the lang types
 /// and `SupportedType`.
-#[cfg(all(any(
-    feature = "all-parsers",
-    feature = "napi-compatible",
-    feature = "css-napi",
-    feature = "html-napi",
-    feature = "javascript-napi",
-    feature = "typescript-napi",
-    feature = "tsx-napi",
-    feature = "bash",
-    feature = "c",
-    feature = "cpp",
-    feature = "csharp",
-    feature = "css",
-    feature = "elixir",
-    feature = "go",
-    feature = "haskell",
-    feature = "html",
-    feature = "java",
-    feature = "javascript",
-    feature = "json",
-    feature = "kotlin",
-    feature = "lua",
-    feature = "php",
-    feature = "python",
-    feature = "ruby",
-    feature = "rust",
-    feature = "scala",
-    feature = "swift",
-    feature = "tsx",
-    feature = "typescript",
-    feature = "yaml"),
+#[cfg(all(
+    any(
+        feature = "all-parsers",
+        feature = "napi-compatible",
+        feature = "css-napi",
+        feature = "html-napi",
+        feature = "javascript-napi",
+        feature = "typescript-napi",
+        feature = "tsx-napi",
+        feature = "bash",
+        feature = "c",
+        feature = "cpp",
+        feature = "csharp",
+        feature = "css",
+        feature = "elixir",
+        feature = "go",
+        feature = "haskell",
+        feature = "html",
+        feature = "java",
+        feature = "javascript",
+        feature = "json",
+        feature = "kotlin",
+        feature = "lua",
+        feature = "php",
+        feature = "python",
+        feature = "ruby",
+        feature = "rust",
+        feature = "scala",
+        feature = "swift",
+        feature = "tsx",
+        feature = "typescript",
+        feature = "yaml"
+    ),
     not(feature = "no-enabled-langs")
 ))]
 macro_rules! impl_aliases {
@@ -512,6 +524,7 @@ macro_rules! impl_aliases {
     $(#[cfg(feature = $feature)]
       impl_alias!($lang => $as);
     )*
+    #[allow(dead_code)]
     const fn alias(lang: SupportLang) -> &'static [&'static str] {
       match lang {
         $(
@@ -539,7 +552,12 @@ impl_lang_expando!(Cpp, language_cpp, 'µ');
 impl_lang_expando!(CSharp, language_c_sharp, 'µ');
 
 // https://www.w3.org/TR/CSS21/grammar.html#scanner
-#[cfg(any(feature = "css", feature = "all-parsers", feature = "css-napi", feature = "napi-compatible"))]
+#[cfg(any(
+    feature = "css",
+    feature = "all-parsers",
+    feature = "css-napi",
+    feature = "napi-compatible"
+))]
 impl_lang_expando!(Css, language_css, '_');
 
 // https://github.com/elixir-lang/tree-sitter-elixir/blob/a2861e88a730287a60c11ea9299c033c7d076e30/grammar.js#L245
@@ -603,7 +621,12 @@ impl_lang!(Json, language_json);
 impl_lang!(Lua, language_lua);
 #[cfg(any(feature = "scala", feature = "all-parsers"))]
 impl_lang!(Scala, language_scala);
-#[cfg(any(feature = "tsx", feature = "all-parsers", feature = "tsx-napi", feature = "napi-compatible"))]
+#[cfg(any(
+    feature = "tsx",
+    feature = "all-parsers",
+    feature = "tsx-napi",
+    feature = "napi-compatible"
+))]
 impl_lang!(Tsx, language_tsx);
 #[cfg(any(
     feature = "typescript",
@@ -656,7 +679,12 @@ pub enum SupportLang {
     Cpp,
     #[cfg(any(feature = "csharp", feature = "all-parsers"))]
     CSharp,
-    #[cfg(any(feature = "css", feature = "all-parsers", feature = "css-napi", feature = "napi-compatible"))]
+    #[cfg(any(
+        feature = "css",
+        feature = "all-parsers",
+        feature = "css-napi",
+        feature = "napi-compatible"
+    ))]
     Css,
     #[cfg(any(feature = "go", feature = "all-parsers"))]
     Go,
@@ -698,7 +726,12 @@ pub enum SupportLang {
     Scala,
     #[cfg(any(feature = "swift", feature = "all-parsers"))]
     Swift,
-    #[cfg(any(feature = "tsx", feature = "all-parsers", feature = "tsx-napi", feature = "napi-compatible"))]
+    #[cfg(any(
+        feature = "tsx",
+        feature = "all-parsers",
+        feature = "tsx-napi",
+        feature = "napi-compatible"
+    ))]
     Tsx,
     #[cfg(any(
         feature = "typescript",
@@ -756,7 +789,12 @@ impl SupportLang {
             Cpp,
             #[cfg(any(feature = "csharp", feature = "all-parsers"))]
             CSharp,
-            #[cfg(any(feature = "css", feature = "all-parsers", feature = "css-napi", feature = "napi-compatible"))]
+            #[cfg(any(
+                feature = "css",
+                feature = "all-parsers",
+                feature = "css-napi",
+                feature = "napi-compatible"
+            ))]
             Css,
             #[cfg(any(feature = "elixir", feature = "all-parsers"))]
             Elixir,
@@ -798,7 +836,12 @@ impl SupportLang {
             Scala,
             #[cfg(any(feature = "swift", feature = "all-parsers"))]
             Swift,
-            #[cfg(any(feature = "tsx", feature = "all-parsers", feature = "tsx-napi", feature = "napi-compatible"))]
+            #[cfg(any(
+                feature = "tsx",
+                feature = "all-parsers",
+                feature = "tsx-napi",
+                feature = "napi-compatible"
+            ))]
             Tsx,
             #[cfg(any(
                 feature = "typescript",
@@ -1020,37 +1063,40 @@ impl Visitor<'_> for AliasVisitor {
             .ok_or_else(|| de::Error::invalid_value(de::Unexpected::Str(v), &self))
     }
 }
-#[cfg(any(
-    feature = "all-parsers",
-    feature = "napi-compatible",
-    feature = "css-napi",
-    feature = "html-napi",
-    feature = "javascript-napi",
-    feature = "typescript-napi",
-    feature = "tsx-napi",
-    feature = "bash",
-    feature = "c",
-    feature = "cpp",
-    feature = "csharp",
-    feature = "css",
-    feature = "elixir",
-    feature = "go",
-    feature = "haskell",
-    feature = "html",
-    feature = "java",
-    feature = "javascript",
-    feature = "json",
-    feature = "kotlin",
-    feature = "lua",
-    feature = "php",
-    feature = "python",
-    feature = "ruby",
-    feature = "rust",
-    feature = "scala",
-    feature = "swift",
-    feature = "tsx",
-    feature = "typescript",
-    feature = "yaml"
+#[cfg(all(
+    any(
+        feature = "all-parsers",
+        feature = "napi-compatible",
+        feature = "css-napi",
+        feature = "html-napi",
+        feature = "javascript-napi",
+        feature = "typescript-napi",
+        feature = "tsx-napi",
+        feature = "bash",
+        feature = "c",
+        feature = "cpp",
+        feature = "csharp",
+        feature = "css",
+        feature = "elixir",
+        feature = "go",
+        feature = "haskell",
+        feature = "html",
+        feature = "java",
+        feature = "javascript",
+        feature = "json",
+        feature = "kotlin",
+        feature = "lua",
+        feature = "php",
+        feature = "python",
+        feature = "ruby",
+        feature = "rust",
+        feature = "scala",
+        feature = "swift",
+        feature = "tsx",
+        feature = "typescript",
+        feature = "yaml"
+    ),
+    not(feature = "no-enabled-langs")
 ))]
 impl_aliases! {
   Bash, "bash" => &["bash"],
@@ -1094,7 +1140,12 @@ impl FromStr for SupportLang {
             "cpp" | "c++" => Ok(SupportLang::Cpp),
             #[cfg(any(feature = "csharp", feature = "all-parsers"))]
             "cs" | "csharp" => Ok(SupportLang::CSharp),
-            #[cfg(any(feature = "css", feature = "all-parsers", feature = "css-napi", feature = "napi-compatible"))]
+            #[cfg(any(
+                feature = "css",
+                feature = "all-parsers",
+                feature = "css-napi",
+                feature = "napi-compatible"
+            ))]
             "css" => Ok(SupportLang::Css),
             #[cfg(any(feature = "elixir", feature = "all-parsers"))]
             "elixir" | "ex" => Ok(SupportLang::Elixir),
@@ -1143,7 +1194,12 @@ impl FromStr for SupportLang {
                 feature = "napi-compatible"
             ))]
             "typescript" | "ts" => Ok(SupportLang::TypeScript),
-            #[cfg(any(feature = "tsx", feature = "all-parsers", feature = "tsx-napi", feature = "napi-compatible"))]
+            #[cfg(any(
+                feature = "tsx",
+                feature = "all-parsers",
+                feature = "tsx-napi",
+                feature = "napi-compatible"
+            ))]
             "tsx" => Ok(SupportLang::Tsx),
             #[cfg(any(feature = "yaml", feature = "all-parsers"))]
             "yaml" | "yml" => Ok(SupportLang::Yaml),
@@ -1183,13 +1239,19 @@ impl FromStr for SupportLang {
 
             _ => {
                 if constants::ALL_SUPPORTED_LANGS.contains(&str_matcher.as_str()) {
-                    Err(SupportLangErr::LanguageNotEnabled(format!("language {} was detected, but it is not enabled by feature flags. If you want to parse this kind of file, enable the flag in `thread-language`", &str_matcher)))
-                }
-                else {
-                    Err(SupportLangErr::LanguageNotSupported(format!("language {} is not supported", &str_matcher)))
+                    Err(SupportLangErr::LanguageNotEnabled(format!(
+                        "language {} was detected, but it is not enabled by feature flags. If you want to parse this kind of file, enable the flag in `thread-language`",
+                        &str_matcher
+                    )))
+                } else {
+                    Err(SupportLangErr::LanguageNotSupported(format!(
+                        "language {} is not supported",
+                        &str_matcher
+                    )))
                 }
             }
-    }}
+        }
+    }
 }
 #[cfg(any(
     feature = "all-parsers",
@@ -1353,35 +1415,37 @@ macro_rules! impl_lang_method {
     }
   };
 }
-#[cfg(all(feature = "matching",
+#[cfg(all(
+    feature = "matching",
     any(
-    feature = "all-parsers",
-    feature = "napi-environment",
-    feature = "napi-compatible",
-    feature = "bash",
-    feature = "c",
-    feature = "cpp",
-    feature = "csharp",
-    feature = "css",
-    feature = "elixir",
-    feature = "go",
-    feature = "haskell",
-    feature = "html",
-    feature = "java",
-    feature = "javascript",
-    feature = "json",
-    feature = "kotlin",
-    feature = "lua",
-    feature = "php",
-    feature = "python",
-    feature = "ruby",
-    feature = "rust",
-    feature = "scala",
-    feature = "swift",
-    feature = "tsx",
-    feature = "typescript",
-    feature = "yaml"
-)))]
+        feature = "all-parsers",
+        feature = "napi-environment",
+        feature = "napi-compatible",
+        feature = "bash",
+        feature = "c",
+        feature = "cpp",
+        feature = "csharp",
+        feature = "css",
+        feature = "elixir",
+        feature = "go",
+        feature = "haskell",
+        feature = "html",
+        feature = "java",
+        feature = "javascript",
+        feature = "json",
+        feature = "kotlin",
+        feature = "lua",
+        feature = "php",
+        feature = "python",
+        feature = "ruby",
+        feature = "rust",
+        feature = "scala",
+        feature = "swift",
+        feature = "tsx",
+        feature = "typescript",
+        feature = "yaml"
+    )
+))]
 impl Language for SupportLang {
     impl_lang_method!(kind_to_id, (kind: &str) => u16);
     impl_lang_method!(field_to_id, (field: &str) => Option<u16>);
@@ -1397,38 +1461,39 @@ impl Language for SupportLang {
     }
 }
 
-#[cfg(all(feature = "matching",
+#[cfg(all(
+    feature = "matching",
     any(
-    feature = "all-parsers",
-    feature = "napi-compatible",
-    feature = "css-napi",
-    feature = "html-napi",
-    feature = "javascript-napi",
-    feature = "typescript-napi",
-    feature = "tsx-napi",
-    feature = "bash",
-    feature = "c",
-    feature = "cpp",
-    feature = "csharp",
-    feature = "css",
-    feature = "elixir",
-    feature = "go",
-    feature = "haskell",
-    feature = "html",
-    feature = "java",
-    feature = "javascript",
-    feature = "json",
-    feature = "kotlin",
-    feature = "lua",
-    feature = "php",
-    feature = "python",
-    feature = "ruby",
-    feature = "rust",
-    feature = "scala",
-    feature = "swift",
-    feature = "tsx",
-    feature = "typescript",
-    feature = "yaml"
+        feature = "all-parsers",
+        feature = "napi-compatible",
+        feature = "css-napi",
+        feature = "html-napi",
+        feature = "javascript-napi",
+        feature = "typescript-napi",
+        feature = "tsx-napi",
+        feature = "bash",
+        feature = "c",
+        feature = "cpp",
+        feature = "csharp",
+        feature = "css",
+        feature = "elixir",
+        feature = "go",
+        feature = "haskell",
+        feature = "html",
+        feature = "java",
+        feature = "javascript",
+        feature = "json",
+        feature = "kotlin",
+        feature = "lua",
+        feature = "php",
+        feature = "python",
+        feature = "ruby",
+        feature = "rust",
+        feature = "scala",
+        feature = "swift",
+        feature = "tsx",
+        feature = "typescript",
+        feature = "yaml"
     )
 ))]
 impl LanguageExt for SupportLang {
@@ -1436,11 +1501,11 @@ impl LanguageExt for SupportLang {
     impl_lang_method!(injectable_languages, () => Option<&'static [&'static str]>);
     fn extract_injections<L: LanguageExt>(
         &self,
-        root: Node<StrDoc<L>>,
+        _root: Node<StrDoc<L>>,
     ) -> RapidMap<String, Vec<TSRange>> {
         match self {
             #[cfg(feature = "html-embedded")]
-            SupportLang::Html => Html.extract_injections(root),
+            SupportLang::Html => Html.extract_injections(_root),
             _ => RapidMap::default(),
         }
     }

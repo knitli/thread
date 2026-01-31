@@ -8,24 +8,24 @@
 //! These functions bridge the ast-grep functionality with the service layer
 //! abstractions while preserving all ast-grep power.
 
-use std::collections::HashMap;
+use crate::types::{CodeMatch, ParsedDocument, Range, SymbolInfo, SymbolKind, Visibility};
 use std::path::PathBuf;
 
-use crate::types::{
-    ParsedDocument, CodeMatch, DocumentMetadata, SymbolInfo, ImportInfo, ExportInfo,
-    CallInfo, TypeInfo, SymbolKind, Visibility, ImportKind, ExportKind, TypeKind, Range
-};
-use crate::error::{ServiceResult, AnalysisError};
+#[cfg(feature = "matching")]
+use crate::error::ServiceResult;
+#[cfg(feature = "matching")]
+use crate::types::{CallInfo, DocumentMetadata, ImportInfo, ImportKind};
+#[cfg(feature = "matching")]
+use std::collections::HashMap;
 
 cfg_if::cfg_if!(
     if #[cfg(feature = "ast-grep-backend")] {
-        use thread_ast_engine::{Doc, Root, MatcherExt, Node, NodeMatch, Position};
+        use thread_ast_engine::{Doc, Root, Node, NodeMatch, Position};
         use thread_language::SupportLang;
     } else  {
-        use crate::types::{Doc, Root, MatcherExt, Node, NodeMatch, Position};
+        use crate::types::{Doc, Root, NodeMatch, Position, SupportLang};
     }
 );
-
 
 /// Convert ast-grep NodeMatch to service layer CodeMatch
 ///
@@ -43,9 +43,9 @@ pub fn root_to_parsed_document<D: Doc>(
     ast_root: Root<D>,
     file_path: PathBuf,
     language: SupportLang,
-    content_hash: u64,
+    content_fingerprint: recoco_utils::fingerprint::Fingerprint,
 ) -> ParsedDocument<D> {
-    ParsedDocument::new(ast_root, file_path, language, content_hash)
+    ParsedDocument::new(ast_root, file_path, language, content_fingerprint)
 }
 
 /// Extract basic metadata from a parsed document
@@ -89,33 +89,27 @@ fn extract_functions<D: Doc>(root_node: &Node<D>) -> ServiceResult<HashMap<Strin
 
     // Try different function patterns based on common languages
     let patterns = [
-        "fn $NAME($$$PARAMS) { $$$BODY }",  // Rust
+        "fn $NAME($$$PARAMS) { $$$BODY }",       // Rust
         "function $NAME($$$PARAMS) { $$$BODY }", // JavaScript
-        "def $NAME($$$PARAMS): $$$BODY",    // Python
-        "func $NAME($$$PARAMS) { $$$BODY }", // Go
+        "def $NAME($$$PARAMS): $$$BODY",         // Python
+        "func $NAME($$$PARAMS) { $$$BODY }",     // Go
     ];
 
     for pattern in &patterns {
-        if let Some(matches) = root_node.find_all(pattern) {
-            for node_match in matches {
-                if let Some(name_node) = node_match.get_env().get_match("NAME") {
-                    let function_name = name_node.text().to_string();
-                    let position = Position::new(
-                        name_node.start_pos().row,
-                        name_node.start_pos().column,
-                        name_node.start_byte(),
-                    );
+        for node_match in root_node.find_all(pattern) {
+            if let Some(name_node) = node_match.get_env().get_match("NAME") {
+                let function_name = name_node.text().to_string();
+                let position = name_node.start_pos();
 
-                    let symbol_info = SymbolInfo {
-                        name: function_name.clone(),
-                        kind: SymbolKind::Function,
-                        position,
-                        scope: "global".to_string(), // Simplified for now
-                        visibility: Visibility::Public, // Simplified for now
-                    };
+                let symbol_info = SymbolInfo {
+                    name: function_name.clone(),
+                    kind: SymbolKind::Function,
+                    position,
+                    scope: "global".to_string(),    // Simplified for now
+                    visibility: Visibility::Public, // Simplified for now
+                };
 
-                    functions.insert(function_name, symbol_info);
-                }
+                functions.insert(function_name, symbol_info);
             }
         }
     }
@@ -132,11 +126,7 @@ fn extract_imports<D: Doc>(
     let mut imports = HashMap::new();
 
     let patterns = match language {
-        SupportLang::Rust => vec![
-            "use $PATH;",
-            "use $PATH::$ITEM;",
-            "use $PATH::{$$$ITEMS};",
-        ],
+        SupportLang::Rust => vec!["use $PATH;", "use $PATH::$ITEM;", "use $PATH::{$$$ITEMS};"],
         SupportLang::JavaScript | SupportLang::TypeScript => vec![
             "import $ITEM from '$PATH';",
             "import { $$$ITEMS } from '$PATH';",
@@ -151,29 +141,25 @@ fn extract_imports<D: Doc>(
     };
 
     for pattern in patterns {
-        if let Some(matches) = root_node.find_all(pattern) {
-            for node_match in matches {
-                if let (Some(path_node), item_node) = (
-                    node_match.get_env().get_match("PATH")
-                        .or_else(|| node_match.get_env().get_match("MODULE")),
-                    node_match.get_env().get_match("ITEM")
-                        .or_else(|| node_match.get_env().get_match("PATH"))
-                ) {
-                    if let Some(item_node) = item_node {
-                        let import_info = ImportInfo {
-                            symbol_name: item_node.text().to_string(),
-                            source_path: path_node.text().to_string(),
-                            import_kind: ImportKind::Named, // Simplified
-                            position: Position::new(
-                                item_node.start_pos().row,
-                                item_node.start_pos().column,
-                                item_node.start_byte(),
-                            ),
-                        };
+        for node_match in root_node.find_all(pattern) {
+            if let (Some(path_node), Some(item_node)) = (
+                node_match
+                    .get_env()
+                    .get_match("PATH")
+                    .or_else(|| node_match.get_env().get_match("MODULE")),
+                node_match
+                    .get_env()
+                    .get_match("ITEM")
+                    .or_else(|| node_match.get_env().get_match("PATH")),
+            ) {
+                let import_info = ImportInfo {
+                    symbol_name: item_node.text().to_string(),
+                    source_path: path_node.text().to_string(),
+                    import_kind: ImportKind::Named, // Simplified
+                    position: item_node.start_pos(),
+                };
 
-                        imports.insert(item_node.text().to_string(), import_info);
-                    }
-                }
+                imports.insert(item_node.text().to_string(), import_info);
             }
         }
     }
@@ -188,30 +174,26 @@ fn extract_function_calls<D: Doc>(root_node: &Node<D>) -> ServiceResult<Vec<Call
 
     // Common function call patterns
     let patterns = [
-        "$FUNC($$$ARGS)",  // Most languages
+        "$FUNC($$$ARGS)",        // Most languages
         "$OBJ.$METHOD($$$ARGS)", // Method calls
     ];
 
     for pattern in &patterns {
-        if let Some(matches) = root_node.find_all(pattern) {
-            for node_match in matches {
-                if let Some(func_node) = node_match.get_env().get_match("FUNC")
-                    .or_else(|| node_match.get_env().get_match("METHOD")) {
+        for node_match in root_node.find_all(pattern) {
+            if let Some(func_node) = node_match
+                .get_env()
+                .get_match("FUNC")
+                .or_else(|| node_match.get_env().get_match("METHOD"))
+            {
+                let call_info = CallInfo {
+                    function_name: func_node.text().to_string(),
+                    position: func_node.start_pos(),
+                    arguments_count: count_arguments(&node_match),
+                    is_resolved: false, // Would need cross-file analysis
+                    target_file: None,  // Would need cross-file analysis
+                };
 
-                    let call_info = CallInfo {
-                        function_name: func_node.text().to_string(),
-                        position: Position::new(
-                            func_node.start_pos().row,
-                            func_node.start_pos().column,
-                            func_node.start_byte(),
-                        ),
-                        arguments_count: count_arguments(&node_match),
-                        is_resolved: false, // Would need cross-file analysis
-                        target_file: None,  // Would need cross-file analysis
-                    };
-
-                    calls.push(call_info);
-                }
+                calls.push(call_info);
             }
         }
     }
@@ -224,7 +206,11 @@ fn extract_function_calls<D: Doc>(root_node: &Node<D>) -> ServiceResult<Vec<Call
 fn count_arguments<D: Doc>(node_match: &NodeMatch<D>) -> usize {
     if let Some(args_node) = node_match.get_env().get_match("ARGS") {
         // This is a simplified count - would need language-specific parsing
-        args_node.text().split(',').filter(|s| !s.trim().is_empty()).count()
+        args_node
+            .text()
+            .split(',')
+            .filter(|s| !s.trim().is_empty())
+            .count()
     } else {
         0
     }
@@ -236,11 +222,7 @@ pub fn position_to_range(start: Position, end: Position) -> Range {
 }
 
 /// Helper for creating SymbolInfo with common defaults
-pub fn create_symbol_info(
-    name: String,
-    kind: SymbolKind,
-    position: Position,
-) -> SymbolInfo {
+pub fn create_symbol_info(name: String, kind: SymbolKind, position: Position) -> SymbolInfo {
     SymbolInfo {
         name,
         kind,
@@ -250,13 +232,19 @@ pub fn create_symbol_info(
     }
 }
 
-/// Extract content hash for deduplication
-pub fn compute_content_hash(content: &str, seed: Option<u64>) -> u64 {
-    if let Some(deterministic_seed) = seed {
-        thread_utils::hash_bytes_with_seed(content.as_bytes(), deterministic_seed)
-    } else {
-        thread_utils::hash_bytes(content.as_bytes())
-    }
+/// Compute content fingerprint for deduplication using blake3
+///
+/// This uses ReCoco's Fingerprinter which provides:
+/// - 10-100x faster hashing than SHA256 via blake3
+/// - 16-byte compact fingerprint (vs 32-byte SHA256)
+/// - Automatic integration with ReCoco's memoization system
+/// - Type-safe content-addressed caching
+pub fn compute_content_fingerprint(content: &str) -> recoco_utils::fingerprint::Fingerprint {
+    let mut fp = recoco_utils::fingerprint::Fingerprinter::default();
+    // Note: write() can fail for serialization, but with &str it won't fail
+    fp.write(content)
+        .expect("fingerprinting string should not fail");
+    fp.into_fingerprint()
 }
 
 // Conversion functions for common patterns
@@ -296,18 +284,20 @@ pub fn modifier_to_visibility(modifier: &str) -> Visibility {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::path::PathBuf;
 
     #[test]
-    fn test_compute_content_hash() {
+    fn test_compute_content_fingerprint() {
         let content = "fn main() {}";
-        let hash1 = compute_content_hash(content, None);
-        let hash2 = compute_content_hash(content, None);
-        assert_eq!(hash1, hash2);
+        let fp1 = compute_content_fingerprint(content);
+        let fp2 = compute_content_fingerprint(content);
+        assert_eq!(fp1, fp2, "Same content should produce same fingerprint");
 
         let different_content = "fn test() {}";
-        let hash3 = compute_content_hash(different_content, None);
-        assert_ne!(hash1, hash3);
+        let fp3 = compute_content_fingerprint(different_content);
+        assert_ne!(
+            fp1, fp3,
+            "Different content should produce different fingerprint"
+        );
     }
 
     #[test]
@@ -336,11 +326,7 @@ mod tests {
     #[test]
     fn test_create_symbol_info() {
         let pos = Position::new(1, 0, 10);
-        let info = create_symbol_info(
-            "test_function".to_string(),
-            SymbolKind::Function,
-            pos
-        );
+        let info = create_symbol_info("test_function".to_string(), SymbolKind::Function, pos);
 
         assert_eq!(info.name, "test_function");
         assert_eq!(info.kind, SymbolKind::Function);

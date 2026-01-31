@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
 // SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
 // SPDX-License-Identifier: AGPL-3.0-or-later
-
+#![feature(trait_alias)]
 //! # Thread Service Layer
 //!
 //! This crate provides the service layer interfaces for Thread that abstract over
@@ -71,33 +71,39 @@
 //! ```
 
 // Core modules
-pub mod types;
-pub mod error;
-pub mod traits;
 pub mod conversion;
+pub mod error;
+pub mod facade;
+pub mod traits;
+pub mod types;
 
 // Re-export key types for convenience
 pub use types::{
-    ParsedDocument, CodeMatch, AnalysisContext, 
-    ExecutionScope, AnalysisDepth, CrossFileRelationship,
-    // Re-export ast-grep types for compatibility
-    AstPosition, AstRoot, AstNode, AstNodeMatch,
-    SupportLang, SupportLangErr,
+    AnalysisContext, AnalysisDepth, CodeMatch, CrossFileRelationship, ExecutionScope,
+    ParsedDocument, SupportLang, SupportLangErr,
 };
 
 pub use error::{
-    ServiceError, ParseError, AnalysisError, 
-    ServiceResult, ContextualError, ContextualResult,
-    ErrorContextExt, RecoverableError,
+    AnalysisError, ContextualError, ContextualResult, ErrorContextExt, ParseError,
+    RecoverableError, ServiceError, ServiceResult,
 };
 
 pub use traits::{
-    CodeParser, CodeAnalyzer, ParserCapabilities, AnalyzerCapabilities,
+    AnalysisPerformanceProfile, AnalyzerCapabilities, CodeAnalyzer, CodeParser, ParserCapabilities,
+};
+
+#[cfg(feature = "ast-grep-backend")]
+pub use types::{
+    AstNode,
+    AstNodeMatch,
+    // Re-export ast-grep types for compatibility
+    AstPosition,
+    AstRoot,
 };
 
 // Storage traits (commercial boundary)
 #[cfg(feature = "storage-traits")]
-pub use traits::{StorageService, CacheService};
+pub use traits::{CacheService, StorageService};
 
 use std::path::Path;
 use thiserror::Error;
@@ -200,7 +206,7 @@ impl ExecutionContext for MemoryContext {
         self.content
             .get(source)
             .cloned()
-            .ok_or_else(|| ServiceError::Execution(format!("Source not found: {source}")))
+            .ok_or_else(|| ServiceError::execution_dynamic(format!("Source not found: {source}")))
     }
 
     fn write_content(&self, _destination: &str, _content: &str) -> Result<(), ServiceError> {
@@ -217,16 +223,15 @@ impl ExecutionContext for MemoryContext {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::path::PathBuf;
 
     #[test]
     fn test_memory_context() {
         let mut ctx = MemoryContext::new();
         ctx.add_content("test.rs".to_string(), "fn main() {}".to_string());
-        
+
         let content = ctx.read_content("test.rs").unwrap();
         assert_eq!(content, "fn main() {}");
-        
+
         let sources = ctx.list_sources().unwrap();
         assert_eq!(sources, vec!["test.rs"]);
     }

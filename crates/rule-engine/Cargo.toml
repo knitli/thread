@@ -60,3 +60,8 @@ tree-sitter-typescript = "0.23.2"
 
 [build-dependencies]
 cc = "1.2.30"
+
+[features]
+# we need to separate serialization, but that's a big job, and ideally rework ast-engine to allow narrower featuring
+
+worker = []  # feature flag for cloud edge deployment specific logic

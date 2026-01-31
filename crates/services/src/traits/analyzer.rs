@@ -7,18 +7,12 @@
 //! Defines the analyzer service interface that abstracts over ast-grep analysis
 //! functionality while preserving all matching and replacement capabilities.
 
+use crate::types::Doc;
 use async_trait::async_trait;
 use std::collections::HashMap;
 
-use crate::types::{ParsedDocument, CodeMatch, AnalysisContext, CrossFileRelationship};
-use crate::error::{ServiceResult, AnalysisError};
-#[cfg(feature = "matching")]
-use thread_ast_engine::source::Doc;
-#[cfg(feature = "matching")]
-use thread_ast_engine::{Node, NodeMatch};
-
-#[cfg(feature = "matching")]
-use thread_ast_engine::{Pattern, Matcher};
+use crate::error::{AnalysisError, ServiceResult};
+use crate::types::{AnalysisContext, CodeMatch, CrossFileRelationship, ParsedDocument};
 
 /// Core analyzer service trait that abstracts ast-grep analysis functionality.
 ///
@@ -122,7 +116,7 @@ use thread_ast_engine::{Pattern, Matcher};
 /// # }
 /// ```
 #[async_trait]
-pub trait CodeAnalyzer: Send + Sync {
+pub trait CodeAnalyzer<D: Doc + Send + Sync>: Send + Sync {
     /// Find matches for a pattern in a document.
     ///
     /// Preserves all ast-grep pattern matching power while adding codebase-level
@@ -136,7 +130,7 @@ pub trait CodeAnalyzer: Send + Sync {
     ///
     /// # Returns
     /// Vector of CodeMatch instances with both ast-grep functionality and codebase context
-    async fn find_pattern<D: Doc>(
+    async fn find_pattern(
         &self,
         document: &ParsedDocument<D>,
         pattern: &str,
@@ -155,7 +149,7 @@ pub trait CodeAnalyzer: Send + Sync {
     ///
     /// # Returns
     /// Vector of CodeMatch instances for all pattern matches
-    async fn find_all_patterns<D: Doc>(
+    async fn find_all_patterns(
         &self,
         document: &ParsedDocument<D>,
         patterns: &[&str],
@@ -175,7 +169,7 @@ pub trait CodeAnalyzer: Send + Sync {
     ///
     /// # Returns
     /// Number of replacements made
-    async fn replace_pattern<D: Doc>(
+    async fn replace_pattern(
         &self,
         document: &mut ParsedDocument<D>,
         pattern: &str,
@@ -194,7 +188,7 @@ pub trait CodeAnalyzer: Send + Sync {
     ///
     /// # Returns
     /// Vector of CrossFileRelationship instances representing codebase-level connections
-    async fn analyze_cross_file_relationships<D: Doc>(
+    async fn analyze_cross_file_relationships(
         &self,
         documents: &[ParsedDocument<D>],
         context: &AnalysisContext,
@@ -207,7 +201,7 @@ pub trait CodeAnalyzer: Send + Sync {
     ///
     /// Default implementation uses pattern matching, but implementations can
     /// override for more efficient node type searches.
-    async fn find_nodes_by_kind<D: Doc>(
+    async fn find_nodes_by_kind(
         &self,
         document: &ParsedDocument<D>,
         node_kind: &str,
@@ -219,9 +213,12 @@ pub trait CodeAnalyzer: Send + Sync {
             "class_declaration" => "class $NAME { $$$BODY }",
             "variable_declaration" => "let $VAR = $VALUE",
             // Add more patterns as needed
-            _ => return Err(AnalysisError::InvalidPattern {
-                pattern: format!("Unknown node kind: {}", node_kind)
-            }.into()),
+            _ => {
+                return Err(AnalysisError::InvalidPattern {
+                    pattern: format!("Unknown node kind: {}", node_kind),
+                }
+                .into());
+            }
         };
 
         self.find_pattern(document, pattern, context).await
@@ -234,26 +231,28 @@ pub trait CodeAnalyzer: Send + Sync {
     fn validate_pattern(&self, pattern: &str) -> ServiceResult<()> {
         if pattern.is_empty() {
             return Err(AnalysisError::InvalidPattern {
-                pattern: "Pattern cannot be empty".to_string()
-            }.into());
+                pattern: "Pattern cannot be empty".to_string(),
+            }
+            .into());
         }
 
         // Basic meta-variable validation
         if pattern.contains('$') {
             // Check for valid meta-variable format
             let mut chars = pattern.chars();
-            let mut found_metavar = false;
+            let mut _found_metavar = false;
 
             while let Some(ch) = chars.next() {
                 if ch == '$' {
-                    found_metavar = true;
+                    _found_metavar = true;
                     // Next character should be alphabetic or underscore
                     if let Some(next_ch) = chars.next() {
                         if !next_ch.is_alphabetic() && next_ch != '_' {
                             return Err(AnalysisError::MetaVariable {
                                 variable: format!("${}", next_ch),
-                                message: "Invalid meta-variable format".to_string()
-                            }.into());
+                                message: "Invalid meta-variable format".to_string(),
+                            }
+                            .into());
                         }
                     }
                 }
@@ -279,7 +278,7 @@ pub trait CodeAnalyzer: Send + Sync {
     ///
     /// Optimizes for analyzing multiple documents with multiple patterns
     /// by batching operations and using appropriate execution strategies.
-    async fn batch_analyze<D: Doc>(
+    async fn batch_analyze(
         &self,
         documents: &[ParsedDocument<D>],
         patterns: &[&str],
@@ -299,10 +298,10 @@ pub trait CodeAnalyzer: Send + Sync {
     ///
     /// Bridges ast-grep file-level analysis to codebase-level intelligence
     /// by extracting symbols, imports, exports, and other metadata.
-    async fn extract_symbols<D: Doc>(
+    async fn extract_symbols(
         &self,
-        document: &mut ParsedDocument<D>,
-        context: &AnalysisContext,
+        _document: &mut ParsedDocument<D>,
+        _context: &AnalysisContext,
     ) -> ServiceResult<()> {
         // This will be implemented in the conversion utilities
         // For now, this is a placeholder that preserves the interface
@@ -350,10 +349,7 @@ impl Default for AnalyzerCapabilities {
             supports_cross_file_analysis: false,
             supports_batch_optimization: true,
             supports_incremental_analysis: false,
-            supported_analysis_depths: vec![
-                AnalysisDepth::Syntax,
-                AnalysisDepth::Local,
-            ],
+            supported_analysis_depths: vec![AnalysisDepth::Syntax, AnalysisDepth::Local],
             performance_profile: AnalysisPerformanceProfile::Balanced,
             capability_flags: HashMap::new(),
         }
@@ -394,7 +390,7 @@ pub struct CompiledPattern {
     /// Original pattern string
     pub pattern: String,
     /// Compiled pattern data (implementation-specific)
-    pub compiled_data: Option<Box<dyn std::any::Any + Send + Sync>>,
+    pub compiled_data: Option<std::sync::Arc<dyn std::any::Any + Send + Sync>>,
 }
 
 /// Analysis configuration for specific use cases
@@ -429,12 +425,12 @@ impl Default for AnalysisConfig {
 }
 
 /// Analyzer factory trait for creating configured analyzer instances
-pub trait AnalyzerFactory: Send + Sync {
+pub trait AnalyzerFactory<D: Doc + Send + Sync>: Send + Sync {
     /// Create a new analyzer instance with default configuration
-    fn create_analyzer(&self) -> Box<dyn CodeAnalyzer>;
+    fn create_analyzer(&self) -> Box<dyn CodeAnalyzer<D>>;
 
     /// Create a new analyzer instance with specific configuration
-    fn create_configured_analyzer(&self, config: AnalysisConfig) -> Box<dyn CodeAnalyzer>;
+    fn create_configured_analyzer(&self, config: AnalysisConfig) -> Box<dyn CodeAnalyzer<D>>;
 
     /// Get available analyzer types
     fn available_analyzers(&self) -> Vec<String>;
@@ -450,7 +446,10 @@ mod tests {
         assert!(!caps.supports_cross_file_analysis);
         assert!(caps.supports_batch_optimization);
         assert!(!caps.supports_pattern_compilation);
-        assert_eq!(caps.performance_profile, AnalysisPerformanceProfile::Balanced);
+        assert_eq!(
+            caps.performance_profile,
+            AnalysisPerformanceProfile::Balanced
+        );
     }
 
     #[test]

@@ -7,6 +7,7 @@ experimental_monorepo_root = true
 
 [tools]
 act = "latest"
+actionlint = "latest"
 ast-grep = "latest"
 bun = "latest"
 cargo-binstall = "latest"
