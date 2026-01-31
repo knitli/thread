@@ -262,14 +262,5 @@ target/
 .vendored_research/
 sbom.spdx
 
-# Proprietary Cloudflare Workers deployment (not for public distribution)
 crates/cloudflare/
-crates/cloudflare/**/
 .workbench/
-[38;5;238m─────┬──────────────────────────────────────────────────────────────────────────[0m
-     [38;5;238m│ [0m[1mSTDIN[0m
-[38;5;238m─────┼──────────────────────────────────────────────────────────────────────────[0m
-[38;5;238m   1[0m [38;5;238m│[0m 
-[38;5;238m   2[0m [38;5;238m│[0m [38;5;231m# Gemini AI configuration (personal tooling)[0m
-[38;5;238m   3[0m [38;5;238m│[0m [38;5;231m.gemini/[0m
-[38;5;238m─────┴──────────────────────────────────────────────────────────────────────────[0m

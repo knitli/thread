@@ -1,10 +1,11 @@
 <!--
 SPDX-FileCopyrightText: 2026 Knitli Inc.
+SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
 
 SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
-# PATH B: ReCoco Integration - Implementation Guide
+# PATH B: CocoIndex Integration - Implementation Guide
 **Service-First Architecture with Rust-Native Dataflow Processing**
 
 **Date:** January 10, 2026 (Updated: January 27, 2026)

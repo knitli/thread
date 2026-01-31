@@ -9,7 +9,7 @@ local linters = new Mapping<String, Step> {
     workspace_indicator = "Cargo.toml"
     glob = "Cargo.lock"
     check =
-      "cargo-deny --all-features --manifest-path {{ workspace_indicator }} -f json -L warn check --audit-compatible-output --exclude-dev --hide-inclusion-graph | jq -e '.[].vulnerabilities | length == 0' || exit 1"
+      "cargo deny --all-features --manifest-path {{ workspace_indicator }} -f json -L warn check --audit-compatible-output --exclude-dev --hide-inclusion-graph | jq -e '.[].vulnerabilities | length == 0' || exit 1"
   }
   ["cargo_fmt"] = Builtins.cargo_fmt
   ["cargo_clippy"] = Builtins.cargo_clippy
