@@ -261,3 +261,6 @@ target/
 
 .vendored_research/
 sbom.spdx
+
+crates/cloudflare/
+.workbench/
