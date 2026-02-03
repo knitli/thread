@@ -5,6 +5,9 @@
 
 experimental_monorepo_root = true
 
+[monorepo]
+config_roots = ["crates/*", "xtask/"]
+
 [tools]
 act = "latest"
 actionlint = "latest"
