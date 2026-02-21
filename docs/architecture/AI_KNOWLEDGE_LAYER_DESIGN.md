@@ -7,9 +7,9 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 # AI-Native Knowledge Layer: Architectural Design Report
 
-**Version**: 0.1.0 (Draft)
+**Version**: 0.2.0 (Post-Review Draft)
 **Date**: 2026-02-21
-**Status**: Brainstorm / Options Analysis
+**Status**: Options Analysis — Revised per specialist review and Sourcery feedback
 **Relates To**: `specs/001-realtime-code-graph/`, Thread Constitution v2.0.0
 
 ---
@@ -28,7 +28,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 7. [Key Design Decisions](#key-design-decisions)
 8. [Implementation Strategy](#implementation-strategy)
 9. [Risk Analysis](#risk-analysis)
-10. [Open Questions](#open-questions)
+10. [Open Questions (MVKL Scope)](#open-questions-mvkl-scope)
+11. [Future Work / Research](#future-work--research)
 
 ---
 
@@ -36,7 +37,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 This document explores architectural options for an **AI-native knowledge layer** — a new abstraction that replaces the file as the primary unit of code intelligence. The goal is to design a system where AI agents interact with code through semantically rich, graph-structured representations rather than flat text files, while preserving full human oversight through familiar file-based workflows.
 
-Three architectural options are analyzed, spanning from evolutionary (building on the existing 001-realtime-code-graph spec) to transformative (Unison-inspired content-addressed definition stores). The recommended approach is **Option C: Multi-Resolution Knowledge Layer** — a layered architecture where code is simultaneously represented at multiple levels of abstraction (files, symbols, relationships, architecture, intent), each content-addressed and incrementally updated, with AI agents selecting the appropriate resolution for each task.
+Three architectural options are analyzed, spanning from evolutionary (building on the existing 001-realtime-code-graph spec) to transformative (Unison-inspired content-addressed definition stores). The recommended approach is **Option C: Multi-Resolution Knowledge Layer** — a layered architecture where code is simultaneously represented at multiple levels of abstraction, each content-addressed and incrementally updated, with AI agents selecting the appropriate resolution for each task. The **Minimum Viable Knowledge Layer (MVKL)** focuses on Levels 0-2 (file index, parsed definitions, semantic graph) with a 3-tier MCP tool suite, validated by benchmarks before expansion. Higher levels (L3 architectural patterns, L4 intent) are deferred to time-boxed research spikes.
 
 ### Key Thesis
 
@@ -77,7 +78,7 @@ Thread's opportunity is to provide this layer as **open infrastructure** — a c
 
 - AI agents query the knowledge layer directly: "what calls this function?", "what types does this module export?", "what changed since this hash?" — without reading files
 - Humans continue editing text files normally; the knowledge layer updates incrementally in the background
-- Context compression: deliver the semantically relevant subgraph for a task in 1/100th the tokens of reading equivalent files
+- Context compression: deliver the semantically relevant subgraph for a task in 5-15x fewer tokens than reading equivalent files (see [Appendix C, Finding 2](#finding-2-context-pack-assembly-needs-a-two-phase-protocol) for validation of this estimate)
 - Cross-session persistence: the agent picks up where it left off with full architectural understanding
 - Bidirectional sync: changes made through the knowledge layer (by AI) are projected back to files correctly
 
@@ -266,7 +267,7 @@ The existing 001 spec provides a direct foundation:
 - **Perfect incremental caching**: Definition-level granularity means changing one function doesn't invalidate caching for the rest of the file
 - **No merge conflicts on renames**: Renaming is a metadata operation that can't conflict with code changes
 - **Structural refactoring**: Move function, extract module, change signature — all are graph operations with automatic downstream updates
-- **512x context compression potential**: Following CGM's approach, graph structure can be encoded in attention masks
+- **512x compression potential via attention masking** (research): Following CGM's approach, graph structure can be encoded in LLM attention masks — a fundamentally different technique from context packs
 - **Deduplication**: Identical definitions across files/repos share a single hash
 
 **Disadvantages**:
@@ -288,42 +289,38 @@ The existing 001 spec provides a direct foundation:
 **Architecture**:
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│                    PROJECTION ENGINE                          │
-│  Files │ API Docs │ Dependency Diagrams │ AI Context Packs   │
+│                    QUERY / PROJECTION LAYER                   │
+│  MCP Tools │ AI Context Packs │ Files │ API Docs             │
 └────────────────────────────▲─────────────────────────────────┘
-                             │ render
+                             │ render / query
 ┌──────────────────────────────────────────────────────────────┐
 │                    KNOWLEDGE LAYER                            │
 │                                                              │
-│  Level 4: Intent/Contracts                                   │
-│    Natural language descriptions, behavioral specs,          │
-│    invariants, test contracts                                │
-│    ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈                  │
-│  Level 3: Architectural Patterns                             │
-│    Module clusters, API surfaces, dependency chains,         │
-│    ownership boundaries, design patterns                     │
-│    ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈                  │
-│  Level 2: Semantic Graph                                     │
+│  ┄┄┄┄┄┄ Future Research (see Future Work section) ┄┄┄┄┄┄   │
+│  Level 4: Intent/Contracts (research spike)                  │
+│  Level 3: Architectural Patterns (research spike)            │
+│  ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄  │
+│                                                              │
+│  Level 2: Semantic Graph ◄── MVKL scope                      │
 │    Symbols + relationships (calls, imports, extends,         │
 │    implements, uses, contains) — the 001 graph model         │
 │    ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈                  │
-│  Level 1: Parsed Definitions                                 │
-│    Content-addressed AST fragments per definition            │
+│  Level 1: Parsed Definitions ◄── MVKL scope                  │
+│    Content-addressed metadata per definition                 │
 │    (function, type, module, trait, impl block)               │
 │    ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈                  │
-│  Level 0: File Index                                         │
+│  Level 0: File Index ◄── exists                               │
 │    Content-addressed file entries (Blake3 hash)              │
 │    — the existing thread-flow cache layer                    │
 │                                                              │
-│  Each level: content-addressed, incrementally updated,       │
+│  L0-L2: content-addressed, incrementally updated,            │
 │  queryable independently, with upward/downward references    │
 └──────────────────────────────▲───────────────────────────────┘
                                │ build/update
 ┌──────────────────────────────────────────────────────────────┐
 │                    INGESTION PIPELINE                         │
 │  File watcher → Blake3 diff → tree-sitter parse →           │
-│  definition extraction → graph construction →                │
-│  pattern detection → intent inference                        │
+│  definition extraction (tags.scm) → graph construction       │
 │  (ReCoco dataflow, incremental)                              │
 └──────────────────────────────▲───────────────────────────────┘
                                │ watch
@@ -340,17 +337,13 @@ The existing 001 spec provides a direct foundation:
 **Ingestion (files → knowledge layer)**:
 1. File watcher detects changes (existing `thread-flow` Blake3 fingerprinting)
 2. Changed files are parsed via tree-sitter (existing `thread-ast-engine`)
-3. **Definition extraction** (new): AST is segmented into individual definitions (functions, types, modules, traits, impl blocks). Each definition gets its own content-addressed hash (Blake3 of its AST subtree).
+3. **Definition extraction** (new): tree-sitter `tags.scm` queries identify definition boundaries (functions, types, modules, traits, impl blocks). Each definition gets a content-addressed hash (Blake3). Metadata stored; ASTs reconstructed on demand.
 4. **Graph construction** (from 001 spec): Definitions become nodes; relationships (calls, imports, extends, etc.) become edges
-5. **Pattern detection** (new): Higher-level analysis identifies module clusters, API surfaces, architectural patterns
-6. **Intent inference** (new, optional): LLM-assisted or rule-based extraction of behavioral contracts and natural language descriptions
 
 **Querying (knowledge layer → AI agents)**:
 - **Level 0**: "What files changed?" → Blake3 diff
 - **Level 1**: "What definitions are in this file?" → Definition index lookup
 - **Level 2**: "What calls this function? What depends on this type?" → Graph traversal
-- **Level 3**: "What module does authentication? What's the API surface of the payments subsystem?" → Pattern query
-- **Level 4**: "What is this function supposed to do? What invariants must hold?" → Intent/contract lookup
 
 **Projection (knowledge layer → human-readable artifacts)**:
 - **Files**: Standard source files (primary projection, bidirectional)
@@ -359,32 +352,30 @@ The existing 001 spec provides a direct foundation:
 - **AI Context Packs**: Minimal subgraph for a specific task, optimized for LLM consumption (Level 1-3)
 
 **AI Agent Operations**:
-- **Read**: Query any level directly via MCP/RPC tools
+- **Read**: Query L0-L2 directly via MCP tools (3-tier tool suite)
 - **Navigate**: Follow graph edges to discover related code without file searching
-- **Understand**: Get architectural context (Level 3) before diving into details (Level 1)
+- **Understand**: Two-phase context protocol — manifest first, then selective fetch
 - **Edit**: Edit files normally (through existing tools), knowledge layer updates incrementally
 - **Refactor** (future): Structural operations (rename, move, extract) through Level 2 graph operations, projected back to file edits
 
 **Advantages**:
-- **Right level of abstraction for each task**: Bug fix? Level 1-2 (definitions + callers). Architecture review? Level 3. Understanding intent? Level 4. The agent doesn't over-fetch or under-fetch.
-- **Incremental sophistication**: Level 0 exists today. Level 1-2 are straightforward extensions of 001. Level 3-4 can be added later without changing the architecture.
+- **Right level of abstraction for each task**: Bug fix? Level 1-2 (definitions + callers). Impact analysis? Level 2 (dependents traversal). The agent doesn't over-fetch or under-fetch.
+- **Incremental sophistication**: Level 0 exists today. Level 1-2 are straightforward extensions of 001. Higher levels (L3-L4) can be explored as research spikes without changing the core architecture (see [Future Work](#future-work--research)).
 - **Git compatible**: Files remain the human interface and Git-tracked artifacts. Knowledge layer is a derived, persistent index — like a sophisticated `.git/index`.
 - **Constitutional compliance**: Git is SoT for content. Knowledge layer is authoritative for *meaning*. This is an additive capability, not a replacement.
-- **512x compression potential**: CGM-style attention masking can be built on Level 2-3 graph structure. An "AI Context Pack" delivers the relevant subgraph in ~1/100th the tokens of file reads.
+- **5-15x context compression**: AI Context Packs deliver the relevant subgraph for targeted queries in 5-15x fewer tokens than equivalent file reads, degrading to 2-5x for exploratory work. (CGM-style attention masking on Level 2-3 graph structure could achieve higher compression ratios as a separate research direction.)
 - **Definition-level caching**: Level 1 gives per-definition content addressing. Changing one function doesn't invalidate the cache for sibling functions in the same file.
-- **Cross-session persistence**: The knowledge layer persists across agent invocations. Agent can resume with full context by querying Levels 2-3.
+- **Cross-session persistence**: The knowledge layer persists codebase understanding across agent invocations, eliminating re-navigation overhead (note: persists codebase state, not agent task state — see Finding 8).
 - **Dual deployment**: Each level works in both CLI (Postgres + petgraph) and Edge (D1 + streaming iterators) following Thread's existing patterns.
-- **MCP-native**: Each level maps cleanly to MCP tool definitions, enabling any AI agent (not just Thread-specific ones) to query the knowledge layer.
+- **MCP-native**: The 3-tier tool suite maps cleanly to MCP tool definitions, enabling any MCP-compatible AI agent to query the knowledge layer.
 
 **Disadvantages**:
-- **Complexity budget**: Five abstraction levels means five things to maintain, test, and keep consistent. Each level adds implementation and cognitive overhead.
-- **Level 3-4 accuracy**: Architectural pattern detection and intent inference are inherently fuzzy. Wrong patterns or incorrect intent descriptions could mislead AI agents more than raw files would.
-- **Definition extraction challenge**: Segmenting AST into "definitions" varies significantly across languages. Rust has clear items; Python has indentation-scoped blocks; JavaScript has hoisted declarations and IIFE patterns.
-- **Update propagation latency**: Changes must flow through all levels. A file edit must update L0 → L1 → L2 → L3 → L4. Each level adds latency to the "time to consistent knowledge" metric.
-- **Storage overhead**: Five levels of content-addressed data for every definition. For a 100k-file codebase, this could mean millions of Level 1 entries, tens of millions of Level 2 edges.
-- **Query routing**: The agent (or a routing layer) must decide which level to query. Wrong level selection wastes tokens or returns irrelevant results.
+- **Complexity budget**: Three core levels (L0-L2) are well-defined; higher levels (L3-L4) are research projects with uncertain outcomes (see [Future Work](#future-work--research)).
+- **Definition extraction challenge**: Segmenting AST into "definitions" varies significantly across languages. Mitigated by tiered extraction using tree-sitter `tags.scm` (see Finding 6).
+- **Update propagation latency**: Changes must flow L0 → L1 → L2. Each level adds latency to the "time to consistent knowledge" metric.
+- **Storage overhead**: Revised to 3-5x raw code size for L0-L2 (see Finding 1). Metadata-only L1 is critical to keeping this manageable.
 
-**Effort**: Medium-High. Level 0-2 are achievable within the 001 spec timeline. Level 3-4 are follow-on work.
+**Effort**: Medium. MVKL (L0-L2 + MCP tools) is achievable in 6-8 weeks parallel with 001 spec execution. Higher levels are deferred research spikes.
 
 ---
 
@@ -408,25 +399,29 @@ Option C is recommended because it balances transformation with pragmatism:
 
 The 001-realtime-code-graph spec already designs Levels 0 and 2 (file index and semantic graph). The knowledge layer extends 001 with:
 
-| Addition | 001 Spec | Knowledge Layer |
+| Addition | 001 Spec | Knowledge Layer (MVKL) |
 |----------|----------|----------------|
-| Definition extraction (Level 1) | GraphNode is per-symbol but within file context | Definitions are independently content-addressed AST fragments |
-| Architectural patterns (Level 3) | Not addressed | Module clusters, API surfaces, ownership boundaries |
-| Intent/contracts (Level 4) | Not addressed | Natural language descriptions, behavioral specs |
-| Projection engine | Files only | Multiple output formats (docs, diagrams, AI context packs) |
-| AI query interface | RPC API for graph queries | Multi-level MCP tools with resolution selection |
-| Context compression | Not addressed | AI Context Packs — minimal subgraphs for specific tasks |
-| Cross-session persistence | Implied by overlay architecture | Explicit agent memory via Level 3-4 queries |
+| Definition extraction (Level 1) | GraphNode is per-symbol but within file context | Definitions are independently content-addressed via tree-sitter `tags.scm` |
+| AI query interface | RPC API for graph queries | 3-tier MCP tool suite (12 tools) |
+| Context compression | Not addressed | Two-phase context packs (manifest → fetch), 5-15x compression |
+| Cross-session persistence | Implied by overlay architecture | Persistent codebase understanding via `thread_definitions_changed` |
+| Graceful degradation | Not addressed | Hybrid tools with transparent fallback (graph → parse → grep) |
 
 ### Phased Delivery
 
-| Phase | Levels | Deliverable | Value |
-|-------|--------|-------------|-------|
-| **Phase 1** (001 execution) | L0 + L2 | File index + semantic graph with overlay architecture | Graph queries, conflict detection, dependency tracking |
-| **Phase 2** (Knowledge Layer v1) | L1 | Definition extraction + per-definition content addressing | Definition-level caching, targeted context for AI, 10-50x context compression |
-| **Phase 3** (Knowledge Layer v2) | L2.5 | AI Context Pack generation + MCP tool suite | AI agents query the knowledge layer directly, eliminating file-read overhead |
-| **Phase 4** (Knowledge Layer v3) | L3 | Architectural pattern detection | Module-level understanding, ownership boundaries, design pattern recognition |
-| **Phase 5** (Knowledge Layer v4) | L4 | Intent inference + behavioral contracts | Specification-level understanding, automated contract verification |
+The MVKL (Minimum Viable Knowledge Layer) focuses on L0-L2 with MCP tools, validated by benchmarks before expansion. L3-L4 are deferred to research spikes (see [Future Work](#future-work--research)).
+
+| Phase | Scope | Timeline | Deliverable |
+|-------|-------|----------|-------------|
+| **Phase 1** | 001 execution (L0 + L2) | Per 001 plan | File index + semantic graph + overlay architecture |
+| **Phase 2** (parallel with P1) | L1 + MVKL | 6-8 weeks | Definition extraction via `tags.scm` + 5 MCP tools + Postgres |
+| **Phase 3** | Validation | 4 weeks | Benchmark suite: 20-30 coding tasks, 5+ repos, measure token reduction + correctness |
+| **Phase 4** | Expansion (conditional on P3) | Based on P3 results | Additional languages, D1 backend, advanced context packs |
+
+**MVKL success criteria** (Phase 3 validation):
+- 50%+ token reduction for targeted queries vs. file-based approach
+- Equal or better task correctness (agent produces correct edits)
+- <500ms query latency for L2 graph traversals on 100k-file codebases
 
 ---
 
@@ -438,7 +433,7 @@ The 001-realtime-code-graph spec already designs Levels 0 and 2 (file index and 
 
 **Rationale**: A single file often contains 10-50 definitions. When one definition changes, file-level caching invalidates the cache for all 50. Definition-level caching invalidates only the changed definition. For AI agents, this means:
 - Requesting "the callers of function X" returns the definition of X and its callers — not the entire files containing them
-- Context packs are 10-50x smaller than equivalent file reads
+- Context packs are 5-15x smaller than equivalent file reads for targeted queries
 - Incremental updates are more granular — changing a comment in function A doesn't re-analyze function B in the same file
 
 **Implementation**: Tree-sitter parse → walk AST → identify top-level items (functions, types, modules, impls, traits) → hash each item's AST subtree independently. Store with metadata (file provenance, byte range, line range) for projection back to files.
@@ -459,7 +454,7 @@ The 001-realtime-code-graph spec already designs Levels 0 and 2 (file index and 
 - File edits are always valid and always trigger knowledge layer updates
 - Knowledge layer queries are always consistent with the latest file state (within propagation latency)
 - If the knowledge layer is corrupted or lost, it can be fully rebuilt from files (recovery guarantee)
-- The knowledge layer may contain information not derivable from files alone (Level 4 intent annotations) — these are treated as supplementary metadata, not authoritative content
+- The knowledge layer may eventually contain information not derivable from files alone (e.g., intent annotations — see [Future Work](#future-work--research)) — these would be treated as supplementary metadata, not authoritative content
 
 ### 3. AI Interface: MCP Tools with Level Selection
 
@@ -467,101 +462,112 @@ The 001-realtime-code-graph spec already designs Levels 0 and 2 (file index and 
 
 **Rationale**: MCP is the emerging standard for AI tool integration. It's supported by Claude, and increasingly by other agents. By exposing the knowledge layer as MCP tools, Thread becomes a universal intelligence backend for any MCP-compatible agent.
 
-**Proposed MCP Tool Suite**:
+**MCP Tool Suite (3-Tier Design)**:
+
+Specialist review (Finding 3) identified that 20 tools across 5 levels creates prohibitive routing overhead for LLM agents. The tool suite is organized into 3 tiers based on usage frequency:
 
 ```
-# Level 0: File operations (existing)
-thread_files_changed(since: hash) -> [FileChange]
-thread_file_content(path: string) -> string
+# Tier 1: Primary (90% of agent interactions)
+thread_context_plan(focal_point?: string, task?: string,
+                    depth?: int, budget?: int) -> ContextManifest
+thread_context_fetch(selections: [hash]) -> [Definition]
+thread_search(query: string, language?: string) -> [SearchResult]
+thread_locate(hash: string) -> FileLocation
 
-# Level 1: Definition operations
-thread_definitions(file: string) -> [Definition]
-thread_definition_by_hash(hash: string) -> Definition
-thread_definition_search(query: string, language?: string) -> [Definition]
-
-# Level 2: Graph operations
+# Tier 2: Navigation (targeted graph traversal)
 thread_callers(symbol: string) -> [CallerInfo]
 thread_callees(symbol: string) -> [CalleeInfo]
 thread_dependencies(symbol: string, depth?: int) -> SubGraph
 thread_dependents(symbol: string, depth?: int) -> SubGraph
-thread_imports(file: string) -> [ImportInfo]
 thread_type_hierarchy(type: string) -> TypeTree
 
-# Level 3: Architecture operations
-thread_module_surface(module: string) -> APISurface
-thread_ownership_boundary(path: string) -> OwnershipInfo
-thread_similar_patterns(symbol: string) -> [PatternMatch]
+# Tier 3: Introspection (health checks, session management)
+thread_status() -> SystemStatus
+thread_definitions_changed(since: hash) -> [DefinitionChange]
 thread_affected_by_change(symbol: string) -> ImpactAnalysis
-
-# Level 4: Intent operations
-thread_intent(symbol: string) -> IntentDescription
-thread_contracts(symbol: string) -> [Contract]
-thread_invariants(module: string) -> [Invariant]
-
-# Meta: Context packs
-thread_context_pack(task: string, scope?: string) -> ContextPack
 ```
 
-### 4. Context Pack Format
+**Design principles**:
+- All tools returning lists support `cursor` parameter for pagination
+- All results include `source: "graph" | "parse" | "text_search"` to signal confidence
+- Tools fall back transparently when the knowledge layer is partially available (see Finding 5)
+- Context plan uses two-phase protocol: manifest first (200-400 tokens), then selective fetch (see Finding 2)
 
-**Decision**: The knowledge layer generates "AI Context Packs" — pre-assembled, token-optimized subgraphs for specific tasks.
+### 4. Context Pack Format (Two-Phase Protocol)
 
-**Rationale**: Rather than making the AI agent issue 10-20 individual queries to build context, the knowledge layer assembles the relevant subgraph proactively. This is the key to context compression.
+**Decision**: Context delivery uses a two-phase protocol — **manifest first, then selective fetch** — rather than a single pre-assembled pack.
 
-**Format**:
+**Rationale**: Specialist review (Finding 2) identified that one-shot context assembly cannot reliably determine relevance outside the agent's reasoning loop. A two-phase approach gives the agent control over what enters its context window while still leveraging the knowledge layer's graph traversal.
+
+**Phase 1 — Manifest** (`thread_context_plan`):
 ```
-ContextPack {
-  // Task description that generated this pack
-  task: string,
+ContextManifest {
+  // Graph version for optimistic concurrency (see Finding 9)
+  graph_version: u64,
 
-  // Definitions relevant to the task, ordered by relevance
-  definitions: [Definition],
+  // Available definitions, ordered by relevance
+  entries: [{
+    hash: string,
+    name: string,
+    kind: "function" | "type" | "trait" | "impl" | "module",
+    file: string,
+    token_estimate: u32,
+    relevance_score: f32,
+  }],
 
-  // Relationships between included definitions
-  edges: [Edge],
+  // Relationships between entries
+  edges: [{source: hash, target: hash, kind: string}],
 
-  // Architectural context (which modules, what patterns)
-  architecture: ArchitecturalContext,
-
-  // Token budget used / remaining
-  token_estimate: u32,
-
-  // What was excluded and why (for agent to request more if needed)
-  excluded: [ExclusionReason],
+  // What is not yet indexed (for agent fallback decisions)
+  coverage: { indexed_files: u32, total_files: u32 },
 }
 ```
+Approximately 200-400 tokens. The agent reviews the manifest and selects which definitions to fetch.
 
-**Example**: Agent asks `thread_context_pack(task: "add rate limiting to the /api/payments endpoint")`:
-- Level 3 identifies the payments module and its API surface
-- Level 2 finds the endpoint handler, its dependencies, middleware chain, and auth flow
-- Level 1 includes the definitions of each relevant function
-- Result: ~2,000 tokens instead of ~50,000 tokens from reading all relevant files
+**Phase 2 — Fetch** (`thread_context_fetch`):
+```
+[Definition {
+  hash: string,
+  content: string,         // Source code of the definition
+  file: string,            // File path for editing
+  line_range: (u32, u32),  // Line range for editing
+  edges: [Edge],           // Relationships to other definitions
+}]
+```
+
+**Two modes**:
+- **Structural mode** (reliable, default): `thread_context_plan(focal_point: "process_payment", depth: 2)` — returns the 2-hop graph neighborhood. Deterministic, no relevance ranking needed.
+- **Task mode** (best-effort): `thread_context_plan(task: "add rate limiting", scope: "src/payments/")` — attempts relevance ranking within an agent-specified scope. Explicitly marked as best-effort.
+
+**Example**: Agent investigates `process_payment`:
+1. `thread_context_plan(focal_point: "process_payment", depth: 1)` → manifest listing 12 definitions (~300 tokens)
+2. Agent selects 6 relevant definitions from the manifest
+3. `thread_context_fetch([hash1, hash2, ..., hash6])` → ~2,000-3,000 tokens of definition content
+4. Total: ~2,500-3,500 tokens instead of ~30,000-50,000 tokens from reading all relevant files (5-15x compression)
 
 ### 5. Storage Architecture
 
 **Decision**: Each level uses the appropriate storage backend, following Thread's existing multi-backend pattern.
 
-| Level | CLI (Postgres) | Edge (D1) | Vector (Qdrant) |
-|-------|---------------|-----------|-----------------|
-| L0: File Index | `files` table | `files` table | — |
-| L1: Definitions | `definitions` table (AST as JSONB) | `definitions` table (AST as JSON) | Definition embeddings |
-| L2: Graph | `nodes` + `edges` tables (petgraph in-memory) | `nodes` + `edges` + `reachability` tables (streaming) | — |
-| L3: Patterns | `patterns` table | `patterns` table | Pattern embeddings |
-| L4: Intent | `intents` table | `intents` table | Intent embeddings |
+| Level | CLI (Postgres) | Edge (D1) | Notes |
+|-------|---------------|-----------|-------|
+| L0: File Index | `files` table | `files` table | Exists in `thread-flow` |
+| L1: Definitions | `definitions` table (metadata only: hash, byte_range, file_id, name, kind) | `definitions` table | ASTs reconstructed on demand, LRU cached |
+| L2: Graph | `nodes` + `edges` tables (petgraph in-memory) | `nodes` + `edges` + `reachability` tables (streaming) | ~10MB LRU cache sufficient for D1 |
+
+**Revised storage estimate**: 3-5x raw code size for L0-L2 combined (see Finding 1). Metadata-only L1 is critical — storing ASTs per definition would inflate to 5-15x.
 
 ### 6. Update Propagation Model
 
-**Decision**: Updates flow bottom-up (L0 → L1 → L2 → L3 → L4) with level-specific latency targets.
+**Decision**: Updates flow bottom-up (L0 → L1 → L2) with level-specific latency targets.
 
 | Transition | Trigger | Target Latency | Mechanism |
 |-----------|---------|---------------|-----------|
 | File → L0 | File system event | <10ms | Blake3 hash comparison |
-| L0 → L1 | File hash changed | <100ms | Tree-sitter incremental parse + definition extraction |
+| L0 → L1 | File hash changed | <100ms | Tree-sitter parse + `tags.scm` definition extraction |
 | L1 → L2 | Definition hash changed | <500ms | Graph edge update (affected edges only) |
-| L2 → L3 | Graph topology changed | <5s | Pattern re-detection (batch, debounced) |
-| L3 → L4 | Pattern changed | <30s | Intent re-inference (async, background) |
 
-Lower levels update synchronously (blocking); higher levels update asynchronously (eventually consistent). AI agents see L0-L2 changes in near-real-time; L3-L4 changes are best-effort.
+L0-L2 updates are synchronous. AI agents see changes in near-real-time (<500ms end-to-end for the critical path).
 
 ---
 
@@ -572,20 +578,19 @@ Lower levels update synchronously (blocking); higher levels update asynchronousl
 The knowledge layer is designed as an **extension** of the 001-realtime-code-graph spec, not a replacement:
 
 ```
-001 Spec Scope          Knowledge Layer Extension
-─────────────────       ─────────────────────────
+001 Spec Scope          Knowledge Layer Extension (MVKL)
+─────────────────       ────────────────────────────────
 Level 0: File Index     ← Exists in thread-flow
-Level 1: Definitions    ← NEW (definition extraction)
+Level 1: Definitions    ← NEW (definition extraction via tags.scm)
 Level 2: Semantic Graph ← Exists in 001 (GraphNode, GraphEdge)
-Level 3: Patterns       ← NEW (architectural detection)
-Level 4: Intent         ← NEW (intent inference)
-Projection Engine       ← NEW (multi-format output)
-MCP Tool Suite          ← NEW (AI agent interface)
+MCP Tool Suite          ← NEW (3-tier, 12 tools)
+Context Packs           ← NEW (two-phase protocol)
+Level 3-4               ← Future research (see Future Work section)
 ```
 
 ### Proposed Crate Organization
 
-Building on the 001 spec's proposed crate structure:
+Building on the 001 spec's proposed crate structure. Specialist review (Finding 7) reduced this from 4 new crates to 1. MCP server, context pack generation, and projection logic live as modules within `thread-api`.
 
 ```
 crates/
@@ -600,129 +605,157 @@ crates/
 ├── thread-indexer/        # FROM 001: Multi-source code indexing
 ├── thread-conflict/       # FROM 001: Conflict detection engine
 ├── thread-storage/        # FROM 001: Multi-backend persistence
-├── thread-api/            # FROM 001: RPC/API layer
+├── thread-api/            # FROM 001: RPC/API layer (+ MCP server, context packs)
+│   ├── src/
+│   │   ├── ...            # Existing RPC/API code
+│   │   ├── mcp/           # MCP tool server (3-tier tool suite)
+│   │   └── context/       # Context pack generation (two-phase protocol)
+│   └── tests/
 │
-├── thread-definitions/    # NEW (L1): Definition extraction + content-addressing
-│   ├── src/
-│   │   ├── extract.rs     # Language-specific definition boundary detection
-│   │   ├── hash.rs        # AST subtree content-addressing
-│   │   ├── store.rs       # Definition CRUD with storage backends
-│   │   └── languages/     # Per-language extraction rules
-│   └── tests/
-├── thread-knowledge/      # NEW (L3-L4): Architectural patterns + intent
-│   ├── src/
-│   │   ├── patterns.rs    # Module cluster detection, API surface extraction
-│   │   ├── intent.rs      # Behavioral contract extraction
-│   │   └── inference.rs   # LLM-assisted intent inference (optional)
-│   └── tests/
-├── thread-projection/     # NEW: Multi-format output generation
-│   ├── src/
-│   │   ├── files.rs       # Source file projection (bidirectional sync)
-│   │   ├── context.rs     # AI Context Pack generation
-│   │   ├── docs.rs        # API documentation generation
-│   │   └── diagrams.rs    # Dependency diagram generation
-│   └── tests/
-└── thread-mcp/            # NEW: MCP tool server
+└── thread-definitions/    # NEW (L1): Definition extraction + content-addressing
     ├── src/
-    │   ├── server.rs      # MCP server implementation
-    │   ├── tools/         # Tool handlers per level
-    │   └── routing.rs     # Query routing + level selection
+    │   ├── extract.rs     # tree-sitter tags.scm-based definition boundary detection
+    │   ├── hash.rs        # Content-addressing (Blake3 of definition metadata)
+    │   ├── store.rs       # Definition CRUD with storage backends
+    │   └── languages/     # Per-language extraction tiers (A/B/C)
     └── tests/
 ```
 
 ### Dependency Graph
 
 ```
-thread-mcp
-  ├── thread-projection
-  │     ├── thread-knowledge (L3-L4)
-  │     │     ├── thread-graph (L2)
-  │     │     │     ├── thread-definitions (L1)
-  │     │     │     │     ├── thread-ast-engine
-  │     │     │     │     └── thread-language
-  │     │     │     └── thread-storage
-  │     │     └── thread-graph
-  │     └── thread-definitions
-  └── thread-api (RPC layer)
+thread-api (RPC + MCP + context packs)
+  ├── thread-graph (L2)
+  │     ├── thread-definitions (L1)
+  │     │     ├── thread-ast-engine
+  │     │     └── thread-language
+  │     └── thread-storage
+  └── thread-definitions
 ```
 
-All arrows flow downward — no circular dependencies (Constitution Principle IV).
+All arrows flow downward — no circular dependencies (Constitution Principle IV). **Net new crates: 1** (`thread-definitions`).
 
 ---
 
 ## Risk Analysis
 
-### Technical Risks
+Risk assessments reflect post-review findings. See Appendix C for the full revised risk matrix.
+
+### Technical Risks (MVKL Scope)
 
 | Risk | Severity | Likelihood | Mitigation |
 |------|----------|-----------|-----------|
-| **Definition extraction accuracy varies by language** | High | High | Start with Rust (cleanest boundaries), expand incrementally. Accept 90% accuracy for dynamic languages initially. |
-| **Update propagation latency exceeds targets** | Medium | Medium | Debounce higher levels (L3-L4). Make latency targets per-level, not end-to-end. L0-L2 are the critical path. |
-| **Storage overhead exceeds 1.5x target** | Medium | Low | Definition deduplication across files. Lazy computation of L3-L4 (only on query, not on every update). Configurable level depth. |
-| **Context Pack quality varies** | Medium | High | Start with rule-based pack assembly (Level 2 graph traversal). Add ML-based relevance ranking in Phase 5. Always include "excluded" list so agent can request more. |
-| **MCP protocol limitations** | Low | Medium | MCP is still evolving. Design tool interfaces to be protocol-agnostic internally; MCP is just one transport. |
+| **Definition extraction accuracy varies by language** | Medium | Medium | tree-sitter `tags.scm` for broad coverage; tiered quality (A/B/C); custom extractors only for Tier A languages |
+| **Storage overhead** | High | High | Metadata-only L1 (no stored ASTs). Target: 3-5x raw code size for L0-L2. See Finding 1. |
+| **Context pack quality** | High | High | Two-phase protocol (manifest → fetch) gives agent control. Structural mode is deterministic. See Finding 2. |
+| **Knowledge layer unavailability** | High | Medium | Hybrid tools with transparent fallback (graph → parse → grep). `thread_status()` for health checks. See Finding 5. |
+| **MCP protocol limitations** | Low | Medium | Tool interfaces are protocol-agnostic internally; MCP is one transport. |
 
 ### Adoption Risks
 
 | Risk | Severity | Likelihood | Mitigation |
 |------|----------|-----------|-----------|
-| **AI agents don't use the knowledge layer** | Critical | Low | MCP is the emerging standard. Context packs provide immediate, measurable value (10-50x compression). |
-| **Developers don't trust non-file representations** | Medium | Medium | Files remain the editing interface. Knowledge layer is invisible to developers unless they choose to query it. |
-| **Level 3-4 produce misleading results** | High | Medium | Mark L3-L4 results with confidence scores. Make them optional. Never present inferred intent as authoritative. |
+| **Adoption without validation** | Critical | Medium | MVKL benchmark suite in Phase 3: 20-30 tasks, 5+ repos, measure token reduction + correctness. See Finding 10. |
+| **AI agents don't use the knowledge layer** | Critical | Low | First consumer is Thread's own CLI. MCP server follows. See Finding 10. |
+| **Complexity exceeds team capacity** | High | Medium | 1 new crate, not 4. L3-L4 deferred to research spikes. See Finding 7. |
 
 ### Constitutional Risks
 
 | Risk | Mitigation |
 |------|-----------|
-| Principle I (Service-Library): Knowledge layer must serve both library API and service deployment | Each level is a library crate; service layer orchestrates updates and serves queries |
-| Principle III (TDD): Complex definition extraction logic needs comprehensive tests | Property-based testing for extraction; golden-file tests per language; round-trip tests (extract → project → extract = identity) |
-| Principle VI (Service): Must meet storage and cache performance targets | Definition-level caching improves cache hit rates (more granular = fewer invalidations). Storage schema designed for query patterns. |
+| Principle I (Service-Library): Knowledge layer must serve both library API and service deployment | `thread-definitions` is a library crate; MCP/context packs are modules in `thread-api` |
+| Principle III (TDD): Definition extraction logic needs comprehensive tests | Property-based testing for extraction; golden-file tests per language; round-trip tests |
+| Principle VI (Service): Must meet storage and cache performance targets | Definition-level caching improves cache hit rates. Metadata-only storage. |
 
 ---
 
-## Open Questions
+## Open Questions (MVKL Scope)
 
-1. **Definition boundary heuristics**: How do we handle language constructs that don't fit cleanly into "definition" boundaries?
+1. **Definition boundary edge cases**: How do we handle language constructs that don't fit cleanly into "definition" boundaries?
    - Rust macros that generate definitions
    - Python's module-level imperative code
    - JavaScript's IIFE patterns and dynamic exports
-   - C/C++ preprocessor directives
+   - Mitigation: Tier C languages (C/C++, Bash, etc.) use file-level granularity
 
-2. **Level 3 pattern detection**: What patterns are most valuable for AI agents?
-   - Module ownership boundaries
-   - Error handling patterns
-   - State management patterns
-   - API versioning conventions
-   - Should this be configurable per-project?
+2. **Context manifest ranking**: How does `thread_context_plan` rank definitions in structural mode?
+   - Fixed-depth graph traversal from focal point (baseline)
+   - Fan-in/fan-out weighting (higher connectivity = higher relevance)
+   - Agent-specified budget vs. system-optimized budget
+   - Task mode ranking algorithm (best-effort, if implemented)
 
-3. **Level 4 intent source**: Where does intent come from?
-   - Existing docstrings/comments
-   - Test names and assertions
-   - Commit messages
-   - LLM inference
-   - Manual annotation
-   - Some combination?
+3. **Edge deployment scope**: Which L0-L2 operations are available on edge (WASM)?
+   - L0-L1 metadata fits in D1 with ~10MB LRU cache
+   - L2 graph: full graph exceeds 128MB for large codebases — streaming iterators or subgraph-only queries?
+   - All MCP tools must work with partial data (graceful degradation)
 
-4. **Context Pack assembly algorithm**: How does the system decide what to include?
-   - Fixed-depth graph traversal from focal point?
-   - Relevance-weighted selection within token budget?
-   - Task-type-specific heuristics (bug fix vs. feature vs. refactor)?
-   - Should the agent specify the budget, or should the system optimize?
-
-5. **Edge deployment scope**: Which levels are available on edge (WASM)?
-   - L0-L2 seem feasible within 128MB memory constraints
-   - L3 pattern detection may require full graph access (CLI only?)
-   - L4 intent inference requires LLM access (API call from edge?)
-
-6. **Bidirectional sync complexity**: When an AI agent makes a structural change through the graph API (future Phase), how do we project it back to files?
-   - Simple cases (rename, move) are mechanical
-   - Complex cases (extract function, change signature with callers) require formatting decisions
-   - Should this be deferred entirely until Option B becomes viable?
-
-7. **Versioning**: How does the knowledge layer handle branches?
+4. **Branch handling**: How does the knowledge layer handle branches?
    - One knowledge layer instance per branch?
    - Shared base with branch-specific overlays (extending 001's overlay architecture)?
    - How does branch switching work — full rebuild or incremental diff?
+
+5. **Optimistic concurrency semantics**: What exactly happens when `graph_version` conflict is detected?
+   - Reject agent's follow-up queries until it re-fetches the manifest?
+   - Return a diff of what changed, letting the agent decide?
+   - Silent re-base (risky — may mask real conflicts)?
+
+---
+
+## Future Work / Research
+
+The following capabilities are **not part of the MVKL scope**. They are documented here for completeness but require separate validation before investment. Each is framed as a time-boxed research spike with explicit go/no-go criteria.
+
+### Research Spike R1: Architectural Pattern Detection (L3)
+
+**Hypothesis**: Detecting module clusters, API surfaces, and ownership boundaries from the L2 graph would provide valuable architectural context for AI agents performing large-scale refactoring or onboarding tasks.
+
+**Approach**: Use graph algorithms (community detection, fan-in/fan-out analysis, betweenness centrality) composed on the L2 petgraph, not a separate inference engine. Compute lazily on query, not eagerly on every graph update.
+
+**Open questions**:
+- What patterns are most valuable? Module boundaries, error handling conventions, state management patterns, API versioning?
+- Should patterns be configurable per-project?
+- How to handle the TDD tension — pattern detection has no objectively "correct" answer (Koschke 2009, Garcia et al. 2013)?
+
+**Go/no-go criteria** (2-week spike):
+- Prototype detects module boundaries on 3+ real-world Rust codebases
+- AI agent with L3 context resolves 20%+ more architectural questions correctly vs. L2-only
+- If no measurable improvement: cut L3 entirely
+
+**If approved**: L3 pattern data lives in `thread-graph` as optional graph annotations, not in a separate crate. Exposed via the existing `thread_affected_by_change` introspection tool, not as separate L3-specific tools.
+
+### Research Spike R2: Intent Inference (L4)
+
+**Hypothesis**: Extracting behavioral contracts and natural language intent descriptions from code, docstrings, and tests would help AI agents write conformant new code and avoid violating implicit invariants.
+
+**Approach**: Start with deterministic extraction (docstring parsing, test assertion extraction). LLM-assisted inference is a later option if deterministic extraction proves insufficient.
+
+**Open questions**:
+- What is the source of intent? Docstrings, test names, commit messages, LLM inference, manual annotation?
+- How to validate correctness of inferred intent?
+- Can intent be expressed as machine-checkable contracts, or is it inherently natural language?
+
+**Go/no-go criteria** (2-week spike):
+- Prototype extracts meaningful intent for 50%+ of public functions in a well-documented Rust codebase
+- AI agent with L4 context produces code that violates fewer implicit conventions vs. L2-only
+- If no measurable improvement: cut L4 entirely
+
+**If approved**: Intent data lives as metadata on L1 definitions. Exposed via context pack metadata, not as separate tools.
+
+### Future Capability: Bidirectional Graph Edits
+
+Structural refactoring operations (rename, move, extract function, change signature) through the graph API, projected back to file edits. This is the path toward Option B (Unison model) and would require:
+- A projection engine for graph → file sync
+- Formatting-preserving code generation
+- Multi-file atomic edit transactions
+
+**Prerequisite**: MVKL must be validated and stable before investing in bidirectional sync.
+
+### Future Capability: Agent Session Memory (L5)
+
+True cross-session persistence would require storing agent-specific state: current task, working hypotheses, explored definitions, decisions made. This is a potential "L5" that lives above the codebase-level knowledge layer. See Finding 8 for analysis.
+
+### Future Capability: Semantic Search
+
+Embedding-based search via Qdrant for queries like "find code that handles retries" or "where is rate limiting implemented." Requires high-quality embeddings of every definition. Complements but does not replace the structural graph queries.
 
 ---
 
@@ -734,12 +767,12 @@ All arrows flow downward — no circular dependencies (Constitution Principle IV
 | **Source of truth** | Git/files | Database | Git for content, KL for meaning |
 | **AI interface** | Graph query → file read | Direct graph manipulation | Multi-level MCP tools |
 | **Human interface** | Unchanged | Scratch files | Unchanged |
-| **Context compression** | 2-5x (targeted file reads) | 50-500x (definition-level) | 10-100x (context packs) |
+| **Context compression** | 2-5x (targeted file reads) | 50-500x (definition-level) | 5-15x targeted, 2-5x exploratory (context packs) |
 | **Git compatibility** | Full | Requires adaptation | Full |
 | **Implementation effort** | Low-Medium | Very High | Medium-High |
 | **Definition-level caching** | No | Yes | Yes (Level 1) |
-| **Architectural awareness** | No | No | Yes (Level 3) |
-| **Intent/contracts** | No | No | Yes (Level 4) |
+| **Architectural awareness** | No | No | Future research (Level 3) |
+| **Intent/contracts** | No | No | Future research (Level 4) |
 | **Bidirectional sync** | N/A (files are truth) | Required (complex) | Optional (future) |
 | **Constitutional compliance** | Full | Requires amendment | L0-L2: Full; L3-L4: Partial (TDD tension) |
 | **Incremental delivery** | Yes | No (big bang) | Yes (level by level) |
@@ -785,7 +818,7 @@ All arrows flow downward — no circular dependencies (Constitution Principle IV
 
 ## Appendix C: Specialist Review Findings
 
-Three independent specialist reviews were conducted to identify planning gaps and architectural challenges. Their findings are synthesized below, organized by theme, with specific revisions to the original design.
+Three independent specialist reviews were conducted to identify planning gaps and architectural challenges. Their findings are synthesized below, organized by theme. **Key revisions have been incorporated into the main body** — this appendix preserves the detailed rationale and evidence behind each design change.
 
 ### Review Panel
 
@@ -1050,5 +1083,5 @@ Key changes from original phasing:
 
 ---
 
-**Document Status**: Draft with specialist review incorporated
+**Document Status**: Draft — revised per specialist review and Sourcery feedback. Main body reflects MVKL scope (L0-L2); L3-L4 detail consolidated into [Future Work / Research](#future-work--research) section.
 **Next Steps**: Decision on proceeding to feature specification (speckit workflow) for the MVKL scope
