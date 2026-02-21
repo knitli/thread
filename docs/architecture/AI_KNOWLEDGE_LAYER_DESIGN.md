@@ -741,7 +741,7 @@ All arrows flow downward — no circular dependencies (Constitution Principle IV
 | **Architectural awareness** | No | No | Yes (Level 3) |
 | **Intent/contracts** | No | No | Yes (Level 4) |
 | **Bidirectional sync** | N/A (files are truth) | Required (complex) | Optional (future) |
-| **Constitutional compliance** | Full | Requires amendment | Full |
+| **Constitutional compliance** | Full | Requires amendment | L0-L2: Full; L3-L4: Partial (TDD tension) |
 | **Incremental delivery** | Yes | No (big bang) | Yes (level by level) |
 | **Risk profile** | Low | Very High | Medium |
 
@@ -783,5 +783,272 @@ All arrows flow downward — no circular dependencies (Constitution Principle IV
 
 ---
 
-**Document Status**: Draft — pending architectural review
-**Next Steps**: Specialist review for planning gaps, then feature specification via speckit workflow
+## Appendix C: Specialist Review Findings
+
+Three independent specialist reviews were conducted to identify planning gaps and architectural challenges. Their findings are synthesized below, organized by theme, with specific revisions to the original design.
+
+### Review Panel
+
+1. **Rust Systems Architect** — focused on implementation feasibility, content-addressing mechanics, storage overhead, edge deployment constraints
+2. **AI Agent Integration Specialist** — focused on MCP tool design, context pack quality, agent workflows, failure modes
+3. **Product/Architecture Strategist** — focused on strategic positioning, adoption risks, phasing realism, complexity budget
+
+---
+
+### Finding 1: Storage Overhead Is Dramatically Underestimated
+
+**Source**: Rust Systems Architect
+
+The report's 1.5x storage target is not achievable. Quantitative analysis for a 100k-file Rust codebase (~10M LOC, ~400MB raw):
+
+| Level | Storage Estimate | Notes |
+|-------|-----------------|-------|
+| L0 (File Index) | ~20MB | 100k entries x 200 bytes |
+| L1 (Definitions) | 750MB-3.75GB | 1.5M definitions; 750MB metadata-only, 3.75GB with stored ASTs |
+| L2 (Graph) | 1.2-2GB | 1.5M nodes + 7.5-15M edges |
+| L3 (Patterns) | <100MB | Thousands of patterns |
+| **Total** | **2-6GB** | **5-15x raw code, not 1.5x** |
+
+**Required Design Revision**: Do NOT store ASTs per definition. Store only `(content_hash, byte_range, file_id, name, kind)` metadata. Reconstruct ASTs on demand by re-parsing the containing file and extracting the byte range. Use an LRU cache for hot definitions. This reduces L1 to ~750MB (~1.9x raw). **Revised storage target: 3-5x raw code size for L0-L2 combined.**
+
+For D1 (edge), the full L2 graph cannot be loaded into memory under 128MB. L1 must also be queried from D1, not held in memory. An LRU cache of ~10MB (covering ~20k definitions) handles most query working sets.
+
+---
+
+### Finding 2: Context Pack Assembly Needs a Two-Phase Protocol
+
+**Source**: AI Agent Integration Specialist
+
+The one-shot `thread_context_pack(task: string)` design has a fundamental flaw: relevance cannot be determined outside the agent's reasoning loop. If the system guesses wrong about what's relevant, the agent wastes its entire context window on irrelevant definitions.
+
+**Required Design Revision**: Replace single context pack with two-phase protocol:
+
+1. **`thread_context_plan(focal_point, depth, budget)`** — returns a *manifest* of what would be included (definition names, token costs, relevance scores). Approximately 200-400 tokens.
+2. **`thread_context_fetch(selections: [hash])`** — returns the actual content of selected definitions.
+
+Additionally, provide two modes:
+- **Structural mode** (reliable): `thread_context_plan(focal_point: "process_payment", depth: 2)` — returns 2-hop graph neighborhood. No relevance ranking needed.
+- **Task mode** (best-effort): `thread_context_plan(task: "add rate limiting", scope: "src/payments/")` — attempts relevance ranking within agent-specified scope.
+
+The structural mode should be the default. Task mode is explicitly marked as best-effort with accuracy caveats.
+
+**Revised compression estimate**: Realistic compression is **5-15x** for targeted queries, degrading to **2-5x** for exploratory work. The 100x claim is achievable only for L3 architectural overview queries (narrow use case).
+
+---
+
+### Finding 3: MCP Tool Suite Should Be 3 Tiers, Not 5 Levels
+
+**Source**: AI Agent Integration Specialist, Product Strategist
+
+20 tools across 5 levels creates a two-step routing decision (which level, then which tool) that compounds LLM reasoning errors. In practice, agents will gravitate toward `thread_context_pack` for 90% of interactions.
+
+**Required Design Revision**: Restructure into 3 tiers:
+
+| Tier | Tools | Purpose |
+|------|-------|---------|
+| **Primary** (4 tools) | `thread_context_plan`, `thread_context_fetch`, `thread_search`, `thread_locate` | 90% of interactions |
+| **Navigation** (5 tools) | `thread_callers`, `thread_callees`, `thread_dependencies`, `thread_dependents`, `thread_type_hierarchy` | Targeted graph traversal when context plan is insufficient |
+| **Introspection** (3 tools) | `thread_status`, `thread_definitions_changed`, `thread_affected_by_change` | Health checks, session management, impact analysis |
+
+**Total: 12 tools** (down from ~20). L4 intent/contract tools folded into context plan metadata, not exposed as separate tools.
+
+**Critical missing tools identified**:
+- **`thread_status()`**: Returns indexing progress, level availability, staleness — required for graceful degradation
+- **`thread_definitions_changed(since: hash)`**: Required for cross-session persistence claim
+- **`thread_locate(hash)`**: Bridges knowledge layer representation back to file path + line number for editing
+- **`thread_context_from_diagnostic(error: string)`**: Handles the highest-frequency agent workflow (starting from an error message)
+- **Pagination**: All tools returning lists need `cursor` parameter and `thread_more(cursor)` continuation
+
+---
+
+### Finding 4: L3-L4 Are Research Projects, Not Engineering Phases
+
+**Source**: All three reviewers (unanimous)
+
+L3 (Architectural Pattern Detection) and L4 (Intent Inference) are poorly defined, non-deterministic, and not amenable to TDD (Constitution Principle III).
+
+- **L3**: "Detect that these 15 files form an authentication module" has no objectively correct answer. This is an open research question in software architecture recovery (studied since the 1990s: Koschke 2009, Garcia et al. 2013).
+- **L4**: Intent inference from docstrings is trivial text extraction; from LLM inference it's non-deterministic. Neither meets TDD requirements.
+- **Constitutional violation**: Principle III mandates TDD for all development. L3-L4 cannot be meaningfully TDD'd with red-green-refactor cycles.
+
+**Required Design Revision**:
+- Relabel Phases 4-5 as **"Research & Exploration"** with explicit success/failure criteria
+- Define 2-week spikes that produce prototypes. If prototype demonstrates measurable value (e.g., "AI agent with L3 context resolves 20% more issues"), proceed. If not, cut.
+- L3 should be computed **lazily** (on query, not on every update) to avoid cascade problems
+- When implemented, L3 pattern detection should use existing graph algorithms (community detection, fan-in/fan-out analysis) composed on the L2 graph via petgraph, not a separate inference engine
+
+---
+
+### Finding 5: No Graceful Degradation Path
+
+**Source**: AI Agent Integration Specialist
+
+The architecture assumes the knowledge layer is always available and correct. Five failure scenarios are unaddressed:
+
+1. **First use**: Repository never indexed. All L1+ tools return empty.
+2. **Indexing in progress**: Initial parse takes minutes for 100k files. L1-L2 data is partial.
+3. **Storage failure**: Postgres/D1 down.
+4. **Stale after offline period**: Graph based on week-old commit.
+5. **Corruption**: Incorrect graph edges from language edge cases (macros, dynamic dispatch).
+
+**Required Design Revision**: Design "hybrid tools" with transparent fallback:
+- `thread_search(name)` → check graph (L2) → fall back to tree-sitter scan → fall back to grep
+- All results annotated with `source: "graph" | "parse" | "text_search"` for confidence signaling
+- `thread_status()` returns per-level availability so agents make informed fallback decisions
+- For dynamic languages (Python, JavaScript, Ruby), graph results carry `dynamic_dispatch_risk: bool` flag
+
+This makes the knowledge layer an **accelerator** rather than a **requirement**. The system always works; it just works faster with the knowledge layer populated.
+
+---
+
+### Finding 6: Definition Extraction Should Use tree-sitter Queries, Not Custom Extractors
+
+**Source**: Rust Systems Architect, Product Strategist
+
+Building custom per-language definition extractors for 20+ languages is a multi-engineer-year effort. Tree-sitter already solves this.
+
+**Options**:
+
+| Approach | Effort | Coverage | Depth |
+|----------|--------|----------|-------|
+| Custom extractors | Multi-year | 20+ languages | Full control |
+| tree-sitter `tags.scm` | Weeks | All tree-sitter languages | Definitions + basic types |
+| SCIP indexers | Months | 5-6 languages | Full semantics + cross-references |
+
+**Required Design Revision**: Use tree-sitter `tags.scm` queries for L1 definition extraction. These ship with every major grammar and identify definition boundaries (functions, classes, methods) out of the box. Build custom extractors only for features not covered by `tags.scm`.
+
+Additionally, tier definition extraction quality:
+- **Tier A** (Full extraction): Rust, Go — clean item boundaries, custom extractors justified
+- **Tier B** (Major definitions): Python, TypeScript, Java — functions + classes via `tags.scm`
+- **Tier C** (File-level only): C/C++, Bash, CSS, HTML, JSON, YAML — treat entire file as one definition
+
+Tier C languages still benefit from L0 caching and L2 import-level graph edges.
+
+---
+
+### Finding 7: Complexity Budget Is Exceeded — Aggressive Merging Required
+
+**Source**: Product Strategist
+
+The proposal adds 4 new crates + 001 spec's 6 new crates = **10 new crates** for a project with 7 existing crates. This more than doubles the codebase surface area.
+
+**Required Design Revision**:
+
+| Proposed | Revised | Rationale |
+|----------|---------|-----------|
+| `thread-definitions` | **Keep** | Core new capability, clear library crate |
+| `thread-knowledge` | **Cut** | Research project. Pattern detection is graph algorithms on L2 — belongs in `thread-graph` |
+| `thread-projection` | **Merge into `thread-api`** | Context packs are a query response format, not a separate concern |
+| `thread-mcp` | **Merge into `thread-api`** | MCP is a transport protocol alongside RPC, not a separate layer |
+
+**Net result: 1 new crate** (`thread-definitions`) beyond what the 001 spec already proposes. The MCP server, context pack generation, and projection logic live as modules within `thread-api`.
+
+---
+
+### Finding 8: Cross-Session Persistence Claim Is Overstated
+
+**Source**: AI Agent Integration Specialist
+
+The knowledge layer persists *codebase state* (graph, patterns) but not *agent state* (current task, working hypothesis, exploration path, decisions). "Pick up where you left off" actually means "start over with a better index," which is a real improvement but not the claimed full-context restoration.
+
+**Required Design Revision**:
+- Revise claim from "full context restoration" to "persistent codebase understanding that eliminates re-navigation overhead"
+- Note that true cross-session persistence would require an "agent session" entity storing task description, focal points, explored definitions, and hypotheses — this is a future capability (a potential L5), not part of the initial design
+- The `thread_definitions_changed(since: hash)` tool partially addresses this by letting agents efficiently detect what changed since their last interaction
+
+---
+
+### Finding 9: Multi-Agent Coordination Needs Optimistic Concurrency
+
+**Source**: AI Agent Integration Specialist
+
+AI agents create fundamentally different concurrency patterns than human developers: edits every few seconds (not minutes), 40+ files at once (not 1-3), and graph-level coordination needs (not file-level).
+
+**Required Design Revision**: Add optimistic concurrency control:
+1. Context plans include `graph_version: u64` (monotonically increasing)
+2. When the agent's edit triggers a knowledge layer update, the system checks whether the graph has advanced past the version the agent was working with
+3. If the affected subgraph has changed, the system flags the potential inconsistency in `thread_status()` or returns a warning on the next `thread_context_plan` call
+
+This is analogous to ETags in HTTP or `expectedVersion` in event sourcing.
+
+---
+
+### Finding 10: First Consumer Must Be Thread Itself
+
+**Source**: Product Strategist
+
+The "open infrastructure for all AI agents" positioning historically loses (Kythe, SCIP, Glean all failed at external adoption). The first consumer must be Thread's own CLI.
+
+**Required Design Revision — Adoption Path**:
+
+1. **Month 1-3**: Thread CLI uses L0-L2 internally. `thread analyze` queries the graph instead of re-parsing.
+2. **Month 3-5**: Ship MCP server as `thread serve --mcp`. Claude Code users add Thread as an MCP server.
+3. **Month 5-8**: Run validation benchmark (20-30 coding tasks, 5+ repos). Measure: tokens consumed, task completion rate, correctness. Target: 50%+ token reduction AND equal or better correctness.
+4. **Month 8+**: If benchmarks pass, pitch to AI agent framework developers.
+
+**Minimum Viable Knowledge Layer (MVKL)**:
+1. Content-addressed file index (L0) — exists
+2. Definition extraction with per-definition hashing (L1) — via tree-sitter `tags.scm`
+3. Caller/callee graph (L2, subset) — from 001 spec
+4. 5 MCP tools: `thread_context_plan`, `thread_context_fetch`, `thread_search`, `thread_callers`, `thread_status`
+5. 4 languages: Rust, TypeScript, Python, Go
+6. 1 storage backend: Postgres (CLI only)
+
+Ship the MVKL, validate with benchmarks, then expand.
+
+---
+
+### Finding 11: OSS/Commercial Boundary Is Undefined
+
+**Source**: Product Strategist
+
+**Required Design Revision — Recommended Boundary**:
+
+| Component | License | Rationale |
+|-----------|---------|-----------|
+| L0-L2 (File Index + Definitions + Graph) | OSS (AGPL) | Adoption engine |
+| MCP Server (L0-L2 tools) | OSS (AGPL) | Drives MCP ecosystem adoption |
+| L3 (Patterns) — when built | Commercial | Differentiated intelligence |
+| L4 (Intent) — when built | Commercial | Requires LLM integration, high value |
+| Advanced Context Packs (with L3-L4) | Commercial | Premium feature |
+| Full Edge Deployment | Commercial | Per 001 spec |
+
+This follows the open-core model: knowledge layer drives adoption (OSS), intelligence on top drives monetization (commercial).
+
+---
+
+### Revised Risk Matrix (Post-Review)
+
+| Risk | Original Severity | Revised Severity | Key Mitigation |
+|------|-------------------|------------------|----------------|
+| Definition extraction across languages | Medium-High | **Medium** (mitigated by `tags.scm`) | Use tree-sitter queries, not custom extractors |
+| Storage overhead | Medium | **High** (was underestimated 4-10x) | Metadata-only L1, no stored ASTs |
+| Context pack quality | Medium | **High** (central value prop) | Two-phase protocol (manifest → fetch) |
+| L3-L4 feasibility | Medium | **Critical** (research, not engineering) | Relabel as research spikes with go/no-go |
+| Knowledge layer unavailability | Not assessed | **High** | Hybrid tools with transparent fallback |
+| Adoption without validation | Not assessed | **Critical** | MVKL in 8 weeks + benchmark suite |
+| Complexity exceeds team capacity | Not assessed | **High** | 1 new crate, not 4; defer L3-L4 |
+| Competitive timing | Not assessed | **High** | Differentiate on OSS + self-hostable + edge |
+
+---
+
+### Revised Phasing (Post-Review)
+
+| Phase | Scope | Timeline | Deliverable |
+|-------|-------|----------|-------------|
+| **Phase 1** | 001 execution (L0 + L2) | Per 001 plan | File index + semantic graph + overlay architecture |
+| **Phase 2** (parallel with P1) | L1 + MVKL | 6-8 weeks | Definition extraction via `tags.scm` + 5 MCP tools + Postgres |
+| **Phase 3** | Validation | 4 weeks | Benchmark suite: 20-30 tasks, 5+ repos, measure token reduction + correctness |
+| **Phase 4** | Expansion | Based on P3 results | Additional languages, D1 backend, advanced context packs |
+| **Phase R1** | Research spike: L3 | 2 weeks | Prototype pattern detection. Go/no-go decision. |
+| **Phase R2** | Research spike: L4 | 2 weeks | Prototype intent inference. Go/no-go decision. |
+
+Key changes from original phasing:
+- Phase 1 and Phase 2 run **in parallel** (they are independent)
+- Phase 3 is **validation**, not more building — must prove value before expanding
+- Phases 4-5 split into expansion (engineering, conditional on P3) and research spikes (go/no-go)
+
+---
+
+**Document Status**: Draft with specialist review incorporated
+**Next Steps**: Decision on proceeding to feature specification (speckit workflow) for the MVKL scope
