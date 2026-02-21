@@ -103,7 +103,7 @@ Thread's opportunity is to provide this layer as **open infrastructure** — a c
 
 **Sourcegraph SCIP**: Protobuf schema with human-readable symbol IDs. 10x faster indexing and 4-5x smaller indexes than LSIF. Powers Sourcegraph's Code Graph capturing inheritance, service dependencies, and API interactions.
 
-**Meta Glean**: General-purpose fact collection using RocksDB and declarative Angle queries. Indexes diffs as "diff sketches" for semantic search over commits. Hundreds-of-microseconds query latency at massive scale.
+**Meta Glean**: General-purpose fact collection using RocksDB and declarative Angle queries. Indexes diffs as "diff sketches" for semantic search over commits. Hundreds of microseconds query latency at massive scale.
 
 ### Graph-Integrated LLM Inference (CGM, NeurIPS 2025)
 
