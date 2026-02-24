@@ -12,6 +12,17 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 **Status**: Draft
 **Input**: User description: "Build an application that can provide performant, real-time, code-base-wide graph intelligence with semantic/ast awareness. I want it to be able to interface with any data source, database target, work locally and in the cloud, and plug and change out underlying engines. It needs to be fast and cloudflare deployable. This will server as the foundational intelligence layer for the future of work -- enabling real time and asynchronous human-ai teaming with intelligent conflict prediction and resolution"
 
+## Related Documents
+
+| Document | Location | Role |
+|----------|----------|------|
+| Semantic Classification Spec | [`docs/architecture/SEMANTIC_CLASSIFICATION_SPEC.md`](../../docs/architecture/SEMANTIC_CLASSIFICATION_SPEC.md) | Canonical implementation reference for `thread-definitions` — classifier internals, 8-stage lookup pipeline, data schemas, scoring model, language-agnostic query design |
+| AI Knowledge Layer Design | [`docs/architecture/AI_KNOWLEDGE_LAYER_DESIGN.md`](../../docs/architecture/AI_KNOWLEDGE_LAYER_DESIGN.md) | Background architectural proposal for the multi-resolution knowledge layer (L0–L4); predates the classifier port proposal |
+| Implementation Plan | [`specs/001-realtime-code-graph/plan.md`](./plan.md) | Phased implementation plan, crate breakdown, dependency graph |
+| Tasks | [`specs/001-realtime-code-graph/tasks.md`](./tasks.md) | Ordered task list including Phase 0.5 (T-C01–T-C12) for `thread-definitions` |
+
+---
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Real-Time Code Analysis Query (Priority: P1)
@@ -100,13 +111,16 @@ When a conflict is predicted, the system suggests resolution strategies based on
   - **Schema**: Data is stored as immutable "Graph Chunks" keyed by content hash (e.g., `hash(file_content) -> graph_data`).
   - **Backends**: Postgres (Local CAS), D1 (Cloud CAS).
   - **Consistency**: Consistency is achieved via immutability; a specific hash ALWAYS maps to the same graph data.
-  - **Qdrant**: Stores vector embeddings mapped to the same content hashes.
+  - **Vectorize** (Cloudflare, Edge): Stores vector embeddings for semantic similarity search on the edge. **Qdrant** (optional, CLI-only): Self-hosted vector backend for local deployments. Note: ReCoco's Qdrant target is currently disabled due to a dependency conflict; Vectorize is the primary vector backend for edge deployment.
 - **FR-005**: System MUST support real-time graph queries responding within 1 second for codebases up to 100k files
 - **FR-006**: System MUST detect and classify concurrent code changes into a Three-Tier Conflict Taxonomy: **Tier 1 (Syntactic)** for parse/compile errors (detected via AST diff <100ms), **Tier 2 (Structural)** for valid syntax but broken linking/structure (detected via Symbol Graph <1s), and **Tier 3 (Semantic)** for valid structure but incompatible logic/behavior (detected via Dataflow/Semantic analysis <5s). Results update progressively as each tier completes.
 - **FR-007**: System MUST provide conflict predictions with specific details: file locations, conflicting symbols, impact severity ratings, confidence scores, and conflict tier classification. Initial predictions (Tier 1) deliver within 100ms, refined predictions (Tier 2) within 1 second, comprehensive predictions (Tier 3) within 5 seconds.
 - **FR-008**: System MUST support incremental updates where only changed files and affected dependencies are re-analyzed
 - **FR-009**: System MUST allow pluggable analysis engines where the underlying AST parser, graph builder, or conflict detector can be swapped without rewriting application code. This abstraction MUST support diverse type systems (e.g., CodeWeaver's "Things/Connections" model) alongside standard Tree-sitter nodes.
 - **FR-010**: System MUST deploy to Cloudflare Workers using a **Multi-Worker Architecture** to support ~166 languages. The architecture consists of a central Router/Handler Worker that delegates to specialized Language Workers via Service Bindings. **OSS Boundary**: OSS distribution includes a simplified single-worker deployment bundling only core languages (Rust, Python, TypeScript) to minimize complexity. **Constraint**: Edge deployment MUST NOT load full graph into memory. Must use streaming/iterator access patterns and D1 Reachability Index.
+
+  > **Implementation note**: The `thread-definitions` semantic classifier provides 80%+ accuracy on any tree-sitter grammar out of the box via universal rules (2,444 cross-language patterns). Full language support (~100%) requires only ~10–50 lines of TOML overrides per language. Target: all ~166 tree-sitter-language-pack languages. File-extension language identification for ~200 languages available from CodeWeaver as `data/file_extensions.json`.
+- **FR-LANGDETECT**: Language identification SHALL use a two-tier strategy: (1) hardcoded extension lookup (primary, zero-cost), (2) AST fingerprinting fallback — parse with candidate grammar, classify node types, score = recognized/total; grammar with highest score (threshold ~0.75) is the probable language. Enables reliable detection for extensionless files and ambiguous cases.
 - **FR-011**: System MUST run as a local CLI application for developer workstation use (available in OSS). **Local-Only Mode**: In this mode, Postgres serves as both the CAS store and the "Real-Time Service" (managing the Overlay/Deltas in memory), ensuring full functionality without cloud connectivity.
 - **FR-012**: System MUST use content-addressed caching to avoid re-analyzing identical code sections across updates
 - **FR-013**: System MUST propagate code changes to all connected clients within 100ms of detection for real-time collaboration
@@ -122,16 +136,32 @@ When a conflict is predicted, the system suggests resolution strategies based on
 - **FR-019**: System MUST log all conflict predictions and resolutions for audit and learning purposes
 - **FR-020**: System MUST handle authentication and authorization for multi-user scenarios when deployed as a service, utilizing standard **OAuth2/OIDC** protocols.
 - **FR-021**: System MUST expose metrics for: query performance, cache hit rates, indexing throughput, and storage utilization
-- **FR-022**: System MUST utilize batched database operations (D1 Batch API) and strictly govern memory usage (<80MB active set) on Edge via CocoIndex adaptive controls (limiting in-flight rows and bytes) to prevent OOM errors. Large payloads exceeding D1 limits should be offloaded to R2 or a Dead Letter Queue (DLQ) pattern.
+- **FR-022**: System MUST utilize batched database operations (D1 Batch API) and strictly govern memory usage (<80MB active set) on Edge via ReCoco adaptive controls (limiting in-flight rows and bytes) to prevent OOM errors. Large payloads exceeding D1 limits should be offloaded to R2 or a Dead Letter Queue (DLQ) pattern.
 - **FR-023**: System MUST implement a **Circuit Breaker** pattern for data sources. If a source fails >5 times in 30s, it moves to OPEN state. After 60s in OPEN state, it moves to HALF-OPEN to allow a single probe request to verify source health.
 - **FR-024**: System MUST support **Partial Graph Results**. Query APIs must accept an `allow_partial=true` flag and return a "Graph Result Envelope" containing available subgraphs, a list of missing regions, and error details, rather than failing the entire query.
 - **FR-025**: System MUST detect and handle circular dependencies via depth-limiting and cycle detection mechanisms to prevent infinite recursion during graph traversal.
+
+**FR-CLASSIFY**: The system MUST classify all extracted AST node types into one of 22 language-agnostic `SemanticClass` categories using the `thread-definitions` classifier, enabling AI-context importance ranking.
+
+- Classification pipeline: Override → FileDetection → TokenPurpose → UniversalExact → UniversalMajority → Category → NameHeuristic → Unclassified
+- Accuracy: ≥99% across 27 validated languages; ≥80% baseline on any tree-sitter grammar
+- Scoring: Per-class `ImportanceScores` (5 dimensions) with optional per-`AgentTask` `ContextualAdjustments`
+- Storage: `semantic_class` field on `GraphNode`; importance scores computed on-demand
+
+**Success criteria:**
+- All `GraphNode`s have a populated `semantic_class` field
+- Context pack generation can rank definitions by `task_score(class, agent_task)`
+- New language support achievable via TOML overrides without Rust code changes
+
+**FR-LANGQUERY**: The system SHALL support language-agnostic semantic queries via `SemanticClass` — callers find `DefinitionCallable` nodes without knowing that Rust uses `function_item`, Python uses `function_definition`, or Go uses `function_declaration`. The query adapter lives in `thread-flow`; `thread-definitions` and `thread-ast-engine` remain mutually independent.
 
 ### Key Entities
 
 - **Code Repository**: Represents a source of code (Git repo, local directory, cloud storage). Attributes: source type, connection credentials, sync frequency, last sync timestamp
 - **Code File**: Individual file in a repository. Attributes: file path, language, content hash, AST representation, last modified timestamp
-- **Graph Node**: Represents a code symbol (function, class, variable, type). Attributes: symbol name, type, location (file + line), semantic metadata, relationships to other nodes
+- **Graph Node**: Represents a code symbol (function, class, variable, type). Attributes: symbol name, location (file + line), semantic metadata, relationships to other nodes
+  - `semantic_class: SemanticClass` — Language-agnostic 22-category classification. Carries importance tier (5 ranks) and AI-task scoring. Replaces the former node_type enum. Sourced from `thread-definitions` crate. Examples: `DefinitionCallable` (functions, methods, constructors), `DefinitionType` (classes, structs, traits), `BoundaryModule` (imports, exports, module declarations).
+  - `node_kind: Option<Box<str>>` — Raw tree-sitter node type name for finer structural distinctions. Examples: `"function_item"` vs `"closure_expression"` (both `DefinitionCallable`), `"impl_item"` (Rust impl block, `DefinitionType` container). `None` for nodes derived from higher-level analysis.
 - **Graph Edge**: Represents a relationship between nodes. Attributes: relationship type (calls, imports, inherits, uses), direction, strength/confidence score
 - **Conflict Prediction**: Represents a detected potential conflict. Attributes: affected files, conflicting developers, conflict type, severity, suggested resolution, timestamp
 - **Analysis Session**: Represents a single analysis run. Attributes: start time, completion time, files analyzed, nodes/edges created, cache hit rate
@@ -175,7 +205,7 @@ When a conflict is predicted, the system suggests resolution strategies based on
 - **SC-STORE-001**: Database operations meet constitutional targets:
   - Postgres (CLI): <10ms p95 latency for graph traversal queries
   - D1 (Edge): <50ms p95 latency for distributed edge queries
-  - Qdrant (vectors): <100ms p95 latency for semantic similarity search
+  - Vectorize (edge vectors): <100ms p95 latency for semantic similarity search (edge deployment)
 - **SC-STORE-002**: Graph schema handles up to 10 million nodes and 50 million edges per deployment
 - **SC-STORE-003**: Database write throughput supports 1000 file updates per second during bulk re-indexing
 - **SC-STORE-004**: Storage growth is sub-linear to codebase size through effective deduplication (1.5x raw code size maximum)
@@ -196,16 +226,16 @@ When a conflict is predicted, the system suggests resolution strategies based on
 3. **Conflict Types**: Focus on code merge conflicts, API breaking changes, and concurrent edit detection - not runtime conflicts or logic bugs
 4. **Authentication**: Multi-user deployments use standard OAuth2/OIDC for authentication, delegating to existing identity providers
 5. **Real-Time Protocol**: Custom RPC over HTTP streaming for real-time updates (unified with query API), with WebSocket/SSE as fallback options. RPC server-side streaming provides efficient real-time propagation for both CLI and edge deployments. Cloudflare Durable Objects expected for edge stateful operations (connection management, session state). Polling fallback for restrictive networks.
-6. **Graph Granularity**: Multi-level graph representation (file → class/module → function/method → symbol) for flexibility
+6. **Graph Granularity**: Multi-level graph representation (file -> class/module -> function/method -> symbol) for flexibility
 7. **Conflict Detection Strategy**: Multi-tier progressive approach using all available detection methods (AST diff, semantic analysis, graph impact analysis) with intelligent routing. Fast methods provide immediate feedback, slower methods refine accuracy. Results update in real-time as better information becomes available, balancing speed with precision.
 8. **Conflict Resolution**: System provides predictions and suggestions only - final resolution decisions remain with developers
 9. **Performance Baseline**: "Real-time" defined as <1 second query response for typical developer workflow interactions
 10. **Scalability Target**: Initial target is codebases up to 500k files, 10M nodes - can scale higher with infrastructure investment
 11. **Engine Architecture**: Engines are swappable via well-defined interfaces, not runtime plugin loading (compile-time composition)
-12. **Storage Strategy**: Multi-backend architecture with specialized purposes: Postgres (CLI primary, full ACID graph), D1 (edge primary, distributed graph), Qdrant (semantic search, both deployments). Content-addressed storage via CocoIndex dataflow framework (per Constitution v2.0.0, Principle IV). CocoIndex integration follows trait boundary pattern: Thread defines storage and dataflow interfaces, CocoIndex provides implementations. This allows swapping CocoIndex components or vendoring parts as needed.
+12. **Storage Strategy**: Multi-backend architecture with specialized purposes: Postgres (CLI primary, full ACID graph), D1 (edge primary, distributed graph), Vectorize (edge vector search), Qdrant (CLI-only vector search, optional). Content-addressed storage via ReCoco dataflow framework (per Constitution v2.0.0, Principle IV). ReCoco integration follows trait boundary pattern: Thread defines storage and dataflow interfaces, ReCoco provides implementations. This allows swapping ReCoco components or vendoring parts as needed.
 13. **Deployment Model**: Single binary for both CLI and WASM with conditional compilation, not separate codebases. **Commercial Boundaries**: OSS includes core library with simple/limited WASM worker (Rust, Python, TypeScript). Full cloud deployment (comprehensive edge, managed service, advanced features) is commercial/paid. Architecture enables feature-flag-driven separation.
-14. **Vendoring Strategy**: CocoIndex components may be vendored (copied into Thread codebase) if cloud deployment requires customization or upstream changes conflict with Thread's stability requirements. Trait boundaries enable selective vendoring without architectural disruption.
-15. **Component Selection Strategy**: Do NOT assume existing Thread components will be used. Evaluate CocoIndex capabilities first, identify gaps, then decide whether to use existing components (ast-engine, language, rule-engine), adapt CodeWeaver semantic layer, or build new components. Prioritize best-fit over code reuse.
+14. **Vendoring Strategy**: ReCoco components may be vendored (copied into Thread codebase) if cloud deployment requires customization or upstream changes conflict with Thread's stability requirements. Trait boundaries enable selective vendoring without architectural disruption. (Note: less critical now that ReCoco is Thread's own fork.)
+15. **Component Selection Strategy**: Do NOT assume existing Thread components will be used. Evaluate ReCoco capabilities first, identify gaps, then decide whether to use existing components (ast-engine, language, rule-engine), adapt CodeWeaver semantic layer, or build new components. Prioritize best-fit over code reuse.
 16. **Storage Consistency Model**: Replaced "Database Sync" with **Content-Addressed Storage (CAS)**.
     - **Source of Truth**: Git is the only SoT. DBs are derived indexes.
     - **Sync Strategy**: "Sync" is simply uploading/downloading immutable CAS chunks. No row-level merge logic required.
@@ -218,29 +248,58 @@ When a conflict is predicted, the system suggests resolution strategies based on
    - Principle I: Service-Library Dual Architecture
    - Principle III: Test-First Development (TDD mandatory)
    - Principle VI: Service Architecture & Persistence
-2. **CocoIndex Framework**: Foundational dependency for content-addressed caching, dataflow orchestration, and incremental ETL. **Integration Strategy**: CocoIndex must be wrapped behind Thread-owned traits (following the ast-grep integration pattern) to maintain architectural flexibility, enable component swapping, and support potential vendoring for cloud deployment. CocoIndex types must not leak into Thread's public APIs. **Evaluation Priority**: Assess CocoIndex capabilities first, then determine what additional components are needed.
-3. **AST & Semantic Analysis Components**: Existing Thread crates (`thread-ast-engine`, `thread-language`, `thread-rule-engine`) are vendored from ast-grep and NOT guaranteed to be used. Alternative options include CodeWeaver's semantic characterization layer (currently Python, portable to Rust) which may provide superior semantic analysis. Component selection deferred pending CocoIndex capability assessment.
-4. **Storage Backends**: Integration with Postgres (local), D1 (edge), Qdrant (vectors) as defined in CLAUDE.md architecture
-5. **Tree-sitter**: Underlying parser infrastructure for AST generation across multiple languages
-6. **Concurrency Models**: Rayon for CLI parallelism, tokio for edge async I/O
-7. **WASM Toolchain**: `xtask` build system for WASM compilation to Cloudflare Workers target
-8. **Connect-RPC Framework**: Primary API protocol dependency (`connect-rs` or similar for Rust). Provides unified interface for queries and real-time updates across CLI and edge deployments with type safety. Must compile to WASM for Cloudflare Workers deployment.
-9. **Network Protocol**: Cloudflare Durable Objects required for edge stateful operations (connection management, session persistence, collaborative state). HTTP REST fallback if RPC proves infeasible.
-10. **CodeWeaver Integration** (Optional): CodeWeaver's semantic characterization layer (sister project, currently Python) provides sophisticated code analysis capabilities. May port to Rust if superior to ast-grep-derived components. Evaluation pending CocoIndex capability assessment.
-11. **Graph Database**: Requires graph query capabilities - may need additional graph storage layer beyond relational DBs
-12. **Semantic Analysis**: May require ML/embedding models for semantic similarity search (e.g., code2vec, CodeBERT). CodeWeaver may provide this capability.
+2. **ReCoco Framework (Rust-only fork)**: Foundational dependency for content-addressed caching, dataflow orchestration, and incremental ETL. Already integrated as the `recoco` crate in `thread-flow` (`recoco = { version = "0.2.1" }`). **Integration Strategy**: ReCoco is wrapped behind Thread-owned traits (following the ast-grep integration pattern) to maintain architectural flexibility, enable component swapping, and support potential vendoring for cloud deployment. ReCoco types must not leak into Thread's public APIs.
+3. **AST & Semantic Analysis Components**: Existing Thread crates (`thread-ast-engine`, `thread-language`, `thread-rule-engine`) are vendored from ast-grep and NOT guaranteed to be used. Alternative options include CodeWeaver's semantic characterization layer (currently Python, portable to Rust) which may provide superior semantic analysis. Component selection deferred pending ReCoco capability assessment.
+4. **thread-definitions** (new crate): Semantic classification engine for AST node types. Provides `SemanticClass` (22 variants), `ImportanceRank` (5 tiers), `ImportanceScores`, `AgentTask` scoring with `ContextualAdjustments`. Pre-baked data from `classifications/` directory (27 languages validated, 5,899 items classified). Enables L1 definition extraction via `classify_node_types` operator in `thread-flow`. Zero overlap with `thread-ast-engine` (confirmed). **Canonical implementation spec**: [`docs/architecture/SEMANTIC_CLASSIFICATION_SPEC.md`](../../docs/architecture/SEMANTIC_CLASSIFICATION_SPEC.md) — authoritative reference for classifier internals, data schemas, lookup pipeline, and scoring model.
+5. **Storage Backends**: Integration with Postgres (local), D1 (edge), Vectorize (edge vectors, primary), Qdrant (CLI-only, optional) as defined in CLAUDE.md architecture
+6. **Tree-sitter**: Underlying parser infrastructure for AST generation across multiple languages
+7. **Concurrency Models**: Rayon for CLI parallelism, tokio for edge async I/O
+8. **WASM Toolchain**: `xtask` build system for WASM compilation to Cloudflare Workers target
+9. **Connect-RPC Framework**: Primary API protocol dependency (`connect-rs` or similar for Rust). Provides unified interface for queries and real-time updates across CLI and edge deployments with type safety. Must compile to WASM for Cloudflare Workers deployment.
+10. **Network Protocol**: Cloudflare Durable Objects required for edge stateful operations (connection management, session persistence, collaborative state). HTTP REST fallback if RPC proves infeasible.
+11. **CodeWeaver Integration** (Optional): CodeWeaver's semantic characterization layer (sister project, currently Python) provides sophisticated code analysis capabilities. May port to Rust if superior to ast-grep-derived components. Evaluation pending ReCoco capability assessment.
+12. **Graph Database**: Requires graph query capabilities - may need additional graph storage layer beyond relational DBs
+13. **Semantic Analysis**: May require ML/embedding models for semantic similarity search (e.g., code2vec, CodeBERT). CodeWeaver may provide this capability.
+
+## Commercial Boundary
+
+Thread follows a strict one-directional dependency rule: **commercial/private crates depend on Thread public crates; Thread public crates NEVER depend on commercial crates**. The `crates/cloudflare/` directory provides a local development convenience (gitignored, separate private repo) but represents a genuinely separate project — commercial deployment and implementation built atop Thread's public capabilities.
+
+### Component Classification
+
+| Component | Classification | Notes |
+|-----------|---------------|-------|
+| `thread-graph`, `thread-indexer`, `thread-conflict` | OSS | Core graph intelligence, no deployment dependency |
+| `thread-definitions` | OSS | Pure classification library, zero cloud dependency |
+| `thread-storage` (Postgres + D1 + Vectorize backends) | OSS | All three follow the D1 model — library backends, user-provided credentials |
+| `thread-api` (RPC types, Protobuf definitions) | OSS | Protocol definitions required for CLI and third-party clients |
+| `thread-realtime` (WebSocket + SSE transports) | OSS | Standard transports; exposes `RealtimeBackend` trait |
+| Durable Objects backend for `thread-realtime` | **Private** | Cloudflare-specific; implements `RealtimeBackend` in commercial crate |
+| Multi-worker Cloudflare Workers architecture (FR-010 full) | **Private** | Commercial deployment; OSS distribution includes simplified single-worker only |
+| OSS simplified WASM worker | OSS | Single-worker deployment (SC-EDGE-001 through SC-EDGE-003) |
+| MCP server / AI tool interface | TBD | Requires dedicated design; likely OSS core with potential commercial enhancements |
+| Wrangler configurations, Worker entry points | **Private** | Deployment machinery in private repo |
+| R2 offload, Workers AI integrations | **Private** | Cloudflare proprietary services; commercial crate only |
+
+### Task Annotations
+
+Tasks in tasks.md that produce artifacts destined for the private commercial crate are annotated `[CF: private]`. Tasks that touch the boundary (OSS component + private integration) are annotated `[CF: boundary]`.
+
+### FR-010 Boundary Note
+
+The OSS distribution implements SC-EDGE-001 through SC-EDGE-003 (single-worker, core languages). SC-EDGE-004 through SC-EDGE-006 (multi-worker, global distribution, 10k req/s) are commercial deployment targets implemented in the private crate using Thread public crates as dependencies.
 
 ## Clarifications
 
 ### Session 2026-01-11
 
-- Q: What is CocoIndex's architectural role in the real-time code graph system? → A: CocoIndex provides both storage abstraction AND dataflow orchestration for the entire analysis pipeline, but must be integrated through strong trait boundaries (similar to ast-grep integration pattern) to enable swappability and potential vendoring for cloud deployment. CocoIndex serves as "pipes" infrastructure, not a tightly-coupled dependency.
-- Q: How do the three storage backends (Postgres, D1, Qdrant) relate to each other architecturally? → A: Specialized backends with deployment-specific primaries - Postgres for CLI graph storage, D1 for edge deployment graph storage, Qdrant for semantic search across both deployments. Each serves a distinct purpose rather than being alternatives or replicas.
-- Q: What protocol propagates real-time code changes to connected clients? → A: Deployment-specific protocols (SSE for edge stateless operations, WebSocket for CLI stateful operations) with expectation that Cloudflare Durable Objects will be required for some edge stateful functions. Protocol choice remains flexible (WebSocket, SSE, Custom RPC all candidates) pending implementation constraints.
-- Q: How does the system detect potential merge conflicts between concurrent code changes? → A: Multi-tier progressive detection system using all available methods (AST diff, semantic analysis, graph impact analysis) with intelligent routing. Prioritizes speed (fast AST diff for initial detection) then falls back to slower methods for accuracy. Results update progressively as more accurate analysis completes, delivering fast feedback that improves over time.
-- Q: What API interface do developers use to query the code graph? → A: Custom RPC over HTTP for unified protocol across CLI and edge deployments (single API surface, built-in streaming, type safety). If RPC proves infeasible, fallback to HTTP REST API for both deployments. Priority is maintaining single API surface rather than deployment-specific optimizations.
-- Q: Should we assume existing Thread crates (ast-engine, language, rule-engine) will be used, or evaluate alternatives? → A: Do NOT assume existing Thread components will be used. These are vendored from ast-grep and may not be optimal. Approach: (1) Evaluate what capabilities CocoIndex provides, (2) Identify gaps, (3) Decide what to build/adapt. Consider CodeWeaver's semantic characterization layer (Python, portable to Rust) as alternative to existing semantic analysis.
-- Q: How do we maintain commercial boundaries between open-source and paid cloud service? → A: Carefully defined boundaries: OSS library includes core graph analysis with simple/limited WASM worker for edge. Full cloud deployment (comprehensive edge, managed service, advanced features) is commercial/paid service. Architecture must enable this split through feature flags and deployment configurations.
+- Q: What is ReCoco's architectural role in the real-time code graph system? -> A: ReCoco provides both storage abstraction AND dataflow orchestration for the entire analysis pipeline, but must be integrated through strong trait boundaries (similar to ast-grep integration pattern) to enable swappability and potential vendoring for cloud deployment. ReCoco serves as "pipes" infrastructure, not a tightly-coupled dependency.
+- Q: How do the three storage backends (Postgres, D1, Qdrant) relate to each other architecturally? -> A: Specialized backends with deployment-specific primaries - Postgres for CLI graph storage, D1 for edge deployment graph storage, Vectorize for edge semantic search, Qdrant (CLI-only, optional) for local semantic search. Each serves a distinct purpose rather than being alternatives or replicas.
+- Q: What protocol propagates real-time code changes to connected clients? -> A: Deployment-specific protocols (SSE for edge stateless operations, WebSocket for CLI stateful operations) with expectation that Cloudflare Durable Objects will be required for some edge stateful functions. Protocol choice remains flexible (WebSocket, SSE, Custom RPC all candidates) pending implementation constraints.
+- Q: How does the system detect potential merge conflicts between concurrent code changes? -> A: Multi-tier progressive detection system using all available methods (AST diff, semantic analysis, graph impact analysis) with intelligent routing. Prioritizes speed (fast AST diff for initial detection) then falls back to slower methods for accuracy. Results update progressively as more accurate analysis completes, delivering fast feedback that improves over time.
+- Q: What API interface do developers use to query the code graph? -> A: Custom RPC over HTTP for unified protocol across CLI and edge deployments (single API surface, built-in streaming, type safety). If RPC proves infeasible, fallback to HTTP REST API for both deployments. Priority is maintaining single API surface rather than deployment-specific optimizations.
+- Q: Should we assume existing Thread crates (ast-engine, language, rule-engine) will be used, or evaluate alternatives? -> A: Do NOT assume existing Thread components will be used. These are vendored from ast-grep and may not be optimal. Approach: (1) Evaluate what capabilities ReCoco provides, (2) Identify gaps, (3) Decide what to build/adapt. Consider CodeWeaver's semantic characterization layer (Python, portable to Rust) as alternative to existing semantic analysis.
+- Q: How do we maintain commercial boundaries between open-source and paid cloud service? -> A: Carefully defined boundaries: OSS library includes core graph analysis with simple/limited WASM worker for edge. Full cloud deployment (comprehensive edge, managed service, advanced features) is commercial/paid service. Architecture must enable this split through feature flags and deployment configurations.
 
 ## Open Questions
 
@@ -253,6 +312,35 @@ None - all critical items have been addressed with reasonable defaults documente
 - Content-addressed caching and incremental updates are constitutional requirements (Principle VI) and must achieve >90% cache hit rates and <10% incremental analysis time
 - Conflict prediction is the highest-value differentiator and should be prioritized for early validation with real development teams
 - Edge deployment to Cloudflare Workers enables global low-latency access but requires careful WASM optimization and may limit available crates/features
-- Consider phased rollout: P1 (graph queries) → P2 (conflict prediction) → P3 (multi-source) → P4 (AI resolution) to validate core value proposition early
+- Consider phased rollout: P1 (graph queries) -> P2 (conflict prediction) -> P3 (multi-source) -> P4 (AI resolution) to validate core value proposition early
 - **Commercial Architecture**: OSS/commercial boundaries must be designed from day one. OSS provides core library value (CLI + basic edge), commercial provides managed cloud service with advanced features. Architecture uses feature flags and conditional compilation to enable clean separation while maintaining single codebase.
-- **Component Evaluation Strategy**: Do NOT assume existing Thread components will be reused. First evaluate CocoIndex capabilities comprehensively, then identify gaps, then decide on AST/semantic analysis components. CodeWeaver's semantic layer is a viable alternative to Thread's ast-grep-derived components.
+- **Component Evaluation Strategy**: Do NOT assume existing Thread components will be reused. First evaluate ReCoco capabilities comprehensively, then identify gaps, then decide on AST/semantic analysis components. CodeWeaver's semantic layer is a viable alternative to Thread's ast-grep-derived components.
+- **MCP Server**: Implementation details and specification TBD. The AI knowledge layer will expose an MCP-compatible interface; the specific tool design, tier structure, and OSS/commercial scope require dedicated design work.
+
+## Implementation Status
+
+**As of 2026-02-24**, the following components have been implemented in the `thread-flow` crate:
+
+### Implemented ✅
+
+- **Content-Addressed Storage** (FR-004, FR-012): Blake3 fingerprinting via ReCoco, StorageBackend trait with Postgres and D1 backends
+- **Incremental Updates** (FR-008): IncrementalAnalyzer, DependencyGraph with BFS invalidation and topological sort
+- **Language Extractors**: Rust, TypeScript, Python, Go dependency extraction
+- **ReCoco Integration**: Bridge pattern (bridge.rs), ThreadFlowBuilder DSL, CocoIndex operators for parse/symbols/imports/calls
+- **CLI Deployment** (FR-011): Postgres backend fully operational
+- **Edge Storage** (FR-010 partial): D1 backend implemented
+
+### Not Yet Started ❌
+
+- **Semantic classification** (FR-CLASSIFY): `SemanticClass`, `ImportanceScores` — `thread-definitions` crate (T-C01 through T-C10)
+- **Semantic Graph** (FR-002 partial): Rich GraphNode/GraphEdge model not built; current implementation has minimal DependencyEdge
+- **Real-Time Queries** (FR-005): No query API layer yet
+- **Conflict Detection** (FR-006, FR-007): Three-tier conflict detection system not started
+- **Multi-Source Indexing** (FR-003): Git, S3 sources not implemented
+- **Connect-RPC API** (FR-016): No RPC layer
+- **Overlay Graph** (FR-017): Not implemented
+- **Semantic/Vector Search** (FR-015): Vectorize integration pending; Qdrant blocked by dependency conflict
+
+### Blocked ⚠️
+
+- **Qdrant vector search**: `recoco/target-qdrant` disabled due to CRC version conflict. **Resolution**: Use Cloudflare Vectorize for edge deployment.

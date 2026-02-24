@@ -5,9 +5,9 @@ SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
 SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
-# Research Summary: CocoIndex Provenance for Real-Time Code Graph
+# Research Summary: ReCoco Provenance for Real-Time Code Graph
 
-**Date**: January 11, 2026
+**Date**: January 11, 2026 (revised February 24, 2026)
 **Duration**: Comprehensive research (4+ hours deep analysis)
 **Audience**: Project stakeholders, T079 implementers
 **Status**: Complete with actionable recommendations
@@ -17,10 +17,10 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 ## Quick Findings
 
 ### The Question
-**How can CocoIndex's native provenance tracking enhance FR-014 ("System MUST track analysis provenance...") compared to T079's current "repository_id only" approach?**
+**How can ReCoco's native provenance tracking enhance FR-014 ("System MUST track analysis provenance...") compared to T079's current "repository_id only" approach?**
 
 ### The Answer
-**CocoIndex has sophisticated automatic lineage tracking that captures:**
+**ReCoco (Thread's Rust-only CocoIndex fork) provides sophisticated automatic lineage tracking that captures:**
 1. ✓ Source versions (Git commits, S3 ETags, timestamps)
 2. ✓ Transformation pipeline (which analysis stages ran)
 3. ✓ Cache status (hit/miss for each operation)
@@ -28,10 +28,11 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 5. ✓ Upstream dependencies (what data was used)
 
 **T079 Current Scope**: Only `repository_id`
-**T079 Enhanced Scope**: Full provenance leveraging CocoIndex
+**T079 Enhanced Scope**: Full provenance leveraging ReCoco
 
 ### The Opportunity
-**Current T079 misses 80% of valuable provenance data** that CocoIndex provides automatically
+**Current T079 misses 80% of valuable provenance data** that ReCoco provides automatically
+**Note**: Basic content addressing (Blake3 fingerprinting) IS already implemented in thread-flow via `AnalysisDefFingerprint`. The gap is the *rich* provenance (source version, pipeline lineage, cache metadata, upstream hashes).
 
 **Better approach**: Implement comprehensive provenance once (slightly more effort) vs. repository_id now + rework later
 
@@ -55,7 +56,7 @@ Provenance = Understanding the complete "history" of data:
 **Current T079**: Only tracks "data source" (repository_id)
 **Missing**: Version and timestamp (incomplete FR-014 implementation)
 
-**CocoIndex Provides**:
+**ReCoco Provides**:
 - Data source ✓
 - Version (Git commit, S3 ETag) ✓
 - Timestamp (when accessed) ✓
@@ -65,7 +66,7 @@ Provenance = Understanding the complete "history" of data:
 
 ## Key Findings
 
-### 1. CocoIndex Architecture Supports Provenance
+### 1. ReCoco Architecture Supports Provenance
 
 **Dataflow Structure**:
 ```
@@ -83,17 +84,29 @@ version  output   output     output      output     time
 - Cache status (hit or miss)
 - Operation type and version
 
+**Already Implemented in thread-flow**:
+```rust
+// crates/flow/src/incremental/types.rs
+pub struct AnalysisDefFingerprint {
+    pub fingerprint: Fingerprint, // Blake3 16-byte hash from ReCoco
+    pub source_file: PathBuf,
+}
+```
+Basic source file tracking ✅ and content hashing ✅ are operational.
+
 ### 2. Current T079 Scope Gap
 
-**What T079 Adds**:
+**What thread-flow Already Has** (basic provenance):
 ```rust
-pub repository_id: String,  // ✓ "stripe-integration-service"
+pub fingerprint: Fingerprint,  // ✓ Blake3 hash of file content
+pub source_file: PathBuf,      // ✓ Source file path
+// (stored in: crates/flow/src/incremental/types.rs)
 ```
 
-**What's Missing**:
+**What's Still Missing** (expanded T079):
 ```rust
 pub source_version: SourceVersion,        // ✗ Git commit, timestamp
-pub analysis_lineage: Vec<LineageRecord>, // ✗ Which stages
+pub analysis_lineage: Vec<LineageRecord>, // ✗ Which stages ran
 pub source_timestamp: DateTime,            // ✗ When analyzed
 pub cache_hit: bool,                       // ✗ Cache status
 pub upstream_hashes: Vec<String>,          // ✗ Upstream data
@@ -127,9 +140,9 @@ pub upstream_hashes: Vec<String>,          // ✗ Upstream data
 
 ## Technical Details
 
-### CocoIndex ExecutionRecords
+### ReCoco ExecutionRecords
 
-CocoIndex automatically generates `ExecutionRecord` for each operation:
+ReCoco automatically generates `ExecutionRecord` for each operation. Thread's ThreadFlowBuilder composes these operations (see crates/flow/src/flows/builder.rs):
 
 ```rust
 ExecutionRecord {
@@ -146,12 +159,12 @@ ExecutionRecord {
 **How Thread Uses It**:
 ```rust
 // Tier 1 AST diff
-ThreadParseFunction executes
-  → CocoIndex records: input_hash, output_hash, execution_time
+thread_parse operator executes (crates/flow/src/functions/parse.rs)
+  → ReCoco records: input_hash, output_hash, execution_time
 
 // Tier 2 Semantic analysis
-ThreadExtractSymbols executes
-  → CocoIndex records transformation stage
+thread_symbols operator executes (crates/flow/src/functions/symbols.rs)
+  → ReCoco records transformation stage
 
 // Complete lineage emerges
 node_provenance = [parse_record, extract_record, ...]
@@ -180,13 +193,14 @@ pub struct GraphNode {
 ### 1. Expand T079 Scope (RECOMMENDED)
 
 **Current**: "Add repository_id to GraphNode and GraphEdge"
-**Recommended**: "Implement comprehensive provenance tracking leveraging CocoIndex"
+**Recommended**: "Implement comprehensive provenance tracking leveraging ReCoco"
 
 **Why**:
-- Same implementation effort with CocoIndex data
+- Same implementation effort with ReCoco data
 - Prevents rework and schema changes later
 - Fully complies with FR-014 and FR-018
 - Enables incremental update optimization (SC-INCR-001)
+- Foundation exists: Basic fingerprinting in thread-flow already done
 
 ### 2. Phased Implementation
 
@@ -198,9 +212,11 @@ pub struct GraphNode {
 - Create provenance tables (Postgres/D1)
 - Implement storage abstraction
 
-**Phase 3 (Week 4)**: CocoIndex integration
+**Phase 3 (Week 4)**: ReCoco integration
 - Build `ProvenanceCollector` to extract ExecutionRecords
-- Wire into dataflow execution
+- Wire into dataflow execution via ThreadFlowBuilder
+- Note: ThreadFlowBuilder and ReCoco operators already exist in thread-flow; this
+  extends them to capture and persist ExecutionRecord metadata
 
 **Phase 4 (Week 5)**: APIs and validation
 - Implement `ProvenanceQuery` API
@@ -230,7 +246,7 @@ pub analysis_lineage: Option<Vec<LineageRecord>>, // Optional
 
 ## Missed Opportunities (Current T079)
 
-| Opportunity | CocoIndex Provides | T079 Status | Loss |
+| Opportunity | ReCoco Provides | T079 Status | Loss |
 |---|---|---|---|
 | Source Version Tracking | Git commit, S3 ETag | ✗ Missing | Can't verify freshness |
 | Timestamp Precision | Per-operation times | ✗ Missing | Can't detect staleness |
@@ -250,12 +266,12 @@ pub analysis_lineage: Option<Vec<LineageRecord>>, // Optional
 
 ### Complexity
 - **Moderate**: Adding new types and database tables
-- **Straightforward**: CocoIndex handles data collection
+- **Straightforward**: ReCoco handles data collection
 - **No**: Complex algorithms needed
 
 ### Risk
 - **Low**: Backward compatible with optional fields
-- **Low**: CocoIndex API is stable (core concept)
+- **Low**: ReCoco API is stable (core concept)
 - **Mitigated**: Phased rollout strategy
 
 ---
@@ -364,21 +380,21 @@ Final confidence: 0.95 (Tier 3 validated)
 2. Can't debug why conflicts were detected (FR-018)
 3. Can't verify cache is working (SC-CACHE-001)
 4. Requires rework later when features need provenance
-5. CocoIndex provides data automatically (minimal extra effort)
+5. ReCoco provides data automatically (minimal extra effort); ThreadFlowBuilder operators already capture execution metadata
 
 ### Q: Isn't this a lot of extra work?
 **A**: No, because:
-1. CocoIndex provides data automatically (we don't build it)
+1. ReCoco provides data automatically (we don't build it)
 2. Effort is organizing/storing/querying existing data
 3. Better to do once comprehensively than piecemeal
 4. Phased approach spreads effort over 1+ weeks
 
-### Q: What if CocoIndex changes its API?
-**A**: Low risk because:
-1. ExecutionRecords are core dataflow concept
-2. Would affect many other things first
-3. Abstract collection layer handles API differences
-4. Worst case: lose detailed provenance, keep basic
+### Q: What if ReCoco changes its API?
+**A**: Very low risk because:
+1. **Thread controls ReCoco** — it's our own fork (separate public crate maintained by Thread)
+2. Any required API changes can be implemented directly in ReCoco without waiting
+3. The bridge/adapter layer in thread-flow (bridge.rs) isolates changes
+4. Worst case: lose detailed provenance, keep basic fingerprinting (which already exists)
 
 ### Q: Can we do this incrementally?
 **A**: Yes:
@@ -389,9 +405,27 @@ Final confidence: 0.95 (Tier 3 validated)
 
 ---
 
+## Semantic Classification Research Addendum
+
+**Status**: Complete (2026-02-24)
+
+The CodeWeaver semantic classification analysis produced pre-baked classification data now located at `/home/knitli/thread/classifications/`:
+- `_universal_rules.json`: 2,444 exact + 21 majority cross-language patterns
+- `_categories.json`: 55 category → SemanticClass mappings (one wrapper key stripped during migration)
+- `_scoring.json`: Per-class ImportanceScores + AgentTask profiles
+- `overrides/*.toml`: Per-language corrections (27 languages, ~10-50 lines each)
+
+This data is immediately usable as-is for the `thread-definitions` Rust crate implementation (migration at T-C07). The language JSON files (27 files) serve as accuracy test fixtures. No additional data generation is required.
+
+**Strategic note**: The 80%+ baseline accuracy with universal rules alone means the classifier provides meaningful coverage for any of the ~166 tree-sitter-language-pack languages without per-language data. This significantly expands Thread's language support story without additional engineering.
+
+---
+
 ## Conclusion
 
-**CocoIndex provides sophisticated automatic provenance tracking that Thread's code graph can leverage to fully implement FR-014 and enable powerful debugging, auditing, and optimization capabilities.**
+**ReCoco (Thread's Rust-only fork) provides sophisticated automatic provenance tracking that Thread's code graph can leverage to fully implement FR-014 and enable powerful debugging, auditing, and optimization capabilities.**
+
+**Current status**: Basic content addressing (Blake3 fingerprinting per file) is IMPLEMENTED in thread-flow. The rich provenance model (source versions, pipeline lineage, cache metadata) remains to be built — but the ReCoco infrastructure and operator framework to collect it already exists.
 
 **Current T079 scope (repository_id only) significantly undersells what's possible and will require rework later.**
 

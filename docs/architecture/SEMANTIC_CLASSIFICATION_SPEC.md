@@ -35,6 +35,7 @@ table lookup over declarative rules.
 | Universal rules baseline | 82.6% (zero language-specific data) |
 | Average override cost | ~41 lines TOML per language |
 | Total override lines | 1,063 across 26 files |
+| Potential language coverage | ~166 (tree-sitter-language-pack, 80%+ baseline) |
 
 ---
 
@@ -55,7 +56,12 @@ table lookup over declarative rules.
 4. **Thread-native integration.** Uses `thread-language::SupportLang` for language identity.
    Lives alongside `thread-ast-engine` and `thread-flow` as a peer crate.
 
-5. **Zero runtime dependencies on Python.** All data files are pre-generated JSON/TOML
+5. **Language coverage without code changes.** Any tree-sitter grammar achieves 80%+ accuracy
+   via token_purpose + universal_exact rules alone. Full coverage (100%) requires only ~10-50
+   lines of TOML overrides. Target: all ~166 languages in tree-sitter-language-pack, with
+   best-effort classification via string-keyed fallback for grammars not in `SupportLang`.
+
+6. **Zero runtime dependencies on Python.** All data files are pre-generated JSON/TOML
    shipped with the crate. No pickle, no Pydantic, no Python runtime.
 
 ### 1.2 Crate Position in Workspace
@@ -226,7 +232,12 @@ Three sections, all optional:
   },
   "agent_tasks": {
     "debug": {
-      "profile": { "discovery": 0.2, "comprehension": 0.3, "modification": 0.1, "debugging": 0.35, "documentation": 0.05 }
+      "profile": { "discovery": 0.2, "comprehension": 0.3, "modification": 0.1, "debugging": 0.35, "documentation": 0.05 },
+      "contextual_adjustments": { "depth_penalty_per_level": 0.0, "size_bonus_threshold": 0, "size_bonus_factor": 0.0 }
+    },
+    "discovery": {
+      "profile": { "discovery": 0.4, "comprehension": 0.3, "modification": 0.1, "debugging": 0.1, "documentation": 0.1 },
+      "contextual_adjustments": { "depth_penalty_per_level": 0.02, "size_bonus_threshold": 100, "size_bonus_factor": 0.05 }
     },
     "implement": {
       "profile": { "discovery": 0.3, "comprehension": 0.3, "modification": 0.2, "debugging": 0.1, "documentation": 0.1 }
@@ -234,6 +245,75 @@ Three sections, all optional:
   }
 }
 ```
+
+**Task key conventions:**
+
+- All `"agent_tasks"` keys are **arbitrary strings** — the Rust `AgentTask` type is a newtype
+  over `Box<str>`, so new task types can be added to this file without any Rust code changes
+  or recompilation.
+- Well-known keys match the `AgentTask::*()` convenience constructors:
+  `"debug"`, `"discovery"`, `"implement"`, `"refactor"`, `"review"`, `"search"`,
+  `"test"`, `"document"`, `"local_edit"`, `"default"`.
+- Custom task types (e.g., `"security_audit"`) can be added here and used by calling
+  `AgentTask::new("security_audit")` in Rust code.
+
+**`"discovery"` vs `"search"` distinction:**
+
+- `"discovery"` — broad exploration of an unfamiliar codebase. Weights high-level
+  definitions and module structure highly (Rank 1–2 nodes). Applies a small depth
+  penalty to favor surface-level structural nodes over deeply nested detail.
+  Use when the agent is orienting itself: finding modules, understanding the overall
+  shape of a project, or building an initial mental model.
+- `"search"` — targeted lookup of a specific symbol or behavior. Weights all ranks
+  more evenly and applies no depth penalty, since the target may be anywhere in the
+  tree. Use when the agent already knows what it is looking for.
+
+### 2.6 File Extension Data Format
+
+File extension data is split into two tiers based on access patterns:
+
+**Tier 1 — Hardcoded (`phf::Map` at compile time)**
+`extension → language name` (~200 entries from `CODE_FILES_EXTENSIONS`)
+Rationale: hot path during indexing; requires zero-cost lookup and static typing.
+Generated from `data/file_extensions.json` source of truth via `build.rs`.
+
+**Tier 2 — Embedded JSON (parsed once at startup)**
+All other classification data, kept in JSON/TOML for editability without recompilation:
+
+| File | Contents |
+|------|----------|
+| `data/file_categories.json` | Code / docs / data / binary categorization per extension |
+| `data/special_files.toml` | Exact filename → role mappings (dev tools, LLM tooling, build system) |
+| `data/repo_heuristics.toml` | Presence indicators → project type (e.g., `Cargo.toml` → Rust project) |
+
+**`special_files.toml` notable entries:**
+
+LLM tooling files are a first-class category deserving explicit surface priority during AI indexing:
+- `CLAUDE.md`, `.cursorrules`, `AGENTS.md`, `.claude/`, `.cursor/`, `GEMINI.md`, etc.
+
+Dev tool files: `Makefile`, `CMakeLists.txt`, `Dockerfile`, `.gitignore`, etc.
+
+Build/project root indicators: `Cargo.toml`, `package.json`, `pyproject.toml`, `go.mod`, `build.gradle`, etc.
+
+**`repo_heuristics.toml`** provides the foundation for a language/project detection layer — replacing CodeWeaver's non-operational repo identification with a well-defined, easily extensible TOML schema.
+
+### AST Fingerprinting for Language Identification
+
+The 80%+ baseline classification coverage (achieved without any language-specific tuning, using only `UniversalExact` and `TokenPurpose` rules) enables a novel language identification fallback:
+
+**Algorithm:**
+1. Parse the file with a candidate grammar G
+2. Walk all AST nodes; classify each with `thread-definitions`
+3. Compute fingerprint score: `recognized_nodes / total_nodes`
+4. Optionally weight by Rank 1–2 nodes (structural definitions are stronger signals than syntax)
+5. Grammar with highest score (threshold ~0.75) is the probable language
+
+**Usage tiers:**
+- **Primary**: File extension lookup via hardcoded map (fast path, zero cost)
+- **Fallback**: AST fingerprinting for missing, ambiguous, or conflicting extensions
+- **Validation**: Cross-check extension claim when score < 0.5 (may indicate binary, minified, or templated source)
+
+This approach is uniquely enabled by the universal rule coverage — most classification systems cannot do this because they require complete language-specific rule sets.
 
 ---
 
@@ -391,31 +471,69 @@ pub struct ImportanceScores {
     pub documentation: f32,
 }
 
-/// Agent task types that influence scoring weights.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum AgentTask {
-    Debug,
-    Implement,
-    Refactor,
-    Review,
-    Search,
-    Test,
-    Document,
-    LocalEdit,
-    Default,
+/// Identifies the type of AI agent task for context-weighted scoring.
+/// A newtype over `Box<str>` so new task types can be added via JSON/TOML
+/// without Rust code changes or recompilation.
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(transparent)]
+pub struct AgentTask(Box<str>);
+
+impl AgentTask {
+    /// Create an arbitrary task type (for custom/user-defined task types).
+    pub fn new(s: impl Into<Box<str>>) -> Self { Self(s.into()) }
+
+    pub fn as_str(&self) -> &str { &self.0 }
+
+    // Well-known task types — convenience constructors for the task types
+    // defined in scoring.json. New task types can be added to scoring.json
+    // without adding constructors here.
+    pub fn debug()      -> Self { Self::new("debug") }
+    pub fn discovery()  -> Self { Self::new("discovery") }
+    pub fn implement()  -> Self { Self::new("implement") }
+    pub fn refactor()   -> Self { Self::new("refactor") }
+    pub fn review()     -> Self { Self::new("review") }
+    pub fn search()     -> Self { Self::new("search") }
+    pub fn test()       -> Self { Self::new("test") }
+    pub fn document()   -> Self { Self::new("document") }
+    pub fn local_edit() -> Self { Self::new("local_edit") }
+    pub fn default()    -> Self { Self::new("default") }
+}
+
+impl From<&str> for AgentTask {
+    fn from(s: &str) -> Self { Self::new(s) }
+}
+
+impl fmt::Display for AgentTask {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(&self.0)
+    }
 }
 
 impl ImportanceScores {
     /// Compute weighted score for a given agent task.
-    pub fn for_task(&self, task: AgentTask, profiles: &TaskProfiles) -> f32 {
-        let p = profiles.get(task);
+    pub fn for_task(&self, task: &AgentTask, profiles: &TaskProfiles) -> f32 {
+        let p = profiles.get(task.as_str());
         self.discovery * p.discovery
             + self.comprehension * p.comprehension
             + self.modification * p.modification
             + self.debugging * p.debugging
             + self.documentation * p.documentation
     }
+}
+
+/// Optional contextual adjustments applied on top of base ImportanceScores.
+/// All fields are zero-default (no adjustment unless explicitly configured).
+/// Intended for per-AgentTask tuning in scoring.json, not hard-coded logic.
+#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize)]
+pub struct ContextualAdjustments {
+    /// Importance penalty per AST depth level (0.0 = no penalty).
+    /// Example: 0.02 penalizes deeply nested nodes by 2% per level.
+    /// Useful for Discovery/Review tasks; should be 0.0 for Debug/LocalEdit.
+    pub depth_penalty_per_level: f32,
+    /// Minimum text length (chars) before size bonus applies.
+    pub size_bonus_threshold: u32,
+    /// Importance bonus per `size_bonus_threshold` chars of node text (0.0 = none).
+    pub size_bonus_factor: f32,
 }
 ```
 
@@ -437,6 +555,10 @@ pub struct Classifier {
     category_map: HashMap<Box<str>, SemanticClass>,
     /// Per-language overrides: lang → (name → SemanticClass)
     overrides: HashMap<SupportLang, LanguageOverrides>,
+    /// Best-effort overrides for languages not in SupportLang (keyed by language string).
+    /// Provides classification at 80%+ accuracy for any tree-sitter grammar via
+    /// universal rules alone; TOML overrides available if the grammar string matches.
+    fallback_overrides: HashMap<Box<str>, LanguageOverrides>,
     /// Scoring data
     scoring: ScoringData,
 }
@@ -566,7 +688,7 @@ impl Classifier {
 pub enum SemanticClass { /* 22 variants */ }
 pub enum ImportanceRank { /* 5 variants */ }
 pub enum TokenPurpose { /* 6 variants */ }
-pub enum AgentTask { /* 9 variants */ }
+pub struct AgentTask(/* newtype over Box<str> — task keys defined in scoring.json */);
 pub enum NodeKind { Token, Composite }
 pub enum Confidence { High, Medium, Low }
 pub enum ClassificationMethod { /* 8 variants */ }
@@ -578,6 +700,9 @@ pub struct Classifier { /* opaque */ }
 impl Classifier {
     /// Load classifier with embedded data (default).
     /// Uses include_str! for universal rules + overrides.
+    /// Also loads fallback overrides from `data/overrides/` files whose names
+    /// don't match any SupportLang variant, enabling best-effort classification
+    /// for arbitrary tree-sitter grammars via string-keyed lookup.
     pub fn new() -> Result<Self, ClassifierError>;
 
     /// Load classifier with custom data directory (for testing/extension).
@@ -612,7 +737,7 @@ impl Classifier {
     pub fn importance_scores(&self, class: SemanticClass) -> ImportanceScores;
 
     /// Compute task-weighted score.
-    pub fn task_score(&self, class: SemanticClass, task: AgentTask) -> f32;
+    pub fn task_score(&self, class: SemanticClass, task: &AgentTask) -> f32;
 }
 
 // === Introspection ===
@@ -632,10 +757,15 @@ impl Classifier {
 
 | Category | Count |
 |----------|-------|
-| Public enums | 7 |
-| Public structs | 3 |
+| Public enums | 6 |
+| Public structs | 4 |
 | Public methods | 9 |
 | **Total public API surface** | **19 items** |
+
+Note: `AgentTask` is a newtype struct (`pub struct AgentTask(Box<str>)`), not an enum.
+Its well-known string keys (`"debug"`, `"discovery"`, `"implement"`, etc.) are defined in
+`scoring.json`; the named constructors (`AgentTask::debug()`, etc.) are convenience helpers
+only. New task types can be added to `scoring.json` without any Rust changes.
 
 Compare to CodeWeaver's ~40+ public types across 8 modules.
 
@@ -659,7 +789,15 @@ let class = classifier.classify("function_definition", SupportLang::Python, Node
 // thread-flow will depend on thread-definitions for semantic enrichment
 use thread_definitions::{Classifier, SemanticClass, AgentTask};
 
-// In a flow pipeline: parse → extract → classify → score → emit
+// In a flow pipeline: parse → classify_node_types → extract_definitions → score → emit
+//
+// thread-definitions provides the Classifier; the extraction step in thread-flow:
+// 1. Parses file with tree-sitter → AST
+// 2. Walks AST nodes, calls classifier.classify(node.kind(), lang, ...)
+// 3. Collects nodes where class is in Rank 1-2 (DefinitionCallable, DefinitionType, etc.)
+// 4. Content-addresses each definition subtree (Blake3)
+// This replaces tree-sitter tags.scm queries — the classifier provides more general,
+// tunable definition boundary detection across all 166+ supported grammars.
 let classifier = Classifier::new()?;
 
 for node_type in parsed_file.node_types() {
@@ -673,9 +811,16 @@ for node_type in parsed_file.node_types() {
     );
 
     // Use for context pack ranking
-    let score = classifier.task_score(classification.class, AgentTask::Debug);
+    let score = classifier.task_score(classification.class, &AgentTask::debug());
 }
 ```
+
+> **Note on GraphNode integration**: `thread-definitions` provides the `SemanticClass` that
+> replaces the `node_type` enum in `GraphNode`. The graph node stores
+> `semantic_class: SemanticClass` for AI-context ranking, plus
+> `node_kind: Option<Box<str>>` (the raw tree-sitter node type name, e.g.,
+> `"function_item"`, `"impl_item"`) for cases requiring finer structural distinction.
+> Edge types (`Contains`, `Calls`, `Inherits`, etc.) are unchanged.
 
 ### 6.3 With `thread-ast-engine` (Future)
 
@@ -767,7 +912,7 @@ thread-definitions = { path = "crates/definitions", default-features = false }
 | `types.rs` | ~200 | `SemanticClass`, `ImportanceRank`, `TokenPurpose`, `Confidence`, `ClassificationMethod`, `NodeKind`, `Classification` enums/structs with serde derives |
 | `error.rs` | ~40 | `ClassifierError` enum with `thiserror` |
 | `rules.rs` | ~250 | Deserialize `universal_rules.json`, `categories.json`, TOML overrides into `HashMap`s |
-| `scoring.rs` | ~120 | `ImportanceScores`, `AgentTask`, task profile loading from `scoring.json` |
+| `scoring.rs` | ~120 | `ImportanceScores`, `AgentTask` newtype, task profile loading from `scoring.json` |
 | `lib.rs` | ~50 | Re-exports, module declarations |
 | Data files | — | Copy from CodeWeaver's `data/classifications/` |
 | Unit tests | ~200 | Parse all data files, verify counts, round-trip serde |
@@ -805,7 +950,7 @@ thread-definitions = { path = "crates/definitions", default-features = false }
 
 | Task | Description |
 |------|-------------|
-| Add `thread-definitions` dependency to `thread-flow` | Feature-gated |
+| Add `thread-definitions` dependency to `thread-flow` | Feature-gated; implement `classify_node_types` operator between parse and extract steps |
 | Create classification step in flow pipeline | Between parse and symbol extraction |
 | Update `thread-services` to expose classification via API | MCP/CLI integration |
 | End-to-end test | Parse a real file → classify all nodes → verify output |
@@ -1012,12 +1157,47 @@ backbone:
 let mut pack: Vec<(Definition, f32)> = definitions
     .iter()
     .map(|def| {
-        let score = classifier.task_score(def.semantic_class, AgentTask::Debug);
+        let score = classifier.task_score(def.semantic_class, &AgentTask::debug());
         (def.clone(), score)
     })
     .collect();
 pack.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
 ```
+
+---
+
+## 13. Language-Agnostic Semantic Querying
+
+The most significant emergent capability of `thread-definitions` is enabling language-agnostic AST queries. Rather than querying by node type strings (which are language-specific), callers can query by `SemanticClass`:
+
+```rust
+// Language-specific (fragile — requires per-language knowledge):
+find(kind: "function_item")        // Rust only
+find(kind: "function_definition")  // Python only
+find(kind: "function_declaration") // Go only
+
+// Language-agnostic (works across all 166+ languages):
+find(class: SemanticClass::DefinitionCallable)
+```
+
+This capability is implemented as a **transform in `thread-flow`** — not in `thread-definitions` or `thread-ast-engine` — preserving crate separation:
+
+- `thread-definitions`: pure classification, zero tree-sitter dependency
+- `thread-ast-engine`: pure AST operations, zero classification dependency
+- `thread-flow`: orchestrates both for semantic graph construction and query
+
+```rust
+// thread-flow semantic query transform (conceptual)
+pub fn find_by_class<'a>(
+    root: &'a AstNode,
+    class: SemanticClass,
+    classifier: &Classifier,
+) -> impl Iterator<Item = &'a AstNode> + 'a {
+    root.dfs().filter(move |n| classifier.classify(n.kind()) == class)
+}
+```
+
+AI callers and graph construction pipelines interact with the semantic layer through `thread-flow` operators, never needing language-specific node type knowledge.
 
 ---
 

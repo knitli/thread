@@ -7,13 +7,53 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 # Data Model: Real-Time Code Graph Intelligence
 
-**Feature Branch**: `001-realtime-code-graph`  
-**Phase**: Phase 1 - Design & Contracts  
-**Last Updated**: 2026-01-11
+**Feature Branch**: `001-realtime-code-graph`
+**Phase**: Phase 1 - Design & Contracts
+**Last Updated**: 2026-02-24
 
 ## Overview
 
-This document defines the core entities, relationships, and data structures for the Real-Time Code Graph Intelligence system. The data model supports both persistent storage (Postgres/D1) and in-memory operations (petgraph), with content-addressed caching via CocoIndex.
+This document defines the core entities, relationships, and data structures for the Real-Time Code Graph Intelligence system. The data model supports both persistent storage (Postgres/D1) and in-memory operations, with content-addressed caching via ReCoco.
+
+## Implementation Status (as of 2026-02-24)
+
+The `thread-flow` crate provides a foundational (minimal) data model. The rich semantic
+model defined below is the target state — not all entities are implemented yet.
+
+| Entity / Field | Status | Notes |
+|---|---|---|
+| `CodeRepository` | Not implemented | Planned for multi-source indexing (US3) |
+| `CodeFile` | Not implemented | thread-flow tracks file paths + fingerprints only |
+| `GraphNode` (rich) | Not implemented | thread-flow has `DependencyEdge` (minimal) |
+| `GraphNode.node_type` | Replaced | Retired — replaced by `semantic_class` (see thread-definitions) |
+| `GraphNode.semantic_class` | Not implemented | Planned (thread-definitions prerequisite, T-C02) |
+| `GraphNode.node_kind` | Not implemented | Planned (populated during AST walk in thread-flow classify operator, T-C10) |
+| `GraphEdge` (rich) | Not implemented | thread-flow has `DependencyEdge` with Import/Export/Macro/Type/Trait types |
+| `ConflictPrediction` | Not implemented | Planned for conflict detection (US2) |
+| `AnalysisSession` | Not implemented | Planned for observability layer |
+| `PluginEngine` | Not implemented | Architecture planned but not built |
+
+### Implemented Foundation (thread-flow)
+
+```rust
+// Already in crates/flow/src/incremental/types.rs
+pub struct AnalysisDefFingerprint {
+    pub source_files: HashSet<PathBuf>,  // Set of source files contributing to this fingerprint
+    pub fingerprint: Fingerprint,        // Blake3 hash
+    pub last_analyzed: Option<i64>,      // Unix timestamp of last analysis
+}
+
+pub struct DependencyEdge {
+    pub from_file: PathBuf,
+    pub to_file: PathBuf,
+    pub dep_type: DependencyType,
+    pub symbol_dependency: Option<SymbolDependency>,
+    pub strength: DependencyStrength,
+}
+
+pub enum DependencyType { Import, Export, Macro, Type, Trait }
+pub enum DependencyStrength { Strong, Weak }
+```
 
 ## Core Entities
 
@@ -61,14 +101,14 @@ pub struct CodeFile {
     pub repository_id: RepositoryId, // Parent repository
     pub file_path: PathBuf,         // Relative path from repository root
     pub language: Language,         // Rust, TypeScript, Python, etc. (from thread-language)
-    pub content_hash: ContentHash,  // SHA-256 hash of file content
+    pub content_hash: ContentHash,  // Blake3 hash of file content
     pub ast: Root,                  // AST from thread-ast-engine
     pub last_modified: DateTime<Utc>, // File modification timestamp
     pub size_bytes: u64,            // File size for indexing metrics
 }
 
-pub type FileId = String;           // Format: "sha256:{hash}"
-pub type ContentHash = [u8; 32];    // SHA-256 hash
+pub type FileId = String;           // Format: "blake3:{hash}"
+pub type ContentHash = [u8; 32];    // Blake3 hash
 ```
 
 **Relationships**:
@@ -76,9 +116,9 @@ pub type ContentHash = [u8; 32];    // SHA-256 hash
 - One-to-many with `GraphNode` (file contains multiple symbols)
 - Many-to-many with `ConflictPrediction` (file can have multiple conflicts)
 
-**Storage**: 
+**Storage**:
 - Metadata: Postgres/D1 table `files`
-- AST: Content-addressed cache (CocoIndex) with file hash as key
+- AST: Content-addressed cache (ReCoco) with file hash as key
 - Content: Not stored (re-fetched from source on demand)
 
 ---
@@ -87,12 +127,33 @@ pub type ContentHash = [u8; 32];    // SHA-256 hash
 
 **Purpose**: Represents a code symbol (function, class, variable, type) in the graph
 
+> **SemanticClass** is defined in the `thread-definitions` crate (`crates/definitions/`). See
+> `docs/architecture/SEMANTIC_CLASSIFICATION_SPEC.md` for the complete enum, importance tier
+> definitions, and scoring system.
+
 **Attributes**:
 ```rust
 pub struct GraphNode {
     pub id: NodeId,                 // Content-addressed hash of symbol definition
     pub file_id: FileId,            // Source file containing this symbol
-    pub node_type: NodeType,        // FILE, CLASS, METHOD, FUNCTION, VARIABLE, etc.
+    pub semantic_class: SemanticClass, // Language-agnostic 22-category classification
+                                    // (from thread-definitions crate). Replaces the
+                                    // former node_type enum. Carries importance tier
+                                    // and scoring. Examples:
+                                    //   DefinitionCallable  — functions, methods, constructors
+                                    //   DefinitionType      — classes, structs, enums, traits
+                                    //   BoundaryModule      — imports, exports, module declarations
+    pub node_kind: Option<Box<str>>, // Raw tree-sitter node type name for finer structural
+                                    // distinctions when SemanticClass loses relevant detail.
+                                    // Examples:
+                                    //   "function_item" vs "closure_expression"
+                                    //       (both DefinitionCallable in Rust)
+                                    //   "impl_item"
+                                    //       (DefinitionType container for Rust impl blocks)
+                                    //   "enum_variant"
+                                    //       (DefinitionCallable in Rust, per rust.toml override)
+                                    // Populated from tree-sitter parse; None for nodes derived
+                                    // from higher-level analysis.
     pub name: String,               // Symbol name (e.g., "processPayment")
     pub qualified_name: String,     // Fully qualified (e.g., "module::Class::method")
     pub location: SourceLocation,   // File path, line, column
@@ -101,20 +162,14 @@ pub struct GraphNode {
 }
 
 pub type NodeId = String;           // Format: "node:{content_hash}"
+```
 
-pub enum NodeType {
-    File,
-    Module,
-    Class,
-    Interface,
-    Method,
-    Function,
-    Variable,
-    Constant,
-    Type,
-    Import,
-}
+> **NodeType (retired)**: Previously defined as
+> `FILE | CLASS | METHOD | FUNCTION | VARIABLE | IMPORT | EXPORT | TYPE | MODULE | INTERFACE | TRAIT | IMPL | ENUM | CONST | TEST`.
+> Replaced by `SemanticClass` from the `thread-definitions` crate.
+> See `docs/architecture/SEMANTIC_CLASSIFICATION_SPEC.md` for the 22-variant `SemanticClass` enum.
 
+```rust
 pub struct SourceLocation {
     pub file_path: PathBuf,
     pub start_line: u32,
@@ -139,15 +194,22 @@ pub struct SemanticMetadata {
 
 **Storage**:
 - Metadata: Postgres/D1 table `nodes`
-- In-memory: `petgraph` node for complex queries (CLI only)
+- In-memory: Custom DependencyGraph (crates/flow/src/incremental/graph.rs) for complex queries (CLI only) — petgraph was evaluated but custom implementation was chosen
 - Edge Strategy: **Streaming/Iterator access only**. NEVER load full graph into memory. Use `D1GraphIterator` pattern.
-- Cache: CocoIndex with node ID as key
+- Cache: ReCoco with node ID as key
+- Vector Embeddings: Cloudflare Vectorize (edge deployment), Qdrant (CLI-only, optional — currently blocked)
 
 ---
 
 ### 4. Graph Edge
 
 **Purpose**: Represents a relationship between code symbols
+
+> **Edge types vs. node classification**: `GraphEdge.edge_type` (Contains, Calls, Inherits,
+> Implements, Uses, Imports, TypeDependency) describes structural/semantic *relationships*
+> between nodes. These are distinct from and complementary to `GraphNode.semantic_class`,
+> which describes what a node *is*. Edge types are determined by language-specific analysis;
+> `semantic_class` is determined by the language-agnostic classifier.
 
 **Attributes**:
 ```rust
@@ -183,7 +245,7 @@ pub struct EdgeContext {
 **Storage**:
 - Postgres/D1 table `edges` with composite primary key `(source_id, target_id, edge_type)`
 - Indexed on `source_id` and `target_id` for fast traversal
-- In-memory: `petgraph` edges (CLI only)
+- In-memory: DependencyGraph adjacency lists (thread-flow) — custom BFS/topological sort
 
 ---
 
@@ -390,11 +452,15 @@ AnalysisSession ───> ConflictPrediction    GraphEdge ────┘
 
 ## Content-Addressed Storage Strategy
 
-**CocoIndex Integration**:
-- All entities use content-addressed IDs (SHA-256 hashes)
+**ReCoco Integration**:
+- All entities use content-addressed IDs (Blake3 hashes)
 - Content changes → new ID → automatic cache invalidation
 - Incremental updates: diff old vs new IDs, update only changed nodes/edges
 - Cache key format: `{entity_type}:{content_hash}`
+
+**Current Implementation**: The `thread-flow` crate implements Blake3-based fingerprinting
+(`AnalysisDefFingerprint`) for content addressing. The full entity-level CAS with `NodeId`
+content hashes is the target state for `thread-graph`/`thread-storage`.
 
 **Cache Hit Rate Target**: >90% (SC-CACHE-001)
 
@@ -404,8 +470,8 @@ AnalysisSession ───> ConflictPrediction    GraphEdge ────┘
 let old_id = NodeId::from_content("fn process(x: i32)");  // "node:abc123..."
 let new_id = NodeId::from_content("fn process(x: String)"); // "node:def456..." (different!)
 
-// CocoIndex detects change, invalidates cache for old_id
-cocoindex.invalidate(&old_id)?;
+// ReCoco detects change, invalidates cache for old_id
+recoco.invalidate(&old_id)?;
 
 // Only new_id node and affected edges need re-analysis
 db.update_node(&new_id)?;
@@ -428,7 +494,7 @@ db.update_edges_referencing(&old_id, &new_id)?;
 
 ## Validation Rules
 
-1. **Content Hashing**: All IDs derived from content SHA-256 hashes (deterministic)
+1. **Content Hashing**: All IDs derived from content Blake3 hashes (deterministic)
 2. **Graph Consistency**: Edges must reference existing nodes (foreign key constraints)
 3. **File Uniqueness**: One file per (repository_id, file_path) pair
 4. **Node Location**: Node source location must exist in parent file AST
@@ -442,6 +508,6 @@ db.update_edges_referencing(&old_id, &new_id)?;
 Based on this data model:
 1. Implement Rust struct definitions in appropriate crates
 2. Generate database migration SQL for Postgres and D1
-3. Implement CocoIndex content-addressing for all entities
+3. Implement ReCoco content-addressing for all entities (foundation exists in thread-flow via Blake3 fingerprinting)
 4. Write contract tests for entity invariants
 5. Create database indexes for performance targets (SC-STORE-001)

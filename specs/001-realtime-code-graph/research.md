@@ -7,10 +7,10 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 # Research Findings: Real-Time Code Graph Intelligence
 
-**Feature Branch**: `001-realtime-code-graph`  
-**Research Phase**: Phase 0  
-**Status**: In Progress  
-**Last Updated**: 2026-01-11
+**Feature Branch**: `001-realtime-code-graph`
+**Research Phase**: Phase 0
+**Status**: Complete (revised 2026-02-24)
+**Last Updated**: 2026-02-24
 
 ## Purpose
 
@@ -18,66 +18,54 @@ This document resolves all "NEEDS CLARIFICATION" and "PENDING RESEARCH" items id
 
 ## Research Tasks
 
-### 1. CocoIndex Integration Architecture
+### 1. ReCoco Integration Architecture
 
-**Status**: ✅ Complete
+**Status**: ✅ Complete — **SUPERSEDED AND IMPLEMENTED**
 
-**Research Output**:
+**Original Research Output** (2026-01-11): Recommended a trait abstraction layer because
+"CocoIndex Has No Native Rust API Yet" (Issue #1372 was open).
 
-**Decision**: Trait Abstraction Layer with Optional CocoIndex Runtime Integration
+**Current Reality** (2026-02-24): This is no longer accurate.
 
-Implement Thread-native dataflow traits in `thread-services` crate that mirror CocoIndex's architectural patterns, with optional runtime integration via CocoIndex Python library for actual caching/orchestration features.
+**ReCoco** is Thread's own Rust-only public fork of CocoIndex, maintained as a separate
+open-source crate. It IS the native Rust API. The integration is complete.
 
-**Rationale**:
-1. **CocoIndex Has No Native Rust API Yet**: CocoIndex's `Cargo.toml` specifies `crate-type = ["cdylib"]` (Python bindings only). Issue #1372 ("Rust API") is open but not implemented. Current architecture: Rust engine → PyO3 bindings → Python declarative API. Cannot use as Rust dependency; must extract patterns.
+**Actual Implementation** (in `crates/flow/`):
 
-2. **Constitutional Alignment**: Thread Constitution v2.0.0 Principle I requires "Service-Library Dual Architecture". Services leverage CocoIndex dataflow framework but as "pipes" infrastructure, not core dependency. CocoIndex types must not leak into public APIs.
+1. **Bridge Pattern** (`src/bridge.rs`, 85 lines):
+   - `CocoIndexAnalyzer` implements `thread-services::CodeAnalyzer` trait
+   - Adapts Thread's imperative logic to ReCoco's declarative dataflow
 
-3. **Type Isolation Strategy**: Follows ast-grep integration pattern (successful precedent in Thread). CocoIndex types stay internal to `thread-services` implementation. Public Thread APIs expose only Thread-native abstractions. Enables component swapping and selective vendoring.
+2. **ThreadFlowBuilder DSL** (`src/flows/builder.rs`, 150+ lines):
+   - Chainable API: `.source_local() → .parse() → .extract_symbols() → .target_postgres()`
+   - Composes ReCoco operators declaratively
 
-4. **Future-Proof Architecture**: When CocoIndex releases native Rust API, can migrate internal implementation without public API changes. Trait boundaries remain stable even if backend changes.
+3. **Custom Operators** (`src/functions/`):
+   - `thread_parse`: Source file → AST
+   - `thread_symbols`: AST → symbol definitions
+   - `thread_imports`: AST → import/dependency statements
+   - `thread_calls`: AST → function call relationships
 
-**Alternatives Considered**:
-- ❌ **Direct Python Subprocess Integration**: High overhead (process spawning), complex data marshaling, tight runtime coupling, difficult to vendor
-- ❌ **Fork and Vendor CocoIndex Rust Code**: Legal complexity (Apache 2.0 attribution), maintenance burden, violates "extract patterns not code" principle
-- ❌ **Wait for CocoIndex Rust API**: Unknown timeline (no milestone), Thread roadmap requires service features now
-- ❌ **PyO3 Embed Python Interpreter**: Massive binary size, complex build dependencies, edge deployment incompatible, violates Rust-native goals
+4. **Feature Gating** (type leakage prevention):
+   ```toml
+   recoco-minimal = ["recoco/source-local-file"]    # Default
+   recoco-postgres = ["recoco-minimal", "recoco/target-postgres"]
+   # Note: recoco/target-qdrant disabled due to CRC dependency conflict
+   ```
 
-**Implementation Notes**:
+5. **Development Control**: Since ReCoco is Thread's own fork, any required changes
+   can be implemented directly without waiting on external maintainers.
 
-**Core Traits** (in `thread-services/src/dataflow/traits.rs`):
-```rust
-pub trait DataSource: Send + Sync + 'static {
-    type Config: for<'de> Deserialize<'de> + Send + Sync;
-    type Output: Send + Sync;
-    
-    async fn schema(&self, config: &Self::Config, context: &FlowContext) -> Result<Schema>;
-    async fn build_executor(self: Arc<Self>, config: Self::Config, context: Arc<FlowContext>) 
-        -> Result<Box<dyn SourceExecutor<Output = Self::Output>>>;
-}
+**Validation Criteria** (all met):
+- ✅ Zero ReCoco types in Thread public APIs
+- ✅ All dataflow operations testable without external Python dependencies
+- ✅ `cargo build --workspace` succeeds
+- ✅ `thread-flow` compiles to WASM for edge deployment
 
-pub trait DataFunction: Send + Sync + 'static { /* similar structure */ }
-pub trait DataTarget: Send + Sync + 'static { /* similar structure */ }
-```
-
-**Registry Pattern** (inspired by CocoIndex ExecutorFactoryRegistry):
-```rust
-pub struct DataflowRegistry {
-    sources: HashMap<String, Arc<dyn DataSource>>,
-    functions: HashMap<String, Arc<dyn DataFunction>>,
-    targets: HashMap<String, Arc<dyn DataTarget>>,
-}
-```
-
-**YAML Dataflow Integration**: Optional declarative specification similar to CocoIndex flow definitions, compiled to Rust trait executions
-
-**Vendoring Strategy**: Extract architectural patterns, not code. CocoIndex remains Python dependency for optional runtime features, accessed via subprocess if needed
-
-**Validation Criteria**:
-- ✅ Zero CocoIndex types in Thread public APIs
-- ✅ All dataflow operations testable without CocoIndex installed
-- ✅ `cargo build --workspace` succeeds without Python dependencies
-- ✅ `thread-services` compiles to WASM for edge deployment
+**Original alternatives** (still accurately rejected):
+- ❌ Direct Python Subprocess Integration: High overhead
+- ❌ PyO3 Embed Python Interpreter: Massive binary size, edge incompatible
+- ❌ Wait for CocoIndex Rust API: We built our own (ReCoco)
 
 ---
 
@@ -219,7 +207,7 @@ For CLI Deployment (No WASM Constraints):
 
 **Decision**: Hybrid Relational Architecture with In-Memory Acceleration
 
-Use Postgres/D1 for persistent graph storage with adjacency list schema, combined with in-memory petgraph representation for complex queries and content-addressed caching via CocoIndex.
+Use Postgres/D1 for persistent graph storage with adjacency list schema, combined with in-memory graph representation for complex queries and content-addressed caching via ReCoco.
 
 **Rationale**:
 
@@ -230,15 +218,16 @@ Why NOT Dedicated Graph Databases:
 
 Why Hybrid Relational Works:
 1. **Dual Backend Support**: Single schema works across Postgres (CLI) and D1 (Edge) with no architectural changes.
-2. **Content-Addressed Caching**: Achieves >90% cache hit rate requirement (Constitution Principle VI) through CocoIndex integration.
-3. **Performance Tiering**: Simple queries (1-2 hops) use indexed SQL; complex queries (3+ hops) load subgraphs into petgraph for in-memory traversal.
-4. **Incremental Updates**: CocoIndex dataflow triggers only affected subgraph re-analysis on code changes (Constitution Principle IV).
+2. **Content-Addressed Caching**: Achieves >90% cache hit rate requirement (Constitution Principle VI) through ReCoco integration.
+3. **Performance Tiering**: Simple queries (1-2 hops) use indexed SQL; complex queries (3+ hops) load subgraphs into in-memory structures for traversal.
+4. **Incremental Updates**: ReCoco dataflow triggers only affected subgraph re-analysis on code changes (Constitution Principle IV).
 
 **Alternatives Considered**:
 - ❌ **Pure Postgres Recursive CTEs**: Performance degrades exponentially with depth and fan-out, string-based path tracking inefficient, D1's SQLite foundation limits concurrent writes
 - ❌ **Materialized Paths**: Good for hierarchical queries but inefficient for non-hierarchical graphs (code has circular dependencies), update overhead
 - ❌ **Neo4j/Memgraph**: Performance superior (Memgraph 114-132x faster than Neo4j, 400ms for 100k nodes) but cannot support dual Postgres/D1 deployment, requires separate infrastructure
 - ❌ **Apache AGE**: Postgres-only solution (not available for D1/SQLite), doesn't work for edge deployment
+- ❌ **petgraph**: Evaluated for in-memory complex queries but not used — custom implementation chosen for tighter integration with the incremental analysis pipeline and to avoid the dependency overhead
 
 **Query Patterns**:
 
@@ -271,14 +260,14 @@ CREATE INDEX idx_nodes_type_name ON nodes(type, name);
 
 **Query Routing Strategy**:
 - **1-2 Hop Queries**: Direct SQL with indexed lookups (<10ms Postgres, <50ms D1)
-- **3+ Hop Queries**: Load subgraph into petgraph, execute in-memory algorithms, cache result
+- **3+ Hop Queries**: Load subgraph into custom `DependencyGraph`, execute in-memory algorithms, cache result
 - **Reverse Dependencies**: Materialized views for "who depends on me" hot queries
 
 **Scalability Analysis**:
 
 **Storage Requirements (10M nodes, 50M edges)**:
 - Postgres: Nodes 5GB + Edges 5GB + Indexes 5GB = ~15GB total (fits comfortably)
-- D1: Same schema, distributed across CDN nodes, CocoIndex caching reduces query load by >90%
+- D1: Same schema, distributed across CDN nodes, ReCoco caching reduces query load by >90%
 
 **Performance Projections**:
 - **Postgres (CLI)**: 1-hop <2ms p95, 2-hop <10ms p95 ✅, 3+ hop <50ms p95 (10ms load + 1ms traversal)
@@ -286,10 +275,18 @@ CREATE INDEX idx_nodes_type_name ON nodes(type, name);
 - **Content-Addressed Cache Hit Rate**: >90% projected ✅ (constitutional requirement)
 
 **Implementation Notes**:
-- Use petgraph for in-memory complex queries (3+ hops)
-- Implement incremental graph updates via CocoIndex diff tracking
+- Custom BFS/topological sort implementation (see `crates/flow/src/incremental/graph.rs`, 1,099 lines) — petgraph evaluated but custom implementation chosen for better integration with incremental update semantics
+- Implement incremental graph updates via ReCoco diff tracking
 - Composite indexes on `(source_id, edge_type)` and `(target_id, edge_type)`
 - Materialized views for hot reverse dependency queries
+
+**Actual Implementation** (2026-02-24): `crates/flow/src/incremental/graph.rs` provides:
+- Custom `DependencyGraph` with bidirectional adjacency lists
+- BFS affected-file detection (O(V+E))
+- Topological sort for correct reanalysis order
+- DFS cycle detection with temp markers
+- **petgraph was NOT used** — custom implementation chosen for tighter integration
+  with the incremental analysis pipeline and to avoid the dependency overhead.
 
 ---
 
@@ -406,7 +403,7 @@ pub async fn connect_realtime(server: &str) -> Result<RealtimeClient> {
 
 2. **Library-Service Boundary Preservation**: New crates clearly split library (reusable graph algorithms) vs service (persistent storage, caching, real-time). Aligns with Constitution Principle I (Service-Library Dual Architecture).
 
-3. **CocoIndex Integration Point**: `thread-services` becomes integration point for CocoIndex traits (from Research Task 1). No type leakage into library crates.
+3. **ReCoco Integration Point**: `thread-services` becomes integration point for ReCoco traits (via `thread-flow`). No type leakage into library crates.
 
 4. **Acyclic Dependency Flow**: Clear dependency hierarchy prevents circular dependencies (Constitution Principle IV requirement).
 
@@ -423,7 +420,7 @@ pub async fn connect_realtime(server: &str) -> Result<RealtimeClient> {
 - `thread-realtime`: Real-time update propagation, WebSocket/SSE handling, Durable Objects integration (depends on: thread-api)
 
 **EXISTING Crates** (extended/reused):
-- `thread-services`: **EXTENDED** - Add CocoIndex dataflow traits, registry, YAML spec parser (depends on: all new crates)
+- `thread-services`: **EXTENDED** - Add ReCoco dataflow traits, registry, YAML spec parser (depends on: all new crates)
 - `thread-ast-engine`: **REUSED** - AST parsing foundation (no changes)
 - `thread-language`: **REUSED** - Language support (no changes)
 - `thread-rule-engine`: **EXTENDED** - Add pattern-based conflict detection rules (depends on: thread-conflict)
@@ -433,7 +430,7 @@ pub async fn connect_realtime(server: &str) -> Result<RealtimeClient> {
 **Dependency Graph**:
 ```
                     ┌──────────────────┐
-                    │ thread-services  │ (Service orchestration, CocoIndex)
+                    │ thread-services  │ (Service orchestration, ReCoco)
                     └────────┬─────────┘
                              │
         ┌────────────────────┼────────────────────┐
@@ -588,7 +585,7 @@ pub async fn graph_impact_analysis(
 }
 ```
 
-**Graph Operations** (using petgraph from Research Task 4):
+**Graph Operations** (using custom `DependencyGraph` from `crates/flow/src/incremental/graph.rs`; petgraph was evaluated but not used — see Research Task 4):
 - Reverse dependency traversal (BFS from changed nodes)
 - Strongly connected components (detect circular dependencies affected by change)
 - Shortest path alternative detection (suggest refactoring paths)
@@ -655,7 +652,7 @@ pub fn should_run_tier3(tier2_result: &[SemanticConflict]) -> bool {
 
 **Performance Optimization**:
 - Parallel tier execution where possible (Tier 2 and 3 can start before Tier 1 completes if working on different symbols)
-- Cache intermediate results in CocoIndex (content-addressed AST nodes reused across tiers)
+- Cache intermediate results in ReCoco (content-addressed AST nodes reused across tiers)
 - Early termination if high-confidence result achieved before final tier
 
 ---
@@ -666,6 +663,25 @@ pub fn should_run_tier3(tier2_result: &[SemanticConflict]) -> bool {
 
 **Research Output**:
 
+**IMPLEMENTED** (2026-02-24): The storage backend abstraction described below has been
+implemented in `crates/flow/src/incremental/`:
+
+- `storage.rs`: `StorageBackend` async trait (CRUD for fingerprints, edges, full graph)
+- `backends/postgres.rs`: `PostgresIncrementalBackend` (feature-gated: `postgres-backend`)
+- `backends/d1.rs`: `D1IncrementalBackend` (HTTP REST client, 200+ lines)
+- `backends/mod.rs`: Factory pattern (`create_backend(BackendType, BackendConfig)`)
+- `InMemoryBackend`: Always-available test backend
+
+**Vector Storage (Qdrant → Vectorize)**:
+The `QdrantStorage` in the original plan is **blocked** — `recoco/target-qdrant` is
+disabled in Cargo.toml due to a CRC version conflict with other dependencies.
+
+**Resolution**: Implement `VectorizeStorage` using Cloudflare Vectorize API for edge
+vector search. Qdrant support (CLI-only) can be added later when the dependency
+conflict is resolved.
+
+---
+
 **Decision**: Trait-Based Multi-Backend Abstraction with Backend-Specific Optimizations
 
 **Rationale**:
@@ -674,7 +690,7 @@ pub fn should_run_tier3(tier2_result: &[SemanticConflict]) -> bool {
 
 2. **Performance Preservation**: Trait abstraction must not sacrifice performance. Backend-specific optimizations (Postgres CTEs, D1 PRAGMA, Qdrant vector indexing) implemented via trait methods.
 
-3. **Migration Support**: Schema versioning and rollback scripts essential for production service (SC-STORE-001 requires <10ms Postgres, <50ms D1, <100ms Qdrant p95 latency).
+3. **Migration Support**: Schema versioning and rollback scripts essential for production service (SC-STORE-001 requires <10ms Postgres, <50ms D1, <100ms Vectorize p95 latency (Qdrant blocked — dependency conflict; superseded by Vectorize for edge)).
 
 **Trait Definition**:
 
@@ -999,7 +1015,7 @@ impl CircuitBreaker {
 
 ### Rust WebAssembly for Cloudflare Workers
 
-**Status**: 🔄 In Progress
+**Status**: ✅ Decided elsewhere
 
 **Questions**:
 - What are current best practices for Rust WASM on Cloudflare Workers (2026)?
@@ -1007,13 +1023,13 @@ impl CircuitBreaker {
 - What crates are WASM-compatible vs problematic?
 - How to handle async I/O in WASM context?
 
-**Research Output**: [To be filled]
+**Research Output**: Decisions documented in spec.md FR-010, SC-EDGE-001 through SC-EDGE-003. WASM compilation via xtask; multi-threading WASM for browser; single-threaded for Workers.
 
 ---
 
 ### Content-Addressed Caching Patterns
 
-**Status**: 🔄 In Progress
+**Status**: ✅ Decided elsewhere
 
 **Questions**:
 - What are proven patterns for >90% cache hit rates?
@@ -1021,13 +1037,13 @@ impl CircuitBreaker {
 - What content-addressing schemes (SHA-256, blake3) balance speed and collision resistance?
 - How to handle cache warmup and cold-start scenarios?
 
-**Research Output**: [To be filled]
+**Research Output**: Decisions documented in plan.md (ReCoco/thread-flow integration) and spec.md FR-004. Blake3 fingerprinting via ReCoco; PostgresIncrementalBackend and D1IncrementalBackend implemented.
 
 ---
 
 ### Real-Time Collaboration Architecture
 
-**Status**: 🔄 In Progress
+**Status**: ✅ Decided elsewhere
 
 **Questions**:
 - What are architectural patterns for real-time collaborative systems at scale?
@@ -1035,19 +1051,49 @@ impl CircuitBreaker {
 - What conflict resolution strategies work for code intelligence systems?
 - How to balance latency vs consistency trade-offs?
 
-**Research Output**: [To be filled]
+**Research Output**: Decisions documented in spec.md FR-005, FR-006, FR-012. WebSocket primary, SSE fallback; RealtimeBackend trait in thread-realtime; Durable Objects implementation in private commercial crate.
+
+---
+
+### Research Task 9: Semantic Classification System Analysis ✅ COMPLETE
+
+**Objective**: Evaluate CodeWeaver's semantic classification system as a candidate for Thread's AST node type classification needs, particularly for AI-context importance ranking and L1 definition extraction.
+
+**Findings**:
+
+**The CodeWeaver Python system** (7,200 lines, 11 modules) classifies tree-sitter AST node types into 22 semantic categories with multi-dimensional importance scoring. Key characteristics:
+- 7-method classification pipeline with evidence tracking and confidence scoring
+- Grammar model loaded at runtime from node-types.json (complex, not needed for Thread)
+- Pickle cache for performance (replaced by embedded JSON/TOML in Rust port)
+
+**The simplified Rust port** (`SEMANTIC_CLASSIFICATION_SPEC.md`) achieves equivalent accuracy via:
+- Pre-baked data: 2,444 exact + 21 majority cross-language rules in universal_rules.json
+- 8-stage lookup pipeline (no grammar model needed at runtime)
+- Per-language TOML overrides (~10-50 lines) for 100% accuracy
+
+**Key quantitative findings from the data** (`classifications/` directory, already in repo):
+- 5,899 total items classified across 27 languages → 5,819 classified (98.6% coverage)
+- Override TOML files already exist in correct format for the Rust spec
+- Method distribution: token_purpose (57.9%), specific_thing/universal (30%), category (8.5%), connection_inference (3.5%)
+- 80%+ baseline accuracy achievable on any tree-sitter grammar with universal rules alone
+- ~10-50 TOML lines achieves 100% per language (CodeWeaver has 27 validated; ~166 total possible)
+
+**Decision**: Proceed with Rust port as `thread-definitions` crate. SemanticClass (22 variants) replaces GraphNode.node_type. The `classify_node_types` operator in thread-flow replaces the tags.scm-based L1 definition extraction proposed in AI_KNOWLEDGE_LAYER_DESIGN.md.
+
+**Data location**: `classifications/` directory (workspace root) — migrate to `crates/definitions/data/` at T-C07.
 
 ---
 
 ## Research Completion Criteria
 
 Research phase is complete when:
-- [x] All 8 research tasks have Decision, Rationale, and Alternatives documented
+- [x] All 9 research tasks have Decision, Rationale, and Alternatives documented (Task 9 added 2026-02-24)
 - [x] All best practices research areas have findings (integrated into tasks)
-- [ ] Technical Context in plan.md updated with concrete values (no "PENDING RESEARCH")
-- [ ] Constitution Check re-evaluated with research findings
-- [ ] Crate organization finalized and documented in plan.md Project Structure
-- [ ] Ready to proceed to Phase 1 (Design & Contracts)
+- [x] Technical Context in plan.md updated with concrete values
+- [x] Constitution Check re-evaluated with research findings
+- [x] Crate organization finalized and documented in plan.md Project Structure
+- [x] Ready to proceed to Phase 1 (Design & Contracts)
+- [x] Phase 1 infrastructure implemented in thread-flow crate (2026-02-24)
 
 **Status**: Research tasks complete, proceeding to plan.md updates
 
