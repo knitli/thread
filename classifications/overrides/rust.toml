@@ -1,0 +1,80 @@
+# SPDX-FileCopyrightText: 2026 Knitli Inc.
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+# Rust language classification overrides
+# Holdout evaluation: 77.7% overall → expected ~100% with overrides
+# 61 items to override (35 unclassified + 26 misclassified)
+
+[overrides]
+# --- Tier 1: Primary Definitions ---
+associated_type = "definition_data"  # universal says definition_type
+attribute = "definition_data"
+base_field_initializer = "definition_data"
+bracketed_type = "definition_type"
+closure_parameters = "definition_data"
+const_item = "definition_data"  # category says definition_type
+const_parameter = "definition_data"
+enum_variant = "definition_callable"
+extern_crate_declaration = "definition_data"  # category says definition_type
+for_lifetimes = "definition_type"
+function_item = "definition_callable"  # category says definition_type
+function_signature_item = "definition_callable"  # category says definition_type
+generic_type_with_turbofish = "definition_type"
+higher_ranked_trait_bound = "definition_type"
+let_chain = "definition_type"
+let_declaration = "definition_data"  # category says definition_type
+lifetime_parameter = "definition_type"
+match_arm = "definition_type"
+self_parameter = "definition_type"
+shorthand_field_initializer = "definition_data"
+static_item = "definition_data"  # category says definition_type
+token_repetition = "definition_type"
+token_tree = "definition_type"
+trait_bounds = "definition_type"
+type_binding = "definition_type"
+use_bounds = "definition_type"
+use_wildcard = "definition_type"
+variadic_parameter = "definition_data"
+where_predicate = "definition_type"
+# --- Tier 2: Boundaries ---
+foreign_mod_item = "boundary_module"  # category says definition_type
+macro_rule = "boundary_module"
+mod_item = "boundary_module"  # category says definition_type
+scoped_use_list = "boundary_module"
+# --- Tier 3: Control Flow ---
+if_expression = "flow_branching"  # category says operation_operator
+let_condition = "flow_branching"
+token_binding_pattern = "flow_branching"
+token_repetition_pattern = "flow_branching"
+token_tree_pattern = "flow_branching"
+# --- Tier 4: Operations ---
+macro_invocation = "operation_invocation"  # universal says syntax_keyword
+parameter = "operation_data"
+range_expression = "operation_data"  # category says operation_operator
+# --- Tier 5: Syntax ---
+array_expression = "syntax_literal"  # category says operation_operator
+async_block = "syntax_punctuation"  # category says operation_operator
+attribute_item = "syntax_annotation"  # category says definition_type
+block = "syntax_punctuation"  # universal says flow_branching
+const_block = "syntax_punctuation"  # category says operation_operator
+enum_variant_list = "syntax_punctuation"
+extern_modifier = "syntax_annotation"
+function_modifiers = "syntax_annotation"
+gen_block = "syntax_punctuation"  # category says operation_operator
+inner_attribute_item = "syntax_annotation"  # category says definition_type
+lifetime = "syntax_keyword"
+ordered_field_declaration_list = "syntax_punctuation"
+try_block = "syntax_punctuation"  # category says operation_operator
+unsafe_block = "syntax_punctuation"  # category says operation_operator
+visibility_modifier = "syntax_annotation"
+
+[token_overrides]
+# --- Tier 5: Syntax ---
+"#" = "syntax_annotation"  # token_purpose says keyword
+"@" = "syntax_annotation"  # token_purpose says keyword
+shebang = "syntax_annotation"  # token_purpose says keyword
+try = "syntax_annotation"  # token_purpose says keyword
+
+[doc_comment_tokens]
+doc_comment = true

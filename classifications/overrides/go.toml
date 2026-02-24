@@ -1,0 +1,41 @@
+# SPDX-FileCopyrightText: 2026 Knitli Inc.
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+# Go language classification overrides
+# Holdout evaluation: 86.3% overall → expected ~99% with overrides
+# 25 items to override (21 unclassified + 4 misclassified)
+
+[overrides]
+# --- Tier 1: Primary Definitions ---
+const_spec = "definition_data"
+implicit_length_array_type = "definition_type"
+keyed_element = "definition_type"
+method_elem = "definition_type"
+package_clause = "definition_callable"  # universal says boundary_module
+short_var_declaration = "definition_data"  # category says flow_control
+type_case = "definition_type"
+type_declaration = "definition_data"  # category says flow_branching
+type_elem = "definition_type"
+type_spec = "definition_type"
+var_spec = "definition_data"
+# --- Tier 2: Boundaries ---
+import_spec = "boundary_module"
+import_spec_list = "boundary_module"
+# --- Tier 3: Control Flow ---
+communication_case = "flow_branching"
+default_case = "flow_branching"
+for_clause = "flow_iteration"
+literal_element = "flow_branching"
+literal_value = "flow_branching"
+range_clause = "flow_iteration"
+receive_statement = "flow_iteration"
+# --- Tier 4: Operations ---
+variadic_argument = "operation_operator"
+# --- Tier 5: Syntax ---
+expression_case = "syntax_punctuation"
+statement_list = "syntax_punctuation"
+var_spec_list = "syntax_punctuation"
+
+[doc_comment_tokens]
+comment = true

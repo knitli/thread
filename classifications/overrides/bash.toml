@@ -1,0 +1,30 @@
+# SPDX-FileCopyrightText: 2026 Knitli Inc.
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+# Bash language classification overrides
+# Holdout evaluation: 92.8% overall → expected ~100% with overrides
+# 13 items to override (7 unclassified + 6 misclassified)
+
+[overrides]
+# --- Tier 3: Control Flow ---
+subshell = "flow_branching"  # universal says syntax_punctuation
+# --- Tier 4: Operations ---
+number = "operation_operator"  # universal says syntax_literal
+# --- Tier 5: Syntax ---
+case_item = "syntax_keyword"
+command_name = "syntax_keyword"
+do_group = "syntax_keyword"
+file_redirect = "syntax_punctuation"
+heredoc_redirect = "syntax_literal"
+herestring_redirect = "syntax_keyword"
+string = "syntax_literal"  # category says operation_operator
+subscript = "syntax_punctuation"
+
+[token_overrides]
+# --- Tier 5: Syntax ---
+"#" = "syntax_annotation"  # token_purpose says keyword
+"@" = "syntax_annotation"  # token_purpose says keyword
+
+[doc_comment_tokens]
+comment = true

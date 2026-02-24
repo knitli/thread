@@ -1,0 +1,73 @@
+# SPDX-FileCopyrightText: 2026 Knitli Inc.
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+# C language classification overrides
+# Holdout evaluation: 78.6% overall → expected ~99% with overrides
+# 57 items to override (2 unclassified + 55 misclassified)
+
+[overrides]
+# --- Tier 1: Primary Definitions ---
+type_definition = "definition_data"
+# --- Tier 5: Syntax ---
+attribute = "syntax_annotation"
+macro_type_specifier = "syntax_annotation"  # category says definition_type
+
+[token_overrides]
+# --- Tier 5: Syntax ---
+"#define" = "syntax_annotation"  # token_purpose says keyword
+"#elif" = "syntax_annotation"  # token_purpose says keyword
+"#elifdef" = "syntax_annotation"  # token_purpose says keyword
+"#elifndef" = "syntax_annotation"  # token_purpose says keyword
+"#else" = "syntax_annotation"  # token_purpose says keyword
+"#endif" = "syntax_annotation"  # token_purpose says keyword
+"#if" = "syntax_annotation"  # token_purpose says keyword
+"#ifdef" = "syntax_annotation"  # token_purpose says keyword
+"#ifndef" = "syntax_annotation"  # token_purpose says keyword
+"#include" = "syntax_annotation"  # token_purpose says keyword
+__alignof = "syntax_annotation"  # token_purpose says keyword
+__alignof__ = "syntax_annotation"  # token_purpose says keyword
+__asm = "syntax_annotation"  # token_purpose says keyword
+__asm__ = "syntax_annotation"  # token_purpose says keyword
+__attribute = "syntax_annotation"  # token_purpose says keyword
+__attribute__ = "syntax_annotation"  # token_purpose says keyword
+__based = "syntax_annotation"  # token_purpose says keyword
+__cdecl = "syntax_annotation"  # token_purpose says keyword
+__clrcall = "syntax_annotation"  # token_purpose says keyword
+__declspec = "syntax_annotation"  # token_purpose says keyword
+__except = "syntax_annotation"  # token_purpose says keyword
+__extension__ = "syntax_annotation"  # token_purpose says keyword
+__fastcall = "syntax_annotation"  # token_purpose says keyword
+__finally = "syntax_annotation"  # token_purpose says keyword
+__forceinline = "syntax_annotation"  # token_purpose says keyword
+__inline = "syntax_annotation"  # token_purpose says keyword
+__inline__ = "syntax_annotation"  # token_purpose says keyword
+__leave = "syntax_annotation"  # token_purpose says keyword
+__restrict__ = "syntax_annotation"  # token_purpose says keyword
+__stdcall = "syntax_annotation"  # token_purpose says keyword
+__thiscall = "syntax_annotation"  # token_purpose says keyword
+__thread = "syntax_annotation"  # token_purpose says keyword
+__try = "syntax_annotation"  # token_purpose says keyword
+__unaligned = "syntax_annotation"  # token_purpose says keyword
+__vectorcall = "syntax_annotation"  # token_purpose says keyword
+__volatile__ = "syntax_annotation"  # token_purpose says keyword
+_Alignas = "syntax_annotation"  # token_purpose says keyword
+_Alignof = "syntax_annotation"  # token_purpose says keyword
+_alignof = "syntax_annotation"  # token_purpose says keyword
+_Atomic = "syntax_annotation"  # token_purpose says keyword
+_Generic = "syntax_annotation"  # token_purpose says keyword
+_Nonnull = "syntax_annotation"  # token_purpose says keyword
+_Noreturn = "syntax_annotation"  # token_purpose says keyword
+_unaligned = "syntax_annotation"  # token_purpose says keyword
+alignas = "syntax_annotation"  # token_purpose says keyword
+alignof = "syntax_annotation"  # token_purpose says keyword
+asm = "syntax_annotation"  # token_purpose says keyword
+defined = "syntax_annotation"  # token_purpose says keyword
+inline = "syntax_annotation"  # token_purpose says keyword
+preproc_arg = "syntax_annotation"  # token_purpose says keyword
+preproc_directive = "syntax_annotation"  # token_purpose says keyword
+restrict = "syntax_annotation"  # token_purpose says keyword
+volatile = "syntax_annotation"  # token_purpose says keyword
+
+[doc_comment_tokens]
+comment = true

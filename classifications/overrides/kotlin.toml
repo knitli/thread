@@ -1,0 +1,39 @@
+# SPDX-FileCopyrightText: 2026 Knitli Inc.
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+# Kotlin language classification overrides
+# Holdout evaluation: 90.2% overall → expected ~99% with overrides
+# 22 items to override (11 unclassified + 11 misclassified)
+
+[overrides]
+# --- Tier 1: Primary Definitions ---
+delegation_specifier = "definition_type"
+delegation_specifiers = "definition_type"
+function_value_parameters = "definition_data"
+multi_variable_declaration = "definition_data"
+type_projection = "definition_type"
+type_test = "definition_type"
+variable_declaration = "definition_data"
+# --- Tier 3: Control Flow ---
+finally_block = "flow_branching"
+# --- Tier 4: Operations ---
+character_literal = "operation_operator"  # universal says syntax_literal
+constructor_invocation = "operation_invocation"
+if_expression = "operation_operator"  # universal says flow_branching
+parameter = "operation_data"
+range_expression = "operation_data"  # category says operation_operator
+super_expression = "operation_operator"  # universal says syntax_keyword
+# --- Tier 5: Syntax ---
+annotation = "syntax_punctuation"  # universal says syntax_annotation
+class_body = "syntax_punctuation"
+
+[token_overrides]
+"@" = "syntax_annotation"  # token_purpose says keyword
+finally = "syntax_annotation"  # token_purpose says keyword
+inline = "syntax_annotation"  # token_purpose says keyword
+shebang = "syntax_annotation"  # token_purpose says keyword
+try = "syntax_annotation"  # token_purpose says keyword
+
+[doc_comment_tokens]
+block_comment = true

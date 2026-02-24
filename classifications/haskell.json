@@ -1,0 +1,5617 @@
+{
+  "language": "haskell",
+  "stats": {
+    "total_things": 265,
+    "classified": 264,
+    "coverage_pct": 99.6,
+    "token_count": 126,
+    "composite_count": 139,
+    "category_count": 14
+  },
+  "tokens": {
+    "!": {
+      "kind": "token",
+      "name": "!",
+      "purpose": "operator",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "operation_operator",
+      "rank": 4,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "#": {
+      "kind": "token",
+      "name": "#",
+      "purpose": "keyword",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_annotation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "#)": {
+      "kind": "token",
+      "name": "#)",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "$": {
+      "kind": "token",
+      "name": "$",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "$$": {
+      "kind": "token",
+      "name": "$$",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "%": {
+      "kind": "token",
+      "name": "%",
+      "purpose": "operator",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "operation_operator",
+      "rank": 4,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "'": {
+      "kind": "token",
+      "name": "'",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "''": {
+      "kind": "token",
+      "name": "''",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "(": {
+      "kind": "token",
+      "name": "(",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "(#": {
+      "kind": "token",
+      "name": "(#",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    ")": {
+      "kind": "token",
+      "name": ")",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "*": {
+      "kind": "token",
+      "name": "*",
+      "purpose": "operator",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "operation_operator",
+      "rank": 4,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    ",": {
+      "kind": "token",
+      "name": ",",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "-": {
+      "kind": "token",
+      "name": "-",
+      "purpose": "operator",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "operation_operator",
+      "rank": 4,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "->": {
+      "kind": "token",
+      "name": "->",
+      "purpose": "operator",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "operation_operator",
+      "rank": 4,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "->.": {
+      "kind": "token",
+      "name": "->.",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    ".": {
+      "kind": "token",
+      "name": ".",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "..": {
+      "kind": "token",
+      "name": "..",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "1": {
+      "kind": "token",
+      "name": "1",
+      "purpose": "literal",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_literal",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "::": {
+      "kind": "token",
+      "name": "::",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    ";": {
+      "kind": "token",
+      "name": ";",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "<-": {
+      "kind": "token",
+      "name": "<-",
+      "purpose": "operator",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "operation_operator",
+      "rank": 4,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "=": {
+      "kind": "token",
+      "name": "=",
+      "purpose": "operator",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "operation_operator",
+      "rank": 4,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "=>": {
+      "kind": "token",
+      "name": "=>",
+      "purpose": "operator",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "operation_operator",
+      "rank": 4,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "@": {
+      "kind": "token",
+      "name": "@",
+      "purpose": "keyword",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_annotation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "[": {
+      "kind": "token",
+      "name": "[",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "\\": {
+      "kind": "token",
+      "name": "\\",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "]": {
+      "kind": "token",
+      "name": "]",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "_": {
+      "kind": "token",
+      "name": "_",
+      "purpose": "keyword",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "`": {
+      "kind": "token",
+      "name": "`",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "abstract_family": {
+      "kind": "token",
+      "name": "abstract_family",
+      "purpose": "punctuation",
+      "is_explicit_rule": true,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "all_names": {
+      "kind": "token",
+      "name": "all_names",
+      "purpose": "punctuation",
+      "is_explicit_rule": true,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "anyclass": {
+      "kind": "token",
+      "name": "anyclass",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "as": {
+      "kind": "token",
+      "name": "as",
+      "purpose": "keyword",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "pattern"
+      ],
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "purpose"
+      ]
+    },
+    "by": {
+      "kind": "token",
+      "name": "by",
+      "purpose": "keyword",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "calling_convention": {
+      "kind": "token",
+      "name": "calling_convention",
+      "purpose": "punctuation",
+      "is_explicit_rule": true,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "case": {
+      "kind": "token",
+      "name": "case",
+      "purpose": "keyword",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "expression"
+      ],
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "purpose"
+      ]
+    },
+    "cases": {
+      "kind": "token",
+      "name": "cases",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "char": {
+      "kind": "token",
+      "name": "char",
+      "purpose": "keyword",
+      "is_explicit_rule": true,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "class": {
+      "kind": "token",
+      "name": "class",
+      "purpose": "identifier",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "declaration"
+      ],
+      "classification": "syntax_identifier",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "purpose"
+      ]
+    },
+    "comment": {
+      "kind": "token",
+      "name": "comment",
+      "purpose": "comment",
+      "is_explicit_rule": true,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "documentation_structured",
+      "rank": 2,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "simple_name_pattern"
+      ]
+    },
+    "constructor": {
+      "kind": "token",
+      "name": "constructor",
+      "purpose": "keyword",
+      "is_explicit_rule": true,
+      "can_be_anywhere": false,
+      "categories": [
+        "expression",
+        "pattern"
+      ],
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "constructor_operator": {
+      "kind": "token",
+      "name": "constructor_operator",
+      "purpose": "operator",
+      "is_explicit_rule": true,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "operation_operator",
+      "rank": 4,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "cpp": {
+      "kind": "token",
+      "name": "cpp",
+      "purpose": "punctuation",
+      "is_explicit_rule": true,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "d": {
+      "kind": "token",
+      "name": "d",
+      "purpose": "keyword",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "data": {
+      "kind": "token",
+      "name": "data",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "default": {
+      "kind": "token",
+      "name": "default",
+      "purpose": "keyword",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "deriving": {
+      "kind": "token",
+      "name": "deriving",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "purpose"
+      ]
+    },
+    "deriving_strategy": {
+      "kind": "token",
+      "name": "deriving_strategy",
+      "purpose": "punctuation",
+      "is_explicit_rule": true,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "do": {
+      "kind": "token",
+      "name": "do",
+      "purpose": "keyword",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "expression"
+      ],
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "purpose"
+      ]
+    },
+    "e": {
+      "kind": "token",
+      "name": "e",
+      "purpose": "keyword",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "else": {
+      "kind": "token",
+      "name": "else",
+      "purpose": "keyword",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "empty_list": {
+      "kind": "token",
+      "name": "empty_list",
+      "purpose": "punctuation",
+      "is_explicit_rule": true,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "export": {
+      "kind": "token",
+      "name": "export",
+      "purpose": "keyword",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "purpose"
+      ]
+    },
+    "family": {
+      "kind": "token",
+      "name": "family",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "float": {
+      "kind": "token",
+      "name": "float",
+      "purpose": "keyword",
+      "is_explicit_rule": true,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "forall": {
+      "kind": "token",
+      "name": "forall",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "constraints",
+        "quantified_type"
+      ],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "purpose"
+      ]
+    },
+    "foreign": {
+      "kind": "token",
+      "name": "foreign",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "group": {
+      "kind": "token",
+      "name": "group",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "qualifier"
+      ],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "purpose"
+      ]
+    },
+    "haddock": {
+      "kind": "token",
+      "name": "haddock",
+      "purpose": "punctuation",
+      "is_explicit_rule": true,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "hiding": {
+      "kind": "token",
+      "name": "hiding",
+      "purpose": "keyword",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "if": {
+      "kind": "token",
+      "name": "if",
+      "purpose": "keyword",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "implicit_variable": {
+      "kind": "token",
+      "name": "implicit_variable",
+      "purpose": "punctuation",
+      "is_explicit_rule": true,
+      "can_be_anywhere": false,
+      "categories": [
+        "expression"
+      ],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "import": {
+      "kind": "token",
+      "name": "import",
+      "purpose": "keyword",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "purpose"
+      ]
+    },
+    "import_package": {
+      "kind": "token",
+      "name": "import_package",
+      "purpose": "punctuation",
+      "is_explicit_rule": true,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "in": {
+      "kind": "token",
+      "name": "in",
+      "purpose": "keyword",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "infix": {
+      "kind": "token",
+      "name": "infix",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "constraint",
+        "expression",
+        "pattern",
+        "type"
+      ],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "purpose"
+      ]
+    },
+    "infixl": {
+      "kind": "token",
+      "name": "infixl",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "infixr": {
+      "kind": "token",
+      "name": "infixr",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "instance": {
+      "kind": "token",
+      "name": "instance",
+      "purpose": "keyword",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "declaration"
+      ],
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "purpose"
+      ]
+    },
+    "integer": {
+      "kind": "token",
+      "name": "integer",
+      "purpose": "keyword",
+      "is_explicit_rule": true,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "label": {
+      "kind": "token",
+      "name": "label",
+      "purpose": "identifier",
+      "is_explicit_rule": true,
+      "can_be_anywhere": false,
+      "categories": [
+        "expression"
+      ],
+      "classification": "syntax_identifier",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "let": {
+      "kind": "token",
+      "name": "let",
+      "purpose": "keyword",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "guard",
+        "qualifier",
+        "statement"
+      ],
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "purpose"
+      ]
+    },
+    "mdo": {
+      "kind": "token",
+      "name": "mdo",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "module": {
+      "kind": "token",
+      "name": "module",
+      "purpose": "identifier",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_identifier",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "purpose"
+      ]
+    },
+    "module_id": {
+      "kind": "token",
+      "name": "module_id",
+      "purpose": "punctuation",
+      "is_explicit_rule": true,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "name": {
+      "kind": "token",
+      "name": "name",
+      "purpose": "identifier",
+      "is_explicit_rule": true,
+      "can_be_anywhere": false,
+      "categories": [
+        "constraint",
+        "type"
+      ],
+      "classification": "syntax_identifier",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "namespace": {
+      "kind": "token",
+      "name": "namespace",
+      "purpose": "identifier",
+      "is_explicit_rule": true,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_identifier",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "newtype": {
+      "kind": "token",
+      "name": "newtype",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "declaration"
+      ],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "purpose"
+      ]
+    },
+    "nominal": {
+      "kind": "token",
+      "name": "nominal",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "of": {
+      "kind": "token",
+      "name": "of",
+      "purpose": "keyword",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "operator": {
+      "kind": "token",
+      "name": "operator",
+      "purpose": "keyword",
+      "is_explicit_rule": true,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "p": {
+      "kind": "token",
+      "name": "p",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "pattern": {
+      "kind": "token",
+      "name": "pattern",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "phantom": {
+      "kind": "token",
+      "name": "phantom",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "pragma": {
+      "kind": "token",
+      "name": "pragma",
+      "purpose": "keyword",
+      "is_explicit_rule": true,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_annotation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "prefix_list": {
+      "kind": "token",
+      "name": "prefix_list",
+      "purpose": "punctuation",
+      "is_explicit_rule": true,
+      "can_be_anywhere": false,
+      "categories": [
+        "type"
+      ],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "prefix_tuple": {
+      "kind": "token",
+      "name": "prefix_tuple",
+      "purpose": "punctuation",
+      "is_explicit_rule": true,
+      "can_be_anywhere": false,
+      "categories": [
+        "constraint",
+        "expression",
+        "pattern",
+        "type"
+      ],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "prefix_unboxed_sum": {
+      "kind": "token",
+      "name": "prefix_unboxed_sum",
+      "purpose": "punctuation",
+      "is_explicit_rule": true,
+      "can_be_anywhere": false,
+      "categories": [
+        "constraint",
+        "expression",
+        "pattern",
+        "type"
+      ],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "prefix_unboxed_tuple": {
+      "kind": "token",
+      "name": "prefix_unboxed_tuple",
+      "purpose": "punctuation",
+      "is_explicit_rule": true,
+      "can_be_anywhere": false,
+      "categories": [
+        "constraint",
+        "expression",
+        "pattern",
+        "type"
+      ],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "qualified": {
+      "kind": "token",
+      "name": "qualified",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "constraint",
+        "expression",
+        "pattern",
+        "type"
+      ],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "purpose"
+      ]
+    },
+    "quasiquote_body": {
+      "kind": "token",
+      "name": "quasiquote_body",
+      "purpose": "punctuation",
+      "is_explicit_rule": true,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "rec": {
+      "kind": "token",
+      "name": "rec",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "statement"
+      ],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "purpose"
+      ]
+    },
+    "representational": {
+      "kind": "token",
+      "name": "representational",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "role": {
+      "kind": "token",
+      "name": "role",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "safety": {
+      "kind": "token",
+      "name": "safety",
+      "purpose": "punctuation",
+      "is_explicit_rule": true,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "star": {
+      "kind": "token",
+      "name": "star",
+      "purpose": "punctuation",
+      "is_explicit_rule": true,
+      "can_be_anywhere": false,
+      "categories": [
+        "type"
+      ],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "stock": {
+      "kind": "token",
+      "name": "stock",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "string": {
+      "kind": "token",
+      "name": "string",
+      "purpose": "keyword",
+      "is_explicit_rule": true,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "t": {
+      "kind": "token",
+      "name": "t",
+      "purpose": "keyword",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "then": {
+      "kind": "token",
+      "name": "then",
+      "purpose": "keyword",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "type": {
+      "kind": "token",
+      "name": "type",
+      "purpose": "identifier",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "quantified_type"
+      ],
+      "classification": "syntax_identifier",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "type_role": {
+      "kind": "token",
+      "name": "type_role",
+      "purpose": "punctuation",
+      "is_explicit_rule": true,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "unboxed_unit": {
+      "kind": "token",
+      "name": "unboxed_unit",
+      "purpose": "keyword",
+      "is_explicit_rule": true,
+      "can_be_anywhere": false,
+      "categories": [
+        "constraint",
+        "expression",
+        "pattern",
+        "type"
+      ],
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "unit": {
+      "kind": "token",
+      "name": "unit",
+      "purpose": "punctuation",
+      "is_explicit_rule": true,
+      "can_be_anywhere": false,
+      "categories": [
+        "constraint",
+        "expression",
+        "pattern",
+        "type"
+      ],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "using": {
+      "kind": "token",
+      "name": "using",
+      "purpose": "keyword",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "variable": {
+      "kind": "token",
+      "name": "variable",
+      "purpose": "identifier",
+      "is_explicit_rule": true,
+      "can_be_anywhere": false,
+      "categories": [
+        "constraint",
+        "expression",
+        "pattern",
+        "type",
+        "type_param"
+      ],
+      "classification": "syntax_identifier",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "via": {
+      "kind": "token",
+      "name": "via",
+      "purpose": "keyword",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "purpose"
+      ]
+    },
+    "where": {
+      "kind": "token",
+      "name": "where",
+      "purpose": "keyword",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "wildcard": {
+      "kind": "token",
+      "name": "wildcard",
+      "purpose": "literal",
+      "is_explicit_rule": true,
+      "can_be_anywhere": false,
+      "categories": [
+        "constraint",
+        "pattern",
+        "type",
+        "type_param"
+      ],
+      "classification": "syntax_literal",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "{": {
+      "kind": "token",
+      "name": "{",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "|": {
+      "kind": "token",
+      "name": "|",
+      "purpose": "operator",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "operation_operator",
+      "rank": 4,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "|]": {
+      "kind": "token",
+      "name": "|]",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "||": {
+      "kind": "token",
+      "name": "||",
+      "purpose": "operator",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "operation_operator",
+      "rank": 4,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "||]": {
+      "kind": "token",
+      "name": "||]",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "}": {
+      "kind": "token",
+      "name": "}",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "~": {
+      "kind": "token",
+      "name": "~",
+      "purpose": "operator",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "operation_operator",
+      "rank": 4,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "←": {
+      "kind": "token",
+      "name": "←",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "→": {
+      "kind": "token",
+      "name": "→",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "⇒": {
+      "kind": "token",
+      "name": "⇒",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "∀": {
+      "kind": "token",
+      "name": "∀",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "∷": {
+      "kind": "token",
+      "name": "∷",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "⊸": {
+      "kind": "token",
+      "name": "⊸",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "★": {
+      "kind": "token",
+      "name": "★",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "⟦": {
+      "kind": "token",
+      "name": "⟦",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    },
+    "⟧": {
+      "kind": "token",
+      "name": "⟧",
+      "purpose": "punctuation",
+      "is_explicit_rule": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "token_purpose",
+      "evidence": [
+        "purpose",
+        "specific_thing"
+      ]
+    }
+  },
+  "composites": {
+    "alternative": {
+      "kind": "composite",
+      "name": "alternative",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "binds",
+        "match",
+        "pattern",
+        "patterns"
+      ],
+      "classification": "flow_branching",
+      "rank": 3,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "alternatives": {
+      "kind": "composite",
+      "name": "alternatives",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "alternative"
+      ],
+      "classification": "flow_branching",
+      "rank": 3,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "annotated": {
+      "kind": "composite",
+      "name": "annotated",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "kind"
+      ],
+      "positional_targets": [
+        "type_param"
+      ],
+      "positional_constraints": "only_one",
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "apply": {
+      "kind": "composite",
+      "name": "apply",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "constraint",
+        "expression",
+        "pattern",
+        "type"
+      ],
+      "roles": [
+        "argument",
+        "constructor",
+        "function"
+      ],
+      "classification": "operation_invocation",
+      "rank": 4,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "arithmetic_sequence": {
+      "kind": "composite",
+      "name": "arithmetic_sequence",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "expression"
+      ],
+      "roles": [
+        "from",
+        "step",
+        "to"
+      ],
+      "classification": "operation_operator",
+      "rank": 4,
+      "confidence": 0.85,
+      "method": "category",
+      "evidence": [
+        "categories"
+      ]
+    },
+    "as": {
+      "kind": "composite",
+      "name": "as",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "pattern"
+      ],
+      "roles": [
+        "bind",
+        "pattern"
+      ],
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "purpose"
+      ]
+    },
+    "associated_type": {
+      "kind": "composite",
+      "name": "associated_type",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "namespace",
+        "type"
+      ],
+      "classification": "definition_type",
+      "rank": 1,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "bind": {
+      "kind": "composite",
+      "name": "bind",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "decl",
+        "statement"
+      ],
+      "roles": [
+        "arrow",
+        "binds",
+        "expression",
+        "implicit",
+        "match",
+        "name",
+        "pattern"
+      ],
+      "classification": "operation_data",
+      "rank": 4,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "binding_list": {
+      "kind": "composite",
+      "name": "binding_list",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "name"
+      ],
+      "classification": "definition_data",
+      "rank": 1,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "boolean": {
+      "kind": "composite",
+      "name": "boolean",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "guard",
+        "qualifier"
+      ],
+      "positional_targets": [
+        "expression",
+        "signature"
+      ],
+      "positional_constraints": "only_one",
+      "classification": "flow_branching",
+      "rank": 3,
+      "confidence": 0.8,
+      "method": "category",
+      "evidence": [
+        "categories",
+        "heuristic"
+      ]
+    },
+    "case": {
+      "kind": "composite",
+      "name": "case",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "expression"
+      ],
+      "roles": [
+        "alternatives"
+      ],
+      "positional_targets": [
+        "expression",
+        "signature"
+      ],
+      "positional_constraints": "only_one",
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "purpose"
+      ]
+    },
+    "children": {
+      "kind": "composite",
+      "name": "children",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "element"
+      ],
+      "classification": "definition_data",
+      "rank": 1,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "class": {
+      "kind": "composite",
+      "name": "class",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "declaration"
+      ],
+      "roles": [
+        "context",
+        "declarations",
+        "fundeps",
+        "name",
+        "patterns"
+      ],
+      "positional_targets": [
+        "infix",
+        "parens"
+      ],
+      "positional_constraints": "zero_or_one",
+      "classification": "syntax_identifier",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "purpose"
+      ]
+    },
+    "class_declarations": {
+      "kind": "composite",
+      "name": "class_declarations",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "declaration"
+      ],
+      "classification": "definition_type",
+      "rank": 1,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "conditional": {
+      "kind": "composite",
+      "name": "conditional",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "expression"
+      ],
+      "roles": [
+        "else",
+        "if",
+        "then"
+      ],
+      "classification": "operation_operator",
+      "rank": 4,
+      "confidence": 0.85,
+      "method": "category",
+      "evidence": [
+        "categories"
+      ]
+    },
+    "constructor_synonym": {
+      "kind": "composite",
+      "name": "constructor_synonym",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "binds",
+        "implicit",
+        "match",
+        "name",
+        "pattern"
+      ],
+      "classification": "definition_type",
+      "rank": 1,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "constructor_synonyms": {
+      "kind": "composite",
+      "name": "constructor_synonyms",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "positional_targets": [
+        "constructor_synonym"
+      ],
+      "positional_constraints": "zero_or_many",
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "context": {
+      "kind": "composite",
+      "name": "context",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "constraints",
+        "quantified_type"
+      ],
+      "roles": [
+        "arrow",
+        "constraint",
+        "context",
+        "type"
+      ],
+      "classification": "definition_type",
+      "rank": 1,
+      "confidence": 1.0,
+      "method": "category",
+      "evidence": [
+        "categories",
+        "heuristic"
+      ]
+    },
+    "data_constructor": {
+      "kind": "composite",
+      "name": "data_constructor",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "constructor",
+        "context",
+        "forall"
+      ],
+      "classification": "operation_invocation",
+      "rank": 4,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "data_constructors": {
+      "kind": "composite",
+      "name": "data_constructors",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "constructor"
+      ],
+      "classification": "operation_invocation",
+      "rank": 4,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "data_family": {
+      "kind": "composite",
+      "name": "data_family",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "class_decl",
+        "declaration"
+      ],
+      "roles": [
+        "kind",
+        "name",
+        "patterns"
+      ],
+      "positional_targets": [
+        "infix",
+        "parens"
+      ],
+      "positional_constraints": "zero_or_one",
+      "classification": "definition_type",
+      "rank": 1,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "data_instance": {
+      "kind": "composite",
+      "name": "data_instance",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "declaration",
+        "instance_decl"
+      ],
+      "positional_targets": [
+        "data_type",
+        "newtype"
+      ],
+      "positional_constraints": "only_one",
+      "classification": "definition_data",
+      "rank": 1,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "data_type": {
+      "kind": "composite",
+      "name": "data_type",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "declaration"
+      ],
+      "roles": [
+        "constructors",
+        "context",
+        "deriving",
+        "forall",
+        "kind",
+        "name",
+        "patterns"
+      ],
+      "positional_targets": [
+        "infix",
+        "parens"
+      ],
+      "positional_constraints": "zero_or_one",
+      "classification": "definition_data",
+      "rank": 1,
+      "confidence": 0.85,
+      "method": "category",
+      "evidence": [
+        "categories"
+      ]
+    },
+    "declarations": {
+      "kind": "composite",
+      "name": "declarations",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "positional_targets": [
+        "declaration",
+        "import"
+      ],
+      "positional_constraints": "one_or_many",
+      "classification": "definition_data",
+      "rank": 1,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "default_signature": {
+      "kind": "composite",
+      "name": "default_signature",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "class_decl"
+      ],
+      "roles": [
+        "signature"
+      ],
+      "classification": "definition_type",
+      "rank": 1,
+      "confidence": 0.85,
+      "method": "category",
+      "evidence": [
+        "categories"
+      ]
+    },
+    "default_types": {
+      "kind": "composite",
+      "name": "default_types",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "declaration"
+      ],
+      "roles": [
+        "type"
+      ],
+      "classification": "definition_data",
+      "rank": 1,
+      "confidence": 0.85,
+      "method": "category",
+      "evidence": [
+        "categories"
+      ]
+    },
+    "deriving": {
+      "kind": "composite",
+      "name": "deriving",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "classes",
+        "strategy",
+        "via"
+      ],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "purpose"
+      ]
+    },
+    "deriving_instance": {
+      "kind": "composite",
+      "name": "deriving_instance",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "declaration"
+      ],
+      "roles": [
+        "context",
+        "forall",
+        "name",
+        "patterns",
+        "strategy",
+        "via"
+      ],
+      "positional_targets": [
+        "infix",
+        "parens"
+      ],
+      "positional_constraints": "zero_or_one",
+      "classification": "definition_data",
+      "rank": 1,
+      "confidence": 0.85,
+      "method": "category",
+      "evidence": [
+        "categories"
+      ]
+    },
+    "do": {
+      "kind": "composite",
+      "name": "do",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "expression"
+      ],
+      "roles": [
+        "statement"
+      ],
+      "positional_targets": [
+        "do_module"
+      ],
+      "positional_constraints": "zero_or_one",
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "purpose"
+      ]
+    },
+    "do_module": {
+      "kind": "composite",
+      "name": "do_module",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "id",
+        "module"
+      ],
+      "classification": "flow_iteration",
+      "rank": 3,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "entity": {
+      "kind": "composite",
+      "name": "entity",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "positional_targets": [
+        "string"
+      ],
+      "positional_constraints": "only_one",
+      "classification": "syntax_identifier",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "equation": {
+      "kind": "composite",
+      "name": "equation",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "constructors",
+        "forall",
+        "name",
+        "pattern",
+        "patterns",
+        "synonym"
+      ],
+      "positional_targets": [
+        "infix",
+        "parens",
+        "quantified_type"
+      ],
+      "positional_constraints": "zero_or_many",
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "equations": {
+      "kind": "composite",
+      "name": "equations",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "equation"
+      ],
+      "classification": "definition_data",
+      "rank": 1,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "exp": {
+      "kind": "composite",
+      "name": "exp",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "statement"
+      ],
+      "positional_targets": [
+        "expression",
+        "signature"
+      ],
+      "positional_constraints": "only_one",
+      "classification": "flow_branching",
+      "rank": 3,
+      "confidence": 0.85,
+      "method": "category",
+      "evidence": [
+        "categories"
+      ]
+    },
+    "explicit_type": {
+      "kind": "composite",
+      "name": "explicit_type",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "type"
+      ],
+      "classification": "definition_type",
+      "rank": 1,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "export": {
+      "kind": "composite",
+      "name": "export",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "children",
+        "namespace",
+        "operator",
+        "type",
+        "variable"
+      ],
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "purpose"
+      ]
+    },
+    "exports": {
+      "kind": "composite",
+      "name": "exports",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "export"
+      ],
+      "positional_targets": [
+        "module_export"
+      ],
+      "positional_constraints": "zero_or_many",
+      "classification": "boundary_module",
+      "rank": 2,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "field": {
+      "kind": "composite",
+      "name": "field",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "name",
+        "parameter",
+        "type"
+      ],
+      "positional_targets": [
+        "type"
+      ],
+      "positional_constraints": "zero_or_one",
+      "classification": "definition_data",
+      "rank": 1,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "field_name": {
+      "kind": "composite",
+      "name": "field_name",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "positional_targets": [
+        "variable"
+      ],
+      "positional_constraints": "only_one",
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "field_path": {
+      "kind": "composite",
+      "name": "field_path",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "field",
+        "subfield"
+      ],
+      "classification": "definition_type",
+      "rank": 1,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "field_pattern": {
+      "kind": "composite",
+      "name": "field_pattern",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "field",
+        "pattern"
+      ],
+      "positional_targets": [
+        "wildcard"
+      ],
+      "positional_constraints": "zero_or_one",
+      "classification": "flow_branching",
+      "rank": 3,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "field_update": {
+      "kind": "composite",
+      "name": "field_update",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "expression",
+        "field"
+      ],
+      "positional_targets": [
+        "wildcard"
+      ],
+      "positional_constraints": "zero_or_one",
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "fields": {
+      "kind": "composite",
+      "name": "fields",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "field"
+      ],
+      "classification": "definition_data",
+      "rank": 1,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "fixity": {
+      "kind": "composite",
+      "name": "fixity",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "class_decl",
+        "declaration"
+      ],
+      "roles": [
+        "associativity",
+        "operator",
+        "precedence"
+      ],
+      "classification": "definition_type",
+      "rank": 1,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "forall": {
+      "kind": "composite",
+      "name": "forall",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "constraints",
+        "quantified_type"
+      ],
+      "roles": [
+        "constraint",
+        "quantifier",
+        "type",
+        "variables"
+      ],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "purpose"
+      ]
+    },
+    "forall_required": {
+      "kind": "composite",
+      "name": "forall_required",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "quantified_type"
+      ],
+      "roles": [
+        "quantifier",
+        "type",
+        "variables"
+      ],
+      "classification": "definition_type",
+      "rank": 1,
+      "confidence": 0.85,
+      "method": "category",
+      "evidence": [
+        "categories"
+      ]
+    },
+    "foreign_export": {
+      "kind": "composite",
+      "name": "foreign_export",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "declaration"
+      ],
+      "roles": [
+        "calling_convention",
+        "entity",
+        "signature"
+      ],
+      "classification": "definition_data",
+      "rank": 1,
+      "confidence": 0.85,
+      "method": "category",
+      "evidence": [
+        "categories"
+      ]
+    },
+    "foreign_import": {
+      "kind": "composite",
+      "name": "foreign_import",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "declaration"
+      ],
+      "roles": [
+        "calling_convention",
+        "entity",
+        "safety",
+        "signature"
+      ],
+      "classification": "definition_data",
+      "rank": 1,
+      "confidence": 0.85,
+      "method": "category",
+      "evidence": [
+        "categories"
+      ]
+    },
+    "function": {
+      "kind": "composite",
+      "name": "function",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "decl",
+        "quantified_type"
+      ],
+      "roles": [
+        "arrow",
+        "binds",
+        "match",
+        "name",
+        "parameter",
+        "parens",
+        "patterns",
+        "result"
+      ],
+      "positional_targets": [
+        "infix"
+      ],
+      "positional_constraints": "zero_or_one",
+      "classification": "definition_callable",
+      "rank": 1,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "function_head_parens": {
+      "kind": "composite",
+      "name": "function_head_parens",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "name",
+        "parens",
+        "patterns"
+      ],
+      "positional_targets": [
+        "infix"
+      ],
+      "positional_constraints": "zero_or_one",
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "fundep": {
+      "kind": "composite",
+      "name": "fundep",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "determined",
+        "matched"
+      ],
+      "classification": "definition_type",
+      "rank": 1,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "fundeps": {
+      "kind": "composite",
+      "name": "fundeps",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "fundep"
+      ],
+      "classification": "definition_type",
+      "rank": 1,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "gadt_constructor": {
+      "kind": "composite",
+      "name": "gadt_constructor",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "context",
+        "forall",
+        "name",
+        "names",
+        "type"
+      ],
+      "classification": "definition_type",
+      "rank": 1,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "gadt_constructors": {
+      "kind": "composite",
+      "name": "gadt_constructors",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "constructor"
+      ],
+      "classification": "definition_type",
+      "rank": 1,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "generator": {
+      "kind": "composite",
+      "name": "generator",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "qualifier"
+      ],
+      "roles": [
+        "arrow",
+        "expression",
+        "pattern"
+      ],
+      "classification": "flow_iteration",
+      "rank": 3,
+      "confidence": 0.85,
+      "method": "category",
+      "evidence": [
+        "categories"
+      ]
+    },
+    "group": {
+      "kind": "composite",
+      "name": "group",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "qualifier"
+      ],
+      "roles": [
+        "classifier",
+        "key"
+      ],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "purpose"
+      ]
+    },
+    "guards": {
+      "kind": "composite",
+      "name": "guards",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "guard"
+      ],
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "haskell": {
+      "kind": "composite",
+      "name": "haskell",
+      "is_explicit_rule": true,
+      "is_file": true,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "declarations",
+        "imports"
+      ],
+      "positional_targets": [
+        "header"
+      ],
+      "positional_constraints": "zero_or_one",
+      "classification": "file_thing",
+      "rank": 1,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing"
+      ]
+    },
+    "header": {
+      "kind": "composite",
+      "name": "header",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "exports",
+        "module"
+      ],
+      "classification": "definition_data",
+      "rank": 1,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "implicit_parameter": {
+      "kind": "composite",
+      "name": "implicit_parameter",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "constraints",
+        "quantified_type"
+      ],
+      "roles": [
+        "name",
+        "type"
+      ],
+      "classification": "definition_type",
+      "rank": 1,
+      "confidence": 1.0,
+      "method": "category",
+      "evidence": [
+        "categories",
+        "heuristic"
+      ]
+    },
+    "import": {
+      "kind": "composite",
+      "name": "import",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "alias",
+        "module",
+        "names",
+        "package"
+      ],
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "purpose"
+      ]
+    },
+    "import_list": {
+      "kind": "composite",
+      "name": "import_list",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "name"
+      ],
+      "classification": "boundary_module",
+      "rank": 2,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "import_name": {
+      "kind": "composite",
+      "name": "import_name",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "children",
+        "namespace",
+        "operator",
+        "type",
+        "variable"
+      ],
+      "classification": "boundary_module",
+      "rank": 2,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "imports": {
+      "kind": "composite",
+      "name": "imports",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "import"
+      ],
+      "classification": null
+    },
+    "inferred": {
+      "kind": "composite",
+      "name": "inferred",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "positional_targets": [
+        "annotated",
+        "type_param"
+      ],
+      "positional_constraints": "only_one",
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "infix": {
+      "kind": "composite",
+      "name": "infix",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "constraint",
+        "expression",
+        "pattern",
+        "type"
+      ],
+      "roles": [
+        "left_operand",
+        "operator",
+        "right_operand"
+      ],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "purpose"
+      ]
+    },
+    "infix_id": {
+      "kind": "composite",
+      "name": "infix_id",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "positional_targets": [
+        "constructor",
+        "name",
+        "qualified",
+        "variable"
+      ],
+      "positional_constraints": "only_one",
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "instance": {
+      "kind": "composite",
+      "name": "instance",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "declaration"
+      ],
+      "roles": [
+        "context",
+        "declarations",
+        "forall",
+        "name",
+        "patterns"
+      ],
+      "positional_targets": [
+        "infix",
+        "parens"
+      ],
+      "positional_constraints": "zero_or_one",
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "purpose"
+      ]
+    },
+    "instance_declarations": {
+      "kind": "composite",
+      "name": "instance_declarations",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "declaration"
+      ],
+      "classification": "definition_type",
+      "rank": 1,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "invisible": {
+      "kind": "composite",
+      "name": "invisible",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "type_param"
+      ],
+      "roles": [
+        "bind"
+      ],
+      "classification": "definition_type",
+      "rank": 1,
+      "confidence": 0.85,
+      "method": "category",
+      "evidence": [
+        "categories"
+      ]
+    },
+    "irrefutable": {
+      "kind": "composite",
+      "name": "irrefutable",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "pattern"
+      ],
+      "roles": [
+        "pattern"
+      ],
+      "classification": "flow_branching",
+      "rank": 3,
+      "confidence": 0.85,
+      "method": "category",
+      "evidence": [
+        "categories"
+      ]
+    },
+    "kind_application": {
+      "kind": "composite",
+      "name": "kind_application",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "type"
+      ],
+      "classification": "definition_type",
+      "rank": 1,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "kind_signature": {
+      "kind": "composite",
+      "name": "kind_signature",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "declaration"
+      ],
+      "roles": [
+        "kind",
+        "name",
+        "patterns"
+      ],
+      "positional_targets": [
+        "infix",
+        "parens"
+      ],
+      "positional_constraints": "zero_or_one",
+      "classification": "definition_data",
+      "rank": 1,
+      "confidence": 0.85,
+      "method": "category",
+      "evidence": [
+        "categories"
+      ]
+    },
+    "lambda": {
+      "kind": "composite",
+      "name": "lambda",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "expression"
+      ],
+      "roles": [
+        "expression",
+        "patterns"
+      ],
+      "classification": "expression_anonymous",
+      "rank": 4,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "lambda_case": {
+      "kind": "composite",
+      "name": "lambda_case",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "expression"
+      ],
+      "roles": [
+        "alternatives"
+      ],
+      "classification": "operation_operator",
+      "rank": 4,
+      "confidence": 0.85,
+      "method": "category",
+      "evidence": [
+        "categories"
+      ]
+    },
+    "lambda_cases": {
+      "kind": "composite",
+      "name": "lambda_cases",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "expression"
+      ],
+      "roles": [
+        "alternatives"
+      ],
+      "classification": "operation_operator",
+      "rank": 4,
+      "confidence": 0.85,
+      "method": "category",
+      "evidence": [
+        "categories"
+      ]
+    },
+    "lazy_field": {
+      "kind": "composite",
+      "name": "lazy_field",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "type"
+      ],
+      "classification": "definition_data",
+      "rank": 1,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "left_section": {
+      "kind": "composite",
+      "name": "left_section",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "expression"
+      ],
+      "roles": [
+        "left_operand",
+        "operator"
+      ],
+      "classification": "operation_operator",
+      "rank": 4,
+      "confidence": 0.85,
+      "method": "category",
+      "evidence": [
+        "categories"
+      ]
+    },
+    "let": {
+      "kind": "composite",
+      "name": "let",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "guard",
+        "qualifier",
+        "statement"
+      ],
+      "roles": [
+        "binds"
+      ],
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "purpose"
+      ]
+    },
+    "let_in": {
+      "kind": "composite",
+      "name": "let_in",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "expression"
+      ],
+      "roles": [
+        "binds",
+        "expression"
+      ],
+      "classification": "operation_operator",
+      "rank": 4,
+      "confidence": 0.85,
+      "method": "category",
+      "evidence": [
+        "categories"
+      ]
+    },
+    "linear_function": {
+      "kind": "composite",
+      "name": "linear_function",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "quantified_type"
+      ],
+      "roles": [
+        "arrow",
+        "multiplicity",
+        "parameter",
+        "result"
+      ],
+      "classification": "definition_type",
+      "rank": 1,
+      "confidence": 0.85,
+      "method": "category",
+      "evidence": [
+        "categories"
+      ]
+    },
+    "list": {
+      "kind": "composite",
+      "name": "list",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "expression",
+        "pattern",
+        "type"
+      ],
+      "roles": [
+        "element"
+      ],
+      "classification": "syntax_literal",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "list_comprehension": {
+      "kind": "composite",
+      "name": "list_comprehension",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "expression"
+      ],
+      "roles": [
+        "expression",
+        "qualifiers"
+      ],
+      "classification": "operation_operator",
+      "rank": 4,
+      "confidence": 0.85,
+      "method": "category",
+      "evidence": [
+        "categories"
+      ]
+    },
+    "literal": {
+      "kind": "composite",
+      "name": "literal",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "constraint",
+        "expression",
+        "pattern",
+        "type"
+      ],
+      "positional_targets": [
+        "char",
+        "float",
+        "integer",
+        "string"
+      ],
+      "positional_constraints": "only_one",
+      "classification": "syntax_literal",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "local_binds": {
+      "kind": "composite",
+      "name": "local_binds",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "decl"
+      ],
+      "classification": "definition_data",
+      "rank": 1,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "match": {
+      "kind": "composite",
+      "name": "match",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "expression",
+        "guards"
+      ],
+      "classification": "definition_data",
+      "rank": 1,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "modifier": {
+      "kind": "composite",
+      "name": "modifier",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "positional_targets": [
+        "type"
+      ],
+      "positional_constraints": "only_one",
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "module": {
+      "kind": "composite",
+      "name": "module",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "body",
+        "name"
+      ],
+      "positional_targets": [
+        "module_id"
+      ],
+      "positional_constraints": "one_or_many",
+      "classification": "syntax_identifier",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "purpose"
+      ]
+    },
+    "module_export": {
+      "kind": "composite",
+      "name": "module_export",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "module"
+      ],
+      "classification": "boundary_module",
+      "rank": 2,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "multi_way_if": {
+      "kind": "composite",
+      "name": "multi_way_if",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "expression"
+      ],
+      "roles": [
+        "match"
+      ],
+      "classification": "operation_operator",
+      "rank": 4,
+      "confidence": 0.85,
+      "method": "category",
+      "evidence": [
+        "categories"
+      ]
+    },
+    "negation": {
+      "kind": "composite",
+      "name": "negation",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "expression",
+        "pattern"
+      ],
+      "roles": [
+        "expression",
+        "minus",
+        "number"
+      ],
+      "classification": "operation_operator",
+      "rank": 4,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "newtype": {
+      "kind": "composite",
+      "name": "newtype",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "declaration"
+      ],
+      "roles": [
+        "constructor",
+        "constructors",
+        "context",
+        "deriving",
+        "forall",
+        "kind",
+        "name",
+        "patterns"
+      ],
+      "positional_targets": [
+        "infix",
+        "parens"
+      ],
+      "positional_constraints": "zero_or_one",
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "purpose"
+      ]
+    },
+    "newtype_constructor": {
+      "kind": "composite",
+      "name": "newtype_constructor",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "field",
+        "name"
+      ],
+      "classification": "definition_type",
+      "rank": 1,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "parens": {
+      "kind": "composite",
+      "name": "parens",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "constraint",
+        "expression",
+        "pattern",
+        "type",
+        "type_param"
+      ],
+      "roles": [
+        "expression",
+        "kind",
+        "name",
+        "pattern",
+        "patterns",
+        "type"
+      ],
+      "positional_targets": [
+        "annotated",
+        "constraints",
+        "infix",
+        "type_param"
+      ],
+      "positional_constraints": "zero_or_one",
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "pattern_guard": {
+      "kind": "composite",
+      "name": "pattern_guard",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "guard"
+      ],
+      "roles": [
+        "arrow",
+        "expression",
+        "pattern"
+      ],
+      "classification": "flow_branching",
+      "rank": 3,
+      "confidence": 0.85,
+      "method": "category",
+      "evidence": [
+        "categories"
+      ]
+    },
+    "pattern_synonym": {
+      "kind": "composite",
+      "name": "pattern_synonym",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "declaration"
+      ],
+      "positional_targets": [
+        "equation",
+        "signature"
+      ],
+      "positional_constraints": "only_one",
+      "classification": "definition_data",
+      "rank": 1,
+      "confidence": 0.85,
+      "method": "category",
+      "evidence": [
+        "categories"
+      ]
+    },
+    "patterns": {
+      "kind": "composite",
+      "name": "patterns",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "positional_targets": [
+        "explicit_type",
+        "pattern",
+        "type_binder"
+      ],
+      "positional_constraints": "one_or_many",
+      "classification": "flow_branching",
+      "rank": 3,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "prefix": {
+      "kind": "composite",
+      "name": "prefix",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "field",
+        "name",
+        "type"
+      ],
+      "classification": "definition_data",
+      "rank": 1,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "prefix_id": {
+      "kind": "composite",
+      "name": "prefix_id",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "constraint",
+        "expression",
+        "pattern",
+        "type"
+      ],
+      "positional_targets": [
+        "constructor_operator",
+        "operator",
+        "qualified"
+      ],
+      "positional_constraints": "only_one",
+      "classification": "syntax_identifier",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "projection": {
+      "kind": "composite",
+      "name": "projection",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "expression"
+      ],
+      "roles": [
+        "expression",
+        "field"
+      ],
+      "classification": "operation_operator",
+      "rank": 4,
+      "confidence": 0.85,
+      "method": "category",
+      "evidence": [
+        "categories"
+      ]
+    },
+    "projection_selector": {
+      "kind": "composite",
+      "name": "projection_selector",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "expression"
+      ],
+      "roles": [
+        "field"
+      ],
+      "classification": "operation_operator",
+      "rank": 4,
+      "confidence": 0.85,
+      "method": "category",
+      "evidence": [
+        "categories"
+      ]
+    },
+    "promoted": {
+      "kind": "composite",
+      "name": "promoted",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "constraint",
+        "type"
+      ],
+      "positional_targets": [
+        "constructor",
+        "constructor_operator",
+        "empty_list",
+        "infix_id",
+        "list",
+        "operator",
+        "prefix_id",
+        "prefix_tuple",
+        "qualified",
+        "tuple",
+        "unit"
+      ],
+      "positional_constraints": "only_one",
+      "classification": "definition_type",
+      "rank": 1,
+      "confidence": 1.0,
+      "method": "category",
+      "evidence": [
+        "categories",
+        "heuristic"
+      ]
+    },
+    "qualified": {
+      "kind": "composite",
+      "name": "qualified",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "constraint",
+        "expression",
+        "pattern",
+        "type"
+      ],
+      "roles": [
+        "id",
+        "module"
+      ],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "purpose"
+      ]
+    },
+    "qualifiers": {
+      "kind": "composite",
+      "name": "qualifiers",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "qualifier"
+      ],
+      "classification": "definition_data",
+      "rank": 1,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "quantified_variables": {
+      "kind": "composite",
+      "name": "quantified_variables",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "positional_targets": [
+        "inferred",
+        "type_param"
+      ],
+      "positional_constraints": "one_or_many",
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "quasiquote": {
+      "kind": "composite",
+      "name": "quasiquote",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "constraint",
+        "expression",
+        "pattern",
+        "type"
+      ],
+      "roles": [
+        "body",
+        "quoter"
+      ],
+      "classification": "operation_operator",
+      "rank": 4,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "quote": {
+      "kind": "composite",
+      "name": "quote",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "expression"
+      ],
+      "roles": [
+        "quoter"
+      ],
+      "positional_targets": [
+        "quoted_decls",
+        "quoted_expression",
+        "quoted_pattern",
+        "quoted_type"
+      ],
+      "positional_constraints": "zero_or_one",
+      "classification": "operation_operator",
+      "rank": 4,
+      "confidence": 0.85,
+      "method": "category",
+      "evidence": [
+        "categories"
+      ]
+    },
+    "quoted_decls": {
+      "kind": "composite",
+      "name": "quoted_decls",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "declaration"
+      ],
+      "classification": "definition_data",
+      "rank": 1,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "quoted_expression": {
+      "kind": "composite",
+      "name": "quoted_expression",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "positional_targets": [
+        "expression",
+        "signature"
+      ],
+      "positional_constraints": "only_one",
+      "classification": "syntax_literal",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "quoted_pattern": {
+      "kind": "composite",
+      "name": "quoted_pattern",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "positional_targets": [
+        "pattern",
+        "signature"
+      ],
+      "positional_constraints": "only_one",
+      "classification": "flow_branching",
+      "rank": 3,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "quoted_type": {
+      "kind": "composite",
+      "name": "quoted_type",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "positional_targets": [
+        "quantified_type",
+        "signature"
+      ],
+      "positional_constraints": "only_one",
+      "classification": "syntax_literal",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "quoter": {
+      "kind": "composite",
+      "name": "quoter",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "positional_targets": [
+        "qualified",
+        "variable"
+      ],
+      "positional_constraints": "only_one",
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "rec": {
+      "kind": "composite",
+      "name": "rec",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "statement"
+      ],
+      "roles": [
+        "statement"
+      ],
+      "classification": "syntax_punctuation",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "purpose"
+      ]
+    },
+    "record": {
+      "kind": "composite",
+      "name": "record",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "expression",
+        "pattern"
+      ],
+      "roles": [
+        "arrow",
+        "constructor",
+        "expression",
+        "field",
+        "fields",
+        "name",
+        "type"
+      ],
+      "classification": "syntax_literal",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "right_section": {
+      "kind": "composite",
+      "name": "right_section",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "expression"
+      ],
+      "roles": [
+        "right_operand"
+      ],
+      "positional_targets": [
+        "constructor_operator",
+        "infix_id",
+        "operator",
+        "qualified"
+      ],
+      "positional_constraints": "only_one",
+      "classification": "operation_operator",
+      "rank": 4,
+      "confidence": 0.85,
+      "method": "category",
+      "evidence": [
+        "categories"
+      ]
+    },
+    "role_annotation": {
+      "kind": "composite",
+      "name": "role_annotation",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "declaration"
+      ],
+      "roles": [
+        "role",
+        "type"
+      ],
+      "classification": "definition_data",
+      "rank": 1,
+      "confidence": 0.85,
+      "method": "category",
+      "evidence": [
+        "categories"
+      ]
+    },
+    "signature": {
+      "kind": "composite",
+      "name": "signature",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "constraints",
+        "decl"
+      ],
+      "roles": [
+        "constraint",
+        "expression",
+        "kind",
+        "name",
+        "names",
+        "pattern",
+        "synonym",
+        "type"
+      ],
+      "classification": "definition_type",
+      "rank": 1,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "special": {
+      "kind": "composite",
+      "name": "special",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "positional_targets": [
+        "empty_list",
+        "tuple",
+        "unboxed_sum",
+        "unboxed_tuple",
+        "unboxed_unit",
+        "unit"
+      ],
+      "positional_constraints": "only_one",
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "splice": {
+      "kind": "composite",
+      "name": "splice",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "constraint",
+        "expression",
+        "pattern",
+        "type"
+      ],
+      "roles": [
+        "expression"
+      ],
+      "classification": "operation_operator",
+      "rank": 4,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "strict": {
+      "kind": "composite",
+      "name": "strict",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "pattern"
+      ],
+      "roles": [
+        "pattern"
+      ],
+      "classification": "flow_branching",
+      "rank": 3,
+      "confidence": 0.85,
+      "method": "category",
+      "evidence": [
+        "categories"
+      ]
+    },
+    "strict_field": {
+      "kind": "composite",
+      "name": "strict_field",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "type"
+      ],
+      "classification": "definition_data",
+      "rank": 1,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "th_quoted_name": {
+      "kind": "composite",
+      "name": "th_quoted_name",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "expression"
+      ],
+      "roles": [
+        "name",
+        "type"
+      ],
+      "classification": "operation_operator",
+      "rank": 4,
+      "confidence": 0.85,
+      "method": "category",
+      "evidence": [
+        "categories"
+      ]
+    },
+    "top_splice": {
+      "kind": "composite",
+      "name": "top_splice",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "declaration"
+      ],
+      "positional_targets": [
+        "expression"
+      ],
+      "positional_constraints": "only_one",
+      "classification": "definition_data",
+      "rank": 1,
+      "confidence": 0.85,
+      "method": "category",
+      "evidence": [
+        "categories"
+      ]
+    },
+    "transform": {
+      "kind": "composite",
+      "name": "transform",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "qualifier"
+      ],
+      "roles": [
+        "key",
+        "transformation"
+      ],
+      "classification": "flow_iteration",
+      "rank": 3,
+      "confidence": 0.85,
+      "method": "category",
+      "evidence": [
+        "categories"
+      ]
+    },
+    "tuple": {
+      "kind": "composite",
+      "name": "tuple",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "constraint",
+        "expression",
+        "pattern",
+        "type"
+      ],
+      "roles": [
+        "element"
+      ],
+      "positional_targets": [
+        "constraints"
+      ],
+      "positional_constraints": "zero_or_many",
+      "classification": "syntax_literal",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "type_application": {
+      "kind": "composite",
+      "name": "type_application",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "type"
+      ],
+      "classification": "definition_type",
+      "rank": 1,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "type_binder": {
+      "kind": "composite",
+      "name": "type_binder",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "type"
+      ],
+      "classification": "definition_type",
+      "rank": 1,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "type_family": {
+      "kind": "composite",
+      "name": "type_family",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "class_decl",
+        "declaration"
+      ],
+      "roles": [
+        "closed_family",
+        "kind",
+        "name",
+        "patterns"
+      ],
+      "positional_targets": [
+        "infix",
+        "parens",
+        "type_family_injectivity",
+        "type_family_result"
+      ],
+      "positional_constraints": "zero_or_many",
+      "classification": "definition_type",
+      "rank": 1,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "type_family_injectivity": {
+      "kind": "composite",
+      "name": "type_family_injectivity",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "determined",
+        "result"
+      ],
+      "classification": "definition_type",
+      "rank": 1,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "type_family_result": {
+      "kind": "composite",
+      "name": "type_family_result",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "result"
+      ],
+      "classification": "definition_type",
+      "rank": 1,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "type_instance": {
+      "kind": "composite",
+      "name": "type_instance",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "class_decl",
+        "declaration",
+        "instance_decl"
+      ],
+      "roles": [
+        "forall",
+        "name",
+        "patterns"
+      ],
+      "positional_targets": [
+        "infix",
+        "parens",
+        "quantified_type"
+      ],
+      "positional_constraints": "one_or_many",
+      "classification": "definition_data",
+      "rank": 1,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "type_params": {
+      "kind": "composite",
+      "name": "type_params",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "positional_targets": [
+        "type_param"
+      ],
+      "positional_constraints": "one_or_many",
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "type_patterns": {
+      "kind": "composite",
+      "name": "type_patterns",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "positional_targets": [
+        "kind_application",
+        "type"
+      ],
+      "positional_constraints": "one_or_many",
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "type_synonym": {
+      "kind": "composite",
+      "name": "type_synonym",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "declaration"
+      ],
+      "roles": [
+        "name",
+        "patterns",
+        "type"
+      ],
+      "positional_targets": [
+        "infix",
+        "parens"
+      ],
+      "positional_constraints": "zero_or_one",
+      "classification": "definition_data",
+      "rank": 1,
+      "confidence": 0.85,
+      "method": "category",
+      "evidence": [
+        "categories"
+      ]
+    },
+    "typed_quote": {
+      "kind": "composite",
+      "name": "typed_quote",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "expression"
+      ],
+      "positional_targets": [
+        "quoted_expression"
+      ],
+      "positional_constraints": "zero_or_one",
+      "classification": "operation_operator",
+      "rank": 4,
+      "confidence": 0.85,
+      "method": "category",
+      "evidence": [
+        "categories"
+      ]
+    },
+    "unboxed_sum": {
+      "kind": "composite",
+      "name": "unboxed_sum",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "expression",
+        "pattern",
+        "type"
+      ],
+      "roles": [
+        "element"
+      ],
+      "classification": "definition_type",
+      "rank": 1,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "unboxed_tuple": {
+      "kind": "composite",
+      "name": "unboxed_tuple",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [
+        "expression",
+        "pattern",
+        "type"
+      ],
+      "roles": [
+        "element"
+      ],
+      "classification": "definition_type",
+      "rank": 1,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    },
+    "via": {
+      "kind": "composite",
+      "name": "via",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "type"
+      ],
+      "classification": "syntax_keyword",
+      "rank": 5,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "purpose"
+      ]
+    },
+    "view_pattern": {
+      "kind": "composite",
+      "name": "view_pattern",
+      "is_explicit_rule": true,
+      "is_file": false,
+      "can_be_anywhere": false,
+      "categories": [],
+      "roles": [
+        "expression",
+        "pattern"
+      ],
+      "classification": "flow_branching",
+      "rank": 3,
+      "confidence": 1.0,
+      "method": "specific_thing",
+      "evidence": [
+        "specific_thing",
+        "language",
+        "heuristic"
+      ]
+    }
+  },
+  "categories": {
+    "class_decl": {
+      "name": "class_decl",
+      "members": [
+        "data_family",
+        "decl",
+        "default_signature",
+        "fixity",
+        "type_family",
+        "type_instance"
+      ]
+    },
+    "constraint": {
+      "name": "constraint",
+      "members": [
+        "apply",
+        "infix",
+        "literal",
+        "name",
+        "parens",
+        "prefix_id",
+        "prefix_tuple",
+        "prefix_unboxed_sum",
+        "prefix_unboxed_tuple",
+        "promoted",
+        "qualified",
+        "quasiquote",
+        "splice",
+        "tuple",
+        "unboxed_unit",
+        "unit",
+        "variable",
+        "wildcard"
+      ]
+    },
+    "constraints": {
+      "name": "constraints",
+      "members": [
+        "constraint",
+        "context",
+        "forall",
+        "implicit_parameter",
+        "signature"
+      ]
+    },
+    "decl": {
+      "name": "decl",
+      "members": [
+        "bind",
+        "function",
+        "signature"
+      ]
+    },
+    "declaration": {
+      "name": "declaration",
+      "members": [
+        "class",
+        "data_family",
+        "data_instance",
+        "data_type",
+        "decl",
+        "default_types",
+        "deriving_instance",
+        "fixity",
+        "foreign_export",
+        "foreign_import",
+        "instance",
+        "kind_signature",
+        "newtype",
+        "pattern_synonym",
+        "role_annotation",
+        "top_splice",
+        "type_family",
+        "type_instance",
+        "type_synonym"
+      ]
+    },
+    "expression": {
+      "name": "expression",
+      "members": [
+        "apply",
+        "arithmetic_sequence",
+        "case",
+        "conditional",
+        "constructor",
+        "do",
+        "implicit_variable",
+        "infix",
+        "label",
+        "lambda",
+        "lambda_case",
+        "lambda_cases",
+        "left_section",
+        "let_in",
+        "list",
+        "list_comprehension",
+        "literal",
+        "multi_way_if",
+        "negation",
+        "parens",
+        "prefix_id",
+        "prefix_tuple",
+        "prefix_unboxed_sum",
+        "prefix_unboxed_tuple",
+        "projection",
+        "projection_selector",
+        "qualified",
+        "quasiquote",
+        "quote",
+        "record",
+        "right_section",
+        "splice",
+        "th_quoted_name",
+        "tuple",
+        "typed_quote",
+        "unboxed_sum",
+        "unboxed_tuple",
+        "unboxed_unit",
+        "unit",
+        "variable"
+      ]
+    },
+    "guard": {
+      "name": "guard",
+      "members": [
+        "boolean",
+        "let",
+        "pattern_guard"
+      ]
+    },
+    "instance_decl": {
+      "name": "instance_decl",
+      "members": [
+        "data_instance",
+        "decl",
+        "type_instance"
+      ]
+    },
+    "pattern": {
+      "name": "pattern",
+      "members": [
+        "apply",
+        "as",
+        "constructor",
+        "infix",
+        "irrefutable",
+        "list",
+        "literal",
+        "negation",
+        "parens",
+        "prefix_id",
+        "prefix_tuple",
+        "prefix_unboxed_sum",
+        "prefix_unboxed_tuple",
+        "qualified",
+        "quasiquote",
+        "record",
+        "splice",
+        "strict",
+        "tuple",
+        "unboxed_sum",
+        "unboxed_tuple",
+        "unboxed_unit",
+        "unit",
+        "variable",
+        "wildcard"
+      ]
+    },
+    "qualifier": {
+      "name": "qualifier",
+      "members": [
+        "boolean",
+        "generator",
+        "group",
+        "let",
+        "transform"
+      ]
+    },
+    "quantified_type": {
+      "name": "quantified_type",
+      "members": [
+        "context",
+        "forall",
+        "forall_required",
+        "function",
+        "implicit_parameter",
+        "linear_function",
+        "type"
+      ]
+    },
+    "statement": {
+      "name": "statement",
+      "members": [
+        "bind",
+        "exp",
+        "let",
+        "rec"
+      ]
+    },
+    "type": {
+      "name": "type",
+      "members": [
+        "apply",
+        "infix",
+        "list",
+        "literal",
+        "name",
+        "parens",
+        "prefix_id",
+        "prefix_list",
+        "prefix_tuple",
+        "prefix_unboxed_sum",
+        "prefix_unboxed_tuple",
+        "promoted",
+        "qualified",
+        "quasiquote",
+        "splice",
+        "star",
+        "tuple",
+        "unboxed_sum",
+        "unboxed_tuple",
+        "unboxed_unit",
+        "unit",
+        "variable",
+        "wildcard"
+      ]
+    },
+    "type_param": {
+      "name": "type_param",
+      "members": [
+        "invisible",
+        "parens",
+        "variable",
+        "wildcard"
+      ]
+    }
+  }
+}

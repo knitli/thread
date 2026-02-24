@@ -1,0 +1,109 @@
+# SPDX-FileCopyrightText: 2026 Knitli Inc.
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+# Csharp language classification overrides
+# Holdout evaluation: 77.4% overall → expected ~100% with overrides
+# 90 items to override (54 unclassified + 36 misclassified)
+
+[overrides]
+# --- Tier 1: Primary Definitions ---
+accessor_declaration = "definition_data"
+base_list = "definition_type"
+constructor_initializer = "definition_data"
+enum_member_declaration = "definition_data"
+function_pointer_parameter = "definition_data"
+local_function_statement = "definition_callable"  # category says flow_branching
+parameter = "definition_data"  # universal says operation_data
+refvalue_expression = "definition_data"  # category says operation_operator
+type_argument_list = "definition_type"
+type_parameter_constraint = "definition_type"
+type_parameter_constraints_clause = "definition_type"
+variable_declaration = "definition_data"
+variable_declarator = "definition_data"
+with_initializer = "definition_data"
+# --- Tier 2: Boundaries ---
+extern_alias_directive = "boundary_module"
+file_scoped_namespace_declaration = "boundary_module"
+# --- Tier 3: Control Flow ---
+catch_declaration = "flow_branching"
+catch_filter_clause = "flow_branching"
+from_clause = "flow_branching"
+group_clause = "flow_branching"
+join_clause = "flow_branching"
+let_clause = "flow_branching"
+order_by_clause = "flow_branching"
+select_clause = "flow_branching"
+switch_expression_arm = "flow_branching"
+switch_section = "flow_branching"
+when_clause = "flow_branching"
+# --- Tier 4: Operations ---
+declaration_expression = "operation_operator"
+interpolated_string_expression = "operation_operator"  # universal says flow_branching
+prefix_unary_expression = "operation_operator"  # category says syntax_identifier
+range_expression = "operation_data"  # category says operation_operator
+# --- Tier 5: Syntax ---
+accessor_list = "syntax_punctuation"
+argument = "syntax_keyword"  # universal says syntax_punctuation
+array_rank_specifier = "syntax_annotation"
+arrow_expression_clause = "syntax_keyword"
+attribute = "syntax_annotation"
+attribute_argument = "syntax_punctuation"
+attribute_argument_list = "syntax_punctuation"
+bracketed_argument_list = "syntax_punctuation"
+bracketed_parameter_list = "syntax_punctuation"
+calling_convention = "syntax_annotation"  # universal says syntax_punctuation
+enum_member_declaration_list = "syntax_punctuation"
+explicit_interface_specifier = "syntax_annotation"
+global_attribute = "syntax_keyword"
+interpolation_alignment_clause = "syntax_keyword"
+join_into_clause = "syntax_keyword"
+member_access_expression = "syntax_identifier"  # universal says operation_operator
+member_binding_expression = "syntax_identifier"
+parenthesized_variable_designation = "syntax_keyword"
+positional_pattern_clause = "syntax_keyword"
+preproc_define = "syntax_annotation"
+preproc_endregion = "syntax_annotation"
+preproc_error = "syntax_annotation"
+preproc_if_in_attribute_list = "syntax_punctuation"
+preproc_line = "syntax_annotation"
+preproc_pragma = "syntax_annotation"
+preproc_region = "syntax_annotation"
+preproc_undef = "syntax_annotation"
+preproc_warning = "syntax_annotation"
+primary_constructor_base_type = "syntax_keyword"
+property_pattern_clause = "syntax_keyword"
+subpattern = "syntax_keyword"
+tuple_element = "syntax_identifier"
+
+[token_overrides]
+# --- Tier 5: Syntax ---
+"#define" = "syntax_annotation"  # token_purpose says keyword
+"#elif" = "syntax_annotation"  # token_purpose says keyword
+"#else" = "syntax_annotation"  # token_purpose says keyword
+"#endif" = "syntax_annotation"  # token_purpose says keyword
+"#endregion" = "syntax_annotation"  # token_purpose says keyword
+"#error" = "syntax_annotation"  # token_purpose says keyword
+"#if" = "syntax_annotation"  # token_purpose says keyword
+"#line" = "syntax_annotation"  # token_purpose says keyword
+"#nullable" = "syntax_annotation"  # token_purpose says keyword
+"#pragma" = "syntax_annotation"  # token_purpose says keyword
+"#region" = "syntax_annotation"  # token_purpose says keyword
+"#undef" = "syntax_annotation"  # token_purpose says keyword
+"#warning" = "syntax_annotation"  # token_purpose says keyword
+__makeref = "syntax_annotation"  # token_purpose says keyword
+__reftype = "syntax_annotation"  # token_purpose says keyword
+__refvalue = "syntax_annotation"  # token_purpose says keyword
+Cdecl = "syntax_annotation"  # token_purpose says keyword
+enable = "syntax_annotation"  # token_purpose says keyword
+Fastcall = "syntax_annotation"  # token_purpose says keyword
+finally = "syntax_annotation"  # token_purpose says keyword
+preproc_arg = "syntax_annotation"  # token_purpose says keyword
+preproc_nullable = "syntax_annotation"  # token_purpose says keyword
+Stdcall = "syntax_annotation"  # token_purpose says keyword
+Thiscall = "syntax_annotation"  # token_purpose says keyword
+try = "syntax_annotation"  # token_purpose says keyword
+volatile = "syntax_annotation"  # token_purpose says keyword
+
+[doc_comment_tokens]
+comment = true

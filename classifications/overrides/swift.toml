@@ -1,0 +1,129 @@
+# SPDX-FileCopyrightText: 2026 Knitli Inc.
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+# Swift language classification overrides
+# Holdout evaluation: 67.6% overall → expected ~99% with overrides
+# 112 items to override (83 unclassified + 29 misclassified)
+
+[overrides]
+# --- Tier 1: Primary Definitions ---
+attribute = "definition_data"
+class_declaration = "definition_data"
+dictionary_type = "definition_type"
+existential_type = "definition_type"  # universal says syntax_punctuation
+inheritance_constraint = "definition_type"
+init_declaration = "definition_data"
+lambda_function_type = "definition_type"
+lambda_function_type_parameters = "definition_data"
+protocol_body = "definition_type"
+protocol_declaration = "definition_data"
+protocol_function_declaration = "definition_type"
+protocol_property_declaration = "definition_type"
+protocol_property_requirements = "definition_type"
+# --- Tier 3: Control Flow ---
+pattern = "flow_branching"
+switch_entry = "flow_branching"
+switch_pattern = "flow_branching"
+# --- Tier 4: Operations ---
+additive_expression = "operation_operator"
+bitwise_operation = "operation_operator"
+check_expression = "operation_operator"
+comparison_expression = "operation_operator"
+conjunction_expression = "operation_operator"
+constructor_expression = "operation_invocation"
+didset_clause = "operation_invocation"
+disjunction_expression = "operation_operator"
+equality_expression = "operation_operator"
+getter_specifier = "operation_invocation"
+modify_specifier = "operation_invocation"
+multiplicative_expression = "operation_operator"
+parameter = "operation_data"
+setter_specifier = "operation_invocation"
+willset_clause = "operation_invocation"
+# --- Tier 5: Syntax ---
+array_literal = "syntax_literal"
+associatedtype_declaration = "syntax_keyword"
+availability_condition = "syntax_keyword"
+call_suffix = "syntax_keyword"
+capture_list = "syntax_punctuation"
+capture_list_item = "syntax_keyword"
+class_body = "syntax_punctuation"
+computed_getter = "syntax_keyword"
+computed_modify = "syntax_keyword"
+computed_property = "syntax_keyword"
+computed_setter = "syntax_keyword"
+constructor_suffix = "syntax_keyword"
+control_transfer_statement = "syntax_keyword"
+deinit_declaration = "syntax_keyword"
+deprecated_operator_declaration_body = "syntax_punctuation"
+dictionary_literal = "syntax_literal"
+directive = "syntax_keyword"
+directly_assignable_expression = "syntax_keyword"
+enum_type_parameters = "syntax_keyword"
+equality_constraint = "syntax_keyword"
+external_macro_definition = "syntax_keyword"
+guard_statement = "syntax_keyword"
+interpolated_expression = "syntax_keyword"
+key_path_expression = "syntax_keyword"
+key_path_string_expression = "syntax_keyword"
+line_string_literal = "syntax_literal"
+macro_declaration = "syntax_keyword"
+macro_invocation = "syntax_keyword"  # universal says operation_invocation
+metatype = "syntax_keyword"
+multi_line_string_literal = "syntax_literal"
+navigation_suffix = "syntax_annotation"
+nil_coalescing_expression = "syntax_literal"
+opaque_type = "syntax_keyword"
+open_end_range_expression = "syntax_literal"
+open_start_range_expression = "syntax_literal"
+playground_literal = "syntax_keyword"
+precedence_group_attribute = "syntax_keyword"
+precedence_group_attributes = "syntax_keyword"
+precedence_group_declaration = "syntax_keyword"
+protocol_composition_type = "syntax_keyword"
+range_expression = "syntax_literal"  # universal says operation_data
+raw_str_interpolation = "syntax_keyword"
+repeat_while_statement = "syntax_keyword"
+statements = "syntax_keyword"
+subscript_declaration = "syntax_keyword"
+suppressed_constraint = "syntax_annotation"
+tuple_type_item = "syntax_keyword"
+type_pack_expansion = "syntax_keyword"
+type_parameter_pack = "syntax_keyword"
+typealias_declaration = "syntax_keyword"
+value_argument_label = "syntax_keyword"
+value_binding_pattern = "syntax_identifier"
+value_pack_expansion = "syntax_keyword"
+value_parameter_pack = "syntax_keyword"
+willset_didset_block = "syntax_punctuation"
+
+[token_overrides]
+"#" = "syntax_annotation"  # token_purpose says keyword
+"#else" = "syntax_annotation"  # token_purpose says keyword
+"#elseif" = "syntax_annotation"  # token_purpose says keyword
+"#endif" = "syntax_annotation"  # token_purpose says keyword
+"#if" = "syntax_annotation"  # token_purpose says keyword
+"@" = "syntax_annotation"  # token_purpose says keyword
+"@autoclosure" = "syntax_annotation"  # token_purpose says keyword
+"@escaping" = "syntax_annotation"  # token_purpose says keyword
+_expression = "syntax_annotation"  # token_purpose says keyword
+_modify = "syntax_annotation"  # token_purpose says keyword
+arch = "syntax_annotation"  # token_purpose says keyword
+available = "syntax_annotation"  # token_purpose says keyword
+canImport = "syntax_annotation"  # token_purpose says keyword
+column = "syntax_annotation"  # token_purpose says keyword
+compiler = "syntax_annotation"  # token_purpose says keyword
+diagnostic = "syntax_annotation"  # token_purpose says keyword
+dsohandle = "syntax_annotation"  # token_purpose says keyword
+extension = "syntax_annotation"  # token_purpose says keyword
+externalMacro = "syntax_annotation"  # token_purpose says keyword
+fileID = "syntax_annotation"  # token_purpose says keyword
+filePath = "syntax_annotation"  # token_purpose says keyword
+line = "syntax_annotation"  # token_purpose says keyword
+os = "syntax_annotation"  # token_purpose says keyword
+targetEnvironment = "syntax_annotation"  # token_purpose says keyword
+try = "syntax_annotation"  # token_purpose says keyword
+
+[doc_comment_tokens]
+comment = true

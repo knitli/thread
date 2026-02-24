@@ -1,0 +1,32 @@
+# SPDX-FileCopyrightText: 2026 Knitli Inc.
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+# Jsx language classification overrides
+# Holdout evaluation: 93.2% overall → expected ~94% with overrides
+# 14 items to override (2 unclassified + 12 misclassified)
+
+[overrides]
+# --- Tier 1: Primary Definitions ---
+class_body = "definition_type"
+class_declaration = "definition_type"  # universal says definition_data
+variable_declarator = "definition_data"
+# --- Tier 3: Control Flow ---
+assignment_pattern = "flow_branching"  # universal says syntax_identifier
+object_assignment_pattern = "flow_branching"  # universal says syntax_identifier
+pair_pattern = "flow_branching"  # universal says syntax_identifier
+# --- Tier 4: Operations ---
+object = "operation_operator"  # universal says syntax_literal
+# --- Tier 5: Syntax ---
+sequence_expression = "syntax_literal"  # universal says syntax_identifier
+string = "syntax_literal"  # category says operation_operator
+
+[token_overrides]
+# --- Tier 5: Syntax ---
+"@" = "syntax_annotation"  # token_purpose says keyword
+finally = "syntax_annotation"  # token_purpose says keyword
+try = "syntax_annotation"  # token_purpose says keyword
+
+[doc_comment_tokens]
+comment = true
+html_comment = true

@@ -1,0 +1,76 @@
+# SPDX-FileCopyrightText: 2026 Knitli Inc.
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+# Ruby language classification overrides
+# Holdout evaluation: 75.4% overall → expected ~100% with overrides
+# 58 items to override (26 unclassified + 32 misclassified)
+
+[overrides]
+# --- Tier 1: Primary Definitions ---
+block_parameter = "definition_data"
+hash_splat_parameter = "definition_data"
+keyword_parameter = "definition_data"
+method = "definition_callable"  # universal says syntax_identifier
+singleton_class = "definition_type"  # category says operation_operator
+singleton_method = "definition_callable"  # category says operation_operator
+splat_parameter = "definition_data"
+# --- Tier 3: Control Flow ---
+case_match = "flow_branching"  # category says operation_operator
+conditional = "flow_branching"  # universal says operation_operator
+do_block = "flow_iteration"  # universal says syntax_punctuation
+if_guard = "flow_branching"
+in_clause = "flow_branching"
+pattern = "flow_branching"
+test_pattern = "flow_branching"  # category says operation_operator
+unless_guard = "flow_branching"
+# --- Tier 4: Operations ---
+call = "operation_invocation"  # category says operation_operator
+hash_splat_argument = "operation_operator"
+lambda = "expression_anonymous"  # category says syntax_literal
+range = "operation_data"  # universal says syntax_punctuation
+scope_resolution = "operation_data"  # category says syntax_identifier
+splat_argument = "operation_operator"
+# --- Tier 5: Syntax ---
+bare_string = "syntax_identifier"
+bare_symbol = "syntax_identifier"
+begin = "syntax_keyword"  # category says operation_operator
+begin_block = "syntax_punctuation"  # category says flow_branching
+block_argument = "syntax_punctuation"
+block_body = "syntax_punctuation"
+block_parameters = "syntax_identifier"
+body_statement = "syntax_identifier"
+chained_string = "syntax_literal"  # category says operation_operator
+delimited_symbol = "syntax_literal"  # category says syntax_identifier
+destructured_left_assignment = "syntax_identifier"
+destructured_parameter = "syntax_identifier"
+elsif = "syntax_punctuation"
+end_block = "syntax_punctuation"  # category says flow_branching
+ensure = "syntax_punctuation"
+exception_variable = "syntax_identifier"
+exceptions = "syntax_identifier"
+hash = "syntax_literal"  # category says operation_operator
+if_modifier = "syntax_annotation"  # category says flow_branching
+left_assignment_list = "syntax_punctuation"
+method_parameters = "syntax_identifier"
+next = "syntax_punctuation"  # category says operation_operator
+parenthesized_statements = "syntax_punctuation"  # category says operation_operator
+redo = "syntax_punctuation"  # category says operation_operator
+regex = "syntax_literal"  # universal says operation_operator
+rescue_modifier = "syntax_annotation"  # category says flow_branching
+rest_assignment = "syntax_identifier"
+retry = "syntax_punctuation"  # category says operation_operator
+right_assignment_list = "syntax_punctuation"
+subshell = "syntax_punctuation"  # universal says flow_branching
+undef = "syntax_punctuation"  # category says flow_branching
+unless = "syntax_keyword"  # category says operation_operator
+unless_modifier = "syntax_annotation"  # category says flow_branching
+until_modifier = "syntax_annotation"  # category says flow_branching
+while_modifier = "syntax_annotation"  # category says flow_branching
+
+[token_overrides]
+# --- Tier 5: Syntax ---
+line = "syntax_annotation"  # token_purpose says keyword
+
+[doc_comment_tokens]
+comment = true

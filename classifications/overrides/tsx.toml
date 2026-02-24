@@ -1,0 +1,30 @@
+# SPDX-FileCopyrightText: 2026 Knitli Inc.
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+# Tsx language classification overrides
+# Holdout evaluation: 95.7% overall → expected ~99% with overrides
+# 14 items to override (6 unclassified + 8 misclassified)
+
+[overrides]
+# --- Tier 1: Primary Definitions ---
+class_body = "definition_type"
+class_declaration = "definition_type"  # universal says definition_data
+# --- Tier 5: Syntax ---
+assignment_pattern = "syntax_identifier"
+object_assignment_pattern = "syntax_identifier"
+pair_pattern = "syntax_identifier"
+sequence_expression = "syntax_identifier"
+string = "syntax_keyword"  # category says operation_operator
+variable_declaration = "syntax_identifier"  # category says definition_data
+variable_declarator = "syntax_identifier"
+
+[token_overrides]
+# --- Tier 5: Syntax ---
+"@" = "syntax_annotation"  # token_purpose says keyword
+finally = "syntax_annotation"  # token_purpose says keyword
+try = "syntax_annotation"  # token_purpose says keyword
+
+[doc_comment_tokens]
+comment = true
+html_comment = true

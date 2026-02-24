@@ -1,0 +1,89 @@
+# SPDX-FileCopyrightText: 2026 Knitli Inc.
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+# Scala language classification overrides
+# Holdout evaluation: 69.4% overall → expected ~99% with overrides
+# 71 items to override (45 unclassified + 26 misclassified)
+
+[overrides]
+# --- Tier 1: Primary Definitions ---
+access_modifier = "definition_type"
+access_qualifier = "definition_type"
+applied_constructor_type = "definition_type"
+bindings = "definition_type"
+class_definition = "definition_type"  # universal says definition_callable
+compound_type = "definition_type"
+context_bound = "definition_type"
+contravariant_type_parameter = "definition_type"
+covariant_type_parameter = "definition_type"
+derives_clause = "definition_type"
+enum_case_definitions = "definition_type"
+enum_definition = "definition_type"  # category says definition_callable
+enumerators = "definition_type"
+extension_definition = "definition_type"  # category says definition_callable
+full_enum_case = "definition_type"
+given_conditional = "definition_type"
+identifiers = "definition_type"
+indented_cases = "definition_type"
+lazy_parameter_type = "definition_type"
+lower_bound = "definition_type"
+match_type = "definition_type"
+name_and_type = "definition_type"
+named_tuple_type = "definition_type"
+namespace_selectors = "definition_type"
+object_definition = "definition_type"  # category says definition_callable
+parameter_types = "definition_type"
+projected_type = "definition_type"
+refinement = "definition_type"
+repeated_parameter_type = "definition_type"
+self_type = "definition_type"
+simple_enum_case = "definition_type"
+singleton_type = "definition_type"
+stable_type_identifier = "definition_type"
+structural_type = "definition_type"
+template_body = "definition_type"
+trait_definition = "definition_type"  # category says definition_callable
+type_case_clause = "definition_type"
+type_definition = "definition_type"  # universal says definition_data
+type_lambda = "definition_type"
+upper_bound = "definition_type"
+val_declaration = "definition_data"  # category says definition_callable
+val_definition = "definition_data"  # category says definition_callable
+var_definition = "definition_data"  # category says definition_callable
+view_bound = "definition_type"
+# --- Tier 2: Boundaries ---
+package_clause = "boundary_module"  # universal says definition_callable
+package_object = "boundary_module"  # category says definition_callable
+# --- Tier 3: Control Flow ---
+case_block = "flow_branching"  # category says operation_operator
+do_while_expression = "flow_branching"  # category says operation_operator
+guard = "flow_branching"
+if_expression = "flow_branching"  # category says operation_operator
+interpolated_string_expression = "flow_branching"  # universal says operation_operator
+named_pattern = "flow_branching"
+# --- Tier 4: Operations ---
+binding = "operation_data"  # universal says definition_data
+infix_type = "operation_operator"
+parameter = "operation_data"
+# --- Tier 5: Syntax ---
+annotation = "syntax_annotation"
+arrow_renamed_identifier = "syntax_identifier"
+as_renamed_identifier = "syntax_identifier"
+colon_argument = "syntax_punctuation"
+indented_block = "syntax_punctuation"
+macro_body = "syntax_punctuation"  # category says operation_operator
+quote_expression = "syntax_literal"  # category says operation_operator
+string = "syntax_literal"  # category says operation_operator
+with_template_body = "syntax_punctuation"
+
+[token_overrides]
+"#" = "syntax_annotation"  # token_purpose says keyword
+"@" = "syntax_annotation"  # token_purpose says keyword
+extension = "syntax_annotation"  # token_purpose says keyword
+finally = "syntax_annotation"  # token_purpose says keyword
+inline = "syntax_annotation"  # token_purpose says keyword
+try = "syntax_annotation"  # token_purpose says keyword
+
+[doc_comment_tokens]
+block_comment = true

@@ -1,0 +1,33 @@
+# SPDX-FileCopyrightText: 2026 Knitli Inc.
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+# Javascript language classification overrides
+# Holdout evaluation: 92.7% overall → expected ~100% with overrides
+# 16 items to override (7 unclassified + 9 misclassified)
+
+[overrides]
+# --- Tier 1: Primary Definitions ---
+class_body = "definition_type"
+class_declaration = "definition_type"  # universal says definition_data
+# --- Tier 4: Operations ---
+object = "operation_operator"  # universal says syntax_literal
+# --- Tier 5: Syntax ---
+assignment_pattern = "syntax_identifier"
+field_definition = "syntax_identifier"
+object_assignment_pattern = "syntax_identifier"
+pair_pattern = "syntax_identifier"
+sequence_expression = "syntax_identifier"
+string = "syntax_literal"  # category says operation_operator
+variable_declaration = "syntax_identifier"  # category says definition_data
+variable_declarator = "syntax_identifier"
+
+[token_overrides]
+# --- Tier 5: Syntax ---
+"@" = "syntax_annotation"  # token_purpose says keyword
+finally = "syntax_annotation"  # token_purpose says keyword
+try = "syntax_annotation"  # token_purpose says keyword
+
+[doc_comment_tokens]
+comment = true
+html_comment = true
