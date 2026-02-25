@@ -36,19 +36,19 @@ severity: info
 language: TypeScript
 rule:
   pattern: function $F($$$) { $$$ }
-"#, /*
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        r#"
-id: class-with-constructor
-message: found class with constructor
-severity: info
-language: TypeScript
-rule:
-  all:
-    - pattern: class $C { $$$ }
-    - has:
-        pattern: constructor_type($$$) { $$$ }
-        stopBy: end
-"#,*/
+"#,
+                // r#"
+                // id: class-with-constructor
+                // message: found class with constructor
+                // severity: info
+                // language: TypeScript
+                // rule:
+                //   all:
+                //     - pattern: class $C { $$$ }
+                //     - has:
+                //         pattern: constructor_type($$$) { $$$ }
+                //         stopBy: end
+                // "#,
                 r#"
 id: import-statement
 message: found import statement

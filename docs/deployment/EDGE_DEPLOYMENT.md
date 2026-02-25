@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2026 Knitli Inc.
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 # Thread Flow Edge Deployment Guide
 
 Comprehensive guide for deploying Thread Flow to Cloudflare Workers with D1 distributed database backend.

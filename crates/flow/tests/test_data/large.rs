@@ -35,16 +35,36 @@ impl LargeStruct {
     }
 }
 
-pub fn function1() -> i32 { 1 }
-pub fn function2() -> i32 { 2 }
-pub fn function3() -> i32 { 3 }
-pub fn function4() -> i32 { 4 }
-pub fn function5() -> i32 { 5 }
-pub fn function6() -> i32 { 6 }
-pub fn function7() -> i32 { 7 }
-pub fn function8() -> i32 { 8 }
-pub fn function9() -> i32 { 9 }
-pub fn function10() -> i32 { 10 }
+pub fn function1() -> i32 {
+    1
+}
+pub fn function2() -> i32 {
+    2
+}
+pub fn function3() -> i32 {
+    3
+}
+pub fn function4() -> i32 {
+    4
+}
+pub fn function5() -> i32 {
+    5
+}
+pub fn function6() -> i32 {
+    6
+}
+pub fn function7() -> i32 {
+    7
+}
+pub fn function8() -> i32 {
+    8
+}
+pub fn function9() -> i32 {
+    9
+}
+pub fn function10() -> i32 {
+    10
+}
 
 pub fn caller() {
     function1();

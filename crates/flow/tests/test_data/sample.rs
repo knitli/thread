@@ -5,9 +5,9 @@
 
 //! Sample Rust code for testing ThreadParse functionality
 
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::PathBuf;
-use serde::{Deserialize, Serialize};
 
 /// A sample struct representing a user
 #[derive(Debug, Clone, Serialize, Deserialize)]

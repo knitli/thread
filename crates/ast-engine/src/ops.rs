@@ -89,9 +89,10 @@ impl<P: Matcher> Matcher for All<P> {
         env: &mut Cow<MetaVarEnv<'tree, D>>,
     ) -> Option<Node<'tree, D>> {
         if let Some(kinds) = &self.kinds
-            && !kinds.contains(node.kind_id().into()) {
-                return None;
-            }
+            && !kinds.contains(node.kind_id().into())
+        {
+            return None;
+        }
         let mut new_env = Cow::Borrowed(env.as_ref());
         let all_satisfied = self
             .patterns
@@ -146,9 +147,10 @@ impl<M: Matcher> Matcher for Any<M> {
         env: &mut Cow<MetaVarEnv<'tree, D>>,
     ) -> Option<Node<'tree, D>> {
         if let Some(kinds) = &self.kinds
-            && !kinds.contains(node.kind_id().into()) {
-                return None;
-            }
+            && !kinds.contains(node.kind_id().into())
+        {
+            return None;
+        }
         let mut new_env = Cow::Borrowed(env.as_ref());
         let found = self.patterns.iter().find_map(|p| {
             new_env = Cow::Borrowed(env.as_ref());

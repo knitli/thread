@@ -444,9 +444,10 @@ impl<'r, D: Doc> Node<'r, D> {
         let kinds = pat.potential_kinds();
         self.dfs().filter_map(move |cand| {
             if let Some(k) = &kinds
-                && !k.contains(cand.kind_id().into()) {
-                    return None;
-                }
+                && !k.contains(cand.kind_id().into())
+            {
+                return None;
+            }
             pat.match_node(cand)
         })
     }

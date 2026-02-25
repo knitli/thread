@@ -34,7 +34,6 @@ pub enum DependencyType {
     DeserializationCall,
     YamlCall,
 
-
     // Schema generation
     JsonSchemaUsage,
     SchemaGeneration,
@@ -55,22 +54,23 @@ pub enum DependencyType {
 impl DependencyType {
     pub fn category(&self) -> &'static str {
         match self {
-            DependencyType::SerdeDerive |
-            DependencyType::SerdeImport |
-            DependencyType::SerializableType |
-            DependencyType::SerdeAttribute => "Core Serialization",
+            DependencyType::SerdeDerive
+            | DependencyType::SerdeImport
+            | DependencyType::SerializableType
+            | DependencyType::SerdeAttribute => "Core Serialization",
 
-            DependencyType::SerializationCall |
-            DependencyType::DeserializationCall |
-            DependencyType::YamlCall => "Serialization Operations",
+            DependencyType::SerializationCall
+            | DependencyType::DeserializationCall
+            | DependencyType::YamlCall => "Serialization Operations",
 
-            DependencyType::JsonSchemaUsage |
-            DependencyType::SchemaGeneration => "Schema Generation",
+            DependencyType::JsonSchemaUsage | DependencyType::SchemaGeneration => {
+                "Schema Generation"
+            }
 
-            DependencyType::DeserializeEnvUsage |
-            DependencyType::MaybeWrapper |
-            DependencyType::TransformFunction |
-            DependencyType::ConfigCreation => "Crate-Specific Serialization",
+            DependencyType::DeserializeEnvUsage
+            | DependencyType::MaybeWrapper
+            | DependencyType::TransformFunction
+            | DependencyType::ConfigCreation => "Crate-Specific Serialization",
 
             DependencyType::SerializationError => "Error Handling",
         }
@@ -79,33 +79,33 @@ impl DependencyType {
     pub fn severity(&self) -> SerializationSeverity {
         match self {
             // High impact - these are fundamental to serialization
-            DependencyType::SerdeDerive |
-            DependencyType::SerializableType |
-            DependencyType::DeserializeEnvUsage => SerializationSeverity::High,
+            DependencyType::SerdeDerive
+            | DependencyType::SerializableType
+            | DependencyType::DeserializeEnvUsage => SerializationSeverity::High,
 
             // Medium impact - important but could potentially be abstracted
-            DependencyType::SerializationCall |
-            DependencyType::DeserializationCall |
-            DependencyType::YamlCall |
-            DependencyType::JsonSchemaUsage |
-            DependencyType::TransformFunction |
-            DependencyType::ConfigCreation => SerializationSeverity::Medium,
+            DependencyType::SerializationCall
+            | DependencyType::DeserializationCall
+            | DependencyType::YamlCall
+            | DependencyType::JsonSchemaUsage
+            | DependencyType::TransformFunction
+            | DependencyType::ConfigCreation => SerializationSeverity::Medium,
 
             // Low impact - imports and attributes that could be feature-gated
-            DependencyType::SerdeImport |
-            DependencyType::SerdeAttribute |
-            DependencyType::SchemaGeneration |
-            DependencyType::MaybeWrapper |
-            DependencyType::SerializationError => SerializationSeverity::Low,
+            DependencyType::SerdeImport
+            | DependencyType::SerdeAttribute
+            | DependencyType::SchemaGeneration
+            | DependencyType::MaybeWrapper
+            | DependencyType::SerializationError => SerializationSeverity::Low,
         }
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SerializationSeverity {
-    High,    // Core to serialization, hard to separate
-    Medium,  // Important but could be abstracted
-    Low,     // Can be feature-gated or easily separated
+    High,   // Core to serialization, hard to separate
+    Medium, // Important but could be abstracted
+    Low,    // Can be feature-gated or easily separated
 }
 
 #[derive(Debug)]
@@ -206,11 +206,16 @@ impl SerializationAnalysisReport {
         }
     }
 
-    fn detect_serialization_dependency(line: &str, line_number: usize) -> Option<SerializationDependency> {
+    fn detect_serialization_dependency(
+        line: &str,
+        line_number: usize,
+    ) -> Option<SerializationDependency> {
         let line = line.trim();
 
         // Check for various serialization patterns
-        if line.contains("#[derive(") && (line.contains("Serialize") || line.contains("Deserialize")) {
+        if line.contains("#[derive(")
+            && (line.contains("Serialize") || line.contains("Deserialize"))
+        {
             return Some(SerializationDependency {
                 file_path: String::new(), // Will be set by caller
                 line_number,
@@ -220,7 +225,11 @@ impl SerializationAnalysisReport {
             });
         }
 
-        if line.starts_with("use serde") || line.contains("use serde_yaml") || line.contains("use serde_json") || line.contains("use schemars") {
+        if line.starts_with("use serde")
+            || line.contains("use serde_yaml")
+            || line.contains("use serde_json")
+            || line.contains("use schemars")
+        {
             return Some(SerializationDependency {
                 file_path: String::new(),
                 line_number,
@@ -230,12 +239,20 @@ impl SerializationAnalysisReport {
             });
         }
 
-        if line.contains("deserialize(") || line.contains("serialize(") || line.contains("yaml::") || line.contains("serde_yaml::") || line.contains("from_yaml_string") {
+        if line.contains("deserialize(")
+            || line.contains("serialize(")
+            || line.contains("yaml::")
+            || line.contains("serde_yaml::")
+            || line.contains("from_yaml_string")
+        {
             let dep_type = if line.contains("deserialize(") {
                 DependencyType::DeserializationCall
             } else if line.contains("serialize(") {
                 DependencyType::SerializationCall
-            } else if line.contains("yaml::") || line.contains("serde_yaml::") || line.contains("from_yaml_string") {
+            } else if line.contains("yaml::")
+                || line.contains("serde_yaml::")
+                || line.contains("from_yaml_string")
+            {
                 DependencyType::YamlCall
             };
 
@@ -285,24 +302,33 @@ impl SerializationAnalysisReport {
         let line = line.trim();
 
         // Look for core functionality patterns
-        if line.starts_with("impl Matcher") ||
-           line.starts_with("impl Pattern") ||
-           line.starts_with("impl Rule") ||
-           line.starts_with("impl<") && line.contains("RuleMatcher") ||
-           line.starts_with("impl<") && line.contains("Matcher") ||
-           line.starts_with("fn match_node") ||
-           line.starts_with("fn potential_kinds") ||
-           line.contains("find(") ||
-           line.contains("ast_grep(") {
+        if line.starts_with("impl Matcher")
+            || line.starts_with("impl Pattern")
+            || line.starts_with("impl Rule")
+            || line.starts_with("impl<") && line.contains("RuleMatcher")
+            || line.starts_with("impl<") && line.contains("Matcher")
+            || line.starts_with("fn match_node")
+            || line.starts_with("fn potential_kinds")
+            || line.contains("find(")
+            || line.contains("ast_grep(")
+        {
             return true;
         }
 
         false
     }
 
-    fn assess_separation_difficulty(dependencies: &[SerializationDependency]) -> SerializationSeverity {
-        let high_count = dependencies.iter().filter(|d| d.dependency_type.severity() == SerializationSeverity::High).count();
-        let medium_count = dependencies.iter().filter(|d| d.dependency_type.severity() == SerializationSeverity::Medium).count();
+    fn assess_separation_difficulty(
+        dependencies: &[SerializationDependency],
+    ) -> SerializationSeverity {
+        let high_count = dependencies
+            .iter()
+            .filter(|d| d.dependency_type.severity() == SerializationSeverity::High)
+            .count();
+        let medium_count = dependencies
+            .iter()
+            .filter(|d| d.dependency_type.severity() == SerializationSeverity::Medium)
+            .count();
 
         if high_count > 5 {
             SerializationSeverity::High
@@ -321,8 +347,14 @@ impl SerializationAnalysisReport {
 
         // Update summaries
         for dep in &file_analysis.dependencies {
-            *self.dependency_summary.entry(dep.dependency_type.clone()).or_insert(0) += 1;
-            *self.category_summary.entry(dep.dependency_type.category().to_string()).or_insert(0) += 1;
+            *self
+                .dependency_summary
+                .entry(dep.dependency_type.clone())
+                .or_insert(0) += 1;
+            *self
+                .category_summary
+                .entry(dep.dependency_type.category().to_string())
+                .or_insert(0) += 1;
         }
 
         // Track high-impact files
@@ -338,28 +370,40 @@ impl SerializationAnalysisReport {
             match file.separation_difficulty {
                 SerializationSeverity::Low => {
                     if file.serialization_density > 50.0 {
-                        self.separation_strategy.serialization_only_files.push(file.file_path.clone());
+                        self.separation_strategy
+                            .serialization_only_files
+                            .push(file.file_path.clone());
                     } else {
-                        self.separation_strategy.feature_gate_candidates.push(file.file_path.clone());
+                        self.separation_strategy
+                            .feature_gate_candidates
+                            .push(file.file_path.clone());
                     }
                 }
                 SerializationSeverity::Medium => {
                     if file.core_functionality.len() > file.dependencies.len() {
-                        self.separation_strategy.abstraction_layer_needed.push(file.file_path.clone());
+                        self.separation_strategy
+                            .abstraction_layer_needed
+                            .push(file.file_path.clone());
                     } else {
-                        self.separation_strategy.mixed_responsibility_files.push(file.file_path.clone());
+                        self.separation_strategy
+                            .mixed_responsibility_files
+                            .push(file.file_path.clone());
                     }
                 }
                 SerializationSeverity::High => {
                     if !file.core_functionality.is_empty() {
-                        self.separation_strategy.mixed_responsibility_files.push(file.file_path.clone());
+                        self.separation_strategy
+                            .mixed_responsibility_files
+                            .push(file.file_path.clone());
                     }
                 }
             }
 
             // Identify files with primarily core logic
             if file.serialization_density < 25.0 && !file.core_functionality.is_empty() {
-                self.separation_strategy.core_logic_files.push(file.file_path.clone());
+                self.separation_strategy
+                    .core_logic_files
+                    .push(file.file_path.clone());
             }
         }
     }
@@ -370,10 +414,18 @@ impl SerializationAnalysisReport {
 
         report.push_str("# SERIALIZATION DEPENDENCY ANALYSIS REPORT\n\n");
         report.push_str("## Executive Summary\n\n");
-        report.push_str(&format!("- **Total files analyzed**: {}\n", self.files.len()));
-        report.push_str(&format!("- **High-impact files**: {}\n", self.high_impact_files.len()));
-        report.push_str(&format!("- **Total serialization dependencies**: {}\n",
-            self.dependency_summary.values().sum::<usize>()));
+        report.push_str(&format!(
+            "- **Total files analyzed**: {}\n",
+            self.files.len()
+        ));
+        report.push_str(&format!(
+            "- **High-impact files**: {}\n",
+            self.high_impact_files.len()
+        ));
+        report.push_str(&format!(
+            "- **Total serialization dependencies**: {}\n",
+            self.dependency_summary.values().sum::<usize>()
+        ));
 
         report.push_str("\n## Dependency Categories\n\n");
         for (category, count) in &self.category_summary {
@@ -382,17 +434,30 @@ impl SerializationAnalysisReport {
 
         report.push_str("\n## Detailed Dependency Breakdown\n\n");
         for (dep_type, count) in &self.dependency_summary {
-            report.push_str(&format!("- **{:?}**: {} ({})\n",
-                dep_type, count, dep_type.category()));
+            report.push_str(&format!(
+                "- **{:?}**: {} ({})\n",
+                dep_type,
+                count,
+                dep_type.category()
+            ));
         }
 
         report.push_str("\n## High-Impact Files (Difficult to Separate)\n\n");
         for file in &self.high_impact_files {
             if let Some(analysis) = self.files.iter().find(|f| f.file_path == *file) {
                 report.push_str(&format!("### {}\n", file));
-                report.push_str(&format!("- Serialization density: {:.1}%\n", analysis.serialization_density));
-                report.push_str(&format!("- Dependencies: {}\n", analysis.dependencies.len()));
-                report.push_str(&format!("- Core functions: {}\n\n", analysis.core_functionality.len()));
+                report.push_str(&format!(
+                    "- Serialization density: {:.1}%\n",
+                    analysis.serialization_density
+                ));
+                report.push_str(&format!(
+                    "- Dependencies: {}\n",
+                    analysis.dependencies.len()
+                ));
+                report.push_str(&format!(
+                    "- Core functions: {}\n\n",
+                    analysis.core_functionality.len()
+                ));
             }
         }
 
@@ -424,10 +489,14 @@ impl SerializationAnalysisReport {
         }
 
         report.push_str("\n## RECOMMENDATIONS\n\n");
-        report.push_str("1. **Immediate actions**: Feature-gate files with low serialization impact\n");
+        report.push_str(
+            "1. **Immediate actions**: Feature-gate files with low serialization impact\n",
+        );
         report.push_str("2. **Short-term**: Create abstraction layer for files needing it\n");
         report.push_str("3. **Medium-term**: Refactor mixed responsibility files\n");
-        report.push_str("4. **Long-term**: Consider trait-based abstraction for core serialization needs\n");
+        report.push_str(
+            "4. **Long-term**: Consider trait-based abstraction for core serialization needs\n",
+        );
 
         report
     }
@@ -440,15 +509,30 @@ mod tests {
     #[test]
     fn test_dependency_categorization() {
         assert_eq!(DependencyType::SerdeDerive.category(), "Core Serialization");
-        assert_eq!(DependencyType::SerializationCall.category(), "Serialization Operations");
-        assert_eq!(DependencyType::JsonSchemaUsage.category(), "Schema Generation");
+        assert_eq!(
+            DependencyType::SerializationCall.category(),
+            "Serialization Operations"
+        );
+        assert_eq!(
+            DependencyType::JsonSchemaUsage.category(),
+            "Schema Generation"
+        );
     }
 
     #[test]
     fn test_severity_assessment() {
-        assert_eq!(DependencyType::SerdeDerive.severity(), SerializationSeverity::High);
-        assert_eq!(DependencyType::SerdeImport.severity(), SerializationSeverity::Low);
-        assert_eq!(DependencyType::SerializationCall.severity(), SerializationSeverity::Medium);
+        assert_eq!(
+            DependencyType::SerdeDerive.severity(),
+            SerializationSeverity::High
+        );
+        assert_eq!(
+            DependencyType::SerdeImport.severity(),
+            SerializationSeverity::Low
+        );
+        assert_eq!(
+            DependencyType::SerializationCall.severity(),
+            SerializationSeverity::Medium
+        );
     }
 }
 
