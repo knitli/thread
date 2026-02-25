@@ -181,7 +181,7 @@ cfg_if::cfg_if!(
                     )
                 )
     )] {
-        pub const ENABLED_LANGS: &'static [&'static crate::SupportLang; 1] = &[&crate::SupportLang::NoEnabledLangs];
+        pub const ENABLED_LANGS: &[&crate::SupportLang; 1] = &[&crate::SupportLang::NoEnabledLangs];
     } else {
     pub const ENABLED_LANGS: &[&SupportLang] = &{
         // Count total enabled languages
@@ -383,7 +383,7 @@ cfg_if::cfg_if!(
                     )
                 )
             )] {
-                pub const EXTENSIONS: &'static [&'static str; 0] = &[];
+                pub const EXTENSIONS: &[&'static &str; 0] = &[];
             } else {
             pub const EXTENSIONS: &[&str] = &{
                 // Count total extensions needed
