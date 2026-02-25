@@ -3924,6 +3924,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "thread"
+version = "0.0.1"
+dependencies = [
+ "thread-ast-engine",
+ "thread-flow",
+ "thread-language",
+ "thread-rule-engine",
+ "thread-services",
+ "thread-utils",
+]
+
+[[package]]
 name = "thread-ast-engine"
 version = "0.1.0"
 dependencies = [

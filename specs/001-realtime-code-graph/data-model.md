@@ -66,19 +66,36 @@ pub enum DependencyStrength { Strong, Weak }
 pub struct CodeRepository {
     pub id: RepositoryId,           // Content-addressed hash of repo metadata
     pub source_type: SourceType,    // Git, Local, S3, GitHub, GitLab
-    pub connection: ConnectionConfig, // Credentials, URL, auth tokens
+    pub connection_ref: CredentialRef, // Reference to credentials in secrets store (never the credential itself)
     pub sync_frequency: Duration,   // How often to poll for changes
     pub last_sync: DateTime<Utc>,   // Last successful sync timestamp
     pub branch: String,             // Primary branch to index (e.g., "main")
     pub file_patterns: Vec<String>, // Glob patterns for files to index
 }
 
+/// Describes WHERE and HOW to access a code source.
+/// Credentials are never embedded here — they are always resolved at runtime
+/// via `CodeRepository.connection_ref` (a `CredentialRef` lookup into the secrets store).
 pub enum SourceType {
-    Git { url: String, credentials: Option<GitCredentials> },
-    Local { path: PathBuf },
-    S3 { bucket: String, prefix: String, credentials: S3Credentials },
-    GitHub { owner: String, repo: String, token: String },
-    GitLab { project: String, token: String },
+    Git { url: String },                           // Credentials: connection_ref → GitCredentials
+    Local { path: PathBuf },                       // No credentials required
+    S3 { bucket: String, prefix: String },         // Credentials: connection_ref → S3Credentials
+    GitHub { owner: String, repo: String },        // Token: connection_ref → GitHub PAT or App token
+    GitLab { project: String },                    // Token: connection_ref → GitLab PAT
+}
+
+/// Opaque reference to connection credentials stored in an external secrets manager.
+/// The credentials themselves are never persisted with the entity.
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct CredentialRef {
+    pub store: CredentialStore,  // Which secrets backend holds this credential
+    pub key: Box<str>,           // Lookup key within that store
+}
+
+pub enum CredentialStore {
+    EnvVar,           // CLI: environment variable name
+    SystemKeychain,   // CLI: OS keychain reference
+    CloudflareSecret, // Edge: Cloudflare Workers secret binding name
 }
 ```
 
@@ -102,12 +119,22 @@ pub struct CodeFile {
     pub file_path: PathBuf,         // Relative path from repository root
     pub language: Language,         // Rust, TypeScript, Python, etc. (from thread-language)
     pub content_hash: ContentHash,  // Blake3 hash of file content
-    pub ast: Root,                  // AST from thread-ast-engine
     pub last_modified: DateTime<Utc>, // File modification timestamp
     pub size_bytes: u64,            // File size for indexing metrics
+    // NOTE: `ast: Root` is intentionally ABSENT. tree-sitter's `Tree`/`Root` is an opaque
+    // C struct — not serializable, not persistable, and not Send. AST is obtained on demand
+    // via `tree_sitter_parse(source_bytes, language)`. For frequently-accessed files, use a
+    // separate AstCache (e.g., LRU HashMap<ContentHash, Root>) owned by the analysis session,
+    // never stored in CodeFile itself.
 }
 
-pub type FileId = String;           // Format: "blake3:{hash}"
+/// Newtype wrapper for file identifiers. Prevents accidental substitution of
+/// other string-typed IDs. Format: `"blake3:{hash}"`.
+#[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
+pub struct FileId(Box<str>);
+impl FileId {
+    pub fn as_str(&self) -> &str { &self.0 }
+}
 pub type ContentHash = [u8; 32];    // Blake3 hash
 ```
 
@@ -161,7 +188,29 @@ pub struct GraphNode {
     pub semantic_metadata: SemanticMetadata, // Language-specific analysis
 }
 
-pub type NodeId = String;           // Format: "node:{content_hash}"
+/// `NodeId` is a content-addressed identifier for a code symbol.
+///
+/// **Hash composition** (Decision D6):
+///   `blake3(file_path_bytes || qualified_name_bytes || normalized_signature_bytes)`
+///
+/// - `file_path_bytes`: ensures uniqueness across files for identical function names
+/// - `qualified_name_bytes`: captures renames (fn process → fn handle_payment = new NodeId)
+/// - `normalized_signature_bytes`: whitespace-stripped, formatting-invariant representation
+///
+/// **Invariant**: Provenance/analysis metadata (timestamps, sources, confidence scores,
+/// branch refs) are NOT included in the hash. Same symbol content = same NodeId,
+/// regardless of when or how it was analyzed.
+///
+/// **Property test required**: `hash(same_content) == hash(same_content)` always holds.
+/// Any change to normalization logic MUST re-verify all 27 validated languages.
+///
+/// Newtype wrapper for node identifiers. Prevents accidental substitution of
+/// other string-typed IDs. Format: `"node:{blake3_hex}"`.
+#[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
+pub struct NodeId(Box<str>);
+impl NodeId {
+    pub fn as_str(&self) -> &str { &self.0 }
+}
 ```
 
 > **NodeType (retired)**: Previously defined as
@@ -179,11 +228,19 @@ pub struct SourceLocation {
 }
 
 pub struct SemanticMetadata {
-    pub visibility: Visibility,     // Public, Private, Protected
-    pub mutability: Option<Mutability>, // Mutable, Immutable (Rust-specific)
-    pub async_fn: bool,             // Is async function?
-    pub generic_params: Vec<String>, // Generic type parameters
-    pub attributes: HashMap<String, String>, // Language-specific attributes
+    pub visibility: Visibility,          // Public, Private, Protected (language-agnostic)
+    pub generic_params: Vec<String>,     // Generic type parameters (language-agnostic)
+    pub attributes: HashMap<Box<str>, serde_json::Value>, // Language-specific metadata.
+    // Documented attribute keys:
+    //   "mutability"  → bool   — Rust: mutable binding or field
+    //   "async"       → bool   — Rust/JS/Python/Go: async function
+    //   "unsafe"      → bool   — Rust: unsafe fn or block
+    //   "abstract"    → bool   — Java/C#/Python: abstract method
+    //   "static"      → bool   — Java/C#/JS: static member
+    //   "override"    → bool   — Java/C#/Kotlin: overriding method
+    //   "throws"      → [str]  — Java: checked exception types
+    //   "decorators"  → [str]  — Python/TS: decorator names
+    // Keys follow snake_case convention. New keys may be added per language without schema migration.
 }
 ```
 
@@ -214,6 +271,7 @@ pub struct SemanticMetadata {
 **Attributes**:
 ```rust
 pub struct GraphEdge {
+    pub id: EdgeId,                 // Content-addressed edge identifier
     pub source_id: NodeId,          // From node
     pub target_id: NodeId,          // To node
     pub edge_type: EdgeType,        // Relationship kind
@@ -236,6 +294,14 @@ pub struct EdgeContext {
     pub conditional: bool,          // Relationship is conditional (e.g., if statement)
     pub async_context: bool,        // Relationship crosses async boundary
 }
+
+/// Content-addressed edge identifier. Derived from source_id + target_id + edge_type.
+/// Format: `"edge:{blake3_hex}"`.
+#[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
+pub struct EdgeId(Box<str>);
+impl EdgeId {
+    pub fn as_str(&self) -> &str { &self.0 }
+}
 ```
 
 **Relationships**:
@@ -243,39 +309,70 @@ pub struct EdgeContext {
 - Edges form the graph structure for traversal queries
 
 **Storage**:
-- Postgres/D1 table `edges` with composite primary key `(source_id, target_id, edge_type)`
+- Postgres/D1 table `edges` with `id` (`EdgeId`) as primary key; composite index `(source_id, target_id, edge_type)` for uniqueness
 - Indexed on `source_id` and `target_id` for fast traversal
 - In-memory: DependencyGraph adjacency lists (thread-flow) — custom BFS/topological sort
+- `GraphUpdate` WebSocket messages reference `EdgeId` values in `added_edges` and `removed_edges` fields
 
 ---
 
 ### Edge-Specific Optimizations (D1)
 
-To overcome D1's single-threaded nature and Workers' memory limits, we utilize a **Reachability Index**.
+To enable O(1) reachability lookups without recursive queries, we maintain a **Reachability Index**.
 
-**Reachability Table (Transitive Closure)**:
-Stores pre-computed "impact" paths to allow O(1) lookups for conflict detection without recursion.
+#### Overlay Graph Query Default (FR-017)
+
+**Query default**: `include_local_delta` defaults to `true`. Queries without this parameter return the merged Base + Delta view. Pass `include_local_delta: false` to query the committed Base Layer only.
+
+#### Reachability Index — Dual Model (Decision D5, D8)
+
+The reachability index serves two complementary purposes:
+
+1. **Live session state** — tracks active thread instances and their current in-progress analysis;
+   stored in Container/Durable Object memory (ephemeral, authoritative for running sessions).
+2. **Committed baseline** — tracks last committed graph state per branch/ref;
+   stored in D1 (persistent, authoritative for offline and divergence analysis).
+
+**Goal**: understand how feature branches are converging or diverging. Live data is the primary
+source for real-time conflict queries; the committed baseline enables offline/divergence analysis
+and comparison against a known good state.
+
+**k-Hop Bounded** (k=3 default, Decision D8):
+NOT a full transitive closure. Full closure for 10M nodes ≈ 800GB, which exceeds D1's 10GB limit.
+Instead:
+- Pre-compute reachability up to **k=3 hops** from each changed node (configurable)
+- Beyond k hops: **on-demand BFS** (streaming, does not materialize the full closure)
+- Conflict detection queries beyond k hops use streaming BFS from the Container
 
 ```rust
-// Table: reachability
+// Table: reachability (D1 committed baseline — k-hop bounded)
 pub struct ReachabilityEntry {
     pub ancestor_id: NodeId,    // Upstream node (e.g., modified function)
     pub descendant_id: NodeId,  // Downstream node (e.g., affected API)
-    pub hops: u32,              // Distance
-    pub path_hash: u64,         // Hash of the path taken (for updates)
+    pub hops: u32,              // Distance (≤ k, typically k=3)
+    pub path_hash: u64,         // Hash of the path taken (for incremental updates)
+    pub branch_ref: String,     // Git ref this baseline was computed from
+    pub computed_at: i64,       // Unix timestamp of last computation (for staleness)
 }
 ```
 
 **Reachability Logic**:
-- **Write Path**: `ThreadBuildGraphFunction` computes transitive closure for changed nodes and performs `BATCH INSERT` into D1.
-- **Read Path**: Conflict detection runs `SELECT descendant_id FROM reachability WHERE ancestor_id = ?` (single fast query).
-- **Maintenance**: Incremental updates only recalculate reachability for the changed subgraph.
+- **Write Path**: `ThreadBuildGraphFunction` computes reachability up to k hops for changed nodes and performs `BATCH INSERT` into D1.
+- **Read Path**: Queries run `SELECT descendant_id FROM reachability WHERE ancestor_id = ? AND hops <= ?` (O(1) index lookup within k-hop bound).
+- **Beyond k hops**: Streaming BFS in Container; does NOT materialize the full transitive closure.
+- **Maintenance**: Incremental updates only recalculate reachability for the changed subgraph (not the full graph).
+
+> **Note**: Conflict detection itself (consuming this index) is deferred to the commercial
+> `thread-conflict` crate (Phase 4, commercial scope). The reachability index infrastructure
+> (T034) is OSS and lives in `thread-storage`.
 
 ---
 
 ### 5. Conflict Prediction
 
 **Purpose**: Represents a detected potential conflict between concurrent code changes
+
+> **Type ownership**: These types are defined in `thread-api/src/types.rs` (OSS), not in `thread-conflict`. `thread-conflict` (commercial) imports them from `thread-api`. This ensures `thread-api` compiles independently of the commercial crate.
 
 **Attributes**:
 ```rust
@@ -292,8 +389,21 @@ pub struct ConflictPrediction {
     pub status: ConflictStatus,     // Unresolved, Acknowledged, Resolved
 }
 
-pub type ConflictId = String;       // Format: "conflict:{hash}"
-pub type UserId = String;
+/// Newtype wrapper for conflict identifiers. Prevents accidental substitution of
+/// other string-typed IDs. Format: `"conflict:{hash}"`.
+#[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
+pub struct ConflictId(Box<str>);
+impl ConflictId {
+    pub fn as_str(&self) -> &str { &self.0 }
+}
+/// Newtype wrapper for user identifiers. Prevents accidental substitution of
+/// other string-typed IDs. Value is the OAuth2/OIDC provider subject claim (`sub`).
+/// Format: `"{provider}:{subject}"` (e.g., `"github:12345678"`).
+#[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
+pub struct UserId(Box<str>);
+impl UserId {
+    pub fn as_str(&self) -> &str { &self.0 }
+}
 
 pub enum ConflictType {
     SignatureChange,    // Function signature modified
@@ -334,7 +444,7 @@ pub enum ConflictStatus {
 **Relationships**:
 - Many-to-many with `CodeFile` (conflict affects multiple files)
 - Many-to-many with `GraphNode` (conflict involves multiple symbols)
-- One-to-one with `AnalysisSession` (conflict detected during specific analysis)
+- Many-to-one with `AnalysisSession` (many conflicts can be detected during one analysis session)
 
 **Storage**:
 - Postgres/D1 table `conflicts`
@@ -352,6 +462,7 @@ pub struct AnalysisSession {
     pub id: SessionId,              // Unique session identifier
     pub repository_id: RepositoryId, // Repository being analyzed
     pub session_type: SessionType,  // Full, Incremental, OnDemand
+    pub git_ref: Option<String>,    // Git ref (commit SHA or branch name) being analyzed; None for non-VCS sources
     pub start_time: DateTime<Utc>,  // Session start
     pub completion_time: Option<DateTime<Utc>>, // Session end (None if running)
     pub files_analyzed: u32,        // Count of files processed
@@ -363,7 +474,13 @@ pub struct AnalysisSession {
     pub metrics: PerformanceMetrics, // Performance statistics
 }
 
-pub type SessionId = String;        // Format: "session:{timestamp}:{hash}"
+/// Newtype wrapper for analysis session identifiers. Prevents accidental substitution of
+/// other string-typed IDs. Format: `"session:{timestamp}:{hash}"`.
+#[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
+pub struct SessionId(Box<str>);
+impl SessionId {
+    pub fn as_str(&self) -> &str { &self.0 }
+}
 
 pub enum SessionType {
     FullAnalysis,       // Complete repository scan
@@ -405,7 +522,13 @@ pub struct PluginEngine {
     pub enabled: bool,              // Is this engine active?
 }
 
-pub type EngineId = String;         // Format: "engine:{type}:{name}"
+/// Newtype wrapper for plugin engine identifiers. Prevents accidental substitution of
+/// other string-typed IDs. Format: `"engine:{type}:{name}"`.
+#[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
+pub struct EngineId(Box<str>);
+impl EngineId {
+    pub fn as_str(&self) -> &str { &self.0 }
+}
 
 pub enum EngineType {
     Parser { language: Language },  // AST parsing engine (thread-ast-engine)
@@ -434,6 +557,42 @@ pub struct PerformanceTuning {
 **Storage**:
 - Postgres/D1 table `plugin_engines`
 - Configuration managed via admin API or config files
+
+---
+
+### 8. Delta (Overlay Graph — Uncommitted Changes)
+
+**Purpose**: Represents a developer's local uncommitted changes layered on top of the committed Base Layer (FR-017). The query engine merges Base + Delta at runtime to produce the Unified View without modifying persistent Base storage.
+
+> **OSS/Commercial boundary**: In OSS CLI, Deltas are stored in-memory per process (single-user, process lifetime). Multi-developer Delta sharing — required for cross-developer conflict detection (US2) — is a commercial capability implemented via Durable Object storage.
+
+**Attributes**:
+```rust
+// NOTE: Delta implementation scope —
+//   OSS CLI:         In-memory only, single-user. Not shared across processes or connections.
+//   Commercial edge: Durable Object memory, shared across developers in the same repository session.
+pub struct Delta {
+    pub user_id: UserId,
+    pub repository_id: RepositoryId,
+    pub session_id: SessionId,
+    pub changed_nodes: HashMap<NodeId, GraphNode>,  // Modified or added nodes (local state)
+    pub removed_nodes: HashSet<NodeId>,             // Nodes deleted in local working state
+    pub added_edges: Vec<GraphEdge>,                // New relationships in local working state
+    pub removed_edges: HashSet<EdgeId>,             // Removed relationships in local working state
+    pub base_ref: String,                           // Git ref this delta was forked from (e.g., "main@abc123")
+    pub created_at: DateTime<Utc>,
+    pub last_updated: DateTime<Utc>,
+}
+```
+
+**Relationships**:
+- Many-to-one with `CodeRepository` (Delta applies changes within one repository)
+- Many-to-one with `AnalysisSession` (Delta is owned by one analysis session)
+
+**Storage**:
+- OSS CLI: In-memory only (process lifetime; discarded on exit)
+- Commercial edge: Durable Object storage (session lifetime; shared across WebSocket connections from the same developer)
+- NOT persisted to Postgres or D1 — Deltas are ephemeral by design (FR-017)
 
 ---
 

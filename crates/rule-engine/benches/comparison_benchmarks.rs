@@ -6,17 +6,9 @@ use criterion::{BenchmarkId, Criterion, criterion_group, criterion_main};
 use std::hint::black_box;
 
 use thread_language::{LanguageExt as ThreadLanguageExt, SupportLang as ThreadSupportLang};
-
-use ast_grep_language::{LanguageExt as AstGrepLanguageExt, SupportLang as AstGrepSupportLang};
-
 use thread_rule_engine::{
     CombinedScan as ThreadCombinedScan, GlobalRules as ThreadGlobalRules,
     from_yaml_string as thread_from_yaml_string,
-};
-
-use ast_grep_config::{
-    CombinedScan as AstGrepCombinedScan, GlobalRules as AstGrepGlobalRules,
-    from_yaml_string as ast_grep_from_yaml_string,
 };
 
 struct ComparisonData {
@@ -81,21 +73,6 @@ fn bench_rule_parsing_comparison(c: &mut Criterion) {
             },
         );
 
-        // Benchmark ast-grep-config
-        group.bench_with_input(
-            BenchmarkId::new("ast_grep_config", rule_idx),
-            rule_yaml,
-            |b, yaml| {
-                let globals = AstGrepGlobalRules::default();
-                b.iter(|| {
-                    let _rules = ast_grep_from_yaml_string::<ast_grep_language::SupportLang>(
-                        black_box(yaml),
-                        &globals,
-                    )
-                    .expect("should parse");
-                });
-            },
-        );
     }
 
     group.finish();
@@ -114,40 +91,17 @@ rule:
   pattern: console.log($A)
 "#;
 
-    // Prepare rules for both libraries
     let thread_globals = ThreadGlobalRules::default();
-    let ast_grep_globals = AstGrepGlobalRules::default();
 
     let thread_rule = thread_from_yaml_string::<ThreadSupportLang>(test_rule, &thread_globals)
         .expect("should parse")[0]
         .clone();
-    let ast_grep_rule_config =
-        ast_grep_from_yaml_string::<AstGrepSupportLang>(test_rule, &ast_grep_globals)
-            .expect("should parse")[0]
-            .clone();
-
-    // Convert the config to a RuleCore to get the matcher
-    let ast_grep_rule =
-        ast_grep_config::RuleConfig::try_from(ast_grep_rule_config, &ast_grep_globals)
-            .expect("should convert to RuleCore");
 
     let thread_grep = ThreadSupportLang::TypeScript.ast_grep(data.test_code);
-    let ast_grep_grep = AstGrepSupportLang::TypeScript.ast_grep(data.test_code);
 
-    // Benchmark thread-rule-engine
     group.bench_function("thread_rule_engine", |b| {
         b.iter(|| {
             let matches: Vec<_> = Vec::from_iter(thread_grep.root().find_all(&thread_rule.matcher));
-            black_box(matches);
-        });
-    });
-
-    // Benchmark ast-grep-config
-    group.bench_function("ast_grep_config", |b| {
-        b.iter(|| {
-            // Use the same matcher as in thread_rule_engine
-            let matches: Vec<_> =
-                Vec::from_iter(ast_grep_grep.root().find_all(&ast_grep_rule.matcher));
             black_box(matches);
         });
     });
@@ -159,12 +113,9 @@ fn bench_combined_scan_comparison(c: &mut Criterion) {
     let data = ComparisonData::new();
     let mut group = c.benchmark_group("combined_scan_comparison");
 
-    // Prepare rules for both libraries
     let thread_globals = ThreadGlobalRules::default();
-    let ast_grep_globals = AstGrepGlobalRules::default();
 
     let mut thread_rules = Vec::new();
-    let mut ast_grep_rules = Vec::new();
 
     for rule_yaml in &data.rules {
         let thread_rule = thread_from_yaml_string::<ThreadSupportLang>(rule_yaml, &thread_globals)
@@ -172,41 +123,16 @@ fn bench_combined_scan_comparison(c: &mut Criterion) {
             .into_iter()
             .next()
             .unwrap();
-        let ast_grep_rule = ast_grep_from_yaml_string::<ast_grep_language::SupportLang>(
-            rule_yaml,
-            &ast_grep_globals,
-        )
-        .expect("should parse")
-        .into_iter()
-        .next()
-        .unwrap();
-
         thread_rules.push(thread_rule);
-        ast_grep_rules.push(ast_grep_rule);
     }
 
-    // Create combined scanners
     let thread_rule_refs: Vec<_> = thread_rules.iter().collect();
-    let ast_grep_rule_refs: Vec<_> = ast_grep_rules.iter().collect();
-
     let thread_combined_scan = ThreadCombinedScan::new(thread_rule_refs);
-    let ast_grep_combined_scan = AstGrepCombinedScan::new(ast_grep_rule_refs);
-
     let thread_grep = ThreadSupportLang::TypeScript.ast_grep(data.test_code);
-    let ast_grep_grep = ast_grep_language::SupportLang::TypeScript.ast_grep(data.test_code);
 
-    // Benchmark thread-rule-engine
     group.bench_function("thread_rule_engine", |b| {
         b.iter(|| {
             let result = thread_combined_scan.scan(black_box(&thread_grep), false);
-            black_box(result);
-        });
-    });
-
-    // Benchmark ast-grep-config
-    group.bench_function("ast_grep_config", |b| {
-        b.iter(|| {
-            let result = ast_grep_combined_scan.scan(black_box(&ast_grep_grep), false);
             black_box(result);
         });
     });
@@ -236,22 +162,6 @@ fn bench_memory_usage_comparison(c: &mut Criterion) {
         });
     });
 
-    group.bench_function("ast_grep_config_memory", |b| {
-        let globals = AstGrepGlobalRules::default();
-        b.iter(|| {
-            let mut rules = Vec::new();
-            for rule_yaml in &data.rules {
-                let rule =
-                    ast_grep_from_yaml_string::<ast_grep_language::TypeScript>(rule_yaml, &globals)
-                        .expect("should parse")
-                        .into_iter()
-                        .next()
-                        .unwrap();
-                rules.push(rule);
-            }
-            black_box(rules);
-        });
-    });
 
     group.finish();
 }

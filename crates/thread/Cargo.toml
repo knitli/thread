@@ -1,0 +1,54 @@
+# SPDX-FileCopyrightText: 2026 Knitli Inc. <knitli@knit.li>
+# SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+[package]
+name = "thread"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+description = "A safe, fast, flexible code analysis and parsing library built in Rust. High-level entry point for the Thread ecosystem."
+documentation.workspace = true
+readme.workspace = true
+homepage.workspace = true
+repository.workspace = true
+license.workspace = true
+keywords.workspace = true
+categories.workspace = true
+
+[features]
+default = ["ast", "language", "rule", "services"]
+
+# Core AST engine
+ast = ["dep:thread-ast-engine", "thread-ast-engine/matching", "thread-ast-engine/parsing"]
+# Language support and tree-sitter parsers
+language = ["dep:thread-language", "thread-language/all-parsers"]
+# Rule engine for scanning and transformation
+rule = ["dep:thread-rule-engine"]
+# Dataflow orchestration and caching (requires heavy dependencies)
+flow = ["dep:thread-flow", "dep:thread-services", "thread-flow/parallel", "thread-flow/postgres-backend", "thread-services/serialization"]
+# High-level service layer and abstractions
+services = ["dep:thread-services", "thread-services/ast-grep-backend", "thread-services/performance", "thread-services/serialization"]
+# Shared utilities
+utils = ["dep:thread-utils"]
+
+# Full feature set
+full = ["ast", "language", "rule", "flow", "services", "utils", "thread-language/html-embedded", "thread-services/tower-services"]
+
+# Special feature for WASM/Edge deployment
+worker = ["ast", "language", "rule", "services", "thread-rule-engine/worker", "thread-flow/worker", "thread-services/ast-grep-backend"]
+
+
+
+[dependencies]
+thread-ast-engine = { workspace = true, optional = true }
+thread-flow = { workspace = true, optional = true }
+thread-language = { workspace = true, optional = true }
+thread-rule-engine = { workspace = true, optional = true }
+thread-services = { workspace = true, optional = true }
+thread-utils = { workspace = true, optional = true }
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]

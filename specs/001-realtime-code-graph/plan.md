@@ -30,8 +30,8 @@ Real-Time Code Graph Intelligence transforms Thread from a code analysis library
 - Service-library dual architecture with ReCoco dataflow orchestration
 - Multi-backend storage (Postgres for CLI, D1 for edge, Vectorize for edge vector search)
 - Trait-based abstraction for ReCoco integration (prevent type leakage)
-- Custom RPC over HTTP unified API protocol (CLI + edge, pending WASM compatibility research)
-- Progressive conflict detection (AST diff → semantic → graph impact)
+- **API Protocol**: prost + plain HTTP POST for external API (no Connect-RPC/gRPC framing); postcard for internal Rust-to-Rust (Worker→Container, CLI); JSON-RPC 2.0 for MCP server (future, separate adapter). All proto files use `package thread.v1;` namespace. Directory: `crates/thread-api/proto/v1/`. Add `buf.gen.yaml` for TypeScript codegen targeting `@bufbuild/protobuf` (protobuf-es v2). Version bump policy: field additions are backward-compatible; breaking changes require `v2/` directory.
+- Conflict detection deferred to commercial `thread-conflict` crate (Phase 4)
 - Rayon parallelism (CLI) + tokio async (edge) concurrency models
 
 **Technical Context**
@@ -41,7 +41,8 @@ Real-Time Code Graph Intelligence transforms Thread from a code analysis library
 - ReCoco framework v0.2.1 (content-addressed caching, dataflow orchestration) - **INTEGRATED** in thread-flow crate via bridge pattern + ThreadFlowBuilder DSL
 - tree-sitter (AST parsing foundation, existing Thread dependency)
 - workers-rs (Cloudflare Workers runtime for edge deployment)
-- serde + postcard (binary serialization for RPC, ~40% size reduction vs JSON)
+- prost (Protobuf encoding for external API, no_std/WASM-compatible); prost-build (host-only code gen, never in WASM binary)
+- serde + postcard (internal Rust-to-Rust binary serialization: Worker→Container service bindings, CLI internal calls)
 - rayon (CPU-bound parallelism for CLI, existing)
 - tokio (async I/O for edge deployment, existing)
 - tokio-postgres + deadpool-postgres (Postgres client for CLI storage, used in thread-flow)
@@ -49,15 +50,17 @@ Real-Time Code Graph Intelligence transforms Thread from a code analysis library
 - cloudflare-vectorize (edge vector search - replaces Qdrant for edge deployment)
 - ~~petgraph~~ - NOT USED: thread-flow implements custom BFS/topological sort in incremental/graph.rs (1,099 lines)
 
-**Edge Constraint Strategy**:
-- **Memory Wall**: Strict 128MB limit. **NO** loading full graph into memory. Use streaming/iterator patterns (`D1GraphIterator`).
+**Edge Deployment Architecture**:
+- **Cloudflare Containers (ReCoco/thread-flow)**: Heavy computation — indexing, graph construction, incremental analysis — runs in Cloudflare Containers (beta). Full tokio/async support; no WASM constraints. Resolves WASM incompatibility with ReCoco (D2).
+- **Workers (thin WASM layer)**: Handles request routing, D1 native queries, Vectorize semantic search, and result serialization. OSS: single Worker (Rust/Python/TypeScript). Commercial: Router Worker + per-language Language Workers via service bindings.
+- **Memory Wall (Workers only)**: Strict 128MB limit. **NO** loading full graph into Worker memory. Use streaming/iterator patterns (`D1GraphIterator`).
 - **Database-First**: Primary graph state lives in D1. In-memory structs are ephemeral (batch processing only).
-- **Reachability Index**: Maintain a pre-computed transitive closure table in D1 to enable O(1) conflict detection without recursive queries.
+- **Reachability Index**: k-hop bounded (k=3 default) — NOT a full transitive closure (full closure for 10M nodes ≈ 800GB, exceeds D1 10GB limit). Tracks live session state (Container/DO memory) + committed baseline (D1). On-demand BFS beyond k hops.
 - **Throughput Governance**: Use ReCoco adaptive controls (max_inflight_bytes) (<80MB) and `Adaptive Batching` to manage resource pressure.
 
 **Storage**: Multi-backend architecture with deployment-specific primaries:
 - Postgres (CLI deployment primary - full graph with ACID guarantees)
-- D1 (edge deployment primary - distributed graph storage + **Reachability Index**)
+- D1 (edge deployment primary - distributed graph storage + **Reachability Index**). Two implementations: `D1IncrementalBackend` (existing, REST API — for external tooling/CI); `D1NativeBackend` (planned, `worker::D1Database` native binding for in-Worker use — zero extra HTTP hop, enables SC-STORE-001 <50ms p95 target). Both implement `StorageBackend` trait.
 - Vectorize (edge vector search), Qdrant (CLI-only, optional — currently blocked by ReCoco dependency conflict)
 
 **Testing**: cargo nextest (constitutional requirement, all tests executed via nextest)
@@ -207,6 +210,8 @@ This reframes FR-010 (multi-language support on Cloudflare): broad coverage is a
 
 **File-extension language identification**: CodeWeaver has ~200 language extension mappings. Porting these to `data/file_extensions.json` in thread-definitions would provide language detection for the full tree-sitter-language-pack without expanding the SupportLang enum.
 
+> **Decision D-API-GRAPH**: The `thread-graph` crate's public API surface (all `pub use` exports, public trait signatures, and stable function signatures) MUST be documented in `specs/001-realtime-code-graph/contracts/` as `thread-graph-api.md` BEFORE contract tests (`T009`, `T027`) are written. This is an explicit gate: contract tests have nothing to verify against until the API surface is declared. The API surface document is the ground truth for contract tests. Emerges from TDD — the API is not pre-designed top-down but MUST be formally recorded once it stabilizes from test-driven discovery.
+
 ```text
 crates/
 ├── thread-graph/          # PARTIAL: Extend thread-flow/src/incremental/graph.rs — do NOT reimplement
@@ -346,7 +351,8 @@ Service Layer (orchestration, persistence):
        ├─> thread-storage (Postgres/D1/Vectorize)
        ├─> thread-realtime (WebSocket/SSE)
        └─> thread-api (Custom RPC over HTTP)
-              └─> thread-conflict (multi-tier detection)
+              # NOTE: thread-conflict (commercial) → thread-api (not the reverse)
+              # Commercial crate imports conflict protocol types from thread-api; thread-api never depends on thread-conflict
 
     thread-flow (ReCoco integration layer - FOUNDATIONAL)
        ├─> recoco v0.2.1 (public crate)
@@ -381,10 +387,17 @@ Edge Deployment:
 
 **Structure Decision**:
 - **Single Workspace Extension**: New graph-focused crates added to existing Thread workspace
-- **Library-Service Boundary**: Clear separation (graph/indexer/conflict are library-reusable, storage/api/realtime are service-specific)
-- **ReCoco Integration**: IMPLEMENTED via bridge.rs + ThreadFlowBuilder DSL in thread-flow. Bridge pattern + feature gating prevents type leakage.
+- **Library-Service Boundary**: Clear separation (graph/indexer are library-reusable; storage/api/realtime are service-specific; thread-conflict is commercial/deferred)
+- **ReCoco Integration**: SCAFFOLDED via bridge.rs + ThreadFlowBuilder DSL in thread-flow (bridge.rs = stubs only, must be implemented before T-C10)
 - **Acyclic Dependencies**: Top-down flow from services → libraries, no circular references
 - **Component Selection**: Existing ast-grep components (ast-engine, language) reused, CodeWeaver evaluation deferred to Phase 2 (Research Task 2)
+
+**Crate Ownership Boundary (D3)**:
+- `thread-services` = engine-agnostic orchestration traits ONLY (`DataSource`, `DataFunction`, `DataTarget`). ReCoco types NEVER appear in `thread-services` public API.
+- `thread-flow` = the ReCoco implementation. Owns `bridge.rs`, `ThreadFlowBuilder`, storage backends, and the semantic query transform (bridge between `thread-ast-engine` and `thread-definitions`).
+- All new crates (`thread-graph`, `thread-indexer`, etc.) depend on `thread-services` traits, NOT `thread-flow` directly. This prevents circular dependencies (thread-flow depends on these crates while also being their implementation) and preserves engine swappability.
+- `thread-conflict` is Commercial/Deferred — Phase 4 tasks are out of OSS scope (see D4 decision).
+- `thread-api/types.rs` owns shared conflict protocol types (`ConflictPrediction`, `ConflictType`, `Severity`, `DetectionTier`, `ConflictStatus`, `ResolutionStrategy`). `thread-conflict` (commercial) imports these from `thread-api` — it does not define them.
 
 ## Complexity Tracking
 
