@@ -12,7 +12,7 @@ use async_trait::async_trait;
 use std::collections::HashMap;
 use std::time::{Duration, SystemTime};
 
-use crate::error::{ServiceResult, StorageError};
+use crate::error::ServiceResult;
 use crate::types::{AnalysisContext, CrossFileRelationship, ParsedDocument};
 use thread_ast_engine::source::Doc;
 
@@ -69,7 +69,9 @@ pub trait StorageService: Send + Sync {
         key: &AnalysisKey,
         result: &AnalysisResult<D>,
         context: &AnalysisContext,
-    ) -> ServiceResult<()>;
+    ) -> ServiceResult<()>
+    where
+        Self: Sized;
 
     /// Load cached analysis results.
     ///
@@ -79,7 +81,9 @@ pub trait StorageService: Send + Sync {
         &self,
         key: &AnalysisKey,
         context: &AnalysisContext,
-    ) -> ServiceResult<Option<AnalysisResult<D>>>;
+    ) -> ServiceResult<Option<AnalysisResult<D>>>
+    where
+        Self: Sized;
 
     /// Store parsed document for caching.
     ///
@@ -89,7 +93,9 @@ pub trait StorageService: Send + Sync {
         &self,
         document: &ParsedDocument<D>,
         context: &AnalysisContext,
-    ) -> ServiceResult<StorageKey>;
+    ) -> ServiceResult<StorageKey>
+    where
+        Self: Sized;
 
     /// Load cached parsed document.
     ///
@@ -99,7 +105,9 @@ pub trait StorageService: Send + Sync {
         &self,
         key: &StorageKey,
         context: &AnalysisContext,
-    ) -> ServiceResult<Option<ParsedDocument<D>>>;
+    ) -> ServiceResult<Option<ParsedDocument<D>>>
+    where
+        Self: Sized;
 
     /// Store cross-file relationships.
     ///

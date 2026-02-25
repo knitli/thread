@@ -101,6 +101,13 @@ mod haskell;
     feature = "napi-compatible"
 ))]
 mod html;
+#[cfg(any(feature = "java", feature = "all-parsers"))]
+#[cfg(any(
+    feature = "javascript",
+    feature = "all-parsers",
+    feature = "javascript-napi",
+    feature = "napi-compatible"
+))]
 #[cfg(any(feature = "json", feature = "all-parsers"))]
 mod json;
 #[cfg(any(feature = "kotlin", feature = "all-parsers"))]
@@ -134,56 +141,24 @@ use thread_ast_engine::{Pattern, PatternBuilder, PatternError};
 #[cfg(feature = "profiling")]
 pub mod profiling;
 
+#[allow(unused_imports)]
 use ignore::types::{Types, TypesBuilder};
+#[allow(unused_imports)]
 use serde::de::Visitor;
+#[allow(unused_imports)]
 use serde::{Deserialize, Deserializer, Serialize, de};
+#[allow(unused_imports)]
 use std::borrow::Cow;
-use std::fmt;
-use std::fmt::{Display, Formatter};
+use std::fmt::{self, Display, Formatter};
 use std::path::Path;
 use std::str::FromStr;
-#[cfg(feature = "matching")]
+
+#[allow(unused_imports)]
 use thread_ast_engine::Node;
+use thread_ast_engine::language::Language;
+#[allow(unused_imports)]
 use thread_ast_engine::meta_var::MetaVariable;
-#[cfg(feature = "matching")]
-use thread_ast_engine::tree_sitter::{StrDoc, TSRange};
-#[cfg(any(
-    feature = "all-parsers",
-    feature = "napi-compatible",
-    feature = "css-napi",
-    feature = "html-napi",
-    feature = "javascript-napi",
-    feature = "typescript-napi",
-    feature = "tsx-napi",
-    feature = "bash",
-    feature = "c",
-    feature = "cpp",
-    feature = "csharp",
-    feature = "css",
-    feature = "elixir",
-    feature = "go",
-    feature = "haskell",
-    feature = "html",
-    feature = "java",
-    feature = "javascript",
-    feature = "json",
-    feature = "kotlin",
-    feature = "lua",
-    feature = "php",
-    feature = "python",
-    feature = "ruby",
-    feature = "rust",
-    feature = "scala",
-    feature = "swift",
-    feature = "tsx",
-    feature = "typescript",
-    feature = "yaml"
-))]
-pub use thread_ast_engine::{
-    language::Language,
-    tree_sitter::{LanguageExt, TSLanguage},
-};
-#[cfg(feature = "matching")]
+use thread_ast_engine::tree_sitter::{LanguageExt, StrDoc, TSLanguage, TSRange};
 use thread_utils::RapidMap;
 
 /// Implements standard [`Language`] and [`LanguageExt`] traits for languages that accept `$` in identifiers.
@@ -686,10 +661,10 @@ pub enum SupportLang {
         feature = "napi-compatible"
     ))]
     Css,
-    #[cfg(any(feature = "go", feature = "all-parsers"))]
-    Go,
     #[cfg(any(feature = "elixir", feature = "all-parsers"))]
     Elixir,
+    #[cfg(any(feature = "go", feature = "all-parsers"))]
+    Go,
     #[cfg(feature = "haskell")]
     Haskell,
     #[cfg(any(
@@ -1010,6 +985,7 @@ impl Visitor<'_> for SupportLangVisitor {
     }
 }
 
+#[allow(dead_code)]
 struct AliasVisitor {
     aliases: &'static [&'static str],
 }
