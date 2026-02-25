@@ -989,7 +989,7 @@ mod tests {
         match err {
             GraphError::CyclicDependency(path) => {
                 assert!(
-                    path == PathBuf::from("A") || path == PathBuf::from("B"),
+                    path == Path::new("A") || path == Path::new("B"),
                     "Cycle should involve A or B, got: {}",
                     path.display()
                 );

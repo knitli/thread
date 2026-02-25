@@ -574,8 +574,8 @@ mod tests {
         let mut fp = AnalysisDefFingerprint::new(b"content");
         assert!(fp.last_analyzed.is_none());
 
-        fp.set_last_analyzed(1706400000_000_000); // Some timestamp
-        assert_eq!(fp.last_analyzed, Some(1706400000_000_000));
+        fp.set_last_analyzed(1_706_400_000_000_000); // Some timestamp
+        assert_eq!(fp.last_analyzed, Some(1_706_400_000_000_000));
     }
 
     #[test]
