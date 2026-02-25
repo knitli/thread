@@ -84,9 +84,15 @@ jobs:
         with:
           tool: cargo-nextest
       - name: Run tests (nextest)
-        run: cargo nextest run --all-features --no-fail-fast
+        # thread-language's napi-* features conflict with tree-sitter-parsing at runtime;
+        # run it separately with only the compatible feature set.
+        run: |
+          cargo nextest run --workspace --exclude thread-language --all-features --no-fail-fast
+          cargo nextest run -p thread-language --features all-parsers,matching --no-fail-fast
       - name: Run doc tests
-        run: cargo test --doc --all-features
+        run: |
+          cargo test --doc --workspace --exclude thread-language --all-features
+          cargo test --doc -p thread-language --features all-parsers,matching
   # Build and test WASM target for Edge deployment
   wasm:
     name: WASM Build & Test
@@ -190,7 +196,10 @@ jobs:
         with:
           tool: cargo-llvm-cov
       - name: Generate coverage
-        run: cargo llvm-cov --all-features --workspace --lcov --output-path lcov.info
+        run: |
+          cargo llvm-cov --no-report --workspace --exclude thread-language --all-features
+          cargo llvm-cov --no-report -p thread-language --features all-parsers,matching
+          cargo llvm-cov --no-run --lcov --output-path lcov.info
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:

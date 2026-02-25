@@ -17,8 +17,10 @@ local linters = new Mapping<String, Step> {
   ["cargo_test"] = new Step {
     workspace_indicator = "Cargo.toml"
     glob = "src/**/*.rs"
+    // thread-language's napi-* features conflict with tree-sitter-parsing at runtime;
+    // run it separately with only the compatible feature set.
     check =
-      "cargo nextest --manifest-path {{ workspace_indicator }} run --all-features --no-fail-fast -j 1"
+      "cargo nextest --manifest-path {{ workspace_indicator }} run --workspace --exclude thread-language --all-features --no-fail-fast -j 1 && cargo nextest --manifest-path {{ workspace_indicator }} run -p thread-language --features all-parsers,matching --no-fail-fast -j 1"
     env = new Mapping<String, String> {
       ["RUST_BACKTRACE"] = "1"
     }
@@ -100,7 +102,7 @@ local linters = new Mapping<String, Step> {
 local ci = (linters) {
   ["cargo_test"] {
     check =
-      "cargo nextest --manifest-path {{ workspace_indicator }} run --all-features --fail-fast -j 1"
+      "cargo nextest --manifest-path {{ workspace_indicator }} run --workspace --exclude thread-language --all-features --fail-fast -j 1 && cargo nextest --manifest-path {{ workspace_indicator }} run -p thread-language --features all-parsers,matching --fail-fast -j 1"
   }
 }
 
