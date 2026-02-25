@@ -137,38 +137,9 @@ jobs:
           config: p/rust p/security-audit p/secrets
       - name: Upload SARIF results
         if: always()
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: semgrep.sarif
-  # License compliance scanning
-  license-check:
-    name: License Compliance
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
-      - name: Install cargo-license
-        run: cargo install cargo-license --locked
-      - name: Check licenses
-        run: |
-          cargo license --json > licenses.json
-
-          # Check for incompatible licenses
-          INCOMPATIBLE=$(jq -r '.[] | select(.license | contains("GPL-3.0") or contains("AGPL-3.0")) | .name' licenses.json)
-
-          if [ -n "$INCOMPATIBLE" ]; then
-            echo "::error::Found incompatible licenses:"
-            echo "$INCOMPATIBLE"
-            exit 1
-          fi
-      - name: Upload license report
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: license-report
-          path: licenses.json
-          retention-days: 30
   # Supply chain security with cargo-deny
   cargo-deny:
     name: Cargo Deny
@@ -273,7 +244,6 @@ jobs:
     name: Security Summary
     needs:
       - cargo-audit
-      - license-check
       - cargo-deny
     runs-on: ubuntu-latest
     if: always()
@@ -288,12 +258,10 @@ jobs:
             echo "### Job Results"
             echo ""
             echo "- Cargo Audit: ${{ needs.cargo-audit.result }}"
-            echo "- License Check: ${{ needs.license-check.result }}"
             echo "- Cargo Deny: ${{ needs.cargo-deny.result }}"
             echo ""
 
             if [ "${{ needs.cargo-audit.result }}" == "success" ] && \
-            [ "${{ needs.license-check.result }}" == "success" ] && \
             [ "${{ needs.cargo-deny.result }}" == "success" ]; then
             echo "✅ **All security checks passed**"
             else
