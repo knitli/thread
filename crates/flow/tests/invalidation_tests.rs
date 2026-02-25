@@ -19,15 +19,15 @@ use thread_flow::incremental::types::{DependencyEdge, DependencyType};
 
 #[test]
 fn test_invalidation_detector_new() {
-    let graph = DependencyGraph::new();
+    let _graph = DependencyGraph::new();
     // let detector = InvalidationDetector::new(graph);
     // assert!(detector is valid);
 }
 
 #[test]
 fn test_invalidation_detector_with_populated_graph() {
-    let mut graph = DependencyGraph::new();
-    graph.add_edge(DependencyEdge::new(
+    let mut _graph = DependencyGraph::new();
+    _graph.add_edge(DependencyEdge::new(
         PathBuf::from("A"),
         PathBuf::from("B"),
         DependencyType::Import,
@@ -128,7 +128,7 @@ fn test_propagate_respects_strong_dependencies_only() {
 
 #[test]
 fn test_propagate_unknown_file() {
-    let graph = DependencyGraph::new();
+    let _graph = DependencyGraph::new();
     // let detector = InvalidationDetector::new(graph);
     // let affected = detector.propagate_invalidation(&PathBuf::from("unknown.rs"));
     // Should return just the unknown file itself
@@ -237,7 +237,7 @@ fn test_topological_sort_cycle_error() {
 
 #[test]
 fn test_topological_sort_empty_set() {
-    let graph = DependencyGraph::new();
+    let _graph = DependencyGraph::new();
     // let detector = InvalidationDetector::new(graph);
     // let sorted = detector.topological_sort(&[]).unwrap();
     // assert!(sorted.is_empty());
@@ -354,7 +354,7 @@ fn test_compute_invalidation_multiple_cycles() {
 
 #[test]
 fn test_compute_invalidation_empty_changes() {
-    let graph = DependencyGraph::new();
+    let _graph = DependencyGraph::new();
     // let detector = InvalidationDetector::new(graph);
     // let result = detector.compute_invalidation_set(&[]);
 

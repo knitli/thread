@@ -32,13 +32,12 @@ pub const ALL_SUPPORTED_LANGS: [&str; 23] = [
 ];
 
 #[cfg(any(feature = "bash", feature = "all-parsers"))]
-pub const BASH_EXTS: [&str; 19] = [
+pub const BASH_EXTS: [&str; 18] = [
     "bash",
     "bats",
     "sh",
     ".bashrc",
     "bash_aliases",
-    "bats",
     "cgi",
     "command",
     "env",
@@ -66,8 +65,8 @@ cfg_if::cfg_if! {
 
 /// C++ specific extensions; we consider cuda c++ for our purposes
 #[cfg(any(feature = "cpp", feature = "all-parsers"))]
-pub const CPP_EXTS: [&str; 11] = [
-    "cpp", "cc", "cxx", "hxx", "c++", "hh", "cxx", "cu", "ino", "h", "cu",
+pub const CPP_EXTS: [&str; 10] = [
+    "cpp", "cc", "cxx", "hpp", "hxx", "c++", "hh", "cu", "ino", "h",
 ];
 
 #[cfg(any(feature = "csharp", feature = "all-parsers"))]
@@ -79,7 +78,7 @@ pub const CSHARP_EXTS: [&str; 2] = ["cs", "csx"];
     feature = "css-napi",
     feature = "napi-compatible"
 ))]
-pub const CSS_EXTS: [&str; 1] = ["css"];
+pub const CSS_EXTS: [&str; 2] = ["css", "scss"];
 
 #[cfg(any(feature = "elixir", feature = "all-parsers"))]
 pub const ELIXIR_EXTS: [&str; 2] = ["ex", "exs"];
@@ -222,7 +221,9 @@ cfg_if::cfg_if!(
             #[cfg(any(feature = "typescript", feature = "all-parsers", feature = "typescript-napi", feature = "napi-compatible"))]
             { count += 1; }
             #[cfg(any(feature = "tsx", feature = "all-parsers", feature = "tsx-napi", feature = "napi-compatible"))]
-            { count += 1; }
+            {
+                count += 1;
+            }
             #[cfg(any(feature = "yaml", feature = "all-parsers"))]
             { count += 1; }
 
@@ -321,7 +322,8 @@ cfg_if::cfg_if!(
                     result[index] = &TypeScript;
                     index += 1;
                 }
-                #[cfg(any(feature = "tsx", feature = "all-parsers", feature = "tsx-napi", feature = "napi-compatible"))] {
+                #[cfg(any(feature = "tsx", feature = "all-parsers", feature = "tsx-napi", feature = "napi-compatible"))]
+                {
                     result[index] = &Tsx;
                     index += 1;
                 }
@@ -1037,7 +1039,7 @@ cfg_if::cfg_if!(
 /// List of files that DO NOT have an extension but are still associated with a language.
 #[cfg(any(feature = "bash", feature = "all-parsers", feature = "ruby"))]
 #[allow(dead_code)]
-const LANG_RELATIONSHIPS_WITH_NO_EXTENSION: &[(&str, SupportLang)] = &[
+const LANG_RELATIONSHIPS_WITH_NO_EXTENSION: &[(&str,SupportLang)] = &[
     #[cfg(any(feature = "bash", feature = "all-parsers"))]
     ("profile", SupportLang::Bash),
     #[cfg(any(feature = "bash", feature = "all-parsers"))]
@@ -1059,7 +1061,7 @@ const LANG_RELATIONSHIPS_WITH_NO_EXTENSION: &[(&str, SupportLang)] = &[
 /// Files whose presence can resolve language identification
 #[cfg(any(all(feature = "cpp", feature = "c"), feature = "all-parsers"))]
 #[allow(dead_code)]
-const LANG_FILE_INDICATORS: &[(&str, SupportLang)] = &[
+const LANG_FILE_INDICATORS: &[(&str,SupportLang)] = &[
     #[cfg(any(all(feature = "cpp", feature = "c"), feature = "all-parsers"))]
     ("conanfile.txt", SupportLang::Cpp),
     #[cfg(any(all(feature = "cpp", feature = "c"), feature = "all-parsers"))]

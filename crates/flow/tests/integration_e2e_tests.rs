@@ -159,31 +159,6 @@ impl IntegrationFixture {
             graph.edge_count()
         );
     }
-
-    /// Validates that the given files exist in the dependency graph.
-    async fn assert_files_in_graph(&self, files: &[&str]) {
-        let graph = self.builder.graph();
-        for file in files {
-            let path = self.temp_path().join(file);
-            assert!(
-                graph.contains_node(&path),
-                "File {} should exist in graph",
-                file
-            );
-        }
-    }
-
-    /// Validates that a dependency edge exists between two files.
-    async fn assert_edge_exists(&self, from: &str, to: &str) {
-        let graph = self.builder.graph();
-        let from_path = self.temp_path().join(from);
-        let to_path = self.temp_path().join(to);
-
-        let deps = graph.get_dependencies(&from_path);
-        let has_edge = deps.iter().any(|edge| edge.to == to_path);
-
-        assert!(has_edge, "Expected edge from {} to {} not found", from, to);
-    }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

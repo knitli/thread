@@ -87,6 +87,8 @@ For development/debugging, JSON serialization is supported:
   "type": "ConflictUpdate",
   "conflict_id": "conflict:abc123",
   "tier": "Tier1AST",
+  "status": "Complete",
+  "is_final": false,
   "conflicts": [...],
   "timestamp": 1704988800
 }
@@ -126,6 +128,8 @@ WebSocketMessage::CodeChangeDetected {
 WebSocketMessage::ConflictUpdate {
     conflict_id: "conflict:abc123".to_string(),
     tier: DetectionTier::Tier1AST,
+    status: ConflictUpdateStatus::Complete,
+    is_final: false, // Tier 2 and 3 still pending
     conflicts: vec![
         Conflict {
             id: "conflict:abc123".to_string(),
@@ -145,6 +149,8 @@ WebSocketMessage::ConflictUpdate {
 WebSocketMessage::ConflictUpdate {
     conflict_id: "conflict:abc123".to_string(),
     tier: DetectionTier::Tier2Semantic,
+    status: ConflictUpdateStatus::Complete,
+    is_final: false, // Tier 3 still pending
     conflicts: vec![
         Conflict {
             id: "conflict:abc123".to_string(),
@@ -164,6 +170,8 @@ WebSocketMessage::ConflictUpdate {
 WebSocketMessage::ConflictUpdate {
     conflict_id: "conflict:abc123".to_string(),
     tier: DetectionTier::Tier3GraphImpact,
+    status: ConflictUpdateStatus::Complete,
+    is_final: true, // Final tier — no further updates for this conflict_id
     conflicts: vec![
         Conflict {
             id: "conflict:abc123".to_string(),
@@ -187,7 +195,7 @@ WebSocketMessage::ConflictUpdate {
 
 #### Tier Failure / Timeout
 
-If a tier fails to complete (analysis engine timeout, circuit breaker OPEN, engine crash), the server sends a terminal `ConflictUpdate` with `status: Timeout`:
+If a tier fails to complete (analysis engine timeout, circuit breaker OPEN, engine crash), the server sends a `ConflictUpdate` with `status: Timeout`. Only `Timeout` paired with `is_final: true` is terminal (no further updates for this `conflict_id`). `Timeout` paired with `is_final: false` means a retry is queued and a follow-up `Complete` message will arrive:
 
 ```rust
 // Case 1: Timeout with no retry queued (terminal — is_final: true)

@@ -240,7 +240,7 @@ pub enum Severity {
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub enum ConflictUpdateStatus {
     Complete, // Tier analysis completed successfully
-    Timeout,  // Tier timed out; `is_final: true` always accompanies this. Retry may follow (is_final: false = retry queued).
+    Timeout,  // Tier timed out. `is_final: true` = terminal, no retry queued; `is_final: false` = retry pending, a follow-up Complete message will arrive.
 }
 
 /// Messages sent over WebSocket for real-time updates
