@@ -15,8 +15,9 @@
 //! - Full pipeline with 100% cache hit: <100µs (50x+ speedup vs parse)
 //! - Memory overhead: <1KB per cached file
 
-use criterion::{Criterion, Throughput, black_box, criterion_group, criterion_main};
+use criterion::{Criterion, Throughput, criterion_group, criterion_main};
 use std::collections::HashMap;
+use std::hint::black_box;
 use thread_services::conversion::compute_content_fingerprint;
 
 // ============================================================================

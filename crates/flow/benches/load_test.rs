@@ -10,7 +10,8 @@
 //! - Incremental updates
 //! - Memory usage under load
 
-use criterion::{BenchmarkId, Criterion, Throughput, black_box, criterion_group, criterion_main};
+use criterion::{BenchmarkId, Criterion, Throughput, criterion_group, criterion_main};
+use std::hint::black_box;
 use std::time::Duration;
 use thread_services::conversion::compute_content_fingerprint;
 

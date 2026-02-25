@@ -5,8 +5,8 @@
 use criterion::{BenchmarkId, Criterion, criterion_group, criterion_main};
 use std::hint::black_box;
 
-use thread_language::{LanguageExt, SupportLang};
-
+use thread_ast_engine::tree_sitter::LanguageExt;
+use thread_language::SupportLang;
 use thread_rule_engine::{CombinedScan, GlobalRules, RuleCollection, from_yaml_string};
 
 pub type BenchLanguage = SupportLang;

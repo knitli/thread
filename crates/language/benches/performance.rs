@@ -8,6 +8,8 @@ use criterion::{Criterion, criterion_group, criterion_main};
 use std::hint::black_box;
 use std::path::Path;
 use std::str::FromStr;
+use thread_ast_engine::language::Language;
+use thread_ast_engine::tree_sitter::LanguageExt;
 use thread_language::*;
 
 fn bench_pre_process_pattern(c: &mut Criterion) {

@@ -260,7 +260,7 @@ impl IncrementalAnalyzer {
         for data in file_data {
             let (path, current_fp) = data.map_err(AnalyzerError::Io)?;
             debug!(file_path = ?path, "analyzing file");
-            
+
             // Load stored fingerprint
             let stored_fp = self.storage.load_fingerprint(&path).await?;
 

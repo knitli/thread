@@ -5,7 +5,8 @@
 use criterion::{BenchmarkId, Criterion, criterion_group, criterion_main};
 use std::hint::black_box;
 
-use thread_language::{LanguageExt as ThreadLanguageExt, SupportLang as ThreadSupportLang};
+use thread_ast_engine::tree_sitter::LanguageExt as ThreadLanguageExt;
+use thread_language::SupportLang as ThreadSupportLang;
 use thread_rule_engine::{
     CombinedScan as ThreadCombinedScan, GlobalRules as ThreadGlobalRules,
     from_yaml_string as thread_from_yaml_string,
@@ -72,7 +73,6 @@ fn bench_rule_parsing_comparison(c: &mut Criterion) {
                 });
             },
         );
-
     }
 
     group.finish();
@@ -161,7 +161,6 @@ fn bench_memory_usage_comparison(c: &mut Criterion) {
             black_box(rules);
         });
     });
-
 
     group.finish();
 }

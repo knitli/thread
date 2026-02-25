@@ -100,8 +100,8 @@ md5 = "0.8"
 metrics-exporter-prometheus = "0.18"
 rusqlite = { version = "*", features = ["bundled"] }
 tempfile = "3.13"
-testcontainers = "0.27.1"
-testcontainers-modules = { version = "0.15", features = ["postgres"] }
+testcontainers = "*"
+testcontainers-modules = { version = "*", features = ["postgres"] }
 tokio-postgres = "0.7"
 
 [features]

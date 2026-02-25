@@ -60,8 +60,9 @@
 //! cargo bench -p thread-flow incremental_benchmarks -- cache_hit_rate
 //! ```
 
-use criterion::{BenchmarkId, Criterion, Throughput, black_box, criterion_group, criterion_main};
-use std::collections::{HashMap, HashSet};
+use ::std::hint::black_box;
+use criterion::{BenchmarkId, Criterion, criterion_group, criterion_main};
+use std::collections::HashSet;
 use std::path::PathBuf;
 use thread_flow::incremental::{
     AnalysisDefFingerprint, DependencyEdge, DependencyGraph, DependencyType, InMemoryStorage,
@@ -254,8 +255,6 @@ fn benchmark_change_detection(c: &mut Criterion) {
 
     // Change detection latency
     let old_fp = AnalysisDefFingerprint::new(b"original content");
-    let new_same = AnalysisDefFingerprint::new(b"original content");
-    let new_diff = AnalysisDefFingerprint::new(b"modified content");
 
     group.bench_function("detect_no_change", |b| {
         b.iter(|| black_box(old_fp.content_matches(black_box(b"original content"))));
@@ -292,8 +291,6 @@ fn benchmark_change_detection(c: &mut Criterion) {
             rt.block_on(async {
                 let path = PathBuf::from("file_50.rs");
                 let new_content = generate_rust_file(50, "medium");
-                let new_fp = AnalysisDefFingerprint::new(new_content.as_bytes());
-
                 let old_fp = storage.load_fingerprint(&path).await.unwrap();
                 let changed = match old_fp {
                     Some(old) => !old.content_matches(new_content.as_bytes()),
@@ -544,7 +541,6 @@ fn benchmark_cache_hit_rate(c: &mut Criterion) {
                 for i in 0..100 {
                     let path = PathBuf::from(format!("file_{}.rs", i));
                     let content = generate_rust_file(i, "small");
-                    let new_fp = AnalysisDefFingerprint::new(content.as_bytes());
 
                     if let Some(old_fp) = storage.load_fingerprint(&path).await.unwrap() {
                         if old_fp.content_matches(content.as_bytes()) {
@@ -630,11 +626,9 @@ fn benchmark_cache_hit_rate(c: &mut Criterion) {
     group.bench_function("identical_content_detection", |b| {
         b.iter(|| {
             rt.block_on(async {
-                let path = PathBuf::from("test.rs");
                 let content = generate_rust_file(0, "small");
 
                 let fp1 = AnalysisDefFingerprint::new(content.as_bytes());
-                let fp2 = AnalysisDefFingerprint::new(content.as_bytes());
 
                 black_box(fp1.content_matches(content.as_bytes()))
             })

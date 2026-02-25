@@ -1,16 +1,16 @@
-// SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+// SPDX-FileCopyrightText: 2026 Knitli Inc. <knitli@knit.li>
 // SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
 use criterion::{BenchmarkId, Criterion, criterion_group, criterion_main};
 use std::hint::black_box;
 
-use thread_language::{LanguageExt as ThreadLanguageExt, SupportLang as ThreadSupportLang};
+use thread_ast_engine::tree_sitter::LanguageExt as ThreadLanguageExt;
+use thread_language::SupportLang as ThreadSupportLang;
 use thread_rule_engine::{
     CombinedScan as ThreadCombinedScan, GlobalRules as ThreadGlobalRules,
     from_yaml_string as thread_from_yaml_string,
 };
-
 
 struct ComparisonData {
     rules: Vec<&'static str>,
@@ -37,7 +37,7 @@ language: TypeScript
 rule:
   pattern: function $F($$$) { $$$ }
 "#, /*
-                                                                                                                                                                                                                                                                                                                                                                    r#"
+                                                                                                                                                                                                                                                                                                                                                                                                                                                    r#"
 id: class-with-constructor
 message: found class with constructor
 severity: info
@@ -96,7 +96,6 @@ fn bench_rule_parsing_comparison(c: &mut Criterion) {
                 });
             },
         );
-
     }
 
     group.finish();
