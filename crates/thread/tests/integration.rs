@@ -5,10 +5,9 @@
 #[cfg(all(feature = "ast", feature = "language"))]
 #[test]
 fn test_reexports_work() {
-    use thread::Root;
     use thread::language::{LanguageExt, Tsx};
 
-    let ast: Root<_> = Tsx.ast_grep("const x = 1;");
+    let ast = Tsx.ast_grep("const x = 1;");
     let matches: Vec<_> = ast.root().find_all("const $VAR = $VALUE").collect();
     assert_eq!(matches.len(), 1);
 }

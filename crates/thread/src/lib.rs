@@ -63,7 +63,7 @@ pub mod rule {
 }
 
 /// Dataflow orchestration layer for incremental computation and caching.
-#[cfg(feature = "flow")]
+#[cfg(any(feature = "flow", feature = "worker"))]
 pub mod flow {
     pub use thread_flow::*;
 }
