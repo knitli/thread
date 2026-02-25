@@ -150,12 +150,11 @@ fn bench_memory_usage_comparison(c: &mut Criterion) {
         b.iter(|| {
             let mut rules = Vec::new();
             for rule_yaml in &data.rules {
-                let rule =
-                    thread_from_yaml_string::<thread_language::TypeScript>(rule_yaml, &globals)
-                        .expect("should parse")
-                        .into_iter()
-                        .next()
-                        .unwrap();
+                let rule = thread_from_yaml_string::<ThreadSupportLang>(rule_yaml, &globals)
+                    .expect("should parse")
+                    .into_iter()
+                    .next()
+                    .unwrap();
                 rules.push(rule);
             }
             black_box(rules);

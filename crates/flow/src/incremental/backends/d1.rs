@@ -469,7 +469,7 @@ impl StorageBackend for D1IncrementalBackend {
         let source_files: HashSet<PathBuf> = src_result
             .results
             .iter()
-            .filter_map(|r| r["source_path"].as_str().map(|s| PathBuf::from(s)))
+            .filter_map(|r| r["source_path"].as_str().map(PathBuf::from))
             .collect();
 
         Ok(Some(AnalysisDefFingerprint {
