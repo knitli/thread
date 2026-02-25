@@ -19,7 +19,7 @@
 //! ### Custom Pattern Languages
 //! Languages requiring special metavariable handling with custom expando characters:
 //! - [`C`] (`µ`), [`Cpp`] (`µ`), [`CSharp`] (`µ`), [`Css`] (`_`), [`Elixir`] (`µ`)
-//! - [`Go`] (`µ`), [`Haskell`] (`µ`), [`Html`] (`z`), [`Kotlin`] (`µ`), [`Php`] (`µ`)
+//! - [`Go`] (`µ`), [`Haskell`] (`µ`), [`Hcl`] (`µ`), [`Html`] (`z`), [`Kotlin`] (`µ`), [`Nix`](`_`), [`Php`] (`µ`)
 //! - [`Python`] (`µ`), [`Ruby`] (`µ`), [`Rust`] (`µ`), [`Swift`] (`µ`)
 //!
 //! ## Usage
@@ -57,17 +57,20 @@ pub mod ext_iden;
     feature = "elixir",
     feature = "go",
     feature = "haskell",
+    feature = "hcl",
     feature = "html",
     feature = "java",
     feature = "javascript",
     feature = "json",
     feature = "kotlin",
     feature = "lua",
+    feature = "nix",
     feature = "php",
     feature = "python",
     feature = "ruby",
     feature = "rust",
     feature = "scala",
+    feature = "solidity",
     feature = "swift",
     feature = "tsx",
     feature = "typescript",
@@ -92,8 +95,10 @@ mod css;
 mod elixir;
 #[cfg(any(feature = "go", feature = "all-parsers"))]
 mod go;
-#[cfg(feature = "haskell")]
+#[cfg(any(feature = "haskell", feature = "all-parsers"))]
 mod haskell;
+#[cfg(any(feature = "hcl", feature = "all-parsers"))]
+mod hcl;
 #[cfg(any(
     feature = "html",
     feature = "all-parsers",
@@ -114,6 +119,8 @@ mod json;
 mod kotlin;
 #[cfg(any(feature = "lua", feature = "all-parsers"))]
 mod lua;
+#[cfg(any(feature = "nix", feature = "all-parsers"))]
+mod nix;
 #[cfg(any(feature = "php", feature = "all-parsers"))]
 mod php;
 #[cfg(any(feature = "python", feature = "all-parsers"))]
@@ -124,6 +131,8 @@ mod ruby;
 mod rust;
 #[cfg(any(feature = "scala", feature = "all-parsers"))]
 mod scala;
+#[cfg(any(feature = "solidity", feature = "all-parsers"))]
+mod solidity;
 #[cfg(any(feature = "swift", feature = "all-parsers"))]
 mod swift;
 #[cfg(any(feature = "yaml", feature = "all-parsers"))]
@@ -189,6 +198,7 @@ use thread_utils::RapidMap;
     feature = "javascript-napi",
     feature = "json",
     feature = "lua",
+    feature = "solidity",
     feature = "scala",
     feature = "tsx",
     feature = "tsx-napi",
@@ -248,6 +258,7 @@ macro_rules! impl_lang {
 /// let result = pre_process_pattern('µ', "def hello(): pass");
 /// assert_eq!(result, "def hello(): pass");
 /// ```
+#[allow(dead_code)]
 fn pre_process_pattern(expando: char, query: &str) -> std::borrow::Cow<'_, str> {
     // Fast path: check if any processing is needed
     let has_dollar = query.as_bytes().contains(&b'$');
@@ -348,9 +359,11 @@ fn pre_process_pattern(expando: char, query: &str) -> std::borrow::Cow<'_, str> 
     feature = "elixir",
     feature = "go",
     feature = "haskell",
+    feature = "hcl",
     feature = "html",
     feature = "html-napi",
     feature = "kotlin",
+    feature = "nix",
     feature = "php",
     feature = "python",
     feature = "ruby",
@@ -412,17 +425,20 @@ pub trait Alias: Display {
         feature = "elixir",
         feature = "go",
         feature = "haskell",
+        feature = "hcl",
         feature = "html",
         feature = "java",
         feature = "javascript",
         feature = "json",
         feature = "kotlin",
         feature = "lua",
+        feature = "nix",
         feature = "php",
         feature = "python",
         feature = "ruby",
         feature = "rust",
         feature = "scala",
+        feature = "solidity",
         feature = "swift",
         feature = "tsx",
         feature = "typescript",
@@ -481,17 +497,20 @@ macro_rules! impl_alias {
         feature = "elixir",
         feature = "go",
         feature = "haskell",
+        feature = "hcl",
         feature = "html",
         feature = "java",
         feature = "javascript",
         feature = "json",
         feature = "kotlin",
         feature = "lua",
+        feature = "nix",
         feature = "php",
         feature = "python",
         feature = "ruby",
         feature = "rust",
         feature = "scala",
+        feature = "solidity",
         feature = "swift",
         feature = "tsx",
         feature = "typescript",
@@ -552,12 +571,20 @@ impl_lang_expando!(Go, language_go, 'µ');
 // GHC supports Unicode syntax per
 // https://ghc.gitlab.haskell.org/ghc/doc/users_guide/exts/unicode_syntax.html
 // and the tree-sitter-haskell grammar parses it too.
-#[cfg(feature = "haskell")]
+#[cfg(any(feature = "haskell", feature = "all-parsers"))]
 impl_lang_expando!(Haskell, language_haskell, 'µ');
+
+// https://developer.hashicorp.com/terraform/language/syntax/configuration#identifiers
+#[cfg(any(feature = "hcl", feature = "all-parsers"))]
+impl_lang_expando!(Hcl, language_hcl, 'µ');
 
 // https://github.com/fwcd/tree-sitter-kotlin/pull/93
 #[cfg(any(feature = "kotlin", feature = "all-parsers"))]
 impl_lang_expando!(Kotlin, language_kotlin, 'µ');
+
+// Nix uses $ for string interpolation (e.g., "${pkgs.hello}")
+#[cfg(any(feature = "nix", feature = "all-parsers"))]
+impl_lang_expando!(Nix, language_nix, '_');
 
 // PHP accepts unicode to be used as some name not var name though
 #[cfg(any(feature = "php", feature = "all-parsers"))]
@@ -599,6 +626,8 @@ impl_lang!(JavaScript, language_javascript);
 impl_lang!(Json, language_json);
 #[cfg(any(feature = "lua", feature = "all-parsers"))]
 impl_lang!(Lua, language_lua);
+#[cfg(any(feature = "solidity", feature = "all-parsers"))]
+impl_lang!(Solidity, language_solidity);
 #[cfg(any(feature = "scala", feature = "all-parsers"))]
 impl_lang!(Scala, language_scala);
 #[cfg(any(
@@ -670,8 +699,10 @@ pub enum SupportLang {
     Elixir,
     #[cfg(any(feature = "go", feature = "all-parsers"))]
     Go,
-    #[cfg(feature = "haskell")]
+    #[cfg(any(feature = "haskell", feature = "all-parsers"))]
     Haskell,
+    #[cfg(any(feature = "hcl", feature = "all-parsers"))]
+    Hcl,
     #[cfg(any(
         feature = "html",
         feature = "all-parsers",
@@ -694,6 +725,8 @@ pub enum SupportLang {
     Kotlin,
     #[cfg(any(feature = "lua", feature = "all-parsers"))]
     Lua,
+    #[cfg(any(feature = "nix", feature = "all-parsers"))]
+    Nix,
     #[cfg(any(feature = "php", feature = "all-parsers"))]
     Php,
     #[cfg(any(feature = "python", feature = "all-parsers"))]
@@ -704,6 +737,8 @@ pub enum SupportLang {
     Rust,
     #[cfg(any(feature = "scala", feature = "all-parsers"))]
     Scala,
+    #[cfg(any(feature = "solidity", feature = "all-parsers"))]
+    Solidity,
     #[cfg(any(feature = "swift", feature = "all-parsers"))]
     Swift,
     #[cfg(any(
@@ -738,17 +773,20 @@ pub enum SupportLang {
         feature = "elixir",
         feature = "go",
         feature = "haskell",
+        feature = "hcl",
         feature = "html",
         feature = "java",
         feature = "javascript",
         feature = "json",
         feature = "kotlin",
+        feature = "nix",
         feature = "lua",
         feature = "php",
         feature = "python",
         feature = "ruby",
         feature = "rust",
         feature = "scala",
+        feature = "solidity",
         feature = "swift",
         feature = "tsx",
         feature = "typescript",
@@ -780,8 +818,10 @@ impl SupportLang {
             Elixir,
             #[cfg(any(feature = "go", feature = "all-parsers"))]
             Go,
-            #[cfg(feature = "haskell")]
+            #[cfg(any(feature = "haskell", feature = "all-parsers"))]
             Haskell,
+            #[cfg(any(feature = "hcl", feature = "all-parsers"))]
+            Hcl,
             #[cfg(any(
                 feature = "html",
                 feature = "all-parsers",
@@ -804,6 +844,8 @@ impl SupportLang {
             Kotlin,
             #[cfg(any(feature = "lua", feature = "all-parsers"))]
             Lua,
+            #[cfg(any(feature = "nix", feature = "all-parsers"))]
+            Nix,
             #[cfg(any(feature = "php", feature = "all-parsers"))]
             Php,
             #[cfg(any(feature = "python", feature = "all-parsers"))]
@@ -814,6 +856,8 @@ impl SupportLang {
             Rust,
             #[cfg(any(feature = "scala", feature = "all-parsers"))]
             Scala,
+            #[cfg(any(feature = "solidity", feature = "all-parsers"))]
+            Solidity,
             #[cfg(any(feature = "swift", feature = "all-parsers"))]
             Swift,
             #[cfg(any(
@@ -848,17 +892,20 @@ impl SupportLang {
                 feature = "elixir",
                 feature = "go",
                 feature = "haskell",
+                feature = "hcl",
                 feature = "html",
                 feature = "java",
                 feature = "javascript",
                 feature = "json",
                 feature = "kotlin",
                 feature = "lua",
+                feature = "nix",
                 feature = "php",
                 feature = "python",
                 feature = "ruby",
                 feature = "rust",
                 feature = "scala",
+                feature = "solidity",
                 feature = "swift",
                 feature = "tsx",
                 feature = "typescript",
@@ -916,17 +963,20 @@ impl std::error::Error for SupportLangErr {}
     feature = "elixir",
     feature = "go",
     feature = "haskell",
+    feature = "hcl",
     feature = "html",
     feature = "java",
     feature = "javascript",
     feature = "json",
     feature = "kotlin",
     feature = "lua",
+    feature = "nix",
     feature = "php",
     feature = "python",
     feature = "ruby",
     feature = "rust",
     feature = "scala",
+    feature = "solidity",
     feature = "swift",
     feature = "tsx",
     feature = "typescript",
@@ -940,7 +990,7 @@ impl<'de> Deserialize<'de> for SupportLang {
         deserializer.deserialize_str(SupportLangVisitor)
     }
 }
-
+#[allow(dead_code)]
 struct SupportLangVisitor;
 
 #[cfg(any(
@@ -959,17 +1009,20 @@ struct SupportLangVisitor;
     feature = "elixir",
     feature = "go",
     feature = "haskell",
+    feature = "hcl",
     feature = "html",
     feature = "java",
     feature = "javascript",
     feature = "json",
     feature = "kotlin",
     feature = "lua",
+    feature = "nix",
     feature = "php",
     feature = "python",
     feature = "ruby",
     feature = "rust",
     feature = "scala",
+    feature = "solidity",
     feature = "swift",
     feature = "tsx",
     feature = "typescript",
@@ -1010,17 +1063,20 @@ struct AliasVisitor {
     feature = "elixir",
     feature = "go",
     feature = "haskell",
+    feature = "hcl",
     feature = "html",
     feature = "java",
     feature = "javascript",
     feature = "json",
     feature = "kotlin",
     feature = "lua",
+    feature = "nix",
     feature = "php",
     feature = "python",
     feature = "ruby",
     feature = "rust",
     feature = "scala",
+    feature = "solidity",
     feature = "swift",
     feature = "tsx",
     feature = "typescript",
@@ -1061,17 +1117,20 @@ impl Visitor<'_> for AliasVisitor {
         feature = "elixir",
         feature = "go",
         feature = "haskell",
+        feature = "hcl",
         feature = "html",
         feature = "java",
         feature = "javascript",
         feature = "json",
         feature = "kotlin",
         feature = "lua",
+        feature = "nix",
         feature = "php",
         feature = "python",
         feature = "ruby",
         feature = "rust",
         feature = "scala",
+        feature = "solidity",
         feature = "swift",
         feature = "tsx",
         feature = "typescript",
@@ -1088,17 +1147,20 @@ impl_aliases! {
   Elixir, "elixir" => &["ex", "elixir"],
   Go, "go" => &["go", "golang"],
   Haskell, "haskell" => &["hs", "haskell"],
+  Hcl, "hcl" => &["hcl", "terraform"],
   Html, "html" => &["html"],
   Java, "java" => &["java"],
   JavaScript, "javascript" => &["javascript", "js", "jsx"],
   Json, "json" => &["json"],
   Kotlin, "kotlin" => &["kotlin", "kt"],
   Lua, "lua" => &["lua"],
+  Nix, "nix" => &["nix"],
   Php, "php" => &["php"],
   Python, "python" => &["py", "python"],
   Ruby, "ruby" => &["rb", "ruby"],
   Rust, "rust" => &["rs", "rust"],
   Scala, "scala" => &["scala"],
+  Solidity, "solidity" => &["sol", "solidity"],
   Swift, "swift" => &["swift"],
   TypeScript, "typescript" => &["ts", "typescript"],
   Tsx, "tsx" => &["tsx"],
@@ -1132,8 +1194,10 @@ impl FromStr for SupportLang {
             "elixir" | "ex" => Ok(SupportLang::Elixir),
             #[cfg(any(feature = "go", feature = "all-parsers"))]
             "go" | "golang" => Ok(SupportLang::Go),
-            #[cfg(feature = "haskell")]
+            #[cfg(any(feature = "haskell", feature = "all-parsers"))]
             "haskell" | "hs" => Ok(SupportLang::Haskell),
+            #[cfg(any(feature = "hcl", feature = "all-parsers"))]
+            "hcl" | "terraform" => Ok(SupportLang::Hcl),
             #[cfg(any(
                 feature = "html",
                 feature = "all-parsers",
@@ -1156,6 +1220,8 @@ impl FromStr for SupportLang {
             "kotlin" | "kt" => Ok(SupportLang::Kotlin),
             #[cfg(any(feature = "lua", feature = "all-parsers"))]
             "lua" => Ok(SupportLang::Lua),
+            #[cfg(any(feature = "nix", feature = "all-parsers"))]
+            "nix" => Ok(SupportLang::Nix),
             #[cfg(any(feature = "php", feature = "all-parsers"))]
             "php" => Ok(SupportLang::Php),
             #[cfg(any(feature = "python", feature = "all-parsers"))]
@@ -1166,6 +1232,8 @@ impl FromStr for SupportLang {
             "rust" | "rs" => Ok(SupportLang::Rust),
             #[cfg(any(feature = "scala", feature = "all-parsers"))]
             "scala" => Ok(SupportLang::Scala),
+            #[cfg(any(feature = "solidity", feature = "all-parsers"))]
+            "solidity" | "sol" => Ok(SupportLang::Solidity),
             #[cfg(any(feature = "swift", feature = "all-parsers"))]
             "swift" => Ok(SupportLang::Swift),
             #[cfg(any(
@@ -1200,17 +1268,20 @@ impl FromStr for SupportLang {
                 feature = "elixir",
                 feature = "go",
                 feature = "haskell",
+                feature = "hcl",
                 feature = "html",
                 feature = "java",
                 feature = "javascript",
                 feature = "json",
                 feature = "kotlin",
                 feature = "lua",
+                feature = "nix",
                 feature = "php",
                 feature = "python",
                 feature = "ruby",
                 feature = "rust",
                 feature = "scala",
+                feature = "solidity",
                 feature = "swift",
                 feature = "tsx",
                 feature = "typescript",
@@ -1250,17 +1321,20 @@ impl FromStr for SupportLang {
     feature = "elixir",
     feature = "go",
     feature = "haskell",
+    feature = "hcl",
     feature = "html",
     feature = "java",
     feature = "javascript",
     feature = "json",
     feature = "kotlin",
     feature = "lua",
+    feature = "nix",
     feature = "php",
     feature = "python",
     feature = "ruby",
     feature = "rust",
     feature = "scala",
+    feature = "solidity",
     feature = "swift",
     feature = "tsx",
     feature = "typescript",
@@ -1284,11 +1358,13 @@ macro_rules! execute_lang_method {
         S::Elixir => Elixir.$method($($pname,)*),
         #[cfg(any(feature = "go", feature = "all-parsers"))]
         S::Go => Go.$method($($pname,)*),
-        #[cfg(feature = "haskell")]
+        #[cfg(any(feature = "haskell", feature = "all-parsers"))]
         S::Haskell => Haskell.$method($($pname,)*),
+        #[cfg(any(feature = "hcl", feature = "all-parsers"))]
+        S::Hcl => Hcl.$method($($pname,)*),
         #[cfg(any(feature = "html", feature = "all-parsers", feature = "html-napi", feature = "napi-compatible"))]
         S::Html => Html.$method($($pname,)*),
-        #[cfg(any(feature = "json", feature = "all-parsers"))]
+        #[cfg(any(feature = "java", feature = "all-parsers"))]
         S::Java => Java.$method($($pname,)*),
         #[cfg(any(feature = "javascript", feature = "all-parsers", feature = "javascript-napi", feature = "napi-compatible"))]
         S::JavaScript => JavaScript.$method($($pname,)*),
@@ -1298,6 +1374,8 @@ macro_rules! execute_lang_method {
         S::Kotlin => Kotlin.$method($($pname,)*),
         #[cfg(any(feature = "lua", feature = "all-parsers"))]
         S::Lua => Lua.$method($($pname,)*),
+        #[cfg(any(feature = "nix", feature = "all-parsers"))]
+        S::Nix => Nix.$method($($pname,)*),
         #[cfg(any(feature = "php", feature = "all-parsers"))]
         S::Php => Php.$method($($pname,)*),
         #[cfg(any(feature = "python", feature = "all-parsers"))]
@@ -1308,6 +1386,8 @@ macro_rules! execute_lang_method {
         S::Rust => Rust.$method($($pname,)*),
         #[cfg(any(feature = "scala", feature = "all-parsers"))]
         S::Scala => Scala.$method($($pname,)*),
+        #[cfg(any(feature = "solidity", feature = "all-parsers"))]
+        S::Solidity => Solidity.$method($($pname,)*),
         #[cfg(any(feature = "swift", feature = "all-parsers"))]
         S::Swift => Swift.$method($($pname,)*),
         #[cfg(any(feature = "tsx", feature = "all-parsers", feature = "tsx-napi", feature = "napi-compatible"))]
@@ -1332,17 +1412,20 @@ macro_rules! execute_lang_method {
             feature = "elixir",
             feature = "go",
             feature = "haskell",
+            feature = "hcl",
             feature = "html",
             feature = "java",
             feature = "javascript",
             feature = "json",
             feature = "kotlin",
             feature = "lua",
+            feature = "nix",
             feature = "php",
             feature = "python",
             feature = "ruby",
             feature = "rust",
             feature = "scala",
+            feature = "solidity",
             feature = "swift",
             feature = "tsx",
             feature = "typescript",
@@ -1372,17 +1455,20 @@ macro_rules! execute_lang_method {
     feature = "elixir",
     feature = "go",
     feature = "haskell",
+    feature = "hcl",
     feature = "html",
     feature = "java",
     feature = "javascript",
     feature = "json",
     feature = "kotlin",
     feature = "lua",
+    feature = "nix",
     feature = "php",
     feature = "python",
     feature = "ruby",
     feature = "rust",
     feature = "scala",
+    feature = "solidity",
     feature = "swift",
     feature = "tsx",
     feature = "typescript",
@@ -1410,17 +1496,20 @@ macro_rules! impl_lang_method {
         feature = "elixir",
         feature = "go",
         feature = "haskell",
+        feature = "hcl",
         feature = "html",
         feature = "java",
         feature = "javascript",
         feature = "json",
         feature = "kotlin",
         feature = "lua",
+        feature = "nix",
         feature = "php",
         feature = "python",
         feature = "ruby",
         feature = "rust",
         feature = "scala",
+        feature = "solidity",
         feature = "swift",
         feature = "tsx",
         feature = "typescript",
@@ -1460,17 +1549,20 @@ impl Language for SupportLang {
         feature = "elixir",
         feature = "go",
         feature = "haskell",
+        feature = "hcl",
         feature = "html",
         feature = "java",
         feature = "javascript",
         feature = "json",
         feature = "kotlin",
         feature = "lua",
+        feature = "nix",
         feature = "php",
         feature = "python",
         feature = "ruby",
         feature = "rust",
         feature = "scala",
+        feature = "solidity",
         feature = "swift",
         feature = "tsx",
         feature = "typescript",
@@ -1514,8 +1606,10 @@ pub const fn extensions(lang: SupportLang) -> &'static [&'static str] {
         Elixir => &constants::ELIXIR_EXTS,
         #[cfg(any(feature = "go", feature = "all-parsers"))]
         Go => &constants::GO_EXTS,
-        #[cfg(feature = "haskell")]
+        #[cfg(any(feature = "haskell", feature = "all-parsers"))]
         Haskell => &constants::HASKELL_EXTS,
+        #[cfg(any(feature = "hcl", feature = "all-parsers"))]
+        Hcl => &constants::HCL_EXTS,
         #[cfg(any(
             feature = "html",
             feature = "all-parsers",
@@ -1538,6 +1632,8 @@ pub const fn extensions(lang: SupportLang) -> &'static [&'static str] {
         Kotlin => &constants::KOTLIN_EXTS,
         #[cfg(any(feature = "lua", feature = "all-parsers"))]
         Lua => &constants::LUA_EXTS,
+        #[cfg(any(feature = "nix", feature = "all-parsers"))]
+        Nix => &constants::NIX_EXTS,
         #[cfg(any(feature = "php", feature = "all-parsers"))]
         Php => &constants::PHP_EXTS,
         #[cfg(any(feature = "python", feature = "all-parsers"))]
@@ -1548,6 +1644,8 @@ pub const fn extensions(lang: SupportLang) -> &'static [&'static str] {
         Rust => &constants::RUST_EXTS,
         #[cfg(any(feature = "scala", feature = "all-parsers"))]
         Scala => &constants::SCALA_EXTS,
+        #[cfg(any(feature = "solidity", feature = "all-parsers"))]
+        Solidity => &constants::SOLIDITY_EXTS,
         #[cfg(any(feature = "swift", feature = "all-parsers"))]
         Swift => &constants::SWIFT_EXTS,
         #[cfg(any(
@@ -1583,17 +1681,20 @@ pub const fn extensions(lang: SupportLang) -> &'static [&'static str] {
             feature = "elixir",
             feature = "go",
             feature = "haskell",
+            feature = "hcl",
             feature = "html",
             feature = "java",
             feature = "javascript",
             feature = "json",
             feature = "kotlin",
             feature = "lua",
+            feature = "nix",
             feature = "php",
             feature = "python",
             feature = "ruby",
             feature = "rust",
             feature = "scala",
+            feature = "solidity",
             feature = "swift",
             feature = "tsx",
             feature = "typescript",
@@ -1745,6 +1846,7 @@ mod test {
         let test_cases = [
             ("main.rs", Some(SupportLang::Rust)),
             ("app.js", Some(SupportLang::JavaScript)),
+            ("main.tf", Some(SupportLang::Hcl)),
             ("index.html", Some(SupportLang::Html)),
             ("data.json", Some(SupportLang::Json)),
             ("script.py", Some(SupportLang::Python)),
@@ -1752,6 +1854,7 @@ mod test {
             ("style.css", Some(SupportLang::Css)),
             ("component.tsx", Some(SupportLang::Tsx)),
             ("build.gradle.kts", Some(SupportLang::Kotlin)),
+            ("somefile.nix", Some(SupportLang::Nix)),
             ("config.yml", Some(SupportLang::Yaml)),
             ("script.sh", Some(SupportLang::Bash)),
             ("app.swift", Some(SupportLang::Swift)),
@@ -1759,6 +1862,7 @@ mod test {
             ("header.hpp", Some(SupportLang::Cpp)),
             ("style.scss", Some(SupportLang::Css)),
             ("script.rb", Some(SupportLang::Ruby)),
+            ("supercryptodude.sol", Some(SupportLang::Solidity)),
             ("main.scala", Some(SupportLang::Scala)),
             ("app.kt", Some(SupportLang::Kotlin)),
             // Case insensitive tests

@@ -18,9 +18,9 @@ updates:
     commit-message:
       prefix: deps
     assignees:
-      - codegen-sh[bot]
+      - copilot[bot]
     reviewers:
-      - codegen-sh[bot]
+      - copilot[bot]
     labels:
       - dependencies
     rebase-strategy: auto
@@ -39,9 +39,9 @@ updates:
     commit-message:
       prefix: deps
     assignees:
-      - codegen-sh[bot]
+      - copilot[bot]
     reviewers:
-      - codegen-sh[bot]
+      - copilot[bot]
     labels:
       - dependencies
     rebase-strategy: auto

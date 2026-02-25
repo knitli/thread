@@ -5,7 +5,7 @@
 
 use crate::SupportLang;
 
-pub const ALL_SUPPORTED_LANGS: [&str; 23] = [
+pub const ALL_SUPPORTED_LANGS: [&str; 26] = [
     "bash",
     "c",
     "cpp",
@@ -14,17 +14,20 @@ pub const ALL_SUPPORTED_LANGS: [&str; 23] = [
     "elixir",
     "go",
     "haskell",
+    "hcl",
     "html",
     "java",
     "javascript",
     "json",
     "kotlin",
     "lua",
+    "nix",
     "php",
     "python",
     "rust",
     "ruby",
     "scala",
+    "solidity",
     "swift",
     "typescript",
     "tsx",
@@ -86,8 +89,11 @@ pub const ELIXIR_EXTS: [&str; 2] = ["ex", "exs"];
 #[cfg(any(feature = "go", feature = "all-parsers"))]
 pub const GO_EXTS: [&str; 1] = ["go"];
 
-#[cfg(feature = "haskell")]
+#[cfg(any(feature = "haskell", feature = "all-parsers"))]
 pub const HASKELL_EXTS: [&str; 2] = ["hs", "lhs"];
+
+#[cfg(any(feature = "hcl", feature = "all-parsers"))]
+pub const HCL_EXTS: [&str; 6] = ["hcl", "nomad", "tf", "tfvars", "tfstate", "workflow"];
 
 #[cfg(any(
     feature = "html",
@@ -117,6 +123,9 @@ pub const KOTLIN_EXTS: [&str; 3] = ["kt", "kts", "ktm"];
 #[cfg(any(feature = "lua", feature = "all-parsers"))]
 pub const LUA_EXTS: [&str; 1] = ["lua"];
 
+#[cfg(any(feature = "nix", feature = "all-parsers"))]
+pub const NIX_EXTS: [&str; 1] = ["nix"];
+
 #[cfg(any(feature = "php", feature = "all-parsers"))]
 pub const PHP_EXTS: [&str; 2] = ["php", "phtml"];
 
@@ -131,6 +140,9 @@ pub const RUST_EXTS: [&str; 1] = ["rs"];
 
 #[cfg(any(feature = "scala", feature = "all-parsers"))]
 pub const SCALA_EXTS: [&str; 4] = ["scala", "sc", "scm", "sbt"];
+
+#[cfg(any(feature = "solidity", feature = "all-parsers"))]
+pub const SOLIDITY_EXTS: [&str; 1] = ["sol"];
 
 #[cfg(any(feature = "swift", feature = "all-parsers"))]
 pub const SWIFT_EXTS: [&str; 2] = ["swift", "xctest"];
@@ -160,11 +172,11 @@ cfg_if::cfg_if!(
                 any(
                     feature = "bash", feature = "c", feature = "cpp",
                     feature = "csharp", feature = "css", feature = "elixir",
-                    feature = "go", feature = "haskell", feature = "html",
+                    feature = "go", feature = "haskell", feature = "hcl", feature = "html",
                     feature = "java", feature = "javascript", feature = "json",
-                    feature = "kotlin", feature = "lua", feature = "php",
+                    feature = "kotlin", feature = "lua", feature = "nix", feature = "php",
                     feature = "python", feature = "ruby", feature = "rust",
-                    feature = "scala", feature = "swift", feature = "tsx",
+                    feature = "scala", feature = "solidity", feature = "swift", feature = "tsx",
                     feature = "typescript", feature = "yaml"
                     )
                 )
@@ -192,7 +204,9 @@ cfg_if::cfg_if!(
             { count += 1; }
             #[cfg(any(feature = "go", feature = "all-parsers"))]
             { count += 1; }
-            #[cfg(feature = "haskell")]
+            #[cfg(any(feature = "haskell", feature = "all-parsers"))]
+            { count += 1; }
+            #[cfg(any(feature = "hcl", feature = "all-parsers"))]
             { count += 1; }
             #[cfg(any(feature = "html", feature = "all-parsers", feature = "html-napi", feature = "napi-compatible"))]
             { count += 1; }
@@ -206,6 +220,8 @@ cfg_if::cfg_if!(
             { count += 1; }
             #[cfg(any(feature = "lua", feature = "all-parsers"))]
             { count += 1; }
+            #[cfg(any(feature = "nix", feature = "all-parsers"))]
+            { count += 1; }
             #[cfg(any(feature = "php", feature = "all-parsers"))]
             { count += 1; }
             #[cfg(any(feature = "python", feature = "all-parsers"))]
@@ -215,6 +231,8 @@ cfg_if::cfg_if!(
             #[cfg(any(feature = "rust", feature = "all-parsers"))]
             { count += 1; }
             #[cfg(any(feature = "scala", feature = "all-parsers"))]
+            { count += 1; }
+            #[cfg(any(feature = "solidity", feature = "all-parsers"))]
             { count += 1; }
             #[cfg(any(feature = "swift", feature = "all-parsers"))]
             { count += 1; }
@@ -266,8 +284,12 @@ cfg_if::cfg_if!(
                     result[index] = &Go;
                     index += 1;
                 }
-                #[cfg(feature = "haskell")] {
+                #[cfg(any(feature = "haskell", feature = "all-parsers"))] {
                     result[index] = &Haskell;
+                    index += 1;
+                }
+                #[cfg(any(feature = "hcl", feature = "all-parsers"))] {
+                    result[index] = &Hcl;
                     index += 1;
                 }
                 #[cfg(any(feature = "html", feature = "all-parsers", feature = "html-napi", feature = "napi-compatible"))] {
@@ -294,6 +316,10 @@ cfg_if::cfg_if!(
                     result[index] = &Lua;
                     index += 1;
                 }
+                #[cfg(any(feature = "nix", feature = "all-parsers"))] {
+                    result[index] = &Nix;
+                    index += 1;
+                }
                 #[cfg(any(feature = "php", feature = "all-parsers"))] {
                     result[index] = &Php;
                     index += 1;
@@ -312,6 +338,10 @@ cfg_if::cfg_if!(
                 }
                 #[cfg(any(feature = "scala", feature = "all-parsers"))] {
                     result[index] = &Scala;
+                    index += 1;
+                }
+                #[cfg(any(feature = "solidity", feature = "all-parsers"))] {
+                    result[index] = &Solidity;
                     index += 1;
                 }
                 #[cfg(any(feature = "swift", feature = "all-parsers"))] {
@@ -344,11 +374,11 @@ cfg_if::cfg_if!(
                 any(feature = "all-parsers", feature = "napi-compatible", feature = "css-napi", feature = "html-napi", feature = "javascript-napi", feature = "typescript-napi", feature = "tsx-napi",
                     feature = "bash", feature = "c", feature = "cpp",
                     feature = "csharp", feature = "css", feature = "elixir",
-                    feature = "go", feature = "haskell", feature = "html",
+                    feature = "go", feature = "haskell", feature = "hcl", feature = "html",
                     feature = "java", feature = "javascript", feature = "json",
-                    feature = "kotlin", feature = "lua", feature = "php",
+                    feature = "kotlin", feature = "lua", feature = "nix", feature = "php",
                     feature = "python", feature = "ruby", feature = "rust",
-                    feature = "scala", feature = "swift", feature = "tsx",
+                    feature = "scala", feature = "solidity", feature = "swift", feature = "tsx",
                     feature = "typescript", feature = "yaml"
                     )
                 )
@@ -383,8 +413,11 @@ cfg_if::cfg_if!(
                     #[cfg(any(feature = "go", feature = "all-parsers"))]
                     { count += GO_EXTS.len(); }
 
-                    #[cfg(feature = "haskell")]
+                    #[cfg(any(feature = "haskell", feature = "all-parsers"))]
                     { count += HASKELL_EXTS.len(); }
+
+                    #[cfg(any(feature = "hcl", feature = "all-parsers"))]
+                    { count += HCL_EXTS.len(); }
 
                     #[cfg(any(feature = "html", feature = "all-parsers", feature = "html-napi", feature = "napi-compatible"))]
                     { count += HTML_EXTS.len(); }
@@ -404,6 +437,9 @@ cfg_if::cfg_if!(
                     #[cfg(any(feature = "lua", feature = "all-parsers"))]
                     { count += LUA_EXTS.len(); }
 
+                    #[cfg(any(feature = "nix", feature = "all-parsers"))]
+                    { count += NIX_EXTS.len(); }
+
                     #[cfg(any(feature = "php", feature = "all-parsers"))]
                     { count += PHP_EXTS.len(); }
 
@@ -418,6 +454,9 @@ cfg_if::cfg_if!(
 
                     #[cfg(any(feature = "scala", feature = "all-parsers"))]
                     { count += SCALA_EXTS.len(); }
+
+                    #[cfg(any(feature = "solidity", feature = "all-parsers"))]
+                    { count += SOLIDITY_EXTS.len(); }
 
                     #[cfg(any(feature = "swift", feature = "all-parsers"))]
                     { count += SWIFT_EXTS.len(); }
@@ -518,11 +557,21 @@ cfg_if::cfg_if!(
                         }
                     }
 
-                    #[cfg(feature = "haskell")]
+                    #[cfg(any(feature = "haskell", feature = "all-parsers"))]
                     {
                         let mut i = 0;
                         while i < HASKELL_EXTS.len() {
                             result[index] = HASKELL_EXTS[i];
+                            index += 1;
+                            i += 1;
+                        }
+                    }
+
+                    #[cfg(any(feature = "hcl", feature = "all-parsers"))]
+                    {
+                        let mut i = 0;
+                        while i < HCL_EXTS.len() {
+                            result[index] = HCL_EXTS[i];
                             index += 1;
                             i += 1;
                         }
@@ -588,6 +637,16 @@ cfg_if::cfg_if!(
                         }
                     }
 
+                    #[cfg(any(feature = "nix", feature = "all-parsers"))]
+                    {
+                        let mut i = 0;
+                        while i < NIX_EXTS.len() {
+                            result[index] = NIX_EXTS[i];
+                            index += 1;
+                            i += 1;
+                        }
+                    }
+
                     #[cfg(any(feature = "php", feature = "all-parsers"))]
                     {
                         let mut i = 0;
@@ -633,6 +692,16 @@ cfg_if::cfg_if!(
                         let mut i = 0;
                         while i < SCALA_EXTS.len() {
                             result[index] = SCALA_EXTS[i];
+                            index += 1;
+                            i += 1;
+                        }
+                    }
+
+                    #[cfg(any(feature = "solidity", feature = "all-parsers"))]
+                    {
+                        let mut i = 0;
+                        while i < SOLIDITY_EXTS.len() {
+                            result[index] = SOLIDITY_EXTS[i];
                             index += 1;
                             i += 1;
                         }
@@ -699,11 +768,11 @@ cfg_if::cfg_if!(
                 any(
                     feature = "bash", feature = "c", feature = "cpp",
                     feature = "csharp", feature = "css", feature = "elixir",
-                    feature = "go", feature = "haskell", feature = "html",
+                    feature = "go", feature = "haskell", feature = "hcl", feature = "html",
                     feature = "java", feature = "javascript", feature = "json",
-                    feature = "kotlin", feature = "lua", feature = "php",
+                    feature = "kotlin", feature = "lua", feature = "nix", feature = "php",
                     feature = "python", feature = "ruby", feature = "rust",
-                    feature = "scala", feature = "swift", feature = "tsx",
+                    feature = "scala", feature = "solidity", feature = "swift", feature = "tsx",
                     feature = "typescript", feature = "yaml", feature = "napi-compatible", feature = "css-napi", feature = "html-napi", feature = "javascript-napi", feature = "tsx-napi", feature = "typescript-napi"
                     )
                 )
@@ -738,8 +807,11 @@ cfg_if::cfg_if!(
                     #[cfg(any(feature = "go", feature = "all-parsers"))]
                     { count += GO_EXTS.len(); }
 
-                    #[cfg(feature = "haskell")]
+                    #[cfg(any(feature = "haskell", feature = "all-parsers"))]
                     { count += HASKELL_EXTS.len(); }
+
+                    #[cfg(any(feature = "hcl", feature = "all-parsers"))]
+                    { count += HCL_EXTS.len(); }
 
                     #[cfg(any(feature = "html", feature = "all-parsers", feature = "html-napi", feature = "napi-compatible"))]
                     { count += HTML_EXTS.len(); }
@@ -759,6 +831,9 @@ cfg_if::cfg_if!(
                     #[cfg(any(feature = "lua", feature = "all-parsers"))]
                     { count += LUA_EXTS.len(); }
 
+                    #[cfg(any(feature = "nix", feature = "all-parsers"))]
+                    { count += NIX_EXTS.len(); }
+
                     #[cfg(any(feature = "php", feature = "all-parsers"))]
                     { count += PHP_EXTS.len(); }
 
@@ -773,6 +848,9 @@ cfg_if::cfg_if!(
 
                     #[cfg(any(feature = "scala", feature = "all-parsers"))]
                     { count += SCALA_EXTS.len(); }
+
+                    #[cfg(any(feature = "solidity", feature = "all-parsers"))]
+                    { count += SOLIDITY_EXTS.len(); }
 
                     #[cfg(any(feature = "swift", feature = "all-parsers"))]
                     { count += SWIFT_EXTS.len(); }
@@ -864,11 +942,21 @@ cfg_if::cfg_if!(
                         }
                     }
 
-                    #[cfg(feature = "haskell")]
+                    #[cfg(any(feature = "haskell", feature = "all-parsers"))]
                     {
                         let mut i = 0;
                         while i < HASKELL_EXTS.len() {
                             result[index] = SupportLang::Haskell;
+                            index += 1;
+                            i += 1;
+                        }
+                    }
+
+                    #[cfg(any(feature = "hcl", feature = "all-parsers"))]
+                    {
+                        let mut i = 0;
+                        while i < HCL_EXTS.len() {
+                            result[index] = SupportLang::Hcl;
                             index += 1;
                             i += 1;
                         }
@@ -934,6 +1022,16 @@ cfg_if::cfg_if!(
                         }
                     }
 
+                    #[cfg(any(feature = "nix", feature = "all-parsers"))]
+                    {
+                        let mut i = 0;
+                        while i < NIX_EXTS.len() {
+                            result[index] = SupportLang::Nix;
+                            index += 1;
+                            i += 1;
+                        }
+                    }
+
                     #[cfg(any(feature = "php", feature = "all-parsers"))]
                     {
                         let mut i = 0;
@@ -979,6 +1077,16 @@ cfg_if::cfg_if!(
                         let mut i = 0;
                         while i < SCALA_EXTS.len() {
                             result[index] = SupportLang::Scala;
+                            index += 1;
+                            i += 1;
+                        }
+                    }
+
+                    #[cfg(any(feature = "solidity", feature = "all-parsers"))]
+                    {
+                        let mut i = 0;
+                        while i < SOLIDITY_EXTS.len() {
+                            result[index] = SupportLang::Solidity;
                             index += 1;
                             i += 1;
                         }
@@ -1033,7 +1141,7 @@ cfg_if::cfg_if!(
         }
 );
 
-// ========== Consts for Planned Features ==========
+// ========== Constants for Planned Features ==========
 // these aren't yet implemented
 
 /// List of files that DO NOT have an extension but are still associated with a language.

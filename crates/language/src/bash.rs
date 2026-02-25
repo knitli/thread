@@ -7,7 +7,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
 
 use super::*;
-
 fn test_match(query: &str, source: &str) {
     use crate::test::test_match_lang;
     test_match_lang(query, source, Bash);

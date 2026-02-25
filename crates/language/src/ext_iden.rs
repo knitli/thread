@@ -75,6 +75,7 @@ mod tests {
         // Test complex extensions
         assert_eq!(match_by_aho_corasick("tsx"), Some(SupportLang::Tsx));
         assert_eq!(match_by_aho_corasick("cpp"), Some(SupportLang::Cpp));
+        assert_eq!(match_by_aho_corasick("workflow"), Some(SupportLang::Hcl));
 
         // Test ambiguous extensions (C vs C++)
         // "c" extension should match C (first in enum order)

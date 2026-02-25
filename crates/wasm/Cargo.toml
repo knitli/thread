@@ -60,7 +60,7 @@ thread-language = { workspace = true }
 thread-utils = { workspace = true, default-features = false, features = [
   "hashers",
 ] }
-wasm-bindgen = { version = "0.2.100" }
+wasm-bindgen = { version = "0.2.100", optional = true }
 web-sys = { version = "0.3.77", features = ["console"], optional = true }
 
 [dev-dependencies]
@@ -70,7 +70,7 @@ wasm-bindgen-test = "0.3.50"
 default = ["worker"]
 browser = ["multi-threading", "serialization"]
 multi-threading = ["rayon"]
-panic_hook = ["console_error_panic_hook", "web-sys/console"]
+panic-hook = ["console_error_panic_hook", "web-sys/console"]
 # TODO: wasi = [ ]
 serialization = ["serde/derive"]
 worker = ["web-sys/console"]  # single-threaded worker deployment

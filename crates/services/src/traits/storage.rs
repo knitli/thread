@@ -52,7 +52,7 @@ use thread_ast_engine::source::Doc;
 ///         let storage: Box<dyn StorageService> = Box::new(
 ///             PostgresStorageService::new("connection_string").await.unwrap()
 ///         );
-///         
+///
 ///         // Store analysis results persistently
 ///         // storage.store_analysis_result(...).await.unwrap();
 ///     }
@@ -468,13 +468,16 @@ mod tests {
     fn test_analysis_key() {
         let key = AnalysisKey {
             operation_type: "pattern_match".to_string(),
-            content_hash: 12345,
+            content_fingerprint: recoco_utils::fingerprint::Fingerprint([0u8; 16]),
             configuration_hash: 67890,
             version: "1.0".to_string(),
         };
 
         assert_eq!(key.operation_type, "pattern_match");
-        assert_eq!(key.content_hash, 12345);
+        assert_eq!(
+            key.content_fingerprint,
+            recoco_utils::fingerprint::Fingerprint([0u8; 16])
+        );
     }
 
     #[test]

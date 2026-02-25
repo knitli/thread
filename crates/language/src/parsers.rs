@@ -64,17 +64,20 @@
         feature = "elixir",
         feature = "go",
         feature = "haskell",
+        feature = "hcl",
         feature = "html",
         feature = "java",
         feature = "javascript",
         feature = "json",
         feature = "kotlin",
         feature = "lua",
+        feature = "nix",
         feature = "php",
         feature = "python",
         feature = "ruby",
         feature = "rust",
         feature = "scala",
+        feature = "solidity",
         feature = "swift",
         feature = "tsx",
         feature = "typescript",
@@ -136,17 +139,20 @@ macro_rules! into_lang {
         feature = "elixir",
         feature = "go",
         feature = "haskell",
+        feature = "hcl",
         feature = "html",
         feature = "java",
         feature = "javascript",
         feature = "json",
         feature = "kotlin",
         feature = "lua",
+        feature = "nix",
         feature = "php",
         feature = "python",
         feature = "ruby",
         feature = "rust",
         feature = "scala",
+        feature = "solidity",
         feature = "swift",
         feature = "tsx",
         feature = "typescript",
@@ -199,8 +205,10 @@ static CSS_LANG: OnceLock<TSLanguage> = OnceLock::new();
 static ELIXIR_LANG: OnceLock<TSLanguage> = OnceLock::new();
 #[cfg(any(feature = "go", feature = "all-parsers"))]
 static GO_LANG: OnceLock<TSLanguage> = OnceLock::new();
-#[cfg(feature = "haskell")]
+#[cfg(any(feature = "haskell", feature = "all-parsers"))]
 static HASKELL_LANG: OnceLock<TSLanguage> = OnceLock::new();
+#[cfg(any(feature = "hcl", feature = "all-parsers"))]
+static HCL_LANG: OnceLock<TSLanguage> = OnceLock::new();
 #[cfg(any(
     feature = "html",
     feature = "all-parsers",
@@ -223,6 +231,8 @@ static JSON_LANG: OnceLock<TSLanguage> = OnceLock::new();
 static KOTLIN_LANG: OnceLock<TSLanguage> = OnceLock::new();
 #[cfg(any(feature = "lua", feature = "all-parsers"))]
 static LUA_LANG: OnceLock<TSLanguage> = OnceLock::new();
+#[cfg(any(feature = "nix", feature = "all-parsers"))]
+static NIX_LANG: OnceLock<TSLanguage> = OnceLock::new();
 #[cfg(any(feature = "php", feature = "all-parsers"))]
 static PHP_LANG: OnceLock<TSLanguage> = OnceLock::new();
 #[cfg(any(feature = "python", feature = "all-parsers"))]
@@ -233,6 +243,8 @@ static RUBY_LANG: OnceLock<TSLanguage> = OnceLock::new();
 static RUST_LANG: OnceLock<TSLanguage> = OnceLock::new();
 #[cfg(any(feature = "scala", feature = "all-parsers"))]
 static SCALA_LANG: OnceLock<TSLanguage> = OnceLock::new();
+#[cfg(any(feature = "solidity", feature = "all-parsers"))]
+static SOLIDITY_LANG: OnceLock<TSLanguage> = OnceLock::new();
 #[cfg(any(feature = "swift", feature = "all-parsers"))]
 static SWIFT_LANG: OnceLock<TSLanguage> = OnceLock::new();
 #[cfg(any(
@@ -294,12 +306,18 @@ pub fn language_go() -> TSLanguage {
     GO_LANG.get_or_init(|| into_lang!(tree_sitter_go)).clone()
 }
 
-#[cfg(feature = "haskell")]
+#[cfg(any(feature = "haskell", feature = "all-parsers"))]
 pub fn language_haskell() -> TSLanguage {
     HASKELL_LANG
         .get_or_init(|| into_lang!(tree_sitter_haskell))
         .clone()
 }
+
+#[cfg(any(feature = "hcl", feature = "all-parsers"))]
+pub fn language_hcl() -> TSLanguage {
+    HCL_LANG.get_or_init(|| into_lang!(tree_sitter_hcl)).clone()
+}
+
 #[cfg(any(
     feature = "html",
     feature = "all-parsers",
@@ -346,6 +364,12 @@ pub fn language_kotlin() -> TSLanguage {
 pub fn language_lua() -> TSLanguage {
     LUA_LANG.get_or_init(|| into_lang!(tree_sitter_lua)).clone()
 }
+
+#[cfg(any(feature = "nix", feature = "all-parsers"))]
+pub fn language_nix() -> TSLanguage {
+    NIX_LANG.get_or_init(|| into_lang!(tree_sitter_nix)).clone()
+}
+
 #[cfg(any(feature = "php", feature = "all-parsers"))]
 pub fn language_php() -> TSLanguage {
     PHP_LANG
@@ -374,6 +398,12 @@ pub fn language_rust() -> TSLanguage {
 pub fn language_scala() -> TSLanguage {
     SCALA_LANG
         .get_or_init(|| into_lang!(tree_sitter_scala))
+        .clone()
+}
+#[cfg(any(feature = "solidity", feature = "all-parsers"))]
+pub fn language_solidity() -> TSLanguage {
+    SOLIDITY_LANG
+        .get_or_init(|| into_lang!(tree_sitter_solidity))
         .clone()
 }
 #[cfg(any(feature = "swift", feature = "all-parsers"))]

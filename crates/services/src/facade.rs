@@ -22,6 +22,7 @@ use std::sync::Arc;
 pub struct ThreadService<A: CodeAnalyzer<D>, D: crate::types::Doc + Send + Sync> {
     #[allow(dead_code)]
     analyzer: Arc<A>,
+    #[allow(dead_code)]
     #[cfg(feature = "storage-traits")]
     storage: Option<Arc<dyn StorageService>>,
     _marker: std::marker::PhantomData<D>,
