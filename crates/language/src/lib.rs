@@ -155,10 +155,15 @@ use std::str::FromStr;
 
 #[allow(unused_imports)]
 use thread_ast_engine::Node;
+#[allow(unused_imports)]
 use thread_ast_engine::language::Language;
 #[allow(unused_imports)]
+#[cfg(feature = "matching")]
 use thread_ast_engine::meta_var::MetaVariable;
+#[allow(unused_imports)]
+#[cfg(feature = "tree-sitter-parsing")]
 use thread_ast_engine::tree_sitter::{LanguageExt, StrDoc, TSLanguage, TSRange};
+#[allow(unused_imports)]
 use thread_utils::RapidMap;
 
 /// Implements standard [`Language`] and [`LanguageExt`] traits for languages that accept `$` in identifiers.

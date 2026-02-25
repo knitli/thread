@@ -57,7 +57,7 @@ tree-sitter-typescript = { version = "0.23.2", optional = true }
 tree-sitter-yaml = { version = "0.7.1", optional = true }
 
 [dev-dependencies]
-criterion = { version = "0.6", features = ["html_reports"] }
+criterion = { version = "0.8.2", features = ["html_reports"] }
 thread-ast-engine = { workspace = true, features = ["matching", "parsing"] }
 
 [build-dependencies]

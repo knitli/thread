@@ -443,11 +443,10 @@ impl<'r, D: Doc> Node<'r, D> {
     ) -> impl Iterator<Item = NodeMatch<'r, D>> + 's {
         let kinds = pat.potential_kinds();
         self.dfs().filter_map(move |cand| {
-            if let Some(k) = &kinds {
-                if !k.contains(cand.kind_id().into()) {
+            if let Some(k) = &kinds
+                && !k.contains(cand.kind_id().into()) {
                     return None;
                 }
-            }
             pat.match_node(cand)
         })
     }
