@@ -5,8 +5,8 @@
 #[cfg(all(feature = "ast", feature = "language"))]
 #[test]
 fn test_reexports_work() {
-    use thread::language::{Tsx, LanguageExt};
     use thread::Root;
+    use thread::language::{LanguageExt, Tsx};
 
     let ast: Root<_> = Tsx.ast_grep("const x = 1;");
     let matches: Vec<_> = ast.root().find_all("const $VAR = $VALUE").collect();
@@ -17,7 +17,7 @@ fn test_reexports_work() {
 #[test]
 fn test_service_reexports_work() {
     use thread::services::FileSystemContext;
-    
+
     // Just check if we can use the types
     let _ctx = FileSystemContext::new(".");
 }

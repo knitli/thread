@@ -202,14 +202,14 @@ pub trait CodeParser<D: Doc + Send + Sync>: Send + Sync {
 
         // Check content size limits based on capabilities
         let capabilities = self.capabilities();
-        if let Some(max_size) = capabilities.max_content_size {
-            if content.len() > max_size {
-                return Err(ParseError::ContentTooLarge {
-                    size: content.len(),
-                    max_size,
-                }
-                .into());
+        if let Some(max_size) = capabilities.max_content_size
+            && content.len() > max_size
+        {
+            return Err(ParseError::ContentTooLarge {
+                size: content.len(),
+                max_size,
             }
+            .into());
         }
 
         Ok(())

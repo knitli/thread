@@ -168,10 +168,10 @@ impl ExecutionContext for FileSystemContext {
         let mut sources = Vec::new();
         for entry in std::fs::read_dir(&self.base_path)? {
             let entry = entry?;
-            if entry.file_type()?.is_file() {
-                if let Some(name) = entry.file_name().to_str() {
-                    sources.push(name.to_string());
-                }
+            if entry.file_type()?.is_file()
+                && let Some(name) = entry.file_name().to_str()
+            {
+                sources.push(name.to_string());
             }
         }
         Ok(sources)

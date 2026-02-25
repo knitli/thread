@@ -51,6 +51,8 @@ pub mod ast {
 /// Language definitions and tree-sitter parser integrations.
 #[cfg(feature = "language")]
 pub mod language {
+    #[cfg(feature = "ast")]
+    pub use thread_ast_engine::tree_sitter::LanguageExt;
     pub use thread_language::*;
 }
 

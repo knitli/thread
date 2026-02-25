@@ -246,14 +246,15 @@ pub trait CodeAnalyzer<D: Doc + Send + Sync>: Send + Sync {
                 if ch == '$' {
                     _found_metavar = true;
                     // Next character should be alphabetic or underscore
-                    if let Some(next_ch) = chars.next() {
-                        if !next_ch.is_alphabetic() && next_ch != '_' {
-                            return Err(AnalysisError::MetaVariable {
-                                variable: format!("${}", next_ch),
-                                message: "Invalid meta-variable format".to_string(),
-                            }
-                            .into());
+                    if let Some(next_ch) = chars.next()
+                        && !next_ch.is_alphabetic()
+                        && next_ch != '_'
+                    {
+                        return Err(AnalysisError::MetaVariable {
+                            variable: format!("${}", next_ch),
+                            message: "Invalid meta-variable format".to_string(),
                         }
+                        .into());
                     }
                 }
             }

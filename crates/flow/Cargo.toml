@@ -49,9 +49,10 @@ base64 = "0.22"
 bytes = "1.10"
 deadpool-postgres = { version = "0.14", optional = true }
 env_logger = "0.11"
+futures = { workspace = true }
 # Logging and observability
 log = "0.4"
-metrics = "0.23"
+metrics = "0.24"
 # Optional: query result caching
 moka = { version = "0.12", features = ["future"], optional = true }
 # Optional: parallel processing for CLI (not available in workers)
@@ -62,7 +63,6 @@ recoco = { version = "0.2.1", default-features = false, features = [
   "source-local-file",
 ] }
 reqwest = { version = "0.12", features = ["json"] }
-futures = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }
@@ -94,14 +94,14 @@ tracing-subscriber = { version = "0.3", features = [
 tree-sitter = { workspace = true }
 
 [dev-dependencies]
-criterion = "0.5"
+criterion = "0.8.2"
 deadpool-postgres = "0.14"
-md5 = "0.7"
-metrics-exporter-prometheus = "0.16"
-rusqlite = { version = "0.32", features = ["bundled"] }
+md5 = "0.8"
+metrics-exporter-prometheus = "0.18"
+rusqlite = { version = "*", features = ["bundled"] }
 tempfile = "3.13"
-testcontainers = "0.23"
-testcontainers-modules = { version = "0.11", features = ["postgres"] }
+testcontainers = "0.27.1"
+testcontainers-modules = { version = "0.15", features = ["postgres"] }
 tokio-postgres = "0.7"
 
 [features]
