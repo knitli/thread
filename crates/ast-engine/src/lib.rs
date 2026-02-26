@@ -172,10 +172,6 @@
 //!
 //! See [`VENDORED.md`](crates/ast-engine/VENDORED.md) for more information on our fork, changes, and reasons.
 
-#[cfg(all(not(feature = "worker"), feature = "mimalloc"))]
-#[global_allocator]
-static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
-
 pub mod language;
 pub mod source;
 

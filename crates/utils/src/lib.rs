@@ -5,10 +5,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #![allow(unused_imports)]
 
-#[cfg(all(not(feature = "worker"), feature = "mimalloc"))]
-#[global_allocator]
-static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
-
 #[cfg(feature = "hashers")]
 mod hash_help;
 #[cfg(feature = "hashers")]

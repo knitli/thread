@@ -70,10 +70,6 @@
 //! }
 //! ```
 
-#[cfg(all(not(feature = "worker"), feature = "mimalloc"))]
-#[global_allocator]
-static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
-
 // Core modules
 pub mod conversion;
 pub mod error;
