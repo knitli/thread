@@ -403,7 +403,7 @@ fn test_resolve_standard_library_import() {
     let result = extractor.resolve_import_path(Path::new("main.go"), "fmt");
 
     // Standard library imports cannot be resolved to local paths
-    assert!(result.is_err() || result.unwrap() == PathBuf::from("GOROOT/src/fmt"));
+    assert!(result.is_err() || result.unwrap() == Path::new("GOROOT/src/fmt"));
 }
 
 #[test]
