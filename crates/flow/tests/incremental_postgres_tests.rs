@@ -15,7 +15,6 @@
 
 #![cfg(feature = "postgres-backend")]
 
-use std::collections::HashSet;
 use std::path::{Path, PathBuf};
 use std::time::Instant;
 
@@ -127,10 +126,12 @@ async fn test_upsert_fingerprint() {
 async fn test_fingerprint_with_source_files() {
     let (backend, _container) = setup_backend().await;
 
-    let sources = HashSet::from([
+    let sources: thread_utils::RapidSet<PathBuf> = [
         PathBuf::from("src/utils.rs"),
         PathBuf::from("src/config.rs"),
-    ]);
+    ]
+    .into_iter()
+    .collect();
     let fp = AnalysisDefFingerprint::with_sources(b"content", sources.clone());
 
     backend
@@ -206,7 +207,7 @@ async fn test_delete_nonexistent_fingerprint() {
 async fn test_delete_fingerprint_cascades_source_files() {
     let (backend, _container) = setup_backend().await;
 
-    let sources = HashSet::from([PathBuf::from("dep.rs")]);
+    let sources: thread_utils::RapidSet<PathBuf> = [PathBuf::from("dep.rs")].into_iter().collect();
     let fp = AnalysisDefFingerprint::with_sources(b"content", sources);
 
     backend
@@ -223,7 +224,9 @@ async fn test_delete_fingerprint_cascades_source_files() {
     // Re-inserting should work without duplicate key errors
     let fp2 = AnalysisDefFingerprint::with_sources(
         b"new content",
-        HashSet::from([PathBuf::from("other.rs")]),
+        [PathBuf::from("other.rs")]
+            .into_iter()
+            .collect::<thread_utils::RapidSet<PathBuf>>(),
     );
     backend
         .save_fingerprint(Path::new("main.rs"), &fp2)
@@ -413,7 +416,10 @@ async fn test_full_graph_with_fingerprints_and_sources() {
     let (backend, _container) = setup_backend().await;
 
     // Save fingerprints with source files
-    let sources_a = HashSet::from([PathBuf::from("dep1.rs"), PathBuf::from("dep2.rs")]);
+    let sources_a: thread_utils::RapidSet<PathBuf> =
+        [PathBuf::from("dep1.rs"), PathBuf::from("dep2.rs")]
+            .into_iter()
+            .collect();
     let mut fp_a = AnalysisDefFingerprint::with_sources(b"content a", sources_a);
     fp_a.set_last_analyzed(1000);
 

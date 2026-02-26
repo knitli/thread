@@ -112,6 +112,7 @@ pub enum CredentialStore {
 **Purpose**: Individual file in a repository with AST representation
 
 **Attributes**:
+
 ```rust
 pub struct CodeFile {
     pub id: FileId,                 // Content-addressed hash of file content
@@ -124,7 +125,7 @@ pub struct CodeFile {
     // NOTE: `ast: Root` is intentionally ABSENT. tree-sitter's `Tree`/`Root` is an opaque
     // C struct — not serializable, not persistable, and not Send. AST is obtained on demand
     // via `tree_sitter_parse(source_bytes, language)`. For frequently-accessed files, use a
-    // separate AstCache (e.g., LRU HashMap<ContentHash, Root>) owned by the analysis session,
+    // separate AstCache (e.g., LRU thread_utils::RapidMap<ContentHash, Root>) owned by the analysis session,
     // never stored in CodeFile itself.
 }
 
@@ -139,11 +140,13 @@ pub type ContentHash = [u8; 32];    // Blake3 hash
 ```
 
 **Relationships**:
+
 - Many-to-one with `CodeRepository` (file belongs to one repository)
 - One-to-many with `GraphNode` (file contains multiple symbols)
 - Many-to-many with `ConflictPrediction` (file can have multiple conflicts)
 
 **Storage**:
+
 - Metadata: Postgres/D1 table `files`
 - AST: Content-addressed cache (ReCoco) with file hash as key
 - Content: Not stored (re-fetched from source on demand)
@@ -230,7 +233,7 @@ pub struct SourceLocation {
 pub struct SemanticMetadata {
     pub visibility: Visibility,          // Public, Private, Protected (language-agnostic)
     pub generic_params: Vec<String>,     // Generic type parameters (language-agnostic)
-    pub attributes: HashMap<Box<str>, serde_json::Value>, // Language-specific metadata.
+    pub attributes: thread_utils::RapidMap<Box<str>, serde_json::Value>, // Language-specific metadata.
     // Documented attribute keys:
     //   "mutability"  → bool   — Rust: mutable binding or field
     //   "async"       → bool   — Rust/JS/Python/Go: async function
@@ -245,11 +248,13 @@ pub struct SemanticMetadata {
 ```
 
 **Relationships**:
+
 - Many-to-one with `CodeFile` (node belongs to one file)
 - Many-to-many with `GraphEdge` (node participates in many relationships)
 - One-to-many with `ConflictPrediction` (node can be source of conflicts)
 
 **Storage**:
+
 - Metadata: Postgres/D1 table `nodes`
 - In-memory: Custom DependencyGraph (crates/flow/src/incremental/graph.rs) for complex queries (CLI only) — petgraph was evaluated but custom implementation was chosen
 - Edge Strategy: **Streaming/Iterator access only**. NEVER load full graph into memory. Use `D1GraphIterator` pattern.
@@ -269,6 +274,7 @@ pub struct SemanticMetadata {
 > `semantic_class` is determined by the language-agnostic classifier.
 
 **Attributes**:
+
 ```rust
 pub struct GraphEdge {
     pub id: EdgeId,                 // Content-addressed edge identifier
@@ -305,10 +311,12 @@ impl EdgeId {
 ```
 
 **Relationships**:
+
 - Many-to-one with `GraphNode` (edge connects two nodes)
 - Edges form the graph structure for traversal queries
 
 **Storage**:
+
 - Postgres/D1 table `edges` with `id` (`EdgeId`) as primary key; composite index `(source_id, target_id, edge_type)` for uniqueness
 - Indexed on `source_id` and `target_id` for fast traversal
 - In-memory: DependencyGraph adjacency lists (thread-flow) — custom BFS/topological sort
@@ -340,6 +348,7 @@ and comparison against a known good state.
 **k-Hop Bounded** (k=3 default, Decision D8):
 NOT a full transitive closure. Full closure for 10M nodes ≈ 800GB, which exceeds D1's 10GB limit.
 Instead:
+
 - Pre-compute reachability up to **k=3 hops** from each changed node (configurable)
 - Beyond k hops: **on-demand BFS** (streaming, does not materialize the full closure)
 - Conflict detection queries beyond k hops use streaming BFS from the Container
@@ -357,6 +366,7 @@ pub struct ReachabilityEntry {
 ```
 
 **Reachability Logic**:
+
 - **Write Path**: `ThreadBuildGraphFunction` computes reachability up to k hops for changed nodes and performs `BATCH INSERT` into D1.
 - **Read Path**: Queries run `SELECT descendant_id FROM reachability WHERE ancestor_id = ? AND hops <= ?` (O(1) index lookup within k-hop bound).
 - **Beyond k hops**: Streaming BFS in Container; does NOT materialize the full transitive closure.
@@ -375,6 +385,7 @@ pub struct ReachabilityEntry {
 > **Type ownership**: These types are defined in `thread-api/src/types.rs` (OSS), not in `thread-conflict`. `thread-conflict` (commercial) imports them from `thread-api`. This ensures `thread-api` compiles independently of the commercial crate.
 
 **Attributes**:
+
 ```rust
 pub struct ConflictPrediction {
     pub id: ConflictId,             // Unique conflict identifier
@@ -498,10 +509,12 @@ pub struct PerformanceMetrics {
 ```
 
 **Relationships**:
+
 - Many-to-one with `CodeRepository` (session analyzes one repository)
 - One-to-many with `ConflictPrediction` (session detects multiple conflicts)
 
 **Storage**:
+
 - Postgres/D1 table `analysis_sessions`
 - Metrics aggregated for dashboard/reporting
 
@@ -512,6 +525,7 @@ pub struct PerformanceMetrics {
 **Purpose**: Represents a pluggable analysis component (parser, graph builder, conflict detector)
 
 **Attributes**:
+
 ```rust
 pub struct PluginEngine {
     pub id: EngineId,               // Unique engine identifier
@@ -538,7 +552,7 @@ pub enum EngineType {
 }
 
 pub struct EngineConfig {
-    pub params: HashMap<String, serde_json::Value>, // Key-value configuration
+    pub params: thread_utils::RapidMap<String, serde_json::Value>, // Key-value configuration
     pub enabled_languages: Vec<Language>, // Languages this engine supports
     pub performance_tuning: PerformanceTuning, // Resource limits
 }
@@ -551,10 +565,12 @@ pub struct PerformanceTuning {
 ```
 
 **Relationships**:
+
 - Many-to-many with `AnalysisSession` (session uses multiple engines)
 - Engines are swappable via trait boundaries (Constitution Principle IV)
 
 **Storage**:
+
 - Postgres/D1 table `plugin_engines`
 - Configuration managed via admin API or config files
 
@@ -567,6 +583,7 @@ pub struct PerformanceTuning {
 > **OSS/Commercial boundary**: In OSS CLI, Deltas are stored in-memory per process (single-user, process lifetime). Multi-developer Delta sharing — required for cross-developer conflict detection (US2) — is a commercial capability implemented via Durable Object storage.
 
 **Attributes**:
+
 ```rust
 // NOTE: Delta implementation scope —
 //   OSS CLI:         In-memory only, single-user. Not shared across processes or connections.
@@ -575,10 +592,10 @@ pub struct Delta {
     pub user_id: UserId,
     pub repository_id: RepositoryId,
     pub session_id: SessionId,
-    pub changed_nodes: HashMap<NodeId, GraphNode>,  // Modified or added nodes (local state)
-    pub removed_nodes: HashSet<NodeId>,             // Nodes deleted in local working state
+    pub changed_nodes: thread_utils::RapidMap<NodeId, GraphNode>,  // Modified or added nodes (local state)
+    pub removed_nodes: thread_utils::RapidSet<NodeId>,             // Nodes deleted in local working state
     pub added_edges: Vec<GraphEdge>,                // New relationships in local working state
-    pub removed_edges: HashSet<EdgeId>,             // Removed relationships in local working state
+    pub removed_edges: thread_utils::RapidSet<EdgeId>,             // Removed relationships in local working state
     pub base_ref: String,                           // Git ref this delta was forked from (e.g., "main@abc123")
     pub created_at: DateTime<Utc>,
     pub last_updated: DateTime<Utc>,
@@ -586,10 +603,12 @@ pub struct Delta {
 ```
 
 **Relationships**:
+
 - Many-to-one with `CodeRepository` (Delta applies changes within one repository)
 - Many-to-one with `AnalysisSession` (Delta is owned by one analysis session)
 
 **Storage**:
+
 - OSS CLI: In-memory only (process lifetime; discarded on exit)
 - Commercial edge: Durable Object storage (session lifetime; shared across WebSocket connections from the same developer)
 - NOT persisted to Postgres or D1 — Deltas are ephemeral by design (FR-017)
@@ -598,7 +617,7 @@ pub struct Delta {
 
 ## Entity Relationships Diagram
 
-```
+```plaintext
 CodeRepository (1) ────< (many) CodeFile
       │                           │
       │                           └──> (many) GraphNode ──┐
@@ -612,6 +631,7 @@ AnalysisSession ───> ConflictPrediction    GraphEdge ────┘
 ## Content-Addressed Storage Strategy
 
 **ReCoco Integration**:
+
 - All entities use content-addressed IDs (Blake3 hashes)
 - Content changes → new ID → automatic cache invalidation
 - Incremental updates: diff old vs new IDs, update only changed nodes/edges
@@ -624,6 +644,7 @@ content hashes is the target state for `thread-graph`/`thread-storage`.
 **Cache Hit Rate Target**: >90% (SC-CACHE-001)
 
 **Example**:
+
 ```rust
 // Function signature changes
 let old_id = NodeId::from_content("fn process(x: i32)");  // "node:abc123..."
@@ -640,11 +661,13 @@ db.update_edges_referencing(&old_id, &new_id)?;
 ## Schema Migrations
 
 **Version 1** (Initial Schema):
+
 - Tables: `repositories`, `files`, `nodes`, `edges`, `conflicts`, `analysis_sessions`, `plugin_engines`
 - Indexes: `idx_edges_source`, `idx_edges_target`, `idx_nodes_type_name`, `idx_nodes_file`
 - Schema version tracked in `schema_version` table
 
 **Future Migrations**:
+
 - Version 2: Add materialized views for reverse dependencies
 - Version 3: Add partitioning for large-scale deployments (>10M nodes)
 - Version 4: Add audit logging for conflict resolutions
@@ -665,6 +688,7 @@ db.update_edges_referencing(&old_id, &new_id)?;
 ## Next Steps (Phase 2 - tasks.md)
 
 Based on this data model:
+
 1. Implement Rust struct definitions in appropriate crates
 2. Generate database migration SQL for Postgres and D1
 3. Implement ReCoco content-addressing for all entities (foundation exists in thread-flow via Blake3 fingerprinting)

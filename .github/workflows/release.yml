@@ -30,6 +30,8 @@ jobs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
       version: ${{ steps.get_version.outputs.version }}
     steps:
+      - run: |
+          apt update && sudo apt install -y clang llvm-dev
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -289,7 +291,7 @@ jobs:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     environment:
       name: production-edge
-      url: https://thread.knit.li
+      url: https://thread.knitli.com
     steps:
       - uses: actions/checkout@v4
         with:

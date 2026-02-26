@@ -17,9 +17,9 @@
 
 use super::graph::{DependencyGraph, GraphError};
 use metrics::histogram;
-use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 use std::time::Instant;
+use thread_utils::{RapidMap, RapidSet};
 use tracing::{info, warn};
 
 /// Errors that can occur during invalidation detection.
@@ -45,6 +45,7 @@ pub enum InvalidationError {
 /// ```rust
 /// use thread_flow::incremental::invalidation::InvalidationDetector;
 /// use thread_flow::incremental::DependencyGraph;
+/// use thread_utils::RapishSet;
 /// use std::path::PathBuf;
 ///
 /// let graph = DependencyGraph::new();
@@ -174,7 +175,7 @@ impl InvalidationDetector {
         );
 
         // Step 1: Find all files transitively affected by changes
-        let changed_set: HashSet<PathBuf> = changed_files.iter().cloned().collect();
+        let changed_set: RapidSet<PathBuf> = changed_files.iter().cloned().collect();
         let affected = self.graph.find_affected_files(&changed_set);
         let invalidated_files: Vec<PathBuf> = affected.iter().cloned().collect();
 
@@ -258,7 +259,7 @@ impl InvalidationDetector {
     /// ```
     pub fn topological_sort(&self, files: &[PathBuf]) -> Result<Vec<PathBuf>, InvalidationError> {
         // Delegate to DependencyGraph's topological sort and map errors
-        let files_set: HashSet<PathBuf> = files.iter().cloned().collect();
+        let files_set: RapidSet<PathBuf> = files.iter().cloned().collect();
 
         self.graph
             .topological_sort(&files_set)
@@ -297,8 +298,8 @@ impl InvalidationDetector {
     /// ```
     pub fn propagate_invalidation(&self, root: &Path) -> Vec<PathBuf> {
         // Delegate to DependencyGraph's find_affected_files for single root
-        let root_set = HashSet::from([root.to_path_buf()]);
-        let affected = self.graph.find_affected_files(&root_set);
+        let root_set: RapidSet<PathBuf> = [root.to_path_buf()].into_iter().collect();
+        let affected: RapidSet<PathBuf> = self.graph.find_affected_files(&root_set);
         affected.into_iter().collect()
     }
 
@@ -317,7 +318,7 @@ impl InvalidationDetector {
     ///
     /// Vector of strongly connected components, where each component
     /// is a vector of file paths involved in a cycle.
-    fn find_strongly_connected_components(&self, files: &HashSet<PathBuf>) -> Vec<Vec<PathBuf>> {
+    fn find_strongly_connected_components(&self, files: &RapidSet<PathBuf>) -> Vec<Vec<PathBuf>> {
         // Tarjan's SCC algorithm for finding all cycles
         let mut state = TarjanState::new();
         let mut sccs = Vec::new();
@@ -396,20 +397,20 @@ impl InvalidationDetector {
 /// State for Tarjan's SCC algorithm
 struct TarjanState {
     index_counter: usize,
-    indices: HashMap<PathBuf, usize>,
-    lowlinks: HashMap<PathBuf, usize>,
+    indices: RapidMap<PathBuf, usize>,
+    lowlinks: RapidMap<PathBuf, usize>,
     stack: Vec<PathBuf>,
-    on_stack: HashSet<PathBuf>,
+    on_stack: RapidSet<PathBuf>,
 }
 
 impl TarjanState {
     fn new() -> Self {
         Self {
             index_counter: 0,
-            indices: HashMap::new(),
-            lowlinks: HashMap::new(),
+            indices: thread_utils::get_map(),
+            lowlinks: thread_utils::get_map(),
             stack: Vec::new(),
-            on_stack: HashSet::new(),
+            on_stack: thread_utils::get_set(),
         }
     }
 }
@@ -1068,7 +1069,9 @@ mod tests {
         ));
 
         let detector = InvalidationDetector::new(graph);
-        let files = HashSet::from([PathBuf::from("A"), PathBuf::from("B"), PathBuf::from("C")]);
+        let files: RapidSet<PathBuf> = [PathBuf::from("A"), PathBuf::from("B"), PathBuf::from("C")]
+            .into_iter()
+            .collect();
         let sccs = detector.find_strongly_connected_components(&files);
 
         // No non-trivial SCCs (all components have size 1)
@@ -1091,7 +1094,9 @@ mod tests {
         ));
 
         let detector = InvalidationDetector::new(graph);
-        let files = HashSet::from([PathBuf::from("A"), PathBuf::from("B")]);
+        let files: RapidSet<PathBuf> = [PathBuf::from("A"), PathBuf::from("B")]
+            .into_iter()
+            .collect();
         let sccs = detector.find_strongly_connected_components(&files);
 
         assert_eq!(sccs.len(), 1);
@@ -1111,7 +1116,7 @@ mod tests {
         ));
 
         let detector = InvalidationDetector::new(graph);
-        let files = HashSet::from([PathBuf::from("A")]);
+        let files: RapidSet<PathBuf> = [PathBuf::from("A")].into_iter().collect();
         let sccs = detector.find_strongly_connected_components(&files);
 
         // Self-loop creates a non-trivial SCC of size 1
@@ -1146,12 +1151,14 @@ mod tests {
         ));
 
         let detector = InvalidationDetector::new(graph);
-        let files = HashSet::from([
+        let files: RapidSet<PathBuf> = [
             PathBuf::from("A"),
             PathBuf::from("B"),
             PathBuf::from("C"),
             PathBuf::from("D"),
-        ]);
+        ]
+        .into_iter()
+        .collect();
         let sccs = detector.find_strongly_connected_components(&files);
 
         assert_eq!(sccs.len(), 2);
@@ -1183,12 +1190,14 @@ mod tests {
         ));
 
         let detector = InvalidationDetector::new(graph);
-        let files = HashSet::from([
+        let files: RapidSet<PathBuf> = [
             PathBuf::from("A"),
             PathBuf::from("B"),
             PathBuf::from("C"),
             PathBuf::from("D"),
-        ]);
+        ]
+        .into_iter()
+        .collect();
         let sccs = detector.find_strongly_connected_components(&files);
 
         // Should find one SCC containing B and C

@@ -62,10 +62,10 @@
 pub mod logging;
 pub mod performance;
 
-use std::collections::HashMap;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, RwLock};
 use std::time::{Duration, Instant};
+use thread_utils::RapidMap;
 
 /// Metrics collector for Thread Flow operations
 #[derive(Clone)]
@@ -89,7 +89,7 @@ struct MetricsInner {
     start_time: Instant,
 
     // Error tracking
-    errors_by_type: RwLock<HashMap<String, u64>>,
+    errors_by_type: RwLock<RapidMap<String, u64>>,
 }
 
 impl Metrics {
@@ -105,7 +105,7 @@ impl Metrics {
                 files_processed: AtomicU64::new(0),
                 symbols_extracted: AtomicU64::new(0),
                 start_time: Instant::now(),
-                errors_by_type: RwLock::new(HashMap::new()),
+                errors_by_type: RwLock::new(thread_utils::get_map()),
             }),
         }
     }
@@ -372,7 +372,7 @@ pub struct MetricsSnapshot {
     pub throughput_files_per_sec: f64,
 
     // Error metrics
-    pub errors_by_type: HashMap<String, u64>,
+    pub errors_by_type: RapidMap<String, u64>,
     pub error_rate: f64,
 
     // System metrics

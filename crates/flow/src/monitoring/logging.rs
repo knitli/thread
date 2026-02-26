@@ -299,18 +299,18 @@ macro_rules! timed_operation {
 
 /// Structured logging helpers
 pub mod structured {
-    use std::collections::HashMap;
+    use thread_utils::RapidMap;
 
     /// Build a structured log context
     pub struct LogContext {
-        fields: HashMap<String, String>,
+        fields: RapidMap<String, String>,
     }
 
     impl LogContext {
         /// Create a new log context
         pub fn new() -> Self {
             Self {
-                fields: HashMap::new(),
+                fields: thread_utils::get_map(),
             }
         }
 

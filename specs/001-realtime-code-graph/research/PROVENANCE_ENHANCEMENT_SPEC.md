@@ -26,7 +26,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use thread_utils::RapidMap;
 
 /// Represents the version of source code being analyzed
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -48,7 +48,7 @@ pub struct SourceVersion {
     pub version_timestamp: DateTime<Utc>,
 
     /// Additional context (branch name, tag, storage class, etc.)
-    pub metadata: HashMap<String, String>,
+    pub metadata: RapidMap<String, String>,
 }
 
 /// Represents a single step in the analysis pipeline
@@ -82,7 +82,7 @@ pub struct LineageRecord {
     pub cache_hit: bool,
 
     /// Operation-specific metadata
-    pub metadata: HashMap<String, String>,
+    pub metadata: RapidMap<String, String>,
 }
 
 /// Types of operations in the analysis pipeline
@@ -378,7 +378,7 @@ impl GraphEdge {
 use crate::ConflictPrediction;
 use crate::provenance::{Provenance, LineageRecord};
 use chrono::{DateTime, Utc};
-use std::collections::HashMap;
+use thread_utils::RapidMap;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ConflictProvenance {
@@ -718,33 +718,38 @@ pub struct TraceConflictResponse {
 
 ### 4.1 Core Tasks
 
-**T079.1: Provenance Module Creation**
+#### T079.1: Provenance Module Creation
+
 - File: `crates/thread-graph/src/provenance.rs`
 - Define: `SourceVersion`, `LineageRecord`, `OperationType`, `EdgeCreationMethod`, `Provenance`
 - Tests: Unit tests for provenance type conversions
 - Time estimate: 3-4 hours
 
-**T079.2: GraphNode/GraphEdge Updates**
+#### T079.2: GraphNode/GraphEdge Updates
+
 - File: `crates/thread-graph/src/node.rs` and `edge.rs`
 - Add provenance fields (with `Option<T>` for backward compat)
 - Implement helper methods (`get_lineage`, `should_reanalyze`, etc.)
 - Tests: Serialization tests, schema validation
 - Time estimate: 2-3 hours
 
-**T079.3: Conflict Provenance Module**
+#### T079.3: Conflict Provenance Module
+
 - File: `crates/thread-conflict/src/provenance.rs`
 - Define: `ConflictProvenance`, `TierResults`, `UpstreamChange`
 - Link to conflict detection results
 - Time estimate: 2-3 hours
 
-**T079.4: Database Schema & Migrations**
+#### T079.4: Database Schema & Migrations
+
 - Files: `migrations/postgres/003_*.sql` and `migrations/d1/003_*.sql`
 - Create: All provenance tables
 - Implement: Migration runner logic
 - Tests: Schema validation
 - Time estimate: 3-4 hours
 
-**T079.5: Storage Implementation**
+#### T079.5: Storage Implementation
+
 - Files: `crates/thread-storage/src/{postgres,d1}.rs`
 - Implement: `ProvenanceStore` trait (new file: `src/provenance.rs`)
 - Add: Node/edge persistence with provenance
@@ -752,21 +757,24 @@ pub struct TraceConflictResponse {
 - Tests: Integration tests with real database
 - Time estimate: 4-5 hours
 
-**T079.6: Provenance Query API**
+#### T079.6: Provenance Query API
+
 - File: `crates/thread-api/src/provenance_api.rs` (new file)
 - Implement: `ProvenanceQuery` trait methods
 - Add: Query handler implementations
 - Tests: Query correctness, performance
 - Time estimate: 5-6 hours
 
-**T079.7: CocoIndex Integration**
+#### T079.7: CocoIndex Integration
+
 - File: `crates/thread-services/src/dataflow/provenance_collector.rs` (new)
 - Create: `ProvenanceCollector` that extracts ExecutionRecords
 - Wire: Collection during flow execution
 - Tests: End-to-end provenance flow
 - Time estimate: 5-6 hours
 
-**T079.8: Documentation & Examples**
+#### T079.8: Documentation & Examples
+
 - Update: `crates/thread-graph/src/lib.rs` documentation
 - Add: Examples of provenance queries
 - Create: Debugging guide ("How to trace why a conflict was detected?")
@@ -780,7 +788,7 @@ pub struct TraceConflictResponse {
 
 ### 4.3 Dependency Graph
 
-```
+```plaintext
 T079.1 (Provenance types)
     ↓
 T079.2 (GraphNode/Edge updates) ← Depends on T079.1
@@ -804,18 +812,21 @@ T079.8 (Documentation)          ← Depends on all above
 
 ### 5.1 Phased Rollout
 
-**Phase 1: Optional Provenance**
+#### Phase 1: Optional Provenance
+
 - All provenance fields are `Option<T>`
 - Existing nodes continue to work
 - New analyses automatically include provenance
 - No schema change required immediately
 
-**Phase 2: Migration**
+#### Phase 2: Migration
+
 - Backfill historical nodes (lazy evaluation)
 - Run migration script: `scripts/backfill_provenance.sql`
 - Generates minimal provenance for existing nodes
 
-**Phase 3: Required Provenance**
+#### Phase 3: Required Provenance
+
 - After Phase 2, make provenance required
 - All queries validate provenance present
 - Better audit trail and debugging
@@ -860,25 +871,29 @@ WHERE NOT EXISTS (
 
 ### 6.2 Test Scenarios
 
-**Scenario 1: Basic Provenance**
+#### Scenario 1: Basic Provenance
+
 - Parse a file
 - Store node with provenance
 - Query: Retrieve complete lineage
 - Verify: All stages present, timestamps match
 
-**Scenario 2: Conflict Audit**
+#### Scenario 2: Conflict Audit
+
 - Detect a conflict
 - Store with conflict provenance
 - Query: Get analysis trace for conflict
 - Verify: All tiers documented, timing correct
 
-**Scenario 3: Incremental Update**
+#### Scenario 3: Incremental Update
+
 - Change one source file
 - Use provenance to identify affected nodes
 - Re-analyze only affected nodes
 - Verify: Cache hits for unaffected nodes
 
-**Scenario 4: Cross-Repository**
+#### Scenario 4: Cross-Repository
+
 - Index two repositories
 - Query provenance for cross-repo dependency
 - Verify: Both source versions tracked
@@ -888,22 +903,27 @@ WHERE NOT EXISTS (
 ## 7. Recommended Rollout Timeline
 
 **Week 1**:
+
 - T079.1-T079.3: Define all provenance types (parallel)
 - Code review and approval
 
 **Week 2**:
+
 - T079.4-T079.5: Database and storage (sequential)
 - Integration testing
 
 **Week 3**:
+
 - T079.6: Query API (depends on storage completion)
 - API testing
 
 **Week 4**:
+
 - T079.7: CocoIndex integration (depends on foundation complete)
 - End-to-end testing
 
 **Week 5**:
+
 - T079.8: Documentation and cleanup
 - QA and validation
 

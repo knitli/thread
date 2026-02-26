@@ -47,9 +47,9 @@ use super::storage::{StorageBackend, StorageError};
 use super::types::AnalysisDefFingerprint;
 use futures::stream::{self, StreamExt};
 use metrics::{counter, gauge, histogram};
-use std::collections::HashSet;
 use std::path::{Path, PathBuf};
 use std::time::Instant;
+use thread_utils::RapidSet;
 use tracing::{debug, info, instrument, warn};
 
 // ─── Error Types ─────────────────────────────────────────────────────────────
@@ -356,8 +356,8 @@ impl IncrementalAnalyzer {
             return Ok(Vec::new());
         }
 
-        // Convert to HashSet for efficient lookup
-        let changed_set: HashSet<PathBuf> = changed.iter().cloned().collect();
+        // Convert to RapidSet for efficient lookup
+        let changed_set: RapidSet<PathBuf> = changed.iter().cloned().collect();
 
         // Use graph's BFS traversal to find affected files
         let affected_set = self.dependency_graph.find_affected_files(&changed_set);
@@ -395,8 +395,8 @@ impl IncrementalAnalyzer {
             return Ok(());
         }
 
-        // Convert to HashSet for topological sort
-        let file_set: HashSet<PathBuf> = files.iter().cloned().collect();
+        // Convert to RapidSet for topological sort
+        let file_set: RapidSet<PathBuf> = files.iter().cloned().collect();
 
         // Sort files in dependency order (dependencies before dependents)
         let sorted_files = self

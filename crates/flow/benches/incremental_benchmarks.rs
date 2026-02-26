@@ -62,7 +62,6 @@
 
 use ::std::hint::black_box;
 use criterion::{BenchmarkId, Criterion, criterion_group, criterion_main};
-use std::collections::HashSet;
 use std::path::PathBuf;
 use thread_flow::incremental::{
     AnalysisDefFingerprint, DependencyEdge, DependencyGraph, DependencyType, InMemoryStorage,
@@ -266,7 +265,8 @@ fn benchmark_change_detection(c: &mut Criterion) {
 
     // Graph traversal time (small)
     let graph = create_linear_chain(100);
-    let changed = HashSet::from([PathBuf::from("file_99.rs")]);
+    let changed: thread_utils::RapidSet<PathBuf> =
+        [PathBuf::from("file_99.rs")].into_iter().collect();
 
     group.bench_function("graph_traversal_100_nodes", |b| {
         b.iter(|| black_box(graph.find_affected_files(black_box(&changed))));
@@ -318,7 +318,10 @@ fn benchmark_graph_traversal(c: &mut Criterion) {
     // BFS traversal with different graph sizes
     for size in [100, 500, 1000].iter() {
         let graph = create_linear_chain(*size);
-        let changed = HashSet::from([PathBuf::from(format!("file_{}.rs", size - 1))]);
+        let changed: thread_utils::RapidSet<PathBuf> =
+            [PathBuf::from(format!("file_{}.rs", size - 1))]
+                .into_iter()
+                .collect();
 
         group.bench_with_input(BenchmarkId::new("bfs_linear_chain", size), size, |b, _| {
             b.iter(|| black_box(graph.find_affected_files(black_box(&changed))));
@@ -327,7 +330,8 @@ fn benchmark_graph_traversal(c: &mut Criterion) {
 
     // Affected file calculation (diamond pattern)
     let diamond = create_diamond_pattern();
-    let changed = HashSet::from([PathBuf::from("file_3.rs")]);
+    let changed: thread_utils::RapidSet<PathBuf> =
+        [PathBuf::from("file_3.rs")].into_iter().collect();
 
     group.bench_function("affected_files_diamond", |b| {
         b.iter(|| black_box(diamond.find_affected_files(black_box(&changed))));
@@ -347,7 +351,7 @@ fn benchmark_graph_traversal(c: &mut Criterion) {
             ));
         }
 
-        let changed = HashSet::from([root.clone()]);
+        let changed: thread_utils::RapidSet<PathBuf> = [root.clone()].into_iter().collect();
 
         group.bench_with_input(BenchmarkId::new("wide_fanout", fanout), fanout, |b, _| {
             b.iter(|| black_box(graph.find_affected_files(black_box(&changed))));
@@ -356,7 +360,8 @@ fn benchmark_graph_traversal(c: &mut Criterion) {
 
     // Tree structure traversal
     let tree = create_tree_structure(4, 3); // depth=4, fanout=3 = 40 nodes
-    let root_changed = HashSet::from([PathBuf::from("file_0.rs")]);
+    let root_changed: thread_utils::RapidSet<PathBuf> =
+        [PathBuf::from("file_0.rs")].into_iter().collect();
 
     group.bench_function("tree_traversal_depth4_fanout3", |b| {
         b.iter(|| black_box(tree.find_affected_files(black_box(&root_changed))));
@@ -378,7 +383,7 @@ fn benchmark_topological_sort(c: &mut Criterion) {
     // DAG sorting with different sizes
     for size in [10, 50, 100, 500].iter() {
         let graph = create_linear_chain(*size);
-        let all_files: HashSet<_> = (0..*size)
+        let all_files: thread_utils::RapidSet<_> = (0..*size)
             .map(|i| PathBuf::from(format!("file_{}.rs", i)))
             .collect();
 
@@ -389,7 +394,7 @@ fn benchmark_topological_sort(c: &mut Criterion) {
 
     // Diamond pattern sorting
     let diamond = create_diamond_pattern();
-    let diamond_files: HashSet<_> = (0..4)
+    let diamond_files: thread_utils::RapidSet<_> = (0..4)
         .map(|i| PathBuf::from(format!("file_{}.rs", i)))
         .collect();
 
@@ -399,7 +404,7 @@ fn benchmark_topological_sort(c: &mut Criterion) {
 
     // Tree structure sorting
     let tree = create_tree_structure(4, 3);
-    let tree_files: HashSet<_> = tree.nodes.keys().cloned().collect();
+    let tree_files: thread_utils::RapidSet<_> = tree.nodes.keys().cloned().collect();
 
     group.bench_function("tree_structure", |b| {
         b.iter(|| black_box(tree.topological_sort(black_box(&tree_files))));
@@ -417,7 +422,10 @@ fn benchmark_topological_sort(c: &mut Criterion) {
         PathBuf::from("a.rs"),
         DependencyType::Import,
     ));
-    let cyclic_files = HashSet::from([PathBuf::from("a.rs"), PathBuf::from("b.rs")]);
+    let cyclic_files: thread_utils::RapidSet<PathBuf> =
+        [PathBuf::from("a.rs"), PathBuf::from("b.rs")]
+            .into_iter()
+            .collect();
 
     group.bench_function("cycle_detection", |b| {
         b.iter(|| {
@@ -458,7 +466,7 @@ fn benchmark_reanalysis(c: &mut Criterion) {
         });
 
         // Incremental: only analyze affected files
-        let changed_files: HashSet<_> = (0..changed_count)
+        let changed_files: thread_utils::RapidSet<_> = (0..changed_count)
             .map(|i| PathBuf::from(format!("file_{}.rs", i)))
             .collect();
 
@@ -482,7 +490,7 @@ fn benchmark_reanalysis(c: &mut Criterion) {
         );
 
         // Full: analyze all files regardless of changes
-        let all_files: HashSet<_> = (0..file_count)
+        let all_files: thread_utils::RapidSet<_> = (0..file_count)
             .map(|i| PathBuf::from(format!("file_{}.rs", i)))
             .collect();
 
@@ -723,7 +731,8 @@ fn benchmark_performance_validation(c: &mut Criterion) {
 
     // Large graph performance (10000 nodes)
     let large_graph = create_linear_chain(10000);
-    let changed = HashSet::from([PathBuf::from("file_9999.rs")]);
+    let changed: thread_utils::RapidSet<PathBuf> =
+        [PathBuf::from("file_9999.rs")].into_iter().collect();
 
     group.bench_function("large_graph_10000_nodes", |b| {
         b.iter(|| black_box(large_graph.find_affected_files(black_box(&changed))));
@@ -731,7 +740,8 @@ fn benchmark_performance_validation(c: &mut Criterion) {
 
     // Deep chain performance (1000 levels)
     let deep_chain = create_linear_chain(1000);
-    let deep_changed = HashSet::from([PathBuf::from("file_999.rs")]);
+    let deep_changed: thread_utils::RapidSet<PathBuf> =
+        [PathBuf::from("file_999.rs")].into_iter().collect();
 
     group.bench_function("deep_chain_1000_levels", |b| {
         b.iter(|| black_box(deep_chain.find_affected_files(black_box(&deep_changed))));

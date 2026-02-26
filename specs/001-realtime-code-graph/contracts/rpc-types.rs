@@ -17,8 +17,8 @@
 //! **Transport**: HTTP POST for request/response, WebSocket for real-time streaming
 
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use std::path::PathBuf;
+use thread_utils::RapidMap;
 
 // ============================================================================
 // Core RPC Trait
@@ -36,7 +36,10 @@ pub trait CodeAnalysisRpc {
     async fn query_graph(&self, req: GraphQueryRequest) -> Result<GraphQueryResponse, RpcError>;
 
     /// Search for similar code patterns (semantic search)
-    async fn search_similar(&self, req: SimilaritySearchRequest) -> Result<SimilaritySearchResponse, RpcError>;
+    async fn search_similar(
+        &self,
+        req: SimilaritySearchRequest,
+    ) -> Result<SimilaritySearchResponse, RpcError>;
 
     /// Get analysis session status
     async fn get_session_status(&self, session_id: String) -> Result<SessionStatus, RpcError>;
@@ -54,7 +57,10 @@ pub trait CodeAnalysisRpc {
 #[async_trait::async_trait]
 pub trait ConflictAwareRpc: CodeAnalysisRpc {
     /// Detect conflicts between code changes (multi-tier progressive)
-    async fn detect_conflicts(&self, req: ConflictDetectionRequest) -> Result<ConflictDetectionResponse, RpcError>;
+    async fn detect_conflicts(
+        &self,
+        req: ConflictDetectionRequest,
+    ) -> Result<ConflictDetectionResponse, RpcError>;
 }
 
 // ============================================================================
@@ -93,10 +99,10 @@ pub struct GraphQueryRequest {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum GraphQueryType {
-    Dependencies,       // What does this symbol depend on?
-    Callers,            // Who calls this function?
-    Callees,            // What does this function call?
-    ReverseDependencies, // Who depends on this?
+    Dependencies,                      // What does this symbol depend on?
+    Callers,                           // Who calls this function?
+    Callees,                           // What does this function call?
+    ReverseDependencies,               // Who depends on this?
     PathBetween { target_id: String }, // Find path between two symbols
 }
 
@@ -144,16 +150,16 @@ pub struct ConflictDetectionRequest {
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub enum DetectionTier {
-    Tier1AST,           // Fast AST diff (<100ms)
-    Tier2Semantic,      // Semantic analysis (<1s)
-    Tier3GraphImpact,   // Graph impact (<5s)
+    Tier1AST,         // Fast AST diff (<100ms)
+    Tier2Semantic,    // Semantic analysis (<1s)
+    Tier3GraphImpact, // Graph impact (<5s)
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ConflictDetectionResponse {
     pub conflicts: Vec<Conflict>,
     pub total_time_ms: u64,
-    pub tier_timings: HashMap<String, u64>, // Tier name -> time in ms
+    pub tier_timings: RapidMap<String, u64>, // Tier name -> time in ms
 }
 
 /// Session status query
@@ -189,8 +195,8 @@ pub struct UpdateSubscription {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GraphNode {
     pub id: String,
-    pub semantic_class: String,      // Language-agnostic SemanticClass (from thread-definitions, e.g. "DefinitionCallable")
-    pub node_kind: Option<String>,   // Raw tree-sitter node type (e.g., "function_item", "closure_expression")
+    pub semantic_class: String, // Language-agnostic SemanticClass (from thread-definitions, e.g. "DefinitionCallable")
+    pub node_kind: Option<String>, // Raw tree-sitter node type (e.g., "function_item", "closure_expression")
     pub name: String,
     pub qualified_name: String,
     pub file_path: PathBuf,
@@ -240,7 +246,7 @@ pub enum Severity {
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub enum ConflictUpdateStatus {
     Complete, // Tier analysis completed successfully
-    Timeout,  // Tier timed out. `is_final: true` = terminal, no retry queued; `is_final: false` = retry pending, a follow-up Complete message will arrive.
+    Timeout, // Tier timed out. `is_final: true` = terminal, no retry queued; `is_final: false` = retry pending, a follow-up Complete message will arrive.
 }
 
 /// Messages sent over WebSocket for real-time updates
@@ -258,7 +264,7 @@ pub enum WebSocketMessage {
         conflict_id: String,
         tier: DetectionTier,
         status: ConflictUpdateStatus, // Outcome of this tier's analysis
-        is_final: bool,               // When true, no further ConflictUpdate messages follow for this conflict_id
+        is_final: bool, // When true, no further ConflictUpdate messages follow for this conflict_id
         conflicts: Vec<Conflict>,
         timestamp: i64,
     },

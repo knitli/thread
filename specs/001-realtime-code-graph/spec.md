@@ -15,7 +15,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 ## Related Documents
 
 | Document | Location | Role |
-|----------|----------|------|
+| ---------- | ---------- | ------ |
 | Semantic Classification Spec | [`docs/architecture/SEMANTIC_CLASSIFICATION_SPEC.md`](../../docs/architecture/SEMANTIC_CLASSIFICATION_SPEC.md) | Canonical implementation reference for `thread-definitions` — classifier internals, 8-stage lookup pipeline, data schemas, scoring model, language-agnostic query design |
 | AI Knowledge Layer Design | [`docs/architecture/AI_KNOWLEDGE_LAYER_DESIGN.md`](../../docs/architecture/AI_KNOWLEDGE_LAYER_DESIGN.md) | Background architectural proposal for the multi-resolution knowledge layer (L0–L4); predates the classifier port proposal |
 | Implementation Plan | [`specs/001-realtime-code-graph/plan.md`](./plan.md) | Phased implementation plan, crate breakdown, dependency graph |
@@ -96,7 +96,7 @@ When a conflict is predicted, the system suggests resolution strategies based on
 ### Edge Cases
 
 | Edge Case | Handled By |
-|-----------|------------|
+| ----------- | ------------ |
 | Codebase larger than available memory (1M+ files) | FR-022 (memory governance, adaptive batching), FR-024 (partial graph results) |
 | Circular dependencies in the code graph | FR-025 (cycle detection, depth-limiting) |
 | Two data sources contain the same file with different versions | FR-004 (CAS — same content hash = same entry; different content = different entries, both retained) |
@@ -149,6 +149,7 @@ When a conflict is predicted, the system suggests resolution strategies based on
 - **FR-023**: System MUST implement a **Circuit Breaker** pattern for data sources. If a source fails >5 times in 30s, it moves to OPEN state. After 60s in OPEN state, it moves to HALF-OPEN to allow a single probe request to verify source health. Circuit breaker pattern applies to: configured Git/S3/GitHub/GitLab data sources, Postgres storage backend, D1 storage backend, and Vectorize/Qdrant vector search backends.
 - **FR-024**: System MUST support **Partial Graph Results**. Query APIs must accept an `allow_partial=true` flag and return a "Graph Result Envelope" containing available subgraphs, a list of missing regions, and error details, rather than failing the entire query.
 **FR-023/FR-024 Interaction**: When a circuit breaker is OPEN for a required data source and an incoming query has `allow_partial=false`:
+
 1. **If request timeout budget allows**: Queue the request. When the circuit moves to HALF-OPEN and the probe succeeds, process the queued request. Return a `Retry-After` header indicating estimated wait time.
 2. **If timeout budget is exceeded before HALF-OPEN**: Return an error response with `{"error": "CIRCUIT_OPEN", "source": "<source_id>", "retry_after_seconds": <n>, "partial_available": true}`. Include a hint that retrying with `allow_partial=true` would return available data immediately.
 
@@ -171,6 +172,7 @@ Queued requests are bounded: maximum 100 queued requests per circuit-broken sour
 - Storage: `semantic_class` field on `GraphNode`; importance scores computed on-demand
 
 **Success criteria:**
+
 - All `GraphNode`s have a populated `semantic_class` field
 - Context pack generation can rank definitions by `task_score(class, agent_task)`
 - New language support achievable via TOML overrides without Rust code changes
@@ -350,7 +352,7 @@ Thread follows a strict one-directional dependency rule: **commercial/private cr
 ### Component Classification
 
 | Component | Classification | Notes |
-|-----------|---------------|-------|
+| ----------- | --------------- | ------- |
 | `thread-graph`, `thread-indexer` | OSS | Core graph intelligence crates, no deployment dependency |
 | `thread-conflict` | **Commercial/TBD** | Conflict detection is a proprietary differentiator; deferred to dedicated commercial design phase. Phase 4 tasks (T029–T038) in tasks.md are out of OSS scope. |
 | `thread-definitions` | OSS | Pure classification library, zero cloud dependency |

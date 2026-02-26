@@ -9,8 +9,8 @@
 //! implementations are commercial-only features.
 
 use async_trait::async_trait;
-use std::collections::HashMap;
 use std::time::{Duration, SystemTime};
+use thread_utils::RapidMap;
 
 use crate::error::ServiceResult;
 use crate::types::{AnalysisContext, CrossFileRelationship, ParsedDocument};
@@ -217,7 +217,7 @@ pub struct AnalysisKey {
 pub struct AnalysisResult<D: Doc> {
     pub documents: Vec<ParsedDocument<D>>,
     pub relationships: Vec<CrossFileRelationship>,
-    pub metadata: HashMap<String, String>,
+    pub metadata: RapidMap<String, String>,
     pub timestamp: SystemTime,
     pub version: String,
 }
@@ -292,7 +292,7 @@ pub struct MaintenanceResult {
     pub operation: MaintenanceOperation,
     pub success: bool,
     pub message: String,
-    pub metrics: HashMap<String, f64>,
+    pub metrics: RapidMap<String, f64>,
     pub duration: Duration,
 }
 
@@ -416,9 +416,9 @@ pub struct AnalyticsSummary {
 #[derive(Debug, Clone)]
 pub struct PerformanceMetrics {
     pub period: TimePeriod,
-    pub throughput: f64,                                // operations per second
-    pub latency_percentiles: HashMap<String, Duration>, // p50, p95, p99
-    pub error_rates: HashMap<String, f64>,
+    pub throughput: f64,                                 // operations per second
+    pub latency_percentiles: RapidMap<String, Duration>, // p50, p95, p99
+    pub error_rates: RapidMap<String, f64>,
     pub resource_usage: ResourceUsage,
 }
 

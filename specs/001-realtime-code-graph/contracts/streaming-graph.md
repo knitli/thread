@@ -14,9 +14,10 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 ## Core Principle
 
 **NEVER** load the full graph structure (`Graph<N, E>`) into memory on the Edge. All graph operations must be:
-1.  **Lazy**: Fetch data only when requested.
-2.  **Streaming**: Process nodes/edges one by one or in small batches.
-3.  **Stateless**: Do not retain visited history in memory beyond the current traversal frontier.
+
+1. **Lazy**: Fetch data only when requested.
+2. **Streaming**: Process nodes/edges one by one or in small batches.
+3. **Stateless**: Do not retain visited history in memory beyond the current traversal frontier.
 
 ## Interface Definition
 
@@ -76,5 +77,5 @@ async fn leads_to(&self, ancestor: &NodeId, descendant: &NodeId) -> Result<bool>
 
 ## Constraints
 
-1.  **Memory Cap**: The implementation MUST NOT buffer more than `batch_size` (default 100) items in memory.
-2.  **Recursion**: Recursive traversal algorithms (DFS/BFS) MUST be implemented iteratively using an external stack/queue stored in a Durable Object or handled via the Reachability Index, NOT via call-stack recursion.
+1. **Memory Cap**: The implementation MUST NOT buffer more than `batch_size` (default 100) items in memory.
+2. **Recursion**: Recursive traversal algorithms (DFS/BFS) MUST be implemented iteratively using an external stack/queue stored in a Durable Object or handled via the Reachability Index, NOT via call-stack recursion.

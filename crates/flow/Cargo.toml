@@ -53,6 +53,7 @@ futures = { workspace = true }
 # Logging and observability
 log = "0.4"
 metrics = "0.24"
+mimalloc = { workspace = true, features = ["v3"] }
 # Optional: query result caching
 moka = { version = "0.12", features = ["future"], optional = true }
 # Optional: parallel processing for CLI (not available in workers)
@@ -81,7 +82,7 @@ thread-services = { workspace = true, features = [
   "ast-grep-backend",
   "serialization",
 ] }
-thread-utils = { workspace = true }
+thread-utils = { workspace = true, features = ["hashers"] }
 tokio = { workspace = true }
 # Optional: PostgreSQL storage backend for incremental updates
 tokio-postgres = { version = "0.7", optional = true }

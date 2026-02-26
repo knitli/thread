@@ -8,8 +8,8 @@
 //! functionality while preserving all its capabilities.
 
 use async_trait::async_trait;
-use std::collections::HashMap;
 use std::path::Path;
+use thread_utils::RapidMap;
 
 use crate::error::{ParseError, ServiceResult};
 use crate::types::{AnalysisContext, ParsedDocument};
@@ -280,7 +280,7 @@ pub struct ParserCapabilities {
     pub performance_profile: PerformanceProfile,
 
     /// Additional capability flags
-    pub capability_flags: HashMap<String, bool>,
+    pub capability_flags: RapidMap<String, bool>,
 }
 
 impl Default for ParserCapabilities {
@@ -294,7 +294,7 @@ impl Default for ParserCapabilities {
             supports_metadata_collection: true,
             supports_cross_file_analysis: false,
             performance_profile: PerformanceProfile::Balanced,
-            capability_flags: HashMap::new(),
+            capability_flags: thread_utils::get_map(),
         }
     }
 }
@@ -338,7 +338,7 @@ pub struct ParserConfig {
     pub execution_strategy: Option<ExecutionStrategy>,
 
     /// Custom configuration options
-    pub custom_options: HashMap<String, String>,
+    pub custom_options: RapidMap<String, String>,
 }
 
 impl Default for ParserConfig {
@@ -347,7 +347,7 @@ impl Default for ParserConfig {
             collect_metadata: true,
             enable_error_recovery: true,
             execution_strategy: None, // Auto-detect
-            custom_options: HashMap::new(),
+            custom_options: thread_utils::get_map(),
         }
     }
 }

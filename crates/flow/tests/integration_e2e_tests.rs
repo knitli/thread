@@ -17,7 +17,6 @@
 //! 5. **Storage Backend Validation** (6 tests): InMemory persistence, state transitions
 //! 6. **Error Handling & Edge Cases** (6 tests): Parse failures, large files, concurrent mods
 
-use std::collections::HashSet;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use thread_flow::incremental::analyzer::IncrementalAnalyzer;
@@ -656,7 +655,7 @@ async fn test_e2e_circular_detection() {
     fixture.analyzer.graph_mut().add_edge(edge_b_to_a);
 
     // Topological sort should fail on cycle
-    let files = HashSet::from([a.clone(), b.clone()]);
+    let files: thread_utils::RapidSet<PathBuf> = [a.clone(), b.clone()].into_iter().collect();
     let result = fixture.analyzer.graph().topological_sort(&files);
     assert!(result.is_err(), "Should detect circular dependency");
 }

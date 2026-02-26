@@ -11,7 +11,13 @@ local linters = new Mapping<String, Step> {
     check =
       "cargo deny --all-features --manifest-path {{ workspace_indicator }} -f json -L warn check --audit-compatible-output --exclude-dev --hide-inclusion-graph | jq -e '.[].vulnerabilities | length == 0' || exit 1"
   }
-  ["cargo_fmt"] = Builtins.cargo_fmt
+  ["cargo_fmt"] = (Builtins.cargo_fmt) {
+    check =
+      "cargo fmt --all --manifest-path {{workspace_indicator}} -- --check --config-path ./rustfmt.toml"
+    check_list_files =
+      "cargo fmt --all --manifest-path {{workspace_indicator}} -- --check --files-with-diff --config-path ./rustfmt.toml"
+    fix = "cargo fmt --all --manifest-path {{workspace_indicator}} -- --config-path ./rustfmt.toml"
+  }
   ["cargo_clippy"] = Builtins.cargo_clippy
   ["cargo_check"] = Builtins.cargo_check
   ["cargo_test"] = new Step {

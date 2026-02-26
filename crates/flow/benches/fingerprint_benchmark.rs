@@ -16,7 +16,6 @@
 //! - Memory overhead: <1KB per cached file
 
 use criterion::{Criterion, Throughput, criterion_group, criterion_main};
-use std::collections::HashMap;
 use std::hint::black_box;
 use thread_services::conversion::compute_content_fingerprint;
 
@@ -121,7 +120,7 @@ fn benchmark_cache_lookups(c: &mut Criterion) {
     let mut group = c.benchmark_group("cache_lookups");
 
     // Create cache with 1000 entries
-    let mut cache = HashMap::new();
+    let mut cache = thread_utils::map_with_capacity(1000);
     for i in 0..1000 {
         let code = format!("fn test_{}() {{ println!(\"test\"); }}", i);
         let fp = compute_content_fingerprint(&code);
@@ -183,7 +182,7 @@ fn benchmark_memory_usage(c: &mut Criterion) {
     // Measure memory overhead of cache
     group.bench_function("cache_1000_entries", |b| {
         b.iter(|| {
-            let mut cache = HashMap::new();
+            let mut cache = thread_utils::map_with_capacity(1000);
             for i in 0..1000 {
                 let code = format!("fn test_{}() {{}}", i);
                 let fp = compute_content_fingerprint(&code);
@@ -210,7 +209,7 @@ fn benchmark_cache_hit_rates(c: &mut Criterion) {
     // Scenario: 0% cache hit (all new files)
     group.bench_function("0_percent_hit_rate", |b| {
         b.iter(|| {
-            let mut cache = HashMap::new();
+            let mut cache = thread_utils::get_map();
             let mut hits = 0;
             let mut misses = 0;
 
@@ -229,7 +228,7 @@ fn benchmark_cache_hit_rates(c: &mut Criterion) {
     });
 
     // Scenario: 100% cache hit (all files seen before)
-    let mut primed_cache = HashMap::new();
+    let mut primed_cache = thread_utils::get_map();
     for file in &files {
         let fp = compute_content_fingerprint(file);
         primed_cache.insert(fp, ());

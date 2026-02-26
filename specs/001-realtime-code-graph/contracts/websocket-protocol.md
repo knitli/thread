@@ -7,8 +7,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 # WebSocket Protocol Specification
 
-**Feature**: Real-Time Code Graph Intelligence  
-**Protocol Version**: 1.0  
+**Feature**: Real-Time Code Graph Intelligence
+**Protocol Version**: 1.0
 **Last Updated**: 2026-01-11
 
 ## Overview
@@ -98,8 +98,8 @@ For development/debugging, JSON serialization is supported:
 
 ### 1. Code Change Detected
 
-**Direction**: Server → Client  
-**Trigger**: File change detected by indexer (file watcher or git poll)  
+**Direction**: Server → Client
+**Trigger**: File change detected by indexer (file watcher or git poll)
 **Latency Target**: <100ms from code change to client notification (FR-013)
 
 ```rust
@@ -119,8 +119,8 @@ WebSocketMessage::CodeChangeDetected {
 
 ### 2. Conflict Update (Progressive)
 
-**Direction**: Server → Client  
-**Trigger**: Conflict detection tier completes  
+**Direction**: Server → Client
+**Trigger**: Conflict detection tier completes
 **Progressive Delivery**: Tier 1 (100ms) → Tier 2 (1s) → Tier 3 (5s)
 
 ```rust
@@ -252,8 +252,8 @@ pub enum ConflictUpdateStatus {
 
 ### 3. Session Progress
 
-**Direction**: Server → Client  
-**Trigger**: Analysis session makes progress  
+**Direction**: Server → Client
+**Trigger**: Analysis session makes progress
 **Frequency**: Every 10% of files processed, or every 5 seconds
 
 ```rust
@@ -271,8 +271,8 @@ WebSocketMessage::SessionProgress {
 
 ### 4. Graph Update
 
-**Direction**: Server → Client  
-**Trigger**: Incremental graph update completes (CocoIndex diff applied)  
+**Direction**: Server → Client
+**Trigger**: Incremental graph update completes (CocoIndex diff applied)
 **Latency Target**: <100ms from code change to graph update notification
 
 ```rust
@@ -292,8 +292,8 @@ WebSocketMessage::GraphUpdate {
 
 ### 5. Heartbeat (Keep-Alive)
 
-**Direction**: Server → Client (Ping), Client → Server (Pong)  
-**Frequency**: Every 30 seconds  
+**Direction**: Server → Client (Ping), Client → Server (Pong)
+**Frequency**: Every 30 seconds
 **Purpose**: Keep WebSocket connection alive, detect disconnections
 
 ```rust
@@ -310,7 +310,7 @@ WebSocketMessage::Pong { timestamp: 1704988800 }
 
 ### 6. Error Notification
 
-**Direction**: Server → Client  
+**Direction**: Server → Client
 **Trigger**: Error during analysis, storage, or processing
 
 ```rust
@@ -449,7 +449,7 @@ use worker::*;
 pub struct AnalysisSession {
     state: State,
     env: Env,
-    connections: HashMap<String, WebSocket>,
+    connections: thread_utils::RapidMap<String, WebSocket>,
 }
 
 #[durable_object]
@@ -458,10 +458,10 @@ impl DurableObject for AnalysisSession {
         if req.headers().get("Upgrade")?.map(|v| v == "websocket").unwrap_or(false) {
             let pair = WebSocketPair::new()?;
             pair.server.accept()?;
-            
+
             let session_id = uuid::Uuid::new_v4().to_string();
             self.handle_websocket(session_id, pair.server).await?;
-            
+
             Response::ok("")?.websocket(pair.client)
         } else {
             Response::error("Expected WebSocket", 400)
@@ -476,8 +476,8 @@ impl DurableObject for AnalysisSession {
 
 ### Server-Sent Events (SSE)
 
-**Endpoint**: `GET /sse/subscribe?repo_id={repository_id}`  
-**Use Case**: One-way server→client streaming, restrictive networks  
+**Endpoint**: `GET /sse/subscribe?repo_id={repository_id}`
+**Use Case**: One-way server→client streaming, restrictive networks
 **Latency**: <100ms (same as WebSocket)
 
 **Format**:
@@ -490,8 +490,8 @@ data: {"type": "SessionProgress", "files_processed": 1000, ...}
 
 ### Long-Polling
 
-**Endpoint**: `GET /poll/updates?repo_id={repository_id}&since={timestamp}`  
-**Use Case**: Last resort for networks blocking WebSocket and SSE  
+**Endpoint**: `GET /poll/updates?repo_id={repository_id}&since={timestamp}`
+**Use Case**: Last resort for networks blocking WebSocket and SSE
 **Latency**: 100-500ms (poll interval configurable)
 
 **Response**:

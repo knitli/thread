@@ -7,8 +7,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 # Real-Time Code Graph Intelligence: Deep Architectural Research
 
-**Research Date:** January 11, 2026  
-**Scope:** CocoIndex integration, tree-sitter capabilities, architectural patterns  
+**Research Date:** January 11, 2026
+**Scope:** CocoIndex integration, tree-sitter capabilities, architectural patterns
 **Status:** Comprehensive analysis complete, architectural recommendation provided
 
 ---
@@ -24,7 +24,7 @@ This deep research validates the **FINAL ARCHITECTURAL DECISION** made on Januar
 1. **Tree-Sitter Usage**: Same parser count, different purposes
    - CocoIndex: 27 parsers for language-aware text chunking (shallow)
    - Thread: 26 parsers for deep AST analysis and pattern matching (deep)
-   
+
 2. **Complementary Capabilities**:
    - CocoIndex: Dataflow orchestration, incremental processing, content-addressed caching, multi-target storage
    - Thread: AST pattern matching, symbol extraction, relationship tracking, YAML-based rule engine
@@ -39,7 +39,7 @@ This deep research validates the **FINAL ARCHITECTURAL DECISION** made on Januar
    - Maintain dual concurrency: tokio (I/O) + rayon (CPU)
    - Preserve dependency swappability via abstraction
 
-5. **Architectural Decision** (FINAL, January 10, 2026): 
+5. **Architectural Decision** (FINAL, January 10, 2026):
    - **Path B committed**: Services + CocoIndex Dataflow with Rust-native integration
    - **Path C bypassed**: No validation prototype phase - proceeding directly to implementation
    - **Implementation**: Following PATH_B_IMPLEMENTATION_GUIDE (3-week timeline)
@@ -74,7 +74,7 @@ What CocoIndex does NOT provide:
 
 **Evidence**:
 > "CocoIndex uses tree-sitter for better chunking, not semantic analysis. Their 'code embedding' example is generic text chunking with language-aware splitting."
-> 
+>
 > "Technical evidence: CocoIndex has 27 tree-sitter parsers as direct dependencies (not 166). Most languages fall back to regex-based splitting. Their chunking is sophisticated but shallow—they parse to chunk better, not to understand code."
 
 **Built-in Function** (from CocoIndex docs):
@@ -285,7 +285,7 @@ builder
 
 From `.phase0-planning/04-architectural-review-jan9/COCOINDEX_API_ANALYSIS.md`:
 
-**Python API Coverage**: ~30-40% of Rust functionality  
+**Python API Coverage**: ~30-40% of Rust functionality
 **Rust-Only APIs**: Service layer (HTTP), execution contexts, setup/migration internals
 
 **Core Rust Modules**:
@@ -325,7 +325,7 @@ pub trait SourceFactory {
 
 #[async_trait]
 pub trait SourceExecutor: Send + Sync {
-    async fn read(&self, options: SourceExecutorReadOptions) 
+    async fn read(&self, options: SourceExecutorReadOptions)
         -> Result<BoxStream<...>>;
 }
 
@@ -337,7 +337,7 @@ pub trait SimpleFunctionFactory {
 
 #[async_trait]
 pub trait SimpleFunctionExecutor: Send + Sync {
-    async fn evaluate(&self, input: Vec<value::Value>) 
+    async fn evaluate(&self, input: Vec<value::Value>)
         -> Result<value::Value>;
     fn enable_cache(&self) -> bool;
     fn timeout(&self) -> Option<Duration>;
@@ -448,11 +448,11 @@ impl SimpleFunctionExecutor for ThreadParseExecutor {
         // Use thread-ast-engine to parse source
         let source = input[0].as_string()?;
         let ast = self.language.ast_grep(source);
-        
+
         // Extract symbols, relationships, etc.
         let symbols = extract_symbols(&ast);
         let relationships = extract_relationships(&ast);
-        
+
         // Return as CocoIndex Value
         Ok(Value::Struct(StructType {
             fields: vec![
@@ -475,12 +475,12 @@ impl SimpleFunctionExecutor for ThreadParseExecutor {
 
 ### 3.3 Benefits of This Approach
 
-✅ **Dependency Inversion**: Thread owns the abstraction, CocoIndex is one implementation  
-✅ **Swappability**: Can replace CocoIndex with alternative dataflow engine  
-✅ **API Stability**: External API remains stable even if internal implementation changes  
-✅ **CocoIndex Rust API**: Full access to powerful Rust capabilities, not just Python bindings  
-✅ **Performance**: Direct Rust-to-Rust calls, no PyO3 overhead  
-✅ **Type Safety**: Compile-time validation of data flow  
+✅ **Dependency Inversion**: Thread owns the abstraction, CocoIndex is one implementation
+✅ **Swappability**: Can replace CocoIndex with alternative dataflow engine
+✅ **API Stability**: External API remains stable even if internal implementation changes
+✅ **CocoIndex Rust API**: Full access to powerful Rust capabilities, not just Python bindings
+✅ **Performance**: Direct Rust-to-Rust calls, no PyO3 overhead
+✅ **Type Safety**: Compile-time validation of data flow
 
 ### 3.4 Nuance Considerations
 
@@ -517,13 +517,14 @@ impl SimpleFunctionExecutor for ThreadParseExecutor {
 **Location**: `crates/utils/src/hash_help.rs`
 
 **Implementation Details**:
+
 ```rust
 //! Thread uses rapidhash::RapidInlineHashMap and rapidhash::RapidInlineHashSet
-//! as stand-ins for std::collections::HashMap/HashSet, but using the 
+//! as stand-ins for std::collections::HashMap/HashSet, but using the
 //! RapidInlineHashBuilder hash builder.
 //!
-//! Important: rapidhash is not a cryptographic hash, and while it's a high 
-//! quality hash that's optimal in most ways, it hasn't been thoroughly tested 
+//! Important: rapidhash is not a cryptographic hash, and while it's a high
+//! quality hash that's optimal in most ways, it hasn't been thoroughly tested
 //! for HashDoS resistance.
 
 use rapidhash::RapidInlineBuildHasher;
@@ -683,7 +684,7 @@ From January 9 analysis, five critical blocking issues:
 - **Question**: Can request/response model effectively wrap streaming semantics?
 - **Resolution**: Prototype both approaches
 
-#### 2. Performance Validation  
+#### 2. Performance Validation
 - **Problem**: CocoIndex optimized for I/O-bound, Thread is CPU-bound
 - **Question**: Do we get claimed efficiency gains for CPU-intensive parsing?
 - **Resolution**: Benchmark real workloads (1000-file codebase, change 10 files)
@@ -771,12 +772,12 @@ Risk:
 
 Any CocoIndex integration must meet ALL of these criteria:
 
-✅ **Performance**: Within 10% of pure Thread implementation (or demonstrably better)  
-✅ **Type Safety**: Thread's metadata preserved through transformations without loss  
-✅ **Extraction Path**: Clear abstraction boundary enabling CocoIndex removal if needed  
-✅ **API Stability**: Service trait contracts remain stable and backward compatible  
-✅ **Incremental Efficiency**: Demonstrably faster updates when only subset of files change  
-✅ **Complexity Justified**: Added abstraction layers pay for themselves with concrete benefits  
+✅ **Performance**: Within 10% of pure Thread implementation (or demonstrably better)
+✅ **Type Safety**: Thread's metadata preserved through transformations without loss
+✅ **Extraction Path**: Clear abstraction boundary enabling CocoIndex removal if needed
+✅ **API Stability**: Service trait contracts remain stable and backward compatible
+✅ **Incremental Efficiency**: Demonstrably faster updates when only subset of files change
+✅ **Complexity Justified**: Added abstraction layers pay for themselves with concrete benefits
 
 ---
 
@@ -784,9 +785,9 @@ Any CocoIndex integration must meet ALL of these criteria:
 
 ### 6.1 Context for Decision
 
-**Current Date**: January 11, 2026  
-**Task**: Real-Time Code Graph Intelligence (feature 001)  
-**Prior Analysis**: January 9, 2026 services vs dataflow evaluation  
+**Current Date**: January 11, 2026
+**Task**: Real-Time Code Graph Intelligence (feature 001)
+**Prior Analysis**: January 9, 2026 services vs dataflow evaluation
 
 **Key Requirements for Real-Time Graph**:
 - Multi-tier conflict detection (<100ms → 1s → 5s)
@@ -1020,13 +1021,13 @@ impl SimpleFunctionFactory for ThreadParseFunction {
 impl SimpleFunctionExecutor for ThreadParseExecutor {
     async fn evaluate(&self, input: Vec<Value>) -> Result<Value> {
         let source = input[0].as_string()?;
-        
+
         // Use thread-ast-engine
         let ast = self.language.ast_grep(source);
-        
+
         // Extract basic metadata
         let node_count = ast.root().descendants().count();
-        
+
         // Return as CocoIndex Value
         Ok(Value::Struct(StructType {
             fields: vec![
@@ -1113,10 +1114,10 @@ assert!(speedup > 20.0 || cache_hit_rate > 0.8);
 impl SimpleFunctionExecutor for ThreadExtractSymbolsExecutor {
     async fn evaluate(&self, input: Vec<Value>) -> Result<Value> {
         let parsed_ast = input[0].as_struct()?;
-        
+
         // Use thread-language to extract symbols
         let symbols = extract_all_symbols(&parsed_ast.ast);
-        
+
         Ok(Value::Array(symbols.into_iter().map(|s| {
             Value::Struct(StructType {
                 fields: vec![
@@ -1135,10 +1136,10 @@ impl SimpleFunctionExecutor for ThreadExtractSymbolsExecutor {
 impl SimpleFunctionExecutor for ThreadRuleMatchExecutor {
     async fn evaluate(&self, input: Vec<Value>) -> Result<Value> {
         let ast = input[0].as_struct()?;
-        
+
         // Use thread-rule-engine
         let matches = self.rule_collection.match_ast(&ast);
-        
+
         Ok(Value::Array(matches.into_iter().map(|m| {
             Value::Struct(StructType {
                 fields: vec![
@@ -1183,7 +1184,7 @@ impl GraphQueryService for CocoIndexGraphService {
         // Trigger CocoIndex flow execution
         let flow_ctx = self.lib_ctx.get_flow_context(&self.flow_name)?;
         let result = flow_ctx.execute_query("dependencies", file).await?;
-        
+
         // Convert CocoIndex Value to Thread types
         Ok(convert_to_dependencies(result))
     }
@@ -1238,7 +1239,7 @@ pub struct FileWatcherSource {
 }
 
 impl SourceExecutor for FileWatcherExecutor {
-    async fn read(&self, options: SourceExecutorReadOptions) 
+    async fn read(&self, options: SourceExecutorReadOptions)
         -> Result<BoxStream<...>> {
         // Watch file system for changes
         // Emit change events as CocoIndex rows
@@ -1268,8 +1269,8 @@ builder
         timeout_ms: 5000,
     })
     .export("conflicts", PostgresTarget { table: "conflicts" })
-    .export("realtime_updates", WebSocketTarget { 
-        durable_object: "ConflictSubscriptions" 
+    .export("realtime_updates", WebSocketTarget {
+        durable_object: "ConflictSubscriptions"
     });
 ```
 
@@ -1291,7 +1292,7 @@ pub fn edge_rapidhash(bytes: &[u8]) -> u64 {
 // Durable Objects for WebSocket management
 #[cfg(feature = "cloudflare-edge")]
 pub struct ConflictSubscriptionsDurableObject {
-    subscriptions: HashMap<String, WebSocket>,
+    subscriptions: thread_utils::RapidMap<String, WebSocket>,
 }
 ```
 
@@ -1302,27 +1303,32 @@ pub struct ConflictSubscriptionsDurableObject {
 ### 8.1 Summary of Findings
 
 **CocoIndex and Thread Integration**:
+
 - ✅ **Complementary**, not overlapping
 - ✅ CocoIndex: Dataflow orchestration, incremental processing, caching
 - ✅ Thread: Deep AST analysis, pattern matching, rule engine
 - ✅ Integration via dual-layer architecture with dependency inversion
 
 **Tree-Sitter Capabilities**:
+
 - ✅ CocoIndex: 27 parsers for shallow text chunking
 - ✅ Thread: 26 parsers for deep AST analysis
 - ✅ No overlap - different purposes (chunking vs understanding)
 
 **Rule Engine**:
+
 - ✅ thread-rule-engine is UNIQUE to Thread
 - ✅ No CocoIndex equivalent
 - ✅ Differentiating capability
 
 **Rapidhasher**:
+
 - ✅ Must use Thread's rapidhash for ALL caching
 - ✅ High-performance non-cryptographic hash
 - ✅ Integration strategy defined
 
 **Architectural Decision (FINAL - January 10, 2026)**:
+
 - ✅ **Path B committed**: Services + CocoIndex Dataflow with Rust-native integration
 - ✅ **Path C bypassed**: No validation prototype phase
 - ✅ **Implementation**: Following PATH_B_IMPLEMENTATION_GUIDE (3-week timeline, January 13-31)
@@ -1340,6 +1346,7 @@ This research **validates and supports** the FINAL DECISION made on January 10, 
 5. **Unique Thread Capabilities Preserved**: thread-rule-engine has no CocoIndex equivalent and becomes a differentiating custom operator
 
 **Research Confirms Decision Rationale**:
+
 - ✅ Thread is a **service-first architecture** (long-lived, persistent, real-time)
 - ✅ CocoIndex provides essential infrastructure (incremental updates, caching, storage)
 - ✅ Thread provides unique intelligence (AST analysis, rules, semantic understanding)
@@ -1348,6 +1355,7 @@ This research **validates and supports** the FINAL DECISION made on January 10, 
 ### 8.3 Implementation Status and Next Steps
 
 **Current Status** (as of January 11, 2026):
+
 - ✅ FINAL DECISION committed (January 10): Path B (Services + CocoIndex Dataflow)
 - ✅ PATH_B_IMPLEMENTATION_GUIDE created (3-week timeline: January 13-31)
 - ✅ Deep architectural research complete (validates decision)
@@ -1356,11 +1364,13 @@ This research **validates and supports** the FINAL DECISION made on January 10, 
 **Implementation Reference**: `.phase0-planning/04-architectural-review-jan9/PATH_B_IMPLEMENTATION_GUIDE.md`
 
 **Key Implementation Milestones**:
+
 - **Week 1** (Jan 13-17): Foundation & Design - CocoIndex Rust API mastery, Thread operator design
 - **Week 2** (Jan 20-24): Core Integration - Thread operators as CocoIndex functions
 - **Week 3** (Jan 27-31): Service Layer - Service traits, storage targets, testing
 
 **For Real-Time Code Graph (Feature 001)**:
+
 - Use PATH_B architecture as foundation
 - Implement real-time capabilities (WebSocket, progressive conflict detection) as additional layer
 - Follow dual-layer pattern: Service traits (external) + CocoIndex dataflow (internal)
@@ -1370,8 +1380,9 @@ This research **validates and supports** the FINAL DECISION made on January 10, 
 
 ---
 
-**Document Status**: Research Complete - Validates Final Decision (Path B)  
-**References**: 
+**Document Status**: Research Complete - Validates Final Decision (Path B)
+**References**:
+
 - `.phase0-planning/04-architectural-review-jan9/2026-01-10-FINAL_DECISION_PATH_B.md`
-- `.phase0-planning/04-architectural-review-jan9/PATH_B_IMPLEMENTATION_GUIDE.md`  
+- `.phase0-planning/04-architectural-review-jan9/PATH_B_IMPLEMENTATION_GUIDE.md`
 **Decision Authority**: FINAL (January 10, 2026)
