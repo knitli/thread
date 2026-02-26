@@ -6,6 +6,10 @@
 
 #![feature(portable_simd)]
 
+#[cfg(all(not(feature = "worker"), feature = "mimalloc"))]
+#[global_allocator]
+static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
+
 mod check_var;
 mod combined;
 mod fixer;

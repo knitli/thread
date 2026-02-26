@@ -53,7 +53,7 @@ futures = { workspace = true }
 # Logging and observability
 log = "0.4"
 metrics = "0.24"
-mimalloc = { workspace = true, features = ["v3"] }
+mimalloc = { workspace = true, optional = true }
 # Optional: query result caching
 moka = { version = "0.12", features = ["future"], optional = true }
 # Optional: parallel processing for CLI (not available in workers)
@@ -111,6 +111,7 @@ default = ["parallel", "postgres-backend", "recoco-minimal"]
 caching = ["dep:moka"]
 # Cloudflare D1 storage backend (edge deployment)
 d1-backend = []
+mimalloc = ["dep:mimalloc"]
 # Note: recoco-cloud and recoco-full disabled due to dependency conflicts
 # TODO: Re-enable once ReCoco resolves crc version conflicts between S3 and sqlx
 # recoco-cloud = ["recoco-minimal", "recoco/source-s3"]

@@ -24,6 +24,11 @@ pub mod registry;
 pub mod runtime;
 pub mod sources;
 pub mod targets;
+
+#[cfg(all(not(feature = "worker"), feature = "mimalloc"))]
+#[global_allocator]
+static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
+
 #[cfg(test)]
 // Re-exports
 pub use bridge::CocoIndexAnalyzer;

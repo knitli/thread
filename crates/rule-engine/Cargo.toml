@@ -20,6 +20,7 @@ include.workspace = true
 [dependencies]
 bit-set.workspace = true
 globset = "0.4.16"
+mimalloc = { workspace = true, optional = true }
 regex.workspace = true
 schemars.workspace = true
 serde.workspace = true
@@ -49,6 +50,7 @@ tree-sitter-typescript = "0.23.2"
 cc = "1.2.30"
 
 [features]
+default = ["mimalloc"]
+mimalloc = ["dep:mimalloc"]
 # we need to separate serialization, but that's a big job, and ideally rework ast-engine to allow narrower featuring
-
 worker = []  # feature flag for cloud edge deployment specific logic

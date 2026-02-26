@@ -27,6 +27,7 @@ name = "extension_matching"
 aho-corasick = { workspace = true }
 cfg-if = { workspace = true }
 ignore = { workspace = true }
+mimalloc = { workspace = true, optional = true }
 serde = { workspace = true }
 thread-ast-engine = { workspace = true }
 thread-utils = { workspace = true, default-features = false, features = [
@@ -129,6 +130,7 @@ json = ["tree-sitter-json", "tree-sitter-parsing"]
 kotlin = ["tree-sitter-kotlin", "tree-sitter-parsing"]
 lua = ["tree-sitter-lua", "tree-sitter-parsing"]
 matching = ["thread-ast-engine/matching", "tree-sitter-parsing"]
+mimalloc = ["dep:mimalloc"]
 napi-compatible = [
   "css-napi",
   "html-napi",
@@ -160,4 +162,5 @@ tsx = ["tree-sitter-parsing", "tree-sitter-typescript"]
 tsx-napi = ["napi-environment", "tree-sitter-typescript"]
 typescript = ["tree-sitter-parsing", "tree-sitter-typescript"]
 typescript-napi = ["napi-environment", "tree-sitter-typescript"]
+worker = []
 yaml = ["tree-sitter-parsing", "tree-sitter-yaml"]

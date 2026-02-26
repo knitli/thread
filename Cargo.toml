@@ -59,7 +59,6 @@ include = [
 aho-corasick = { version = "1.1.4" }
 bit-set = { version = "0.8.0" }
 memchr = { version = "2.7.6", features = ["std"] }
-mimalloc = { version = "*", features = ["v3"] }
 rapidhash = { version = "4.2.1" }
 regex = { version = "1.12.2" }
 simdeez = { version = "2.0.0" }
@@ -71,6 +70,7 @@ tree-sitter = { version = ">=0.25.0" }
 async-trait = { version = "0.1.89" }
 futures = { version = "0.3.31" }
 pin-project = { version = "1.1.10" }
+mimalloc = { version = "0.1.48", features = ["v3"] }
 tokio = { version = "1.49", features = ["full"] }
 # zero-cost macros
 cfg-if = { version = "1.0.4" }

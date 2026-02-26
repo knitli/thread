@@ -22,6 +22,7 @@ all-features = true
 rustdoc-args = ["--cfg", "docsrs"]
 
 [dependencies]
+mimalloc = { workspace = true, optional = true }
 thread-ast-engine = { workspace = true, optional = true }
 thread-flow = { workspace = true, optional = true }
 thread-language = { workspace = true, optional = true }
@@ -58,6 +59,7 @@ full = [
 ]
 # Language support and tree-sitter parsers
 language = ["dep:thread-language", "thread-language/all-parsers"]
+mimalloc = ["dep:mimalloc"]
 # Rule engine for scanning and transformation
 rule = ["dep:thread-rule-engine"]
 # High-level service layer and abstractions

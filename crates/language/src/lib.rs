@@ -43,6 +43,10 @@
 //! - [`impl_lang!`] - Standard languages accepting `$` in identifiers
 //! - [`impl_lang_expando!`] - Languages requiring custom expando characters for metavariables
 
+#[cfg(all(not(feature = "worker"), feature = "mimalloc"))]
+#[global_allocator]
+static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
+
 pub mod constants;
 pub mod ext_iden;
 #[cfg(any(

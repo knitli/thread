@@ -4004,6 +4004,7 @@ dependencies = [
 name = "thread"
 version = "0.0.1"
 dependencies = [
+ "mimalloc",
  "thread-ast-engine",
  "thread-flow",
  "thread-language",
@@ -4019,6 +4020,7 @@ dependencies = [
  "bit-set",
  "cc",
  "criterion",
+ "mimalloc",
  "regex",
  "thiserror",
  "thread-language",
@@ -4074,6 +4076,7 @@ dependencies = [
  "cfg-if",
  "criterion",
  "ignore",
+ "mimalloc",
  "serde",
  "thread-ast-engine",
  "thread-utils",
@@ -4113,6 +4116,7 @@ dependencies = [
  "cc",
  "criterion",
  "globset",
+ "mimalloc",
  "regex",
  "schemars 1.2.1",
  "serde",
@@ -4137,6 +4141,7 @@ dependencies = [
  "cfg-if",
  "futures",
  "ignore",
+ "mimalloc",
  "pin-project",
  "recoco-utils",
  "serde",
@@ -4150,9 +4155,10 @@ dependencies = [
 
 [[package]]
 name = "thread-utils"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
  "memchr",
+ "mimalloc",
  "rapidhash",
  "simdeez",
  "tempfile",

@@ -23,6 +23,7 @@ name = "performance_improvements"
 
 [dependencies]
 bit-set.workspace = true
+mimalloc = { workspace = true, optional = true }
 # regex required for pattern matching
 regex = { workspace = true, optional = true }
 thiserror.workspace = true
@@ -42,11 +43,13 @@ tree-sitter-typescript = "0.23.2"
 cc = "1.2.30"
 
 [features]
-default = ["matching", "parsing"]
+default = ["matching", "mimalloc", "parsing"]
 # The 'matching' feature enables the pattern matching engine
 matching = ["dep:regex"]
+mimalloc = ["dep:mimalloc"]
 # The 'parsing' feature enables the tree-sitter backend
 parsing = ["dep:tree-sitter"]
+worker = []  # feature flag for cloud edge deployment specific logic
 
 [lints]
 # Enable linting for the crate

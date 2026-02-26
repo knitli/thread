@@ -42,6 +42,10 @@
 //! }
 //! ```
 
+#[cfg(all(not(feature = "worker"), feature = "mimalloc"))]
+#[global_allocator]
+static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
+
 /// Core AST engine for parsing, matching, and transformation.
 #[cfg(feature = "ast")]
 pub mod ast {
