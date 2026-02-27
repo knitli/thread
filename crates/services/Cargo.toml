@@ -61,7 +61,9 @@ intelligence-implementations = ["intelligence-traits"]
 # Intelligence service boundaries
 intelligence-traits = []  # Public trait definitions
 matching = ["thread-ast-engine/matching", "thread-ast-engine/parsing"]
-mimalloc = ["dep:mimalloc"]
+mimalloc = [
+  "dep:mimalloc",
+]
 parsing = ["thread-ast-engine/parsing"]
 performance = ["dep:futures", "dep:pin-project"]
 # Plugin system
@@ -73,4 +75,8 @@ storage-implementations = ["storage-traits"]
 # Commercial service boundaries
 storage-traits = ["dep:serde"]  # Trait definitions only
 tower-services = ["dep:tower", "dep:tower-service"]
-worker = []
+worker = [
+  "thread-ast-engine?/worker",
+  "thread-language?/worker",
+  "thread-utils/worker"
+]

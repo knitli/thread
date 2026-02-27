@@ -26,7 +26,7 @@ simdeez = { workspace = true, optional = true }
 tempfile = "3.15"
 
 [features]
-default = ["hashers", "random", "simd"]
+default = ["hashers", "mimalloc", "random", "simd"]
 hashers = ["dep:rapidhash"]
 mimalloc = ["dep:mimalloc"]
 # use `rand` library for seeding hash generation

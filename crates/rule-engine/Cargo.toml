@@ -53,4 +53,7 @@ cc = "1.2.30"
 default = ["mimalloc"]
 mimalloc = ["dep:mimalloc"]
 # we need to separate serialization, but that's a big job, and ideally rework ast-engine to allow narrower featuring
-worker = []  # feature flag for cloud edge deployment specific logic
+worker = [
+  "thread-ast-engine/worker",
+  "thread-utils/worker",
+]  # feature flag for cloud edge deployment specific logic

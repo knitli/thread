@@ -68,7 +68,7 @@ thread-ast-engine = { workspace = true, features = ["matching", "parsing"] }
 cc = "1.2.30"
 
 [features]
-default = ["all-parsers", "tree-sitter-parsing"]
+default = ["all-parsers", "mimalloc", "tree-sitter-parsing"]
 #! Important: `all-parsers` feature enables all tree-sitter parsers
 # Language groups
 all-parsers = [
@@ -162,5 +162,5 @@ tsx = ["tree-sitter-parsing", "tree-sitter-typescript"]
 tsx-napi = ["napi-environment", "tree-sitter-typescript"]
 typescript = ["tree-sitter-parsing", "tree-sitter-typescript"]
 typescript-napi = ["napi-environment", "tree-sitter-typescript"]
-worker = []
+worker = ["thread-ast-engine/worker", "thread-utils/worker"]
 yaml = ["tree-sitter-parsing", "tree-sitter-yaml"]

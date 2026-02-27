@@ -106,7 +106,7 @@ testcontainers-modules = { version = "*", features = ["postgres"] }
 tokio-postgres = "0.7"
 
 [features]
-default = ["parallel", "postgres-backend", "recoco-minimal"]
+default = ["mimalloc", "parallel", "postgres-backend", "recoco-minimal"]
 # Query result caching (optional, for production deployments)
 caching = ["dep:moka"]
 # Cloudflare D1 storage backend (edge deployment)
@@ -132,4 +132,9 @@ recoco-postgres = [
   "recoco/target-postgres",
 ]  # Add PostgreSQL export
 # Edge deployment (no filesystem, no parallel processing, alternative sources/targets needed)
-worker = []
+worker = [
+  "thread-ast-engine/worker",
+  "thread-language/worker",
+  "thread-services/worker",
+  "thread-utils/worker"
+]  # Worker-specific optimizations and compatibility adjustments

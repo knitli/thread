@@ -46,10 +46,12 @@ cc = "1.2.30"
 default = ["matching", "mimalloc", "parsing"]
 # The 'matching' feature enables the pattern matching engine
 matching = ["dep:regex"]
-mimalloc = ["dep:mimalloc"]
+mimalloc = ["dep:mimalloc", "thread-utils/mimalloc"]
 # The 'parsing' feature enables the tree-sitter backend
 parsing = ["dep:tree-sitter"]
-worker = []  # feature flag for cloud edge deployment specific logic
+worker = [
+  "thread-utils/worker"
+]  # feature flag for cloud edge deployment specific logic
 
 [lints]
 # Enable linting for the crate
