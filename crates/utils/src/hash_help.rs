@@ -172,7 +172,7 @@ mod tests {
             let data = vec![0u8; size];
             let hash = hash_bytes(&data);
             // Should be deterministic
-            assert_eq!(hash, hash_bytes(&data), "Failed for size {}", size);
+            assert_eq!(hash, hash_bytes(&data), "Failed for size {size}");
         }
     }
 
@@ -448,7 +448,7 @@ mod tests {
         let mut map: RapidMap<i32, String> = map_with_capacity(10);
 
         for i in 0..5 {
-            map.insert(i, format!("value_{}", i));
+            map.insert(i, format!("value_{i}"));
         }
 
         assert_eq!(map.len(), 5);
@@ -473,14 +473,14 @@ mod tests {
         let mut map: RapidMap<i32, String> = get_map();
 
         for i in 0..HASH_DISTRIBUTION_TEST_SIZE {
-            map.insert(i as i32, format!("value_{}", i));
+            map.insert(i as i32, format!("value_{i}"));
         }
 
         assert_eq!(map.len(), HASH_DISTRIBUTION_TEST_SIZE);
 
         // Verify all values are retrievable
         for i in 0..HASH_DISTRIBUTION_TEST_SIZE {
-            assert_eq!(map.get(&(i as i32)), Some(&format!("value_{}", i)));
+            assert_eq!(map.get(&(i as i32)), Some(&format!("value_{i}")));
         }
     }
 

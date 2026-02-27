@@ -17,19 +17,19 @@ mod tests {
         // Deterministic check for rapidhash v3 default seed
         // rapidhash_v3(b"hello world", DEFAULT_RAPID_SECRETS) -> 3397907815814400320
         // (This value comes from rapidhash docs, let's verify it matches)
-        assert_eq!(hash, 3397907815814400320);
+        assert_eq!(hash, 3_397_907_815_814_400_320);
     }
 
     #[test]
     fn test_hash_bytes_with_seed() {
         let data = b"hello world";
-        let seed = 0x123456;
+        let seed = 0x0012_3456;
         let hash = hash_bytes_with_seed(data, seed);
 
         let hash2 = hash_bytes_with_seed(data, seed);
         assert_eq!(hash, hash2);
 
-        let seed2 = 0x654321;
+        let seed2 = 0x0065_4321;
         let hash3 = hash_bytes_with_seed(data, seed2);
         assert_ne!(hash, hash3);
     }
@@ -54,7 +54,7 @@ mod tests {
         file.write_all(b"hello seeded file").unwrap();
         file.flush().unwrap();
 
-        let seed = 987654321;
+        let seed = 987_654_321;
         let mut file_reopened = file.reopen().unwrap();
         let hash = hash_file_with_seed(&mut file_reopened, seed).unwrap();
 
