@@ -2,6 +2,7 @@
 # SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
 #
 # SPDX-License-Identifier: MIT OR Apache-2.0
+#:tombi schema.strict = false
 
 experimental_monorepo_root = true
 
@@ -24,7 +25,6 @@ cargo-binstall = "latest"
 "cargo:cargo-watch" = "latest"
 "cargo:git-cliff" = "latest"
 gh = "latest"
-gitsign = "latest"
 hk = "latest"
 node = "24"
 "npm:wasm-opt" = "latest"
@@ -37,6 +37,7 @@ ripgrep = "latest"
 rust = "nightly"
 tombi = "latest"
 typos = "latest"
+usage = "latest"
 uv = "latest"
 yq = "latest"
 
@@ -163,19 +164,91 @@ description = "Run automated tests"
 run = "hk run test"
 alias = "t"  # `mise run t` = test
 
+[tasks.list-steps]
+usage = '''
+flag "-t --task <task>" help="Task to list steps for" {
+  choices "check" "fix"
+  default "check"
+}
+flag "--delimiter <delim>" help="optional different delimiter, defaults to newline" {
+   choices "line" "space"
+   default "line"
+}
+'''
+description = "List steps for a check or fix command. Defaults to 'check'"
+run = '''
+evaluation="hooks[\"${usage_task:-check}\"].steps.keys"
+pkl_out="$(pkl eval -x "$evaluation" hk.pkl)"
+if [ "${usage_delimiter:-line}" == "line" ]; then
+  output="$(echo "$pkl_out" | grep -oP '\"[^\"]+\"' - |  tr -d '\"')"
+else
+  output="$(echo "$pkl_out" | sed 's/Set(\(.*\))%\?/[\1]/')"
+fi
+echo "$output"
+'''
+
 [tasks.lint]
+usage = '''
+flag "-a --all" help="Run linting against all files. If not provided, only runs against changed files"
+flag "--skip-steps <steps>..." help="Optional steps to skip"
+complete "steps" run="mise run list-steps"
+'''
 description = "Full linting of the codebase"
-run = "hk run check"
-alias = "c"  # `mise run c` = check
+run = '''
+step_flag="${usage_skip_steps:+' --skip-step '}"
+if "$step_flag"; then
+  # replace spaces with step_flags and add one to the beginning
+  steps_to_skip=$(echo "${usage_skip_steps}" | sed "s/ /${step_flag}/g")
+  steps_to_skip="${step_flag}${steps_to_skip}"
+else
+  steps_to_skip=""
+fi
+exec_cmd="hk check ${usage_all:+--all} ${steps_to_skip}"
+eval "$exec_cmd"
+'''
+alias = "check"  # `mise run check` = check
 
 [tasks.fix]
+usage = '''
+flag "-a --all" help="Run fixes against all files. If not provided, only runs against changed files" default=#false
+flag "--skip-steps <steps>..." help="Optional steps to skip"
+complete "steps" run="mise run list-steps -t fix"
+'''
 description = "fix formatting and apply lint fixes"
-run = "hk fix"
-alias = "f"  # `mise run f` = fix
+alias = "fix"  # `mise run fix` = fix
+run = '''
+step_flag="${usage_skip_steps:+' --skip-step '}"
+if "$step_flag"; then
+  # replace spaces with step_flags and add one to the beginning
+  steps_to_skip=$(echo "${usage_skip_steps}" | sed "s/ /${step_flag}/g")
+  steps_to_skip="${step_flag}${steps_to_skip}"
+else
+  steps_to_skip=""
+fi
+exec_cmd="hk fix ${usage_all:+--all} ${steps_to_skip}"
+eval "$exec_cmd"
+'''
+
+[tasks.release]
+usage = '''
+flag "-b --bump <bump>" help="Bump for release" {
+    choices "major" "minor" "patch"
+    help "type of semver release"
+  }
+flag "-d --dry-run" help="Dry run only"
+'''
+run = '''
+dry_run="${usage_dry_run:+--dry-run}"
+cargo release --workspace --allow-branch main {{ usage.bump }} "${dry_run:-'-x'}"
+'''
 
 [tasks.changelog]
+usage = '''
+flag "-o --output <output>" help="optional alternative output path" default="CHANGELOG.md"
+'''
 description = "Generate/update CHANGELOG.md from conventional commits"
-run = "git cliff --output CHANGELOG.md"
+env.GITHUB_TOKEN = { value = '''{% if env.MISE_GITHUB_TOKEN %}{{ env.MISE_GITHUB_TOKEN }}{% elif env.GITHUB_TOKEN %}{{ env.GITHUB_TOKEN }}{% else %}{{ env.GH_TOKEN | default(value="") }}{% endif %}''', redact = true }
+run = "git cliff --output ${usage_output:-CHANGELOG.md}"
 alias = "cl"
 
 [tasks.ci]  # only dependencies to be run

@@ -5,14 +5,18 @@
 
 # cargo-release workspace configuration
 # https://github.com/crate-ci/cargo-release/blob/master/docs/reference.md
-
+allow-branch = ["main"]
+workspace = true
 shared-version = true
 consolidate-commits = true
 push-remote = "origin"
 pre-release-hook = [
   "bash",
   "-c",
-  "git-cliff --tag v{{version}} --output CHANGELOG.md && git add CHANGELOG.md",
+  '''
+  mise -yq trust || true
+  mise run changelog
+  ''',
 ]
 pre-release-commit-message = "chore(release): v{{version}}"
 tag-name = "v{{version}}"

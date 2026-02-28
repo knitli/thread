@@ -59,7 +59,7 @@ has:
 ast-grep mcp has several tools:
 
 - dump_syntax_tree will dump the AST of the code, this is useful for debugging and understanding the code structure and patterns
-- test_match_code_rule will test a rule agains a code snippet, this is useful to ensure the rule matches the code
+- test_match_code_rule will test a rule against a code snippet, this is useful to ensure the rule matches the code
 
 ## Rule Format
 

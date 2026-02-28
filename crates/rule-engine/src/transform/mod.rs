@@ -27,14 +27,14 @@ pub use trans::Trans;
 #[derive(Serialize, Deserialize, Clone, JsonSchema, Debug)]
 #[serde(untagged)]
 pub enum Transformation {
-    Simplied(String),
+    Simplified(String),
     Object(Trans<String>),
 }
 
 impl Transformation {
     pub fn parse<L: Language>(&self, lang: &L) -> Result<Trans<MetaVariable>, TransformError> {
         match self {
-            Transformation::Simplied(s) => {
+            Transformation::Simplified(s) => {
                 let t: Trans<String> = s.parse()?;
                 t.parse(lang)
             }

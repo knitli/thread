@@ -60,7 +60,7 @@
 **Tools Covered**:
 - AWS Secrets Manager (CLI/Kubernetes)
 - GitHub Secrets (Edge deployments)
-- HashiCorp Vault (Enterprise option)
+- HashCorp Vault (Enterprise option)
 
 **Best Practices**:
 - Never commit secrets

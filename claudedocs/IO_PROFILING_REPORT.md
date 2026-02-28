@@ -207,8 +207,8 @@ From `.specify/memory/constitution.md` Principle VI:
 | **10 UPSERTs** | 12.9 µs | 1.29 µs | 77k batches/sec |
 | **100 UPSERTs** | 122 µs | 1.22 µs | 8.2k batches/sec |
 | **1000 UPSERTs** | 1.21 ms | 1.21 µs | 826 batches/sec |
-| **10 DELETEs** | 3.5 µs | 350 ns | 286k batches/sec |
-| **100 DELETEs** | 33 µs | 330 ns | 30k batches/sec |
+| **10 DELETEEs** | 3.5 µs | 350 ns | 286k batches/sec |
+| **100 DELETEEs** | 33 µs | 330 ns | 30k batches/sec |
 
 **Analysis**:
 - **Linear scaling**: Per-operation cost constant across batch sizes
