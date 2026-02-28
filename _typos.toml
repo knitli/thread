@@ -28,6 +28,7 @@ extend-ignore-identifiers-re = [
 ignore-hidden = false
 ignore-files = true
 extend-exclude = [
+  "./CHANGELOG.md",
   "/usr/**/*",
   "/tmp/**/*",
   "/**/node_modules/**",
@@ -44,4 +45,9 @@ extend-exclude = [
   "src/assets/fonts/**/*",
   "src/assets/images/**/*",
   "**/claudedocs/**/*",  # Claude-generated docs may contain terminal output with ANSI codes
+]
+
+[type.md]
+extend-ignore-re = [
+  '(?s)(<!--)?\\s*spellchecker:off|(?s)(<!--)?\\s*spellchecker:off.*(<!--)?\\s*spellchecker:on',
 ]

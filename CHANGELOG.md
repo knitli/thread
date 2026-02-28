@@ -1,17 +1,23 @@
 <!--
 SPDX-FileCopyrightText: 2026 Knitli Inc.
 SPDX-License-Identifier: MIT OR Apache-2.0
+
+commit hashes cause false-positives for the spellchecker:
+spellchecker:off
 -->
 # Changelog
 
-All notable changes to this project will be documented in this file.
+We document all important changes below.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+Thread follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 ### Bug Fixes
 
 - Lockfile errors([`3723c40`](https://github.com/knitli/thread/commit/3723c40012db5b0bf11fb394bf3894f5f227429a))
+
+- (**tasks**) Make the release task bump argument positional vice keyword, which is expected for a required argument([`89c43a1`](https://github.com/knitli/thread/commit/89c43a19cd899ffa9328bf6965ecadbcda1d709b))
+
+- (**release**) Update release task to use correct argument handling and fix changelog command([`6ba33c9`](https://github.com/knitli/thread/commit/6ba33c9f92450e750992a30ec3e20a8facd1bc5d))
 
 ### Documentation
 
@@ -22,6 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add semantic classifications and spec in preparation for semantic classification layer([`e308eb2`](https://github.com/knitli/thread/commit/e308eb27f28859aa5fc101723100ecc0892e337f))
 
 - (**thread**) Implement main thread crate to unify crate exposure (#75)([`eead51d`](https://github.com/knitli/thread/commit/eead51dcb62ee0b6fe99856ce40ef929df1c7d41))
+
+- (**dev**) Improve repo tasks; remove outdated docs([`cadf4b5`](https://github.com/knitli/thread/commit/cadf4b562ccb390180e1bcfa96ed24d68e7d9a75))
 
 ### Miscellaneous
 

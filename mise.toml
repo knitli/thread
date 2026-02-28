@@ -237,11 +237,13 @@ arg "<bump>" help="type of semver release" {
 flag "-d --dry-run" help="Dry run only"
 '''
 run = '''
+rm -f .changelog-generated
 if [ "${usage_dry_run}" ]; then
   cargo release "$usage_bump"
 else
   cargo release -x "$usage_bump"
 fi
+rm -f .changelog-generated
 '''
 
 [tasks.changelog]

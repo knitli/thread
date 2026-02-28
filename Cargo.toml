@@ -88,14 +88,14 @@ serde_json = { version = "1.0.149" }
 serde_yaml = { package = "serde_yml", version = "0.0.12" }
 thiserror = { version = "2.0.17" }
 # Thread
-thread-ast-engine = { path = "crates/ast-engine", default-features = false }
-thread = { path = "crates/thread", default-features = false }
-thread-flow = { path = "crates/flow", default-features = false }
-thread-language = { path = "crates/language", default-features = false }
-thread-rule-engine = { path = "crates/rule-engine", default-features = false }
-thread-services = { path = "crates/services", default-features = false }
-thread-utils = { path = "crates/utils", default-features = false }
-thread-wasm = { path = "crates/wasm", default-features = false }
+thread-ast-engine = { path = "crates/ast-engine", version = "*", default-features = false }
+thread = { path = "crates/thread", version = "*", default-features = false }
+thread-flow = { path = "crates/flow", version = "*", default-features = false }
+thread-language = { path = "crates/language", version = "*", default-features = false }
+thread-rule-engine = { path = "crates/rule-engine", version = "*", default-features = false }
+thread-services = { path = "crates/services", version = "*", default-features = false }
+thread-utils = { path = "crates/utils", version = "*", default-features = false }
+thread-wasm = { path = "crates/wasm", version = "*", default-features = false }
 
 [workspace.lints.clippy]
 # Same lints as tree-sitter itself.

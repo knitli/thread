@@ -2,7 +2,6 @@
 # SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
 #
 # SPDX-License-Identifier: MIT OR Apache-2.0
-
 # cargo-release workspace configuration
 # https://github.com/crate-ci/cargo-release/blob/master/docs/reference.md
 allow-branch = ["main"]
@@ -13,8 +12,12 @@ pre-release-hook = [
   "bash",
   "-c",
   '''
-  mise -yq trust || true
-  mise run //:changelog
+  SENTINEL="${WORKSPACE_ROOT}/.changelog-generated"
+  if [ ! -f "$SENTINEL" ]; then
+    touch "$SENTINEL"
+    mise -yq trust || true
+    mise run //:changelog
+  fi
   ''',
 ]
 pre-release-commit-message = "chore(release): v{{version}}"
