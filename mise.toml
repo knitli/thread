@@ -231,7 +231,7 @@ eval "$exec_cmd"
 
 [tasks.release]
 usage = '''
-flag "-b --bump <bump>" help="Bump for release" {
+arg "<bump>" help="Bump for release" {
     choices "major" "minor" "patch"
     help "type of semver release"
   }
@@ -239,7 +239,7 @@ flag "-d --dry-run" help="Dry run only"
 '''
 run = '''
 dry_run="${usage_dry_run:+--dry-run}"
-cargo release --workspace --allow-branch main {{ usage.bump }} "${dry_run:-'-x'}"
+cargo release --workspace --allow-branch main "${dry_run:-'-x'}" {{ usage.bump }}
 '''
 
 [tasks.changelog]
