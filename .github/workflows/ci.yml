@@ -244,9 +244,7 @@ jobs:
       - name: Run integration tests
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/thread_test
-        run: >-
-          cargo nextest run --manifest-path crates/flow/Cargo.toml
-          --all-features --test integration_tests --test d1_integration_test
+        run: cargo nextest run --manifest-path crates/flow/Cargo.toml --all-features --test integration_tests --test d1_integration_test
   # Performance regression tests (on PRs and main)
   performance_regression:
     name: Performance Regression Tests
