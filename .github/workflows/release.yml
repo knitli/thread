@@ -269,18 +269,14 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
       - name: Cache Rust dependencies
         uses: Swatinem/rust-cache@v2
+      - name: Install cargo-release
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-release
       - name: Publish to crates.io
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
-        run: |
-          # Publish in dependency order
-          cargo publish -p thread-utils --allow-dirty || echo "Package already published"
-          cargo publish -p thread-language --allow-dirty || echo "Package already published"
-          cargo publish -p thread-ast-engine --allow-dirty || echo "Package already published"
-          cargo publish -p thread-rule-engine --allow-dirty || echo "Package already published"
-          cargo publish -p thread-services --allow-dirty || echo "Package already published"
-          cargo publish -p thread-flow --allow-dirty || echo "Package already published"
-          cargo publish -p thread-wasm --allow-dirty || echo "Package already published"
+        run: cargo release publish --no-confirm
   # Deploy to Cloudflare Workers (Edge deployment)
   deploy-edge:
     name: Deploy to Cloudflare Edge

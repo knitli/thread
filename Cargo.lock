@@ -4002,7 +4002,7 @@ dependencies = [
 
 [[package]]
 name = "thread"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
  "mimalloc",
  "thread-ast-engine",
@@ -4166,7 +4166,7 @@ dependencies = [
 
 [[package]]
 name = "thread-wasm"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
  "console_error_panic_hook",
  "js-sys",

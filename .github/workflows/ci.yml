@@ -46,7 +46,11 @@ jobs:
       - name: Check formatting
         run: cargo fmt --all -- --config-path ./rustfmt.toml --check
       - name: Run clippy
-        run: cargo clippy --workspace --all-features --all-targets -- -D warnings
+        # thread-language's napi-* features conflict with tree-sitter at runtime;
+        # run it separately with only the compatible feature set.
+        run: |
+          cargo clippy --workspace --exclude thread-language --all-features --all-targets -- -D warnings
+          cargo clippy -p thread-language --features all-parsers,matching --all-targets -- -D warnings
       - name: Check typos
         uses: crate-ci/typos@v1.16.23
   # Test matrix for multiple platforms and Rust versions

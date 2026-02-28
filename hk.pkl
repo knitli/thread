@@ -18,7 +18,12 @@ local linters = new Mapping<String, Step> {
       "cargo fmt --all --manifest-path {{workspace_indicator}} -- --check --files-with-diff --config-path ./rustfmt.toml"
     fix = "cargo fmt --all --manifest-path {{workspace_indicator}} -- --config-path ./rustfmt.toml"
   }
-  ["cargo_clippy"] = Builtins.cargo_clippy
+  ["cargo_clippy"] = (Builtins.cargo_clippy) {
+    // thread-language's napi-* features conflict with tree-sitter-parsing at runtime;
+    // run it separately with only the compatible feature set.
+    check =
+      "cargo clippy --manifest-path {{ workspace_indicator }} --workspace --exclude thread-language --all-features --all-targets -- -D warnings && cargo clippy --manifest-path {{ workspace_indicator }} -p thread-language --features all-parsers,matching --all-targets -- -D warnings"
+  }
   ["cargo_check"] = Builtins.cargo_check
   ["cargo_test"] = new Step {
     workspace_indicator = "Cargo.toml"

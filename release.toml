@@ -1,0 +1,20 @@
+# SPDX-FileCopyrightText: 2026 Knitli Inc.
+# SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+# cargo-release workspace configuration
+# https://github.com/crate-ci/cargo-release/blob/master/docs/reference.md
+
+shared-version = true
+consolidate-commits = true
+push-remote = "origin"
+pre-release-hook = [
+  "bash",
+  "-c",
+  "git-cliff --tag v{{version}} --output CHANGELOG.md && git add CHANGELOG.md",
+]
+pre-release-commit-message = "chore(release): v{{version}}"
+tag-name = "v{{version}}"
+push = true
+publish = true
