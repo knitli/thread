@@ -10,7 +10,7 @@ spellchecker:off
 We document all important changes below.
 
 Thread follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-## [Unreleased]
+## [0.2.1] - 2026-02-28
 ### Bug Fixes
 
 - Lockfile errors([`3723c40`](https://github.com/knitli/thread/commit/3723c40012db5b0bf11fb394bf3894f5f227429a))
@@ -24,6 +24,10 @@ Thread follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and uses
 - (**release**) Enhance release command to support no-publish flag and improve argument handling([`092ed0c`](https://github.com/knitli/thread/commit/092ed0c26c7e318ed14fd177d9312bf218b5d40f))
 
 - (**release**) Improve argument handling in release command for dry run and no-publish options([`46f983b`](https://github.com/knitli/thread/commit/46f983bd65626b719730351d2eb9e925f62efe2d))
+
+- (**release**) Improve argument handling in release command for dry run and no-publish options([`203cc3b`](https://github.com/knitli/thread/commit/203cc3be49c3fbd12b23de85f09d2c01a43e0056))
+
+- (**lockfile**) Correct lockfile version([`36ede46`](https://github.com/knitli/thread/commit/36ede46c8c7928a8ba3cec62331d69b33a9cb241))
 
 ### Documentation
 
@@ -78,4 +82,4 @@ Thread follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and uses
 - (**mcp.json, settings.json**) Remove obsolete filesystem server and update allowed models([`c507148`](https://github.com/knitli/thread/commit/c507148d816880a571bead4ce1ed60dd1d4bf197))
 
 
-
+<!-- spellchecker:on -->
