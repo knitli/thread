@@ -6,15 +6,19 @@
 //! RPC Type Definitions for Real-Time Code Graph Intelligence
 //!
 //! These types are shared across CLI and Edge deployments for API consistency.
-//! Serialization uses `serde` + `postcard` for binary efficiency (~40% size reduction vs JSON).
+//! This file contains draft Rust structs as the precursor to `.proto` definitions (T017).
+//!
+//! **Wire Protocol**:
+//!   - External API (HTTP POST): `prost` Protobuf encoding — see `crates/thread-api/proto/v1/` (planned, T017)
+//!   - Internal Rust-to-Rust (Worker→Container, CLI internal): `postcard` binary
+//!   - MCP server (future): `serde_json` / JSON-RPC 2.0 (separate adapter layer)
 //!
 //! **Protocol**: Custom RPC over HTTP + WebSockets (gRPC not viable for Cloudflare Workers)
 //! **Transport**: HTTP POST for request/response, WebSocket for real-time streaming
-//! **Serialization**: postcard (binary) for production, JSON for debugging
 
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use std::path::PathBuf;
+use thread_utils::RapidMap;
 
 // ============================================================================
 // Core RPC Trait
@@ -32,10 +36,10 @@ pub trait CodeAnalysisRpc {
     async fn query_graph(&self, req: GraphQueryRequest) -> Result<GraphQueryResponse, RpcError>;
 
     /// Search for similar code patterns (semantic search)
-    async fn search_similar(&self, req: SimilaritySearchRequest) -> Result<SimilaritySearchResponse, RpcError>;
-
-    /// Detect conflicts between code changes
-    async fn detect_conflicts(&self, req: ConflictDetectionRequest) -> Result<ConflictDetectionResponse, RpcError>;
+    async fn search_similar(
+        &self,
+        req: SimilaritySearchRequest,
+    ) -> Result<SimilaritySearchResponse, RpcError>;
 
     /// Get analysis session status
     async fn get_session_status(&self, session_id: String) -> Result<SessionStatus, RpcError>;
@@ -43,6 +47,20 @@ pub trait CodeAnalysisRpc {
     /// Stream real-time updates (returns WebSocket stream)
     /// Note: Implemented via separate WebSocket endpoint, not direct RPC
     async fn subscribe_updates(&self, repo_id: String) -> Result<UpdateSubscription, RpcError>;
+}
+
+/// Extension trait for conflict detection capabilities (commercial scope).
+///
+/// Implemented by commercial `thread-conflict` service; NOT implemented in OSS.
+/// OSS callers should check for this trait via dynamic dispatch if needed.
+/// The OSS `thread-conflict` stub crate does not implement this trait.
+#[async_trait::async_trait]
+pub trait ConflictAwareRpc: CodeAnalysisRpc {
+    /// Detect conflicts between code changes (multi-tier progressive)
+    async fn detect_conflicts(
+        &self,
+        req: ConflictDetectionRequest,
+    ) -> Result<ConflictDetectionResponse, RpcError>;
 }
 
 // ============================================================================
@@ -73,14 +91,18 @@ pub struct GraphQueryRequest {
     pub node_id: String,
     pub max_depth: Option<u32>,
     pub edge_types: Vec<String>,
+    /// Whether to include local uncommitted delta in query results.
+    /// Defaults to `true` (merged Base + Delta view).
+    /// Pass `false` to query the committed Base Layer only.
+    pub include_local_delta: Option<bool>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum GraphQueryType {
-    Dependencies,       // What does this symbol depend on?
-    Callers,            // Who calls this function?
-    Callees,            // What does this function call?
-    ReverseDependencies, // Who depends on this?
+    Dependencies,                      // What does this symbol depend on?
+    Callers,                           // Who calls this function?
+    Callees,                           // What does this function call?
+    ReverseDependencies,               // Who depends on this?
     PathBetween { target_id: String }, // Find path between two symbols
 }
 
@@ -128,16 +150,16 @@ pub struct ConflictDetectionRequest {
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub enum DetectionTier {
-    Tier1AST,           // Fast AST diff (<100ms)
-    Tier2Semantic,      // Semantic analysis (<1s)
-    Tier3GraphImpact,   // Graph impact (<5s)
+    Tier1AST,         // Fast AST diff (<100ms)
+    Tier2Semantic,    // Semantic analysis (<1s)
+    Tier3GraphImpact, // Graph impact (<5s)
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ConflictDetectionResponse {
     pub conflicts: Vec<Conflict>,
     pub total_time_ms: u64,
-    pub tier_timings: HashMap<String, u64>, // Tier name -> time in ms
+    pub tier_timings: RapidMap<String, u64>, // Tier name -> time in ms
 }
 
 /// Session status query
@@ -173,7 +195,8 @@ pub struct UpdateSubscription {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GraphNode {
     pub id: String,
-    pub node_type: String,
+    pub semantic_class: String, // Language-agnostic SemanticClass (from thread-definitions, e.g. "DefinitionCallable")
+    pub node_kind: Option<String>, // Raw tree-sitter node type (e.g., "function_item", "closure_expression")
     pub name: String,
     pub qualified_name: String,
     pub file_path: PathBuf,
@@ -214,6 +237,18 @@ pub enum Severity {
 // WebSocket Message Types (Real-Time Updates)
 // ============================================================================
 
+/// Status of a conflict detection tier result.
+///
+/// **Deferred-completion pattern**: If a tier times out (`Timeout, is_final: false`), the server
+/// queues the analysis for retry. When the retry succeeds, a new `ConflictUpdate` is sent for the
+/// same `conflict_id` and `tier` with `status: Complete`. Clients merge by `(conflict_id, tier)`;
+/// the most recently received message wins. No explicit supersession signal is needed.
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+pub enum ConflictUpdateStatus {
+    Complete, // Tier analysis completed successfully
+    Timeout, // Tier timed out. `is_final: true` = terminal, no retry queued; `is_final: false` = retry pending, a follow-up Complete message will arrive.
+}
+
 /// Messages sent over WebSocket for real-time updates
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum WebSocketMessage {
@@ -228,6 +263,8 @@ pub enum WebSocketMessage {
     ConflictUpdate {
         conflict_id: String,
         tier: DetectionTier,
+        status: ConflictUpdateStatus, // Outcome of this tier's analysis
+        is_final: bool, // When true, no further ConflictUpdate messages follow for this conflict_id
         conflicts: Vec<Conflict>,
         timestamp: i64,
     },
@@ -258,6 +295,11 @@ pub enum WebSocketMessage {
 
     /// Error notification
     Error { code: String, message: String },
+
+    /// Client requests replay of missed messages after reconnect (Client → Server)
+    RequestMissedUpdates {
+        since_timestamp: i64, // Unix timestamp of last received message before disconnection
+    },
 }
 
 // ============================================================================
@@ -294,6 +336,8 @@ impl std::error::Error for RpcError {}
 // Serialization Helpers
 // ============================================================================
 
+// NOTE: serialize_binary/deserialize_binary use postcard — INTERNAL Rust-to-Rust communication only.
+// External API wire format is prost Protobuf. See crates/thread-api/proto/v1/ (planned, T017).
 /// Serialize RPC request/response to binary (postcard)
 pub fn serialize_binary<T: Serialize>(value: &T) -> Result<Vec<u8>, postcard::Error> {
     postcard::to_allocvec(value)

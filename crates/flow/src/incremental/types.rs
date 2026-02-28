@@ -9,8 +9,8 @@
 
 use recoco::utils::fingerprint::{Fingerprint, Fingerprinter};
 use serde::{Deserialize, Serialize};
-use std::collections::HashSet;
 use std::path::{Path, PathBuf};
+use thread_utils::RapidSet;
 
 /// Tracks the fingerprint and source files for an analysis result.
 ///
@@ -32,7 +32,7 @@ use std::path::{Path, PathBuf};
 pub struct AnalysisDefFingerprint {
     /// Source files that contribute to this analysis result.
     /// Used to determine invalidation scope when dependencies change.
-    pub source_files: HashSet<PathBuf>,
+    pub source_files: RapidSet<PathBuf>,
 
     /// Content fingerprint of the analyzed file (Blake3, 16 bytes).
     /// Combines file content hash for change detection.
@@ -197,7 +197,7 @@ impl AnalysisDefFingerprint {
         let mut fingerprinter = Fingerprinter::default();
         fingerprinter.write_raw_bytes(content);
         Self {
-            source_files: HashSet::new(),
+            source_files: thread_utils::get_set(),
             fingerprint: fingerprinter.into_fingerprint(),
             last_analyzed: None,
         }
@@ -217,14 +217,14 @@ impl AnalysisDefFingerprint {
     ///
     /// ```rust
     /// use thread_flow::incremental::types::AnalysisDefFingerprint;
-    /// use std::collections::HashSet;
+    /// use thread_utils::RapidSet;
     /// use std::path::PathBuf;
     ///
-    /// let sources = HashSet::from([PathBuf::from("dep.rs")]);
+    /// let sources = RapidSet::from([PathBuf::from("dep.rs")]);
     /// let fp = AnalysisDefFingerprint::with_sources(b"content", sources);
     /// assert_eq!(fp.source_files.len(), 1);
     /// ```
-    pub fn with_sources(content: &[u8], source_files: HashSet<PathBuf>) -> Self {
+    pub fn with_sources(content: &[u8], source_files: RapidSet<PathBuf>) -> Self {
         let mut fingerprinter = Fingerprinter::default();
         fingerprinter.write_raw_bytes(content);
         Self {
@@ -496,10 +496,12 @@ mod tests {
 
     #[test]
     fn test_fingerprint_with_sources() {
-        let sources = HashSet::from([
+        let sources: RapidSet<PathBuf> = [
             PathBuf::from("src/utils.rs"),
             PathBuf::from("src/config.rs"),
-        ]);
+        ]
+        .into_iter()
+        .collect();
         let fp = AnalysisDefFingerprint::with_sources(b"content", sources.clone());
         assert_eq!(fp.source_files, sources);
         assert!(fp.content_matches(b"content"));
@@ -521,7 +523,7 @@ mod tests {
 
     #[test]
     fn test_fingerprint_update_preserves_source_files() {
-        let sources = HashSet::from([PathBuf::from("dep.rs")]);
+        let sources: RapidSet<PathBuf> = [PathBuf::from("dep.rs")].into_iter().collect();
         let fp = AnalysisDefFingerprint::with_sources(b"old", sources.clone());
         let updated = fp.update_fingerprint(b"new");
         assert_eq!(updated.source_files, sources);
@@ -558,7 +560,9 @@ mod tests {
     fn test_fingerprint_remove_source_file() {
         let mut fp = AnalysisDefFingerprint::with_sources(
             b"content",
-            HashSet::from([PathBuf::from("a.rs"), PathBuf::from("b.rs")]),
+            [PathBuf::from("a.rs"), PathBuf::from("b.rs")]
+                .into_iter()
+                .collect::<RapidSet<PathBuf>>(),
         );
 
         assert!(fp.remove_source_file(Path::new("a.rs")));
@@ -574,8 +578,8 @@ mod tests {
         let mut fp = AnalysisDefFingerprint::new(b"content");
         assert!(fp.last_analyzed.is_none());
 
-        fp.set_last_analyzed(1706400000_000_000); // Some timestamp
-        assert_eq!(fp.last_analyzed, Some(1706400000_000_000));
+        fp.set_last_analyzed(1_706_400_000_000_000); // Some timestamp
+        assert_eq!(fp.last_analyzed, Some(1_706_400_000_000_000));
     }
 
     #[test]

@@ -267,10 +267,10 @@ impl<'r, L: Language> CombinedScan<'r, L> {
         };
         let (suppressions, mut suppression_nodes) = Suppressions::collect_all(root);
         let file_sup = suppressions.file_suppression();
-        if let MaySuppressed::Yes(s) = file_sup {
-            if s.suppressed.is_none() {
-                return result.into_result(self, separate_fix);
-            }
+        if let MaySuppressed::Yes(s) = file_sup
+            && s.suppressed.is_none()
+        {
+            return result.into_result(self, separate_fix);
         }
         for node in root.root().dfs() {
             let kind = node.kind_id() as usize;

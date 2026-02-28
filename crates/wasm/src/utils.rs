@@ -3,8 +3,9 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
+#[allow(unused_imports)]
 #[cfg(feature = "console_error_panic_hook")]
-use wasm_bindgen::*;
+use wasm_bindgen::prelude::wasm_bindgen;
 #[cfg(feature = "console_error_panic_hook")]
 #[wasm_bindgen(start)]
 pub fn set_panic_hook() {

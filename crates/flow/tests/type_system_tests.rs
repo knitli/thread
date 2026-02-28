@@ -224,11 +224,11 @@ async fn test_simple_function_round_trip() {
     println!("Symbol count: {}", symbol_count);
 
     // Verify all symbols have correct structure
-    if let Value::Struct(FieldValues { fields }) = &value {
-        if let Value::LTable(symbols) = &fields[0] {
-            for symbol in symbols {
-                validate_symbol_structure(symbol);
-            }
+    if let Value::Struct(FieldValues { fields }) = &value
+        && let Value::LTable(symbols) = &fields[0]
+    {
+        for symbol in symbols {
+            validate_symbol_structure(symbol);
         }
     }
 }
@@ -296,24 +296,24 @@ async fn test_symbol_data_preservation() {
     let value = serialize_parsed_doc(&doc).expect("Serialization should succeed");
 
     // Verify symbol structure
-    if let Value::Struct(FieldValues { fields }) = &value {
-        if let Value::LTable(symbols) = &fields[0] {
-            assert_eq!(symbols.len(), 1, "Should have 1 symbol");
+    if let Value::Struct(FieldValues { fields }) = &value
+        && let Value::LTable(symbols) = &fields[0]
+    {
+        assert_eq!(symbols.len(), 1, "Should have 1 symbol");
 
-            let symbol = &symbols[0];
-            validate_symbol_structure(symbol);
+        let symbol = &symbols[0];
+        validate_symbol_structure(symbol);
 
-            // Verify symbol name
-            let ScopeValue(FieldValues {
-                fields: symbol_fields,
-            }) = symbol;
-            if let Value::Basic(BasicValue::Str(name)) = &symbol_fields[0] {
-                assert_eq!(
-                    name.as_ref(),
-                    "calculate_sum",
-                    "Symbol name should be preserved"
-                );
-            }
+        // Verify symbol name
+        let ScopeValue(FieldValues {
+            fields: symbol_fields,
+        }) = symbol;
+        if let Value::Basic(BasicValue::Str(name)) = &symbol_fields[0] {
+            assert_eq!(
+                name.as_ref(),
+                "calculate_sum",
+                "Symbol name should be preserved"
+            );
         }
     }
 }
@@ -334,12 +334,12 @@ async fn test_multiple_symbols_preservation() {
     let value = serialize_parsed_doc(&doc).expect("Serialization should succeed");
 
     // Verify all symbols have correct structure
-    if let Value::Struct(FieldValues { fields }) = &value {
-        if let Value::LTable(symbols) = &fields[0] {
-            println!("Found {} symbols", symbols.len());
-            for symbol in symbols {
-                validate_symbol_structure(symbol);
-            }
+    if let Value::Struct(FieldValues { fields }) = &value
+        && let Value::LTable(symbols) = &fields[0]
+    {
+        println!("Found {} symbols", symbols.len());
+        for symbol in symbols {
+            validate_symbol_structure(symbol);
         }
     }
 }
@@ -359,12 +359,12 @@ async fn test_import_data_preservation() {
     let value = serialize_parsed_doc(&doc).expect("Serialization should succeed");
 
     // Verify imports structure (may be 0 or more depending on pattern matching)
-    if let Value::Struct(FieldValues { fields }) = &value {
-        if let Value::LTable(imports) = &fields[1] {
-            println!("Found {} imports", imports.len());
-            for import in imports {
-                validate_import_structure(import);
-            }
+    if let Value::Struct(FieldValues { fields }) = &value
+        && let Value::LTable(imports) = &fields[1]
+    {
+        println!("Found {} imports", imports.len());
+        for import in imports {
+            validate_import_structure(import);
         }
     }
 }
@@ -380,12 +380,12 @@ async fn test_call_data_preservation() {
     let value = serialize_parsed_doc(&doc).expect("Serialization should succeed");
 
     // Verify calls structure (may be 0 or more depending on pattern matching)
-    if let Value::Struct(FieldValues { fields }) = &value {
-        if let Value::LTable(calls) = &fields[2] {
-            println!("Found {} calls", calls.len());
-            for call in calls {
-                validate_call_structure(call);
-            }
+    if let Value::Struct(FieldValues { fields }) = &value
+        && let Value::LTable(calls) = &fields[2]
+    {
+        println!("Found {} calls", calls.len());
+        for call in calls {
+            validate_call_structure(call);
         }
     }
 }
@@ -481,13 +481,13 @@ async fn test_large_document_round_trip() {
     let value = serialize_parsed_doc(&doc).expect("Large document should serialize");
 
     // Verify structure integrity with large data
-    if let Value::Struct(FieldValues { fields }) = &value {
-        if let Value::LTable(symbols) = &fields[0] {
-            println!("Large document has {} symbols", symbols.len());
-            // Spot check a few symbols
-            for symbol in symbols.iter().take(5) {
-                validate_symbol_structure(symbol);
-            }
+    if let Value::Struct(FieldValues { fields }) = &value
+        && let Value::LTable(symbols) = &fields[0]
+    {
+        println!("Large document has {} symbols", symbols.len());
+        // Spot check a few symbols
+        for symbol in symbols.iter().take(5) {
+            validate_symbol_structure(symbol);
         }
     }
 }

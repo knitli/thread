@@ -179,10 +179,10 @@ impl GoDependencyExtractor {
                 "import_spec_list" => {
                     let mut list_cursor = child.walk();
                     for spec in child.children(&mut list_cursor) {
-                        if spec.kind() == "import_spec" {
-                            if let Some(info) = self.parse_import_spec(spec, source) {
-                                imports.push(info);
-                            }
+                        if spec.kind() == "import_spec"
+                            && let Some(info) = self.parse_import_spec(spec, source)
+                        {
+                            imports.push(info);
                         }
                     }
                 }
@@ -254,11 +254,11 @@ impl GoDependencyExtractor {
         import_path: &str,
     ) -> Result<PathBuf, ExtractionError> {
         // Module-internal import
-        if let Some(ref module) = self.module_path {
-            if let Some(relative) = import_path.strip_prefix(module) {
-                let relative = relative.strip_prefix('/').unwrap_or(relative);
-                return Ok(PathBuf::from(relative));
-            }
+        if let Some(ref module) = self.module_path
+            && let Some(relative) = import_path.strip_prefix(module)
+        {
+            let relative = relative.strip_prefix('/').unwrap_or(relative);
+            return Ok(PathBuf::from(relative));
         }
 
         // Vendor mode for external imports

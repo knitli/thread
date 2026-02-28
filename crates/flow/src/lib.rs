@@ -24,6 +24,7 @@ pub mod registry;
 pub mod runtime;
 pub mod sources;
 pub mod targets;
+
 #[cfg(test)]
 // Re-exports
 pub use bridge::CocoIndexAnalyzer;

@@ -134,7 +134,7 @@ fn test_d1_save_and_load_fingerprint() {
     conn.execute(
         "INSERT INTO analysis_fingerprints (file_path, content_fingerprint, last_analyzed) \
          VALUES (?1, ?2, ?3)",
-        params!["src/main.rs", fp_bytes, 1706400000_000_000i64],
+        params!["src/main.rs", fp_bytes, 1_706_400_000_000_000_i64],
     )
     .unwrap();
 
@@ -148,7 +148,7 @@ fn test_d1_save_and_load_fingerprint() {
         .unwrap();
 
     assert_eq!(loaded_fp, fp_bytes);
-    assert_eq!(loaded_ts, Some(1706400000_000_000i64));
+    assert_eq!(loaded_ts, Some(1_706_400_000_000_000_i64));
 }
 
 #[test]
@@ -672,7 +672,7 @@ fn test_d1_integer_timestamp_handling() {
     let fp = make_fingerprint(b"timestamp test");
 
     // Test with large Unix microsecond timestamp.
-    let timestamp: i64 = 1706400000_000_000; // 2024-01-28 in microseconds
+    let timestamp: i64 = 1_706_400_000_000_000; // 2024-01-28 in microseconds
 
     conn.execute(
         "INSERT INTO analysis_fingerprints (file_path, content_fingerprint, last_analyzed) \

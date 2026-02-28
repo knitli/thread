@@ -1,4 +1,3 @@
-#![cfg(test)]
 // SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
 // SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
 // SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
@@ -8,7 +7,10 @@
 //! Standalone Scala file to test syntax.
 //! Scala does not need special processing and can be a stub lang.
 //! But this file is created for testing Scala2 and Scala3.
-
+#![cfg(test)]
+//! Standalone Scala file to test syntax.
+//! Scala does not need special processing and can be a stub lang.
+//! But this file is created for testing Scala2 and Scala3.
 use super::*;
 
 fn test_match(query: &str, source: &str) {

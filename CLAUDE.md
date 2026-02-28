@@ -19,6 +19,7 @@ Thread is a **service-library dual architecture** for safe, fast, flexible code 
 The project is forked from ast-grep and enhanced with ReCoco (Rust-only fork of CocoIndex) dataflow framework for production use as a code analysis engine for AI context generation. Thread's `thread-flow` crate serves as the implementation layer for ReCoco capabilities.
 
 **Key Differentiators**:
+
 - ✅ **Content-Addressed Caching**: 50x+ performance gains on repeated analysis via automatic incremental updates
 - ✅ **Dual Deployment**: Single codebase compiles to both CLI (Rayon parallelism) and Edge (tokio async, Cloudflare Workers)
 - ✅ **Persistent Storage**: Native integration with Postgres (local), D1 (edge), Qdrant (vectors)
@@ -70,13 +71,14 @@ Thread follows a **service-library dual architecture** (Constitution v2.0.0, Pri
 ### Feature Gating
 
 ReCoco uses Cargo feature flags to enable modular builds:
+
 - Core dataflow primitives available without features
 - Storage backends gated behind `postgres`, `d1`, `qdrant` features
 - Thread selectively enables only required features via `thread-flow`
 
 ### Dependency Chain
 
-```
+```plaintext
 thread-services → thread-flow → recoco (public crate)
                               ↓
                     [Postgres | D1 | Qdrant]
@@ -89,6 +91,7 @@ thread-services → thread-flow → recoco (public crate)
 ### Core Library (Open Source)
 
 The **D1 storage backend** is a first-class library feature in `crates/flow/src/incremental/backends/d1.rs`:
+
 - ✅ Part of Thread's multi-backend storage abstraction
 - ✅ API documentation in `docs/api/D1_INTEGRATION_API.md`
 - ✅ Integration tests in `crates/flow/tests/incremental_d1_tests.rs`
@@ -99,6 +102,7 @@ The **D1 storage backend** is a first-class library feature in `crates/flow/src/
 ### Deployment Machinery (Segregated)
 
 **Cloudflare Workers deployment materials** are segregated in the **gitignored** `crates/cloudflare/` directory:
+
 - 🔒 **Configuration**: `config/wrangler.production.toml.example` - Production Wrangler configuration
 - 📚 **Documentation**: `docs/EDGE_DEPLOYMENT.md` - Comprehensive deployment guide (17KB)
 - 🚀 **Scripts**: `scripts/deploy.sh` - Automated deployment automation (5.9KB)
@@ -332,6 +336,7 @@ cargo run -p xtask build-wasm --release
 ### Quality Gates (Constitutional Requirements)
 
 Before any PR merge, verify:
+
 - ✅ `mise run lint` passes (zero warnings)
 - ✅ `cargo nextest run --all-features` passes (100% success)
 - ✅ `mise run ci` completes successfully
@@ -379,8 +384,10 @@ The library provides multiple tools to help me AI assistants more efficient:
 - NEVER include explanatory text or markdown outside the JSON structure
 
 ## Active Technologies
+
 - Rust (edition 2024, aligning with Thread's existing codebase) (001-realtime-code-graph)
 - Multi-backend architecture with deployment-specific primaries: (001-realtime-code-graph)
 
 ## Recent Changes
+
 - 001-realtime-code-graph: Added Rust (edition 2024, aligning with Thread's existing codebase)

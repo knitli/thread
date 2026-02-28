@@ -1,0 +1,13 @@
+# SPDX-FileCopyrightText: 2026 Knitli Inc.
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+#:tombi schema.strict = false
+# rustfmt configuration
+
+# Skip files that are intentionally broken or should not be formatted
+ignore = [
+  "crates/flow/tests/test_data/syntax_error.rs",
+]
+# Use 2024 edition by default
+edition = "2024"
+style_edition = "2024"

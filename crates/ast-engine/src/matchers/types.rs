@@ -203,7 +203,7 @@ pub struct NodeMatch<'t, D: Doc>(pub(crate) Node<'t, D>, pub(crate) MetaVarEnv<'
 /// // With Ast strictness, they match the same pattern:
 /// // "let $VAR = $VALUE"
 /// ```
-#[derive(Clone, Debug)]
+#[derive(Clone, Copy, Debug)]
 pub enum MatchStrictness {
     /// Match all nodes exactly (Concrete Syntax Tree)
     Cst,

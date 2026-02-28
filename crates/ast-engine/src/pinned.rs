@@ -227,7 +227,7 @@ mod test {
     }
 
     #[test]
-    #[ignore]
+    #[ignore = "not yet implemented"]
     fn test_node_match() {
         todo!()
     }

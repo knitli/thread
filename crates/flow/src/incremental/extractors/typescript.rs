@@ -349,10 +349,10 @@ impl TypeScriptDependencyExtractor {
     ) {
         let mut cursor = node.walk();
         for child in node.children(&mut cursor) {
-            if child.kind() == "import_specifier" {
-                if let Some(symbol) = self.extract_import_specifier(child, source) {
-                    symbols.push(symbol);
-                }
+            if child.kind() == "import_specifier"
+                && let Some(symbol) = self.extract_import_specifier(child, source)
+            {
+                symbols.push(symbol);
             }
         }
     }
@@ -370,13 +370,13 @@ impl TypeScriptDependencyExtractor {
         let children: Vec<_> = node.children(&mut cursor).collect();
 
         for child in &children {
-            if child.kind() == "identifier" {
-                if let Ok(name) = child.utf8_text(source) {
-                    if imported_name.is_none() {
-                        imported_name = Some(name.to_string());
-                    } else {
-                        local_name = Some(name.to_string());
-                    }
+            if child.kind() == "identifier"
+                && let Ok(name) = child.utf8_text(source)
+            {
+                if imported_name.is_none() {
+                    imported_name = Some(name.to_string());
+                } else {
+                    local_name = Some(name.to_string());
                 }
             }
         }
@@ -403,10 +403,10 @@ impl TypeScriptDependencyExtractor {
         for child in node.children(&mut cursor) {
             match child.kind() {
                 "identifier" => {
-                    if let Ok(text) = child.utf8_text(source) {
-                        if text == "require" {
-                            is_require = true;
-                        }
+                    if let Ok(text) = child.utf8_text(source)
+                        && text == "require"
+                    {
+                        is_require = true;
                     }
                 }
                 "import" => {
@@ -529,13 +529,13 @@ impl TypeScriptDependencyExtractor {
         let children: Vec<_> = node.children(&mut cursor).collect();
 
         for child in &children {
-            if child.kind() == "property_identifier" || child.kind() == "identifier" {
-                if let Ok(name) = child.utf8_text(source) {
-                    if imported_name.is_none() {
-                        imported_name = Some(name.to_string());
-                    } else {
-                        local_name = Some(name.to_string());
-                    }
+            if (child.kind() == "property_identifier" || child.kind() == "identifier")
+                && let Ok(name) = child.utf8_text(source)
+            {
+                if imported_name.is_none() {
+                    imported_name = Some(name.to_string());
+                } else {
+                    local_name = Some(name.to_string());
                 }
             }
         }
@@ -654,20 +654,20 @@ impl TypeScriptDependencyExtractor {
         if has_default && exports.is_empty() {
             let mut cursor = node.walk();
             for child in node.children(&mut cursor) {
-                if child.kind() == "identifier"
+                if (child.kind() == "identifier"
                     || child.kind() == "number"
-                    || child.kind() == "string"
+                    || child.kind() == "string")
+                    && let Ok(text) = child.utf8_text(source)
+                    && text != "default"
+                    && text != "export"
+                    && text != "*"
                 {
-                    if let Ok(text) = child.utf8_text(source) {
-                        if text != "default" && text != "export" && text != "*" {
-                            exports.push(ExportInfo {
-                                symbol_name: "default".to_string(),
-                                is_default: true,
-                                export_type: ExportType::Default,
-                            });
-                            break;
-                        }
-                    }
+                    exports.push(ExportInfo {
+                        symbol_name: "default".to_string(),
+                        is_default: true,
+                        export_type: ExportType::Default,
+                    });
+                    break;
                 }
             }
         }
@@ -693,14 +693,14 @@ impl TypeScriptDependencyExtractor {
     ) {
         let mut cursor = node.walk();
         for child in node.children(&mut cursor) {
-            if child.kind() == "variable_declarator" {
-                if let Some(name) = self.extract_variable_name(child, source) {
-                    exports.push(ExportInfo {
-                        symbol_name: name,
-                        is_default: false,
-                        export_type: ExportType::Named,
-                    });
-                }
+            if child.kind() == "variable_declarator"
+                && let Some(name) = self.extract_variable_name(child, source)
+            {
+                exports.push(ExportInfo {
+                    symbol_name: name,
+                    is_default: false,
+                    export_type: ExportType::Named,
+                });
             }
         }
     }
@@ -741,18 +741,18 @@ impl TypeScriptDependencyExtractor {
     ) {
         let mut cursor = node.walk();
         for child in node.children(&mut cursor) {
-            if child.kind() == "export_specifier" {
-                if let Some(name) = self.extract_export_specifier_name(child, source) {
-                    exports.push(ExportInfo {
-                        symbol_name: name,
-                        is_default: false,
-                        export_type: if is_reexport {
-                            ExportType::NamedReexport
-                        } else {
-                            ExportType::Named
-                        },
-                    });
-                }
+            if child.kind() == "export_specifier"
+                && let Some(name) = self.extract_export_specifier_name(child, source)
+            {
+                exports.push(ExportInfo {
+                    symbol_name: name,
+                    is_default: false,
+                    export_type: if is_reexport {
+                        ExportType::NamedReexport
+                    } else {
+                        ExportType::Named
+                    },
+                });
             }
         }
     }

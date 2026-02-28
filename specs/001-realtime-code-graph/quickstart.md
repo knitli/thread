@@ -7,13 +7,14 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 # Quickstart Guide: Real-Time Code Graph Intelligence
 
-**Feature**: Real-Time Code Graph Intelligence  
-**Status**: Development  
+**Feature**: Real-Time Code Graph Intelligence
+**Status**: Development
 **Target Audience**: Developers using Thread for code analysis
 
 ## Overview
 
 Thread's Real-Time Code Graph Intelligence provides:
+
 - **Real-time dependency tracking** for codebases up to 500k files
 - **Conflict prediction** before code merge (95% accuracy, <10% false positives)
 - **Incremental analysis** (<10% of full scan time for typical changes)
@@ -24,16 +25,19 @@ Thread's Real-Time Code Graph Intelligence provides:
 ### CLI Deployment (Local Development)
 
 **Prerequisites**:
+
 - Rust 1.75+ (edition 2021)
 - Postgres 14+ (for persistent caching)
 - 8GB RAM minimum (16GB recommended for large codebases)
 
 **Install via cargo**:
+
 ```bash
 cargo install thread-cli --features graph-intelligence
 ```
 
 **Or build from source**:
+
 ```bash
 git clone https://github.com/thread/thread.git
 cd thread
@@ -44,10 +48,12 @@ cargo build --release --workspace
 ### Edge Deployment (Cloudflare Workers)
 
 **Prerequisites**:
+
 - Cloudflare Workers account (paid plan for 10MB WASM limit)
 - Wrangler CLI installed (`npm install -g wrangler`)
 
 **Deploy to Cloudflare**:
+
 ```bash
 # Build WASM binary
 mise run build-wasm-release
@@ -60,6 +66,7 @@ wrangler tail
 ```
 
 **Environment Variables**:
+
 ```toml
 # wrangler.toml
 name = "thread-intelligence"
@@ -82,7 +89,8 @@ thread init --repository /path/to/your/code --languages rust,typescript,python
 ```
 
 **Output**:
-```
+
+```plaintext
 ✓ Initialized Thread repository: repo:abc123
 ✓ Detected 1,234 files (Rust: 800, TypeScript: 300, Python: 134)
 ✓ Created Postgres database: thread_repo_abc123
@@ -99,12 +107,14 @@ thread status --session <session_id>
 ```
 
 **Expected Time**:
+
 - Small (<1k files): 10-30 seconds
 - Medium (1k-10k files): 1-5 minutes
 - Large (10k-100k files): 5-30 minutes
 
 **Output**:
-```
+
+```plaintext
 Analyzing repository repo:abc123...
 [=============>             ] 54% (670/1234 files)
 Nodes created: 8,450
@@ -128,6 +138,7 @@ thread query --node "processPayment" --query-type dependencies --depth 2
 ```
 
 **Sample Output**:
+
 ```json
 {
   "nodes": [
@@ -150,7 +161,8 @@ thread search --code "fn validate_input(user: &User) -> Result<(), Error>" --top
 ```
 
 **Output**:
-```
+
+```plaintext
 Top 5 similar functions:
 1. [0.92] validateUser (src/auth.rs:45)
 2. [0.87] checkUserPermissions (src/permissions.rs:102)
@@ -172,7 +184,8 @@ thread conflicts --compare main --files src/payment.rs --tiers 1,2,3
 ```
 
 **Progressive Output**:
-```
+
+```plaintext
 Tier 1 (AST Diff) - 95ms:
   ⚠ Potential conflict: Function signature changed
      Confidence: 0.6
@@ -199,7 +212,8 @@ thread watch --repository repo:abc123
 ```
 
 **Real-Time Feed**:
-```
+
+```plaintext
 [12:00:05] Code change detected: src/payment.rs
 [12:00:05] Conflict detected (Tier 1): SignatureChange (confidence: 0.6)
 [12:00:06] Conflict updated (Tier 2): BreakingAPIChange (confidence: 0.9)
@@ -292,11 +306,13 @@ jobs:
 ### Issue: Slow Analysis (>5 minutes for 10k files)
 
 **Diagnosis**:
+
 ```bash
 thread metrics --session <session_id> --verbose
 ```
 
 **Solutions**:
+
 - Increase `parallel_workers` in `thread.toml`
 - Check Postgres connection (should be <10ms p95 latency)
 - Verify cache hit rate (>90% expected after first run)
@@ -304,12 +320,14 @@ thread metrics --session <session_id> --verbose
 ### Issue: High Memory Usage
 
 **Diagnosis**:
+
 ```bash
 # Monitor memory during analysis
 thread analyze --repository repo:abc123 --profile-memory
 ```
 
 **Solutions**:
+
 - Reduce `parallel_workers` (trade speed for memory)
 - Increase `max_file_size_mb` to skip large files
 - Use incremental analysis instead of full scans
@@ -317,11 +335,13 @@ thread analyze --repository repo:abc123 --profile-memory
 ### Issue: WebSocket Disconnections
 
 **Diagnosis**:
+
 ```bash
 thread watch --repository repo:abc123 --debug
 ```
 
 **Solutions**:
+
 - Check network stability (WebSocket requires persistent connection)
 - Enable SSE fallback: `thread watch --fallback sse`
 - Enable polling fallback: `thread watch --fallback polling`
@@ -335,9 +355,9 @@ thread watch --repository repo:abc123 --debug
 
 ## Support
 
-- **Documentation**: https://thread.dev/docs/real-time-intelligence
-- **GitHub Issues**: https://github.com/thread/thread/issues
-- **Community Discord**: https://discord.gg/thread
+- **Documentation**: <https://thread.dev/docs/real-time-intelligence>
+- **GitHub Issues**: <https://github.com/thread/thread/issues>
+- **Community Discord**: <https://discord.gg/thread>
 
 ---
 

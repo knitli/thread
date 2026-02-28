@@ -25,9 +25,10 @@
 //! cargo bench -p thread-flow -- recoco  # Run ReCoco integration benchmarks
 //! ```
 
-use criterion::{Criterion, Throughput, black_box, criterion_group, criterion_main};
+use criterion::{Criterion, Throughput, criterion_group, criterion_main};
 use recoco::base::value::{BasicValue, Value};
 use recoco::ops::interface::SimpleFunctionExecutor;
+use std::hint::black_box;
 use thread_ast_engine::tree_sitter::LanguageExt;
 use thread_flow::functions::parse::ThreadParseExecutor;
 

@@ -50,7 +50,6 @@ use crate::incremental::types::{
 };
 use async_trait::async_trait;
 use recoco::utils::fingerprint::Fingerprint;
-use std::collections::HashSet;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
@@ -466,10 +465,10 @@ impl StorageBackend for D1IncrementalBackend {
             )
             .await?;
 
-        let source_files: HashSet<PathBuf> = src_result
+        let source_files: thread_utils::RapidSet<PathBuf> = src_result
             .results
             .iter()
-            .filter_map(|r| r["source_path"].as_str().map(|s| PathBuf::from(s)))
+            .filter_map(|r| r["source_path"].as_str().map(PathBuf::from))
             .collect();
 
         Ok(Some(AnalysisDefFingerprint {
@@ -557,8 +556,8 @@ impl StorageBackend for D1IncrementalBackend {
             .await?;
 
         // Build source files map grouped by fingerprint_path.
-        let mut source_map: std::collections::HashMap<String, HashSet<PathBuf>> =
-            std::collections::HashMap::new();
+        let mut source_map: thread_utils::RapidMap<String, thread_utils::RapidSet<PathBuf>> =
+            thread_utils::get_map();
         for row in &src_result.results {
             if let (Some(fp_path), Some(src_path)) = (
                 row["fingerprint_path"].as_str(),

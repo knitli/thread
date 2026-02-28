@@ -17,10 +17,13 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 ## Quick Findings
 
 ### The Question
+
 **How can ReCoco's native provenance tracking enhance FR-014 ("System MUST track analysis provenance...") compared to T079's current "repository_id only" approach?**
 
 ### The Answer
+
 **ReCoco (Thread's Rust-only CocoIndex fork) provides sophisticated automatic lineage tracking that captures:**
+
 1. ✓ Source versions (Git commits, S3 ETags, timestamps)
 2. ✓ Transformation pipeline (which analysis stages ran)
 3. ✓ Cache status (hit/miss for each operation)
@@ -31,6 +34,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 **T079 Enhanced Scope**: Full provenance leveraging ReCoco
 
 ### The Opportunity
+
 **Current T079 misses 80% of valuable provenance data** that ReCoco provides automatically
 **Note**: Basic content addressing (Blake3 fingerprinting) IS already implemented in thread-flow via `AnalysisDefFingerprint`. The gap is the *rich* provenance (source version, pipeline lineage, cache metadata, upstream hashes).
 
@@ -43,6 +47,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 ### What is Provenance Tracking?
 
 Provenance = Understanding the complete "history" of data:
+
 - "Where did this node come from?"
 - "When was it analyzed?"
 - "Which stages created it?"
@@ -57,6 +62,7 @@ Provenance = Understanding the complete "history" of data:
 **Missing**: Version and timestamp (incomplete FR-014 implementation)
 
 **ReCoco Provides**:
+
 - Data source ✓
 - Version (Git commit, S3 ETag) ✓
 - Timestamp (when accessed) ✓
@@ -69,7 +75,8 @@ Provenance = Understanding the complete "history" of data:
 ### 1. ReCoco Architecture Supports Provenance
 
 **Dataflow Structure**:
-```
+
+```plaintext
 Source → Parse → Extract → RuleMatch → BuildGraph → Target
   ↓         ↓        ↓          ↓           ↓          ↓
 Track    Track    Track      Track        Track      Track
@@ -78,6 +85,7 @@ version  output   output     output      output     time
 ```
 
 **At Each Stage**:
+
 - Input hash (what was processed)
 - Output hash (what was produced)
 - Execution time (how long)
@@ -85,6 +93,7 @@ version  output   output     output      output     time
 - Operation type and version
 
 **Already Implemented in thread-flow**:
+
 ```rust
 // crates/flow/src/incremental/types.rs
 pub struct AnalysisDefFingerprint {
@@ -92,11 +101,13 @@ pub struct AnalysisDefFingerprint {
     pub source_file: PathBuf,
 }
 ```
+
 Basic source file tracking ✅ and content hashing ✅ are operational.
 
 ### 2. Current T079 Scope Gap
 
 **What thread-flow Already Has** (basic provenance):
+
 ```rust
 pub fingerprint: Fingerprint,  // ✓ Blake3 hash of file content
 pub source_file: PathBuf,      // ✓ Source file path
@@ -104,6 +115,7 @@ pub source_file: PathBuf,      // ✓ Source file path
 ```
 
 **What's Still Missing** (expanded T079):
+
 ```rust
 pub source_version: SourceVersion,        // ✗ Git commit, timestamp
 pub analysis_lineage: Vec<LineageRecord>, // ✗ Which stages ran
@@ -115,7 +127,7 @@ pub upstream_hashes: Vec<String>,          // ✗ Upstream data
 ### 3. Advantages of Enhanced Provenance
 
 | Feature | Value | Impact |
-|---------|-------|--------|
+| --------- | ------- | -------- |
 | **Source Version** | Know exact Git commit | Can trace to code review |
 | **Timestamps** | Know when analyzed | Detect stale analysis |
 | **Pipeline Tracking** | Know which tiers ran | Debug conflict detection |
@@ -125,14 +137,17 @@ pub upstream_hashes: Vec<String>,          // ✗ Upstream data
 ### 4. Enables Better Compliance
 
 **FR-014 Requirement**: Data source, version, timestamp
+
 - Current T079: ✗ Missing version and timestamp
 - Enhanced T079: ✓ Complete implementation
 
 **FR-018 Requirement**: Audit logs for conflicts
+
 - Current: ✗ Can't trace why conflict detected
 - Enhanced: ✓ Full tier-by-tier analysis recorded
 
 **SC-CACHE-001**: >90% cache hit rate
+
 - Current: ✗ Can't verify cache working
 - Enhanced: ✓ Cache metadata proves effectiveness
 
@@ -157,6 +172,7 @@ ExecutionRecord {
 ```
 
 **How Thread Uses It**:
+
 ```rust
 // Tier 1 AST diff
 thread_parse operator executes (crates/flow/src/functions/parse.rs)
@@ -173,6 +189,7 @@ node_provenance = [parse_record, extract_record, ...]
 ### Data Model
 
 **Enhanced GraphNode**:
+
 ```rust
 pub struct GraphNode {
     pub id: NodeId,
@@ -196,6 +213,7 @@ pub struct GraphNode {
 **Recommended**: "Implement comprehensive provenance tracking leveraging ReCoco"
 
 **Why**:
+
 - Same implementation effort with ReCoco data
 - Prevents rework and schema changes later
 - Fully complies with FR-014 and FR-018
@@ -205,31 +223,37 @@ pub struct GraphNode {
 ### 2. Phased Implementation
 
 **Phase 1 (Week 1)**: Define provenance types
+
 - `SourceVersion`, `LineageRecord`, `EdgeCreationMethod`
 - Update `GraphNode` and `GraphEdge` structures
 
 **Phase 2 (Week 2-3)**: Storage and persistence
+
 - Create provenance tables (Postgres/D1)
 - Implement storage abstraction
 
 **Phase 3 (Week 4)**: ReCoco integration
+
 - Build `ProvenanceCollector` to extract ExecutionRecords
 - Wire into dataflow execution via ThreadFlowBuilder
 - Note: ThreadFlowBuilder and ReCoco operators already exist in thread-flow; this
   extends them to capture and persist ExecutionRecord metadata
 
 **Phase 4 (Week 5)**: APIs and validation
+
 - Implement `ProvenanceQuery` API
 - Build debugging tools
 
 ### 3. Backward Compatibility
 
 **Approach**: Optional fields initially
+
 - Existing nodes continue working
 - New analyses get full provenance
 - Lazy migration of old data
 
 **No Breaking Changes**:
+
 ```rust
 pub source_version: Option<SourceVersion>,      // Optional
 pub analysis_lineage: Option<Vec<LineageRecord>>, // Optional
@@ -247,7 +271,7 @@ pub analysis_lineage: Option<Vec<LineageRecord>>, // Optional
 ## Missed Opportunities (Current T079)
 
 | Opportunity | ReCoco Provides | T079 Status | Loss |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | Source Version Tracking | Git commit, S3 ETag | ✗ Missing | Can't verify freshness |
 | Timestamp Precision | Per-operation times | ✗ Missing | Can't detect staleness |
 | Conflict Audit Trail | Tier execution records | ✗ Missing | Can't debug conflicts |
@@ -260,16 +284,19 @@ pub analysis_lineage: Option<Vec<LineageRecord>>, // Optional
 ## Implementation Effort
 
 ### Time Estimate
+
 - **Low**: 25 hours (1 week implementation)
 - **High**: 35 hours (with comprehensive testing)
 - **Recommended**: 30 hours (1 week + validation)
 
 ### Complexity
+
 - **Moderate**: Adding new types and database tables
 - **Straightforward**: ReCoco handles data collection
 - **No**: Complex algorithms needed
 
 ### Risk
+
 - **Low**: Backward compatible with optional fields
 - **Low**: ReCoco API is stable (core concept)
 - **Mitigated**: Phased rollout strategy
@@ -279,9 +306,11 @@ pub analysis_lineage: Option<Vec<LineageRecord>>, // Optional
 ## What Gets Enabled
 
 ### Debugging Conflict Detection
+
 **Question**: "Why was this conflict detected?"
 **Answer** (with enhanced provenance):
-```
+
+```plaintext
 Conflict "function signature changed" detected 2026-01-11T10:30:15Z
 Tier 1 (AST diff):       Found signature change in 15ms (confidence: 0.6)
 Tier 2 (Semantic):       Type incompatibility confirmed in 450ms (confidence: 0.85)
@@ -290,12 +319,15 @@ Final confidence: 0.95 (Tier 3 validated)
 ```
 
 ### Incremental Update Optimization
+
 **Upstream change detected**: File X hash changed
 **With provenance**: Find all nodes where `upstream_hashes` contains old file hash
 **Result**: Only re-analyze affected nodes, cache hits for everything else
 
 ### Audit and Compliance
+
 **FR-018** (log conflicts): Complete record of:
+
 - What was analyzed
 - When
 - Which stages ran
@@ -307,19 +339,25 @@ Final confidence: 0.95 (Tier 3 validated)
 ## How to Use These Documents
 
 ### PROVENANCE_RESEARCH_REPORT.md
+
 **Comprehensive deep-dive** (30+ pages)
+
 - For: Technical leads, researchers, architects
 - Contains: Full analysis, trade-offs, architectural patterns
 - Use: Understanding complete context
 
 ### PROVENANCE_ENHANCEMENT_SPEC.md
+
 **Implementation specification** (20+ pages)
+
 - For: Developers implementing T079
 - Contains: Code structures, migrations, task breakdown
 - Use: Direct implementation guidance
 
 ### RESEARCH_SUMMARY.md (this document)
+
 **Quick reference** (5 pages)
+
 - For: Decision makers, stakeholders, reviewers
 - Contains: Key findings, recommendations, effort estimate
 - Use: Understanding core insights
@@ -356,16 +394,19 @@ Final confidence: 0.95 (Tier 3 validated)
 ## Files Provided
 
 ### 1. PROVENANCE_RESEARCH_REPORT.md
+
 - **Size**: ~40 pages
 - **Content**: Complete research with analysis, comparisons, recommendations
 - **Audience**: Technical audience
 
 ### 2. PROVENANCE_ENHANCEMENT_SPEC.md
+
 - **Size**: ~30 pages
 - **Content**: Implementation specification with code structures and tasks
 - **Audience**: Implementation team
 
 ### 3. RESEARCH_SUMMARY.md (this file)
+
 - **Size**: ~10 pages
 - **Content**: Executive summary with key findings
 - **Audience**: Decision makers
@@ -375,7 +416,9 @@ Final confidence: 0.95 (Tier 3 validated)
 ## Questions & Discussion
 
 ### Q: Why not just stick with T079 as-is (repository_id)?
+
 **A**: Because:
+
 1. Incomplete FR-014 implementation (missing version, timestamp)
 2. Can't debug why conflicts were detected (FR-018)
 3. Can't verify cache is working (SC-CACHE-001)
@@ -383,21 +426,27 @@ Final confidence: 0.95 (Tier 3 validated)
 5. ReCoco provides data automatically (minimal extra effort); ThreadFlowBuilder operators already capture execution metadata
 
 ### Q: Isn't this a lot of extra work?
+
 **A**: No, because:
+
 1. ReCoco provides data automatically (we don't build it)
 2. Effort is organizing/storing/querying existing data
 3. Better to do once comprehensively than piecemeal
 4. Phased approach spreads effort over 1+ weeks
 
 ### Q: What if ReCoco changes its API?
+
 **A**: Very low risk because:
+
 1. **Thread controls ReCoco** — it's our own fork (separate public crate maintained by Thread)
 2. Any required API changes can be implemented directly in ReCoco without waiting
 3. The bridge/adapter layer in thread-flow (bridge.rs) isolates changes
 4. Worst case: lose detailed provenance, keep basic fingerprinting (which already exists)
 
 ### Q: Can we do this incrementally?
+
 **A**: Yes:
+
 1. Phase 1: Types and schema (no functional change)
 2. Phase 2: Storage (still no change)
 3. Phase 3: Collection (data starts flowing)
@@ -410,6 +459,7 @@ Final confidence: 0.95 (Tier 3 validated)
 **Status**: Complete (2026-02-24)
 
 The CodeWeaver semantic classification analysis produced pre-baked classification data now located at `/home/knitli/thread/classifications/`:
+
 - `_universal_rules.json`: 2,444 exact + 21 majority cross-language patterns
 - `_categories.json`: 55 category → SemanticClass mappings (one wrapper key stripped during migration)
 - `_scoring.json`: Per-class ImportanceScores + AgentTask profiles

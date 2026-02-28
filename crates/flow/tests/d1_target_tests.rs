@@ -227,7 +227,7 @@ fn test_key_part_to_json_bytes() {
     let key_part = KeyPart::Bytes(vec![1, 2, 3, 4, 5].into());
     let json = key_part_to_json(&key_part).expect("Failed to convert bytes");
 
-    let expected = base64::engine::general_purpose::STANDARD.encode(&[1, 2, 3, 4, 5]);
+    let expected = base64::engine::general_purpose::STANDARD.encode([1, 2, 3, 4, 5]);
     assert_eq!(json, json!(expected));
 }
 
@@ -265,7 +265,7 @@ fn test_basic_value_to_json_int64() {
 
 #[test]
 fn test_basic_value_to_json_float32() {
-    let value = BasicValue::Float32(3.14);
+    let value = BasicValue::Float32(std::f32::consts::PI);
     let json = basic_value_to_json(&value).expect("Failed to convert float32");
     assert!(json.is_number());
 
@@ -277,7 +277,7 @@ fn test_basic_value_to_json_float32() {
 
 #[test]
 fn test_basic_value_to_json_float64() {
-    let value = BasicValue::Float64(2.718281828);
+    let value = BasicValue::Float64(std::f64::consts::E);
     let json = basic_value_to_json(&value).expect("Failed to convert float64");
     assert!(json.is_number());
 
@@ -300,7 +300,7 @@ fn test_basic_value_to_json_bytes() {
     let value = BasicValue::Bytes(vec![0xFF, 0xFE, 0xFD].into());
     let json = basic_value_to_json(&value).expect("Failed to convert bytes");
 
-    let expected = base64::engine::general_purpose::STANDARD.encode(&[0xFF, 0xFE, 0xFD]);
+    let expected = base64::engine::general_purpose::STANDARD.encode([0xFF, 0xFE, 0xFD]);
     assert_eq!(json, json!(expected));
 }
 
@@ -851,8 +851,8 @@ async fn test_diff_setup_states_existing_table() {
     // We need to figure out how to properly construct a StateChange with existing state
 
     let _factory = D1TargetFactory;
-    let _key_fields = vec![test_field_schema("id", BasicValueType::Int64, false)];
-    let _value_fields = vec![test_field_schema("name", BasicValueType::Str, false)];
+    let _key_fields = [test_field_schema("id", BasicValueType::Int64, false)];
+    let _value_fields = [test_field_schema("name", BasicValueType::Str, false)];
 
     // This needs proper StateChange construction:
     // let _desired_state = D1SetupState::new(&test_table_id(), &_key_fields, &_value_fields)
@@ -1143,7 +1143,7 @@ fn test_deeply_nested_struct() {
 
 #[test]
 fn test_large_vector_conversion() {
-    let large_vec = (0..1000).map(|i| BasicValue::Int64(i)).collect();
+    let large_vec = (0..1000).map(BasicValue::Int64).collect();
     let value = BasicValue::Vector(large_vec);
     let json = basic_value_to_json(&value).expect("Failed to convert large vector");
     assert!(json.is_array());

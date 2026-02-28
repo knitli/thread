@@ -32,7 +32,10 @@ async fn test_metrics_during_analysis() {
     let mut analyzer = IncrementalAnalyzer::new(storage);
 
     // Perform analysis (metrics should be recorded)
-    let result = analyzer.analyze_changes(&[file1.clone()]).await.unwrap();
+    let result = analyzer
+        .analyze_changes(std::slice::from_ref(&file1))
+        .await
+        .unwrap();
 
     // Verify basic functionality (metrics are recorded internally)
     assert_eq!(result.changed_files.len(), 1);
@@ -48,11 +51,17 @@ async fn test_cache_hit_metrics() {
     let mut analyzer = IncrementalAnalyzer::new(storage);
 
     // First analysis - cache miss
-    let result1 = analyzer.analyze_changes(&[file1.clone()]).await.unwrap();
+    let result1 = analyzer
+        .analyze_changes(std::slice::from_ref(&file1))
+        .await
+        .unwrap();
     assert_eq!(result1.cache_hit_rate, 0.0);
 
     // Second analysis - cache hit
-    let result2 = analyzer.analyze_changes(&[file1.clone()]).await.unwrap();
+    let result2 = analyzer
+        .analyze_changes(std::slice::from_ref(&file1))
+        .await
+        .unwrap();
     assert_eq!(result2.cache_hit_rate, 1.0);
 }
 
@@ -106,7 +115,7 @@ async fn test_invalidation_metrics() {
 
     // Trigger invalidation (invalidation metrics should be recorded)
     let affected = analyzer
-        .invalidate_dependents(&[file2.clone()])
+        .invalidate_dependents(std::slice::from_ref(&file2))
         .await
         .unwrap();
 

@@ -55,7 +55,7 @@ impl<'t, D: Doc> Aggregator<'t, D> for ComputeEnd {
 
 pub fn match_end_non_recursive(goal: &Pattern, candidate: &Node<impl Doc>) -> Option<usize> {
     let mut end = ComputeEnd(0);
-    match match_node_impl(&goal.node, candidate, &mut end, &goal.strictness) {
+    match match_node_impl(&goal.node, candidate, &mut end, goal.strictness) {
         MatchOneNode::MatchedBoth => Some(end.0),
         _ => None,
     }
@@ -123,7 +123,7 @@ pub fn match_node_non_recursive<'tree, D: Doc>(
     candidate: Node<'tree, D>,
     env: &mut Cow<MetaVarEnv<'tree, D>>,
 ) -> Option<Node<'tree, D>> {
-    match match_node_impl(&goal.node, &candidate, env, &goal.strictness) {
+    match match_node_impl(&goal.node, &candidate, env, goal.strictness) {
         MatchOneNode::MatchedBoth => Some(candidate),
         _ => None,
     }
@@ -163,12 +163,12 @@ mod test {
 
     fn find_node_recursive<'tree>(
         goal: &Pattern,
-        node: Node<'tree, StrDoc<Tsx>>,
+        node: &Node<'tree, StrDoc<Tsx>>,
         env: &mut Cow<MetaVarEnv<'tree, StrDoc<Tsx>>>,
     ) -> Option<Node<'tree, StrDoc<Tsx>>> {
         match_node_non_recursive(goal, node.clone(), env).or_else(|| {
             node.children()
-                .find_map(|sub| find_node_recursive(goal, sub, env))
+                .find_map(|sub| find_node_recursive(goal, &sub, env))
         })
     }
 
@@ -177,7 +177,7 @@ mod test {
         let cand = Root::str(s2, Tsx);
         let cand = cand.root();
         let mut env = Cow::Owned(MetaVarEnv::new());
-        let ret = find_node_recursive(&goal, cand.clone(), &mut env);
+        let ret = find_node_recursive(&goal, &cand, &mut env);
         assert!(
             ret.is_some(),
             "goal: {goal:?}, candidate: {}",
@@ -191,7 +191,7 @@ mod test {
         let cand = Root::str(s2, Tsx);
         let cand = cand.root();
         let mut env = Cow::Owned(MetaVarEnv::new());
-        let ret = find_node_recursive(&goal, cand, &mut env);
+        let ret = find_node_recursive(&goal, &cand, &mut env);
         assert!(ret.is_none());
     }
 

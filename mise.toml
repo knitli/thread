@@ -22,6 +22,7 @@ cargo-binstall = "latest"
 "cargo:cargo-release" = "latest"
 "cargo:cargo-smart-release" = "latest"
 "cargo:cargo-watch" = "latest"
+"cargo:git-cliff" = "latest"
 gh = "latest"
 gitsign = "latest"
 hk = "latest"
@@ -31,8 +32,9 @@ node = "24"
 "pipx:SuperClaude" = "latest"
 "pipx:reuse" = "latest"
 pkl = "latest"
+python = "3.13"
 ripgrep = "latest"
-rust = "latest"
+rust = "nightly"
 tombi = "latest"
 typos = "latest"
 uv = "latest"
@@ -170,6 +172,11 @@ alias = "c"  # `mise run c` = check
 description = "fix formatting and apply lint fixes"
 run = "hk fix"
 alias = "f"  # `mise run f` = fix
+
+[tasks.changelog]
+description = "Generate/update CHANGELOG.md from conventional commits"
+run = "git cliff --output CHANGELOG.md"
+alias = "cl"
 
 [tasks.ci]  # only dependencies to be run
 description = "Run CI tasks"

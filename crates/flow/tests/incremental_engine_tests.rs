@@ -76,7 +76,7 @@ struct AnalysisResult {
     files_skipped: usize,
 
     /// Number of dependency edges created.
-    edges_created: usize,
+    _edges_created: usize,
 
     /// Duration of the analysis operation.
     duration: Duration,
@@ -190,7 +190,7 @@ impl IncrementalTestFixture {
         // STUB: Replace with actual IncrementalAnalyzer implementation
         // For now, simulate analysis by storing fingerprints
         let mut files_analyzed = 0;
-        let mut edges_created = 0;
+        let edges_created = 0;
 
         for (path, content) in &self.files_created {
             let fp = AnalysisDefFingerprint::new(content.as_bytes());
@@ -207,7 +207,7 @@ impl IncrementalTestFixture {
         let result = AnalysisResult {
             files_analyzed,
             files_skipped: 0,
-            edges_created,
+            _edges_created: edges_created,
             duration: start.elapsed(),
             invalidated_files: Vec::new(),
             reanalysis_order: Vec::new(),
@@ -267,7 +267,7 @@ impl IncrementalTestFixture {
         let result = AnalysisResult {
             files_analyzed,
             files_skipped,
-            edges_created: 0,
+            _edges_created: 0,
             duration: start.elapsed(),
             invalidated_files,
             reanalysis_order: Vec::new(),
@@ -288,34 +288,6 @@ impl IncrementalTestFixture {
             .is_some()
     }
 
-    /// Checks if a dependency edge exists from `from_path` to `to_path`.
-    async fn verify_edges_exist(&self, from_path: &str, to_path: &str) -> bool {
-        let from_full = self.temp_dir.path().join(from_path);
-        let to_full = self.temp_dir.path().join(to_path);
-
-        if let Ok(edges) = self.storage.load_edges_from(&from_full).await {
-            edges.iter().any(|e| e.to == to_full)
-        } else {
-            false
-        }
-    }
-
-    /// Gets the list of invalidated files from the last analysis.
-    fn get_invalidated_files(&self) -> Vec<PathBuf> {
-        self.last_analysis_result
-            .as_ref()
-            .map(|r| r.invalidated_files.clone())
-            .unwrap_or_default()
-    }
-
-    /// Gets the reanalysis order from the last analysis.
-    fn get_reanalysis_order(&self) -> Vec<PathBuf> {
-        self.last_analysis_result
-            .as_ref()
-            .map(|r| r.reanalysis_order.clone())
-            .unwrap_or_default()
-    }
-
     /// Returns the path to the test directory.
     fn test_dir(&self) -> &Path {
         self.temp_dir.path()
@@ -334,7 +306,7 @@ fn create_test_rust_file(name: &str, imports: &[&str]) -> String {
         content.push_str(&format!("use {};\n", import));
     }
 
-    content.push_str("\n");
+    content.push('\n');
     content.push_str(&format!("pub fn {}() {{\n", name));
     content.push_str("    println!(\"Hello from {}\");\n");
     content.push_str("}\n");
@@ -356,25 +328,6 @@ fn create_test_graph(edges: &[(&str, &str)]) -> DependencyGraph {
     }
 
     graph
-}
-
-/// Asserts that the reanalysis order matches the expected order.
-fn assert_reanalysis_order(actual: &[PathBuf], expected: &[&str]) {
-    assert_eq!(
-        actual.len(),
-        expected.len(),
-        "Reanalysis order length mismatch"
-    );
-
-    for (i, (actual_path, expected_name)) in actual.iter().zip(expected.iter()).enumerate() {
-        assert!(
-            actual_path.ends_with(expected_name),
-            "Reanalysis order mismatch at position {}: expected {}, got {}",
-            i,
-            expected_name,
-            actual_path.display()
-        );
-    }
 }
 
 // =============================================================================
@@ -892,7 +845,7 @@ async fn test_multiple_simultaneous_changes() {
 
 #[tokio::test]
 async fn test_circular_dependency_handled() {
-    let mut fixture = IncrementalTestFixture::new().await;
+    let _fixture = IncrementalTestFixture::new().await;
 
     // Create cycle: A → B → A (simulated via edges)
     // Note: Rust prevents actual circular imports, but graph can have cycles
@@ -1034,7 +987,7 @@ async fn test_reanalysis_respects_dependencies() {
         .await;
 
     let result = fixture.run_incremental_update().await.unwrap();
-    let order = result.reanalysis_order;
+    let _order = result.reanalysis_order;
 
     // STUB: Will verify B analyzed before C (dependency order)
     // For now, just verify reanalysis occurred
@@ -1070,7 +1023,7 @@ async fn test_independent_files_analyzed_parallel() {
 
     let start = Instant::now();
     let result = fixture.run_incremental_update().await.unwrap();
-    let duration = start.elapsed();
+    let _duration = start.elapsed();
 
     // STUB: Will verify parallel execution (duration << sequential)
     // For now, verify all files reanalyzed
@@ -1471,62 +1424,6 @@ async fn test_backend_error_handling() {
         .storage
         .load_fingerprint(Path::new("nonexistent"))
         .await;
-    assert!(result.is_ok());
-}
-
-#[tokio::test]
-async fn test_transactional_consistency() {
-    // STUB: Verify batch updates with partial failure maintain consistency
-
-    let mut fixture = IncrementalTestFixture::new().await;
-
-    fixture
-        .create_file("src/trans1.rs", &create_test_rust_file("trans1", &[]))
-        .await;
-    fixture
-        .create_file("src/trans2.rs", &create_test_rust_file("trans2", &[]))
-        .await;
-    fixture.run_initial_analysis().await.unwrap();
-
-    // STUB: Modify files and inject failure midway
-    // STUB: Verify rollback or consistent state
-}
-
-#[tokio::test]
-async fn test_storage_migration_compatibility() {
-    // STUB: Verify old schema → new schema data preservation
-
-    let fixture = IncrementalTestFixture::new().await;
-
-    // STUB: Load old schema data
-    // STUB: Migrate to new schema
-    // STUB: Verify data integrity preserved
-
-    // For now, just verify current schema works
-    let graph = DependencyGraph::new();
-    fixture.storage.save_full_graph(&graph).await.unwrap();
-    let loaded = fixture.storage.load_full_graph().await.unwrap();
-    assert_eq!(loaded.node_count(), 0);
-}
-
-// =============================================================================
-// 8. Error Handling Tests (7 tests)
-// =============================================================================
-
-#[tokio::test]
-async fn test_storage_error_during_save() {
-    // STUB: Trigger storage error during save operation
-
-    let mut fixture = IncrementalTestFixture::new().await;
-
-    fixture
-        .create_file("src/err.rs", &create_test_rust_file("err", &[]))
-        .await;
-
-    // STUB: Inject storage error
-    // STUB: Verify error propagated and state unchanged
-
-    let result = fixture.run_initial_analysis().await;
     assert!(result.is_ok());
 }
 

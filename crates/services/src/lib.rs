@@ -11,7 +11,7 @@
 //!
 //! The service layer acts as **abstraction glue** that:
 //! - **Preserves Power**: All ast-grep capabilities (Matcher, Replacer, Position) remain accessible
-//! - **Bridges Levels**: Connects file-level AST operations to codebase-level relational intelligence  
+//! - **Bridges Levels**: Connects file-level AST operations to codebase-level relational intelligence
 //! - **Enables Execution**: Abstracts over different execution environments (rayon, cloud workers)
 //! - **Commercial Ready**: Clear boundaries for commercial extensions
 //!
@@ -40,7 +40,7 @@
 //!     // Access underlying ast-grep functionality directly
 //!     let root = document.ast_grep_root();
 //!     let matches = root.root().find_all("fn $NAME($$$PARAMS) { $$$BODY }");
-//!     
+//!
 //!     // Plus codebase-level metadata
 //!     let symbols = document.metadata().defined_symbols.keys();
 //!     println!("Found symbols: {:?}", symbols.collect::<Vec<_>>());
@@ -58,10 +58,10 @@
 //! ) -> Result<(), Box<dyn std::error::Error>> {
 //!     let mut context = AnalysisContext::default();
 //!     context.scope = ExecutionScope::Codebase;
-//!     
+//!
 //!     // Analyze relationships across entire codebase
 //!     let relationships = analyzer.analyze_cross_file_relationships(documents, &context).await?;
-//!     
+//!
 //!     // This builds on ast-grep's file-level power to create codebase intelligence
 //!     for rel in relationships {
 //!         println!("Cross-file relationship: {:?} -> {:?}", rel.source_file, rel.target_file);
@@ -168,10 +168,10 @@ impl ExecutionContext for FileSystemContext {
         let mut sources = Vec::new();
         for entry in std::fs::read_dir(&self.base_path)? {
             let entry = entry?;
-            if entry.file_type()?.is_file() {
-                if let Some(name) = entry.file_name().to_str() {
-                    sources.push(name.to_string());
-                }
+            if entry.file_type()?.is_file()
+                && let Some(name) = entry.file_name().to_str()
+            {
+                sources.push(name.to_string());
             }
         }
         Ok(sources)

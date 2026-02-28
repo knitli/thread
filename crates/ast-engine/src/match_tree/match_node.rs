@@ -16,7 +16,7 @@ pub(super) fn match_node_impl<'tree, D: Doc>(
     goal: &PatternNode,
     candidate: &Node<'tree, D>,
     agg: &mut impl Aggregator<'tree, D>,
-    strictness: &MatchStrictness,
+    strictness: MatchStrictness,
 ) -> MatchOneNode {
     use PatternNode as P;
     match &goal {
@@ -56,7 +56,7 @@ fn match_nodes_impl_recursive<'tree, D: Doc>(
     goals: &[PatternNode],
     candidates: impl Iterator<Item = Node<'tree, D>>,
     agg: &mut impl Aggregator<'tree, D>,
-    strictness: &MatchStrictness,
+    strictness: MatchStrictness,
 ) -> Option<()> {
     let mut goal_children = goals.iter().peekable();
     let mut cand_children = candidates.peekable();
@@ -102,7 +102,7 @@ fn may_match_ellipsis_impl<'p, 't: 'p, D: Doc>(
     goal_children: &mut Peekable<impl Iterator<Item = &'p PatternNode>>,
     cand_children: &mut Peekable<impl Iterator<Item = Node<'t, D>>>,
     agg: &mut impl Aggregator<'t, D>,
-    strictness: &MatchStrictness,
+    strictness: MatchStrictness,
 ) -> Option<ControlFlow> {
     let Some(curr_node) = goal_children.peek() else {
         // in rare case, an internal node's children is empty
@@ -177,7 +177,7 @@ fn match_single_node_while_skip_trivial<'p, 't: 'p, D: Doc>(
     goal_children: &mut Peekable<impl Iterator<Item = &'p PatternNode>>,
     cand_children: &mut Peekable<impl Iterator<Item = Node<'t, D>>>,
     agg: &mut impl Aggregator<'t, D>,
-    strictness: &MatchStrictness,
+    strictness: MatchStrictness,
 ) -> Option<ControlFlow> {
     loop {
         let Some(cand) = cand_children.peek() else {
@@ -253,7 +253,7 @@ mod test {
         let n = Root::str(n, Tsx);
         let n = n.root().find(kind).expect("should find");
         let mut env = Cow::Owned(MetaVarEnv::new());
-        match_node_impl(&pattern.node, &*n, &mut env, &strictness)
+        match_node_impl(&pattern.node, &*n, &mut env, strictness)
     }
     fn matched(p: &str, n: &str, strictness: MatchStrictness) {
         let ret = match_tree(p, n, strictness);

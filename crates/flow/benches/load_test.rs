@@ -10,7 +10,8 @@
 //! - Incremental updates
 //! - Memory usage under load
 
-use criterion::{BenchmarkId, Criterion, Throughput, black_box, criterion_group, criterion_main};
+use criterion::{BenchmarkId, Criterion, Throughput, criterion_group, criterion_main};
+use std::hint::black_box;
 use std::time::Duration;
 use thread_services::conversion::compute_content_fingerprint;
 
@@ -187,12 +188,16 @@ fn bench_incremental_updates(c: &mut Criterion) {
             |b, _| {
                 b.iter(|| {
                     // Only recompute fingerprints for changed files
-                    for i in 0..changed_count {
-                        black_box(compute_content_fingerprint(&files[i]));
+                    for file in files.iter().take(changed_count) {
+                        black_box(compute_content_fingerprint(file));
                     }
                     // Reuse cached fingerprints for unchanged files
-                    for i in changed_count..file_count {
-                        black_box(fingerprints[i]);
+                    for &fp in fingerprints
+                        .iter()
+                        .skip(changed_count)
+                        .take(file_count - changed_count)
+                    {
+                        black_box(fp);
                     }
                 });
             },

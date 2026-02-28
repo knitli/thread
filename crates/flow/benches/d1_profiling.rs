@@ -30,9 +30,10 @@
 //! - Cache hit rate target: >90%
 //! - These benchmarks measure infrastructure overhead, not actual D1 API latency
 
-use criterion::{Criterion, black_box, criterion_group, criterion_main};
+use criterion::{Criterion, criterion_group, criterion_main};
 use recoco::base::schema::{BasicValueType, EnrichedValueType, FieldSchema, ValueType};
 use recoco::base::value::{BasicValue, FieldValues, KeyPart, KeyValue};
+use std::hint::black_box;
 use std::sync::Arc;
 use std::time::Duration;
 use thread_flow::monitoring::performance::PerformanceMetrics;
@@ -42,11 +43,13 @@ use thread_flow::targets::d1::D1ExportContext;
 fn test_field_schema(name: &str, value_type: BasicValueType, nullable: bool) -> FieldSchema {
     FieldSchema::new(
         name,
+        // spellchecker:off
         EnrichedValueType {
             typ: ValueType::Basic(value_type),
             nullable,
             attrs: Default::default(),
         },
+        // spellchecker:on
     )
 }
 
@@ -554,9 +557,9 @@ fn bench_batch_operations(c: &mut Criterion) {
     let context = create_benchmark_context();
 
     // Create batch test data
-    let batch_10: Vec<_> = (0..10).map(|i| create_test_entry(i)).collect();
-    let batch_100: Vec<_> = (0..100).map(|i| create_test_entry(i)).collect();
-    let batch_1000: Vec<_> = (0..1000).map(|i| create_test_entry(i)).collect();
+    let batch_10: Vec<_> = (0..10).map(create_test_entry).collect();
+    let batch_100: Vec<_> = (0..100).map(create_test_entry).collect();
+    let batch_1000: Vec<_> = (0..1000).map(create_test_entry).collect();
 
     group.bench_function("batch_upsert_10_entries", |b| {
         b.iter(|| {

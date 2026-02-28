@@ -84,12 +84,14 @@ impl RuleRegistration {
     }
 
     pub(crate) fn insert_local(&self, id: &str, rule: Rule) -> Result<(), ReferentRuleError> {
+        if rule.check_cyclic(id) {
+            return Err(ReferentRuleError::CyclicRule(id.into()));
+        }
         let map = self.local.write();
         if map.contains_key(id) {
             return Err(ReferentRuleError::DuplicateRule(id.into()));
         }
         map.insert(id.to_string(), rule);
-        let _rule = map.get(id).unwrap();
         Ok(())
     }
 

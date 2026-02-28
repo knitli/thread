@@ -4,7 +4,7 @@
 
 [package]
 name = "thread-rule-engine"
-version = "0.1.0"
+version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 description = "Rule-based scanning and transformation engine for Thread"
@@ -17,22 +17,10 @@ include.workspace = true
 
 # [features] # we need to separate serialization, but that's a big job, and ideally rework ast-engine to allow narrower featuring
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 [dependencies]
 bit-set.workspace = true
 globset = "0.4.16"
+mimalloc = { workspace = true, optional = true }
 regex.workspace = true
 schemars.workspace = true
 serde.workspace = true
@@ -49,12 +37,12 @@ thread-utils = { workspace = true, default-features = false, features = [
 # ast-grep-config = { version = "0.39.1" }
 # ast-grep-core = { version = "0.39.1", features = ["tree-sitter"] }
 # ast-grep-language = { version = "0.39.1", features = ["builtin-parser"] }
-criterion = { version = "0.6", features = ["html_reports"] }
+criterion = { version = "0.8.2", features = ["html_reports"] }
 thread-ast-engine = { workspace = true, features = ["matching", "parsing"] }
 thread-language = { workspace = true, features = ["all-parsers"] }
 tree-sitter.workspace = true
-tree-sitter-javascript = "0.23.1"
-tree-sitter-python = "0.23.6"
+tree-sitter-javascript = "0.25.0"
+tree-sitter-python = "0.25.0"
 tree-sitter-rust = "0.24.0"
 tree-sitter-typescript = "0.23.2"
 
@@ -62,6 +50,10 @@ tree-sitter-typescript = "0.23.2"
 cc = "1.2.30"
 
 [features]
+default = ["mimalloc"]
+mimalloc = ["dep:mimalloc"]
 # we need to separate serialization, but that's a big job, and ideally rework ast-engine to allow narrower featuring
-
-worker = []  # feature flag for cloud edge deployment specific logic
+worker = [
+  "thread-ast-engine/worker",
+  "thread-utils/worker",
+]  # feature flag for cloud edge deployment specific logic

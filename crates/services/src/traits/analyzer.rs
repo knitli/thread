@@ -9,7 +9,7 @@
 
 use crate::types::Doc;
 use async_trait::async_trait;
-use std::collections::HashMap;
+use thread_utils::RapidMap;
 
 use crate::error::{AnalysisError, ServiceResult};
 use crate::types::{AnalysisContext, CodeMatch, CrossFileRelationship, ParsedDocument};
@@ -246,14 +246,15 @@ pub trait CodeAnalyzer<D: Doc + Send + Sync>: Send + Sync {
                 if ch == '$' {
                     _found_metavar = true;
                     // Next character should be alphabetic or underscore
-                    if let Some(next_ch) = chars.next() {
-                        if !next_ch.is_alphabetic() && next_ch != '_' {
-                            return Err(AnalysisError::MetaVariable {
-                                variable: format!("${}", next_ch),
-                                message: "Invalid meta-variable format".to_string(),
-                            }
-                            .into());
+                    if let Some(next_ch) = chars.next()
+                        && !next_ch.is_alphabetic()
+                        && next_ch != '_'
+                    {
+                        return Err(AnalysisError::MetaVariable {
+                            variable: format!("${}", next_ch),
+                            message: "Invalid meta-variable format".to_string(),
                         }
+                        .into());
                     }
                 }
             }
@@ -337,7 +338,7 @@ pub struct AnalyzerCapabilities {
     pub performance_profile: AnalysisPerformanceProfile,
 
     /// Additional capability flags
-    pub capability_flags: HashMap<String, bool>,
+    pub capability_flags: RapidMap<String, bool>,
 }
 
 impl Default for AnalyzerCapabilities {
@@ -351,7 +352,7 @@ impl Default for AnalyzerCapabilities {
             supports_incremental_analysis: false,
             supported_analysis_depths: vec![AnalysisDepth::Syntax, AnalysisDepth::Local],
             performance_profile: AnalysisPerformanceProfile::Balanced,
-            capability_flags: HashMap::new(),
+            capability_flags: thread_utils::get_map(),
         }
     }
 }
@@ -409,7 +410,7 @@ pub struct AnalysisConfig {
     pub performance_profile: Option<AnalysisPerformanceProfile>,
 
     /// Custom configuration options
-    pub custom_options: HashMap<String, String>,
+    pub custom_options: RapidMap<String, String>,
 }
 
 impl Default for AnalysisConfig {
@@ -419,7 +420,7 @@ impl Default for AnalysisConfig {
             collect_relationships: false,
             enable_pattern_caching: true,
             performance_profile: None, // Auto-detect
-            custom_options: HashMap::new(),
+            custom_options: thread_utils::get_map(),
         }
     }
 }

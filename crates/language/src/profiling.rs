@@ -23,23 +23,22 @@ static PEAK_USAGE: AtomicUsize = AtomicUsize::new(0);
 
 unsafe impl GlobalAlloc for MemoryProfiler {
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
-        let ptr = System.alloc(layout);
+        let ptr = unsafe { System.alloc(layout) };
         if !ptr.is_null() {
-            let size = layout.size();
-            let old_allocated = ALLOCATED.fetch_add(size, Ordering::Relaxed);
-            let current_usage = old_allocated + size - DEALLOCATED.load(Ordering::Relaxed);
+            ALLOCATED.fetch_add(layout.size(), Ordering::SeqCst);
 
             // Update peak usage
-            let mut peak = PEAK_USAGE.load(Ordering::Relaxed);
-            while current_usage > peak {
+            let current = ALLOCATED.load(Ordering::SeqCst) - DEALLOCATED.load(Ordering::SeqCst);
+            let mut peak = PEAK_USAGE.load(Ordering::SeqCst);
+            while current > peak {
                 match PEAK_USAGE.compare_exchange_weak(
                     peak,
-                    current_usage,
-                    Ordering::Relaxed,
-                    Ordering::Relaxed,
+                    current,
+                    Ordering::SeqCst,
+                    Ordering::SeqCst,
                 ) {
                     Ok(_) => break,
-                    Err(x) => peak = x,
+                    Err(actual) => peak = peak.max(actual),
                 }
             }
         }
@@ -47,8 +46,8 @@ unsafe impl GlobalAlloc for MemoryProfiler {
     }
 
     unsafe fn dealloc(&self, ptr: *mut u8, layout: Layout) {
-        System.dealloc(ptr, layout);
-        DEALLOCATED.fetch_add(layout.size(), Ordering::Relaxed);
+        unsafe { System.dealloc(ptr, layout) };
+        DEALLOCATED.fetch_add(layout.size(), Ordering::SeqCst);
     }
 }
 

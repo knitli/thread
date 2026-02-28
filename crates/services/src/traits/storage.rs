@@ -9,10 +9,10 @@
 //! implementations are commercial-only features.
 
 use async_trait::async_trait;
-use std::collections::HashMap;
 use std::time::{Duration, SystemTime};
+use thread_utils::RapidMap;
 
-use crate::error::{ServiceResult, StorageError};
+use crate::error::ServiceResult;
 use crate::types::{AnalysisContext, CrossFileRelationship, ParsedDocument};
 use thread_ast_engine::source::Doc;
 
@@ -52,7 +52,7 @@ use thread_ast_engine::source::Doc;
 ///         let storage: Box<dyn StorageService> = Box::new(
 ///             PostgresStorageService::new("connection_string").await.unwrap()
 ///         );
-///         
+///
 ///         // Store analysis results persistently
 ///         // storage.store_analysis_result(...).await.unwrap();
 ///     }
@@ -69,7 +69,9 @@ pub trait StorageService: Send + Sync {
         key: &AnalysisKey,
         result: &AnalysisResult<D>,
         context: &AnalysisContext,
-    ) -> ServiceResult<()>;
+    ) -> ServiceResult<()>
+    where
+        Self: Sized;
 
     /// Load cached analysis results.
     ///
@@ -79,7 +81,9 @@ pub trait StorageService: Send + Sync {
         &self,
         key: &AnalysisKey,
         context: &AnalysisContext,
-    ) -> ServiceResult<Option<AnalysisResult<D>>>;
+    ) -> ServiceResult<Option<AnalysisResult<D>>>
+    where
+        Self: Sized;
 
     /// Store parsed document for caching.
     ///
@@ -89,7 +93,9 @@ pub trait StorageService: Send + Sync {
         &self,
         document: &ParsedDocument<D>,
         context: &AnalysisContext,
-    ) -> ServiceResult<StorageKey>;
+    ) -> ServiceResult<StorageKey>
+    where
+        Self: Sized;
 
     /// Load cached parsed document.
     ///
@@ -99,7 +105,9 @@ pub trait StorageService: Send + Sync {
         &self,
         key: &StorageKey,
         context: &AnalysisContext,
-    ) -> ServiceResult<Option<ParsedDocument<D>>>;
+    ) -> ServiceResult<Option<ParsedDocument<D>>>
+    where
+        Self: Sized;
 
     /// Store cross-file relationships.
     ///
@@ -209,7 +217,7 @@ pub struct AnalysisKey {
 pub struct AnalysisResult<D: Doc> {
     pub documents: Vec<ParsedDocument<D>>,
     pub relationships: Vec<CrossFileRelationship>,
-    pub metadata: HashMap<String, String>,
+    pub metadata: RapidMap<String, String>,
     pub timestamp: SystemTime,
     pub version: String,
 }
@@ -284,7 +292,7 @@ pub struct MaintenanceResult {
     pub operation: MaintenanceOperation,
     pub success: bool,
     pub message: String,
-    pub metrics: HashMap<String, f64>,
+    pub metrics: RapidMap<String, f64>,
     pub duration: Duration,
 }
 
@@ -408,9 +416,9 @@ pub struct AnalyticsSummary {
 #[derive(Debug, Clone)]
 pub struct PerformanceMetrics {
     pub period: TimePeriod,
-    pub throughput: f64,                                // operations per second
-    pub latency_percentiles: HashMap<String, Duration>, // p50, p95, p99
-    pub error_rates: HashMap<String, f64>,
+    pub throughput: f64,                                 // operations per second
+    pub latency_percentiles: RapidMap<String, Duration>, // p50, p95, p99
+    pub error_rates: RapidMap<String, f64>,
     pub resource_usage: ResourceUsage,
 }
 
@@ -460,13 +468,16 @@ mod tests {
     fn test_analysis_key() {
         let key = AnalysisKey {
             operation_type: "pattern_match".to_string(),
-            content_hash: 12345,
+            content_fingerprint: recoco_utils::fingerprint::Fingerprint([0u8; 16]),
             configuration_hash: 67890,
             version: "1.0".to_string(),
         };
 
         assert_eq!(key.operation_type, "pattern_match");
-        assert_eq!(key.content_hash, 12345);
+        assert_eq!(
+            key.content_fingerprint,
+            recoco_utils::fingerprint::Fingerprint([0u8; 16])
+        );
     }
 
     #[test]

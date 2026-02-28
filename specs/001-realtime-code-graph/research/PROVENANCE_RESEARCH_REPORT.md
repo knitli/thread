@@ -32,6 +32,7 @@ This research evaluates CocoIndex's native provenance tracking capabilities and 
 ### Recommendation
 
 **Expand T079 scope** from "Add repository_id" to comprehensive provenance implementation leveraging CocoIndex's native capabilities. This enables:
+
 - Enhanced conflict detection with full data lineage analysis
 - Audit trails showing exactly which analysis stages contributed to each conflict prediction
 - Deterministic incremental updates (only re-analyze when relevant upstream data changes)
@@ -45,7 +46,7 @@ This research evaluates CocoIndex's native provenance tracking capabilities and 
 
 From the deep architectural research (deep-architectural-research.md), CocoIndex's dataflow orchestration inherently includes provenance tracking:
 
-```
+```plaintext
 CocoIndex Dataflow Structure:
 ┌─────────────────┐
 │  Sources        │ ← Track: which source, version, access time
@@ -58,6 +59,7 @@ CocoIndex Dataflow Structure:
 ```
 
 **Critical Feature**: CocoIndex's "content-addressed fingerprinting" automatically creates lineage chains:
+
 - Input hash + logic hash + dependency versions → Transformation output fingerprint
 - Dependency graph computation identifies which upstream changes invalidate which artifacts
 - Only recompute invalidated nodes (core to >90% cache hit rate requirement)
@@ -65,7 +67,8 @@ CocoIndex Dataflow Structure:
 ### 1.2 Automatic Provenance Metadata at Each Stage
 
 #### Source-Level Provenance
-```
+
+```plaintext
 CocoIndex Source Tracking:
 ├─ Source Type: LocalFiles, Git, S3, etc.
 ├─ Source Identifier: Path, URL, bucket name
@@ -76,6 +79,7 @@ CocoIndex Source Tracking:
 ```
 
 **Example for Thread's LocalFiles Source**:
+
 ```rust
 pub struct LocalFilesSource {
     paths: Vec<PathBuf>,
@@ -91,7 +95,8 @@ pub struct LocalFilesSource {
 ```
 
 #### Transformation-Level Provenance
-```
+
+```plaintext
 CocoIndex Function Tracking:
 ├─ Function ID: "thread_parse_function"
 ├─ Function Version: "1.0.0" (language: thread-ast-engine)
@@ -114,6 +119,7 @@ CocoIndex Function Tracking:
 ```
 
 **Thread Integration Point**:
+
 ```rust
 // When ThreadParseFunction executes as CocoIndex operator:
 impl SimpleFunctionExecutor for ThreadParseExecutor {
@@ -142,7 +148,8 @@ impl SimpleFunctionExecutor for ThreadParseExecutor {
 ```
 
 #### Target-Level Provenance
-```
+
+```plaintext
 CocoIndex Target Tracking:
 ├─ Target Type: PostgresTarget, D1Target, QdrantTarget
 ├─ Write Timestamp: When data was persisted
@@ -159,7 +166,7 @@ CocoIndex Target Tracking:
 
 CocoIndex automatically constructs full lineage chains across multiple transformation stages:
 
-```
+```plaintext
 Complete Lineage Chain (Thread Real-Time Code Graph Example):
 
 File "main.rs" (Git repo, commit abc123, timestamp 2026-01-11T10:30:00Z)
@@ -217,12 +224,13 @@ pub struct ExecutionRecord {
 }
 
 pub struct DependencyGraph {
-    nodes: HashMap<String, DependencyNode>,
+    nodes: thread_utils::RapidMap<String, DependencyNode>,
     edges: Vec<(String, String)>, // operation -> operation dependencies
 }
 ```
 
 This means CocoIndex can answer:
+
 - "What's the complete lineage for node X?"
 - "Which operations were executed to produce Y?"
 - "When was Z computed and from what input?"
@@ -234,7 +242,7 @@ This means CocoIndex can answer:
 
 ### 2.1 T079 Task Definition (from tasks.md)
 
-```
+```plaintext
 T079 [US3] Add repository_id to GraphNode and GraphEdge for source attribution
 ```
 
@@ -257,6 +265,7 @@ pub struct GraphNode {
 ```
 
 **What T079 adds** (proposed implementation):
+
 ```rust
 pub struct GraphNode {
     // ... existing fields ...
@@ -273,25 +282,30 @@ pub struct GraphNode {
 ### 2.3 Limitations of Current T079 Approach
 
 **Repository Attribution Only**:
+
 - Answers: "Which repository did this node come from?"
 - Doesn't answer: "Which data source version? When? Why?"
 
 **Missing Transformation Context**:
+
 - No tracking of which analysis stages created the node
 - Can't trace: "Was this conflict detected by Tier 1, 2, or 3 analysis?"
 - Misses: "Did cache miss cause re-analysis?"
 
 **No Temporal Provenance**:
+
 - No timestamp of when analysis occurred
 - Can't answer: "Is this analysis stale?"
 - Breaks: Incremental update efficiency
 
 **Upstream Data Lineage Invisible**:
+
 - If source file changed, can't efficiently determine which nodes are invalidated
 - Content-addressed caching becomes less effective
 - Incremental updates may re-analyze unnecessarily
 
 **Conflict Audit Trail Missing**:
+
 - FR-014 requires tracking "which data source, version, and timestamp"
 - T079 only provides repository_id, missing version and timestamp
 - Insufficient for FR-018 (audit and learning)
@@ -303,7 +317,7 @@ pub struct GraphNode {
 ### 3.1 Comparison Matrix
 
 | Aspect | T079 (Current) | CocoIndex Native | Need for Code Graph |
-|--------|---|---|---|
+| -------- | --- | --- | --- |
 | **Source Attribution** | ✓ repository_id | ✓ Source ID + type | FR-014 ✓ |
 | **Source Version** | ✗ | ✓ Git commit, S3 ETag | FR-014 ✓ |
 | **Source Timestamp** | ✗ | ✓ Access timestamp | FR-014 ✓ |
@@ -317,8 +331,9 @@ pub struct GraphNode {
 
 ### 3.2 CocoIndex Advantages for Code Graph Provenance
 
-**1. Automatic at Source Layer**
-```
+#### 1. Automatic at Source Layer
+
+```plaintext
 CocoIndex LocalFilesSource automatically captures:
 - File path (identity)
 - File modification time (version timestamp)
@@ -327,8 +342,9 @@ CocoIndex LocalFilesSource automatically captures:
 - Filesystem attributes (metadata context)
 ```
 
-**2. Automatic at Transformation Layer**
-```
+#### 2. Automatic at Transformation Layer
+
+```plaintext
 For each Thread operator (ThreadParseFunction, ThreadExtractSymbols, etc.):
 - Input: what file/AST hash was processed
 - Operation: which parser/extractor, what version
@@ -337,8 +353,9 @@ For each Thread operator (ThreadParseFunction, ThreadExtractSymbols, etc.):
 - Output: what hash was produced
 ```
 
-**3. Automatic at Target Layer**
-```
+#### 3. Automatic at Target Layer
+
+```plaintext
 For PostgresTarget/D1Target:
 - Write timestamp: precisely when persisted
 - Transaction metadata: ACID context
@@ -346,8 +363,9 @@ For PostgresTarget/D1Target:
 - Write latency: performance metrics
 ```
 
-**4. Queryable Relationship**
-```
+#### 4. Queryable Relationship
+
+```plaintext
 After execution, can query:
 - "Show me execution record for node X's lineage"
 - "What was the input hash that produced node Y?"
@@ -409,7 +427,7 @@ pub struct LineageRecord {
     pub executed_at: DateTime<Utc>,
     pub duration_ms: u64,
     pub success: bool,
-    pub metadata: HashMap<String, String>,   // Language, config version, etc.
+    pub metadata: thread_utils::RapidMap<String, String>,   // Language, config version, etc.
 }
 
 pub enum OperationType {
@@ -513,7 +531,8 @@ pub struct UpstreamChange {
 ### 5.1 Incremental Update Optimization (SC-INCR-001)
 
 **Without Full Provenance** (Current T079):
-```
+
+```plaintext
 File X changes:
 - Mark all nodes in file X as dirty
 - Possibly: mark all reverse dependencies as dirty
@@ -523,7 +542,8 @@ File X changes:
 ```
 
 **With Full Provenance** (CocoIndex native):
-```
+
+```plaintext
 File X changes (new hash):
 - CocoIndex tracks: upstream_hashes for ALL nodes
 - Find nodes where upstream contains old file hash
@@ -535,14 +555,16 @@ File X changes (new hash):
 ### 5.2 Conflict Audit Trail (FR-018)
 
 **Current**:
-```
+
+```plaintext
 Conflict detected: "function A modified"
 Question: How was this detected? Why? When?
 Answer: (No information)
 ```
 
 **With Enhanced Provenance**:
-```
+
+```plaintext
 Conflict detected: 2026-01-11T10:30:15Z
 Analysis pipeline:
   1. Parse (Tier 1): 15ms, file hash abc123
@@ -563,7 +585,8 @@ If investigation needed:
 **Scenario**: Conflict detector reports an issue that manual inspection disagrees with
 
 **With Full Provenance**:
-```
+
+```plaintext
 Question: "Why was this marked as a conflict?"
 
 Answer (from lineage records):
@@ -585,7 +608,8 @@ Investigation path:
 ### 5.4 Cache Effectiveness Analysis (SC-CACHE-001)
 
 **With Provenance Tracking**:
-```
+
+```plaintext
 Query: "Why did cache miss for this node?"
 
 Answer:
@@ -605,7 +629,8 @@ This proves:
 ### 5.5 Cross-Repository Dependency Transparency
 
 **T079 Current**:
-```
+
+```plaintext
 Node "process_payment"
 repository_id: "stripe-integration-service"
 
@@ -614,7 +639,8 @@ Cannot answer: "Is this fresh from latest code? When?"
 ```
 
 **With Full Provenance**:
-```
+
+```plaintext
 Node "process_payment"
 repository_id: "stripe-integration-service"
 source_version: SourceVersion {
@@ -721,6 +747,7 @@ pub async fn execute_code_analysis_flow(
 **Concern**: Adding provenance to existing nodes
 
 **Solution**:
+
 - Mark provenance fields as `Option<T>` initially
 - Provide migration for existing nodes (backfill with minimal provenance)
 - New analyses automatically get full provenance
@@ -746,7 +773,7 @@ pub struct GraphNode {
 ### 7.1 What T079 Misses
 
 | Missing Feature | CocoIndex Capability | Value |
-|---|---|---|
+| --- | --- | --- |
 | **Source Version Tracking** | Native SourceVersion tracking | FR-014 completeness |
 | **Timestamp Precision** | Per-operation execution times | Audit trail quality |
 | **Analysis Pipeline Transparency** | Complete lineage records | Debugging conflicts |
@@ -760,6 +787,7 @@ pub struct GraphNode {
 If T079 implemented as-is (repository_id only):
 
 **Problems**:
+
 1. ✗ Can't prove cache is working correctly (missing cache metadata)
 2. ✗ Can't audit why conflict was detected (missing tier execution records)
 3. ✗ Can't efficiently invalidate caches on upstream change (missing upstream lineage)
@@ -767,6 +795,7 @@ If T079 implemented as-is (repository_id only):
 5. ✗ Doesn't fully satisfy FR-014 (missing version and timestamp)
 
 **Rework Required Later**:
+
 - Phase 1: Implement repository_id (T079 as-is)
 - Phase 2: Add source versioning (more work, schema changes)
 - Phase 3: Add lineage tracking (significant refactor)
@@ -780,22 +809,26 @@ If T079 implemented as-is (repository_id only):
 
 ### 8.1 Phased Approach to Minimize Risk
 
-**Phase 1: Foundation (Week 1)**
+#### Phase 1: Foundation (Week 1)
+
 - Implement basic `SourceVersion` struct (Git commit, S3 ETag, local timestamp)
 - Add `source_version` and `source_timestamp` fields to GraphNode
 - Update T079 scope document
 
-**Phase 2: CocoIndex Integration (Week 2-3)**
+#### Phase 2: CocoIndex Integration (Week 2-3)
+
 - Build `ProvenanceCollector` that extracts ExecutionRecords
 - Implement `LineageRecord` structure
 - Wire CocoIndex execution data into node storage
 
-**Phase 3: Queryable Provenance (Week 4)**
+#### Phase 3: Queryable Provenance (Week 4)
+
 - Implement `ProvenanceQuery` API
 - Add provenance table migrations
 - Build debugging tools (show lineage, trace conflicts)
 
-**Phase 4: Validation (Week 5)**
+#### Phase 4: Validation (Week 5)
+
 - Verify incremental updates work correctly
 - Confirm cache invalidation matches lineage
 - Validate conflict audit trail completeness
@@ -803,23 +836,27 @@ If T079 implemented as-is (repository_id only):
 ### 8.2 Parallel Work Streams
 
 **T079.1 + T079.2**: Can happen in parallel
+
 - T079.1: Graph structure changes (module organization)
 - T079.2: CocoIndex integration (different crate)
 
 **T079.3**: Depends on T079.1 + T079.2
+
 - Needs provenance data to store
 
 **T079.4**: Depends on T079.3
+
 - Needs schema for persistence
 
 **T079.5**: Depends on all above
+
 - Needs all pieces in place to query
 
 ---
 
 ## 9. Architecture Diagram: Enhanced Provenance
 
-```
+```plaintext
 File System / Git / Cloud Source
     │
     ├─ Source: LocalFiles, Git, S3
@@ -902,12 +939,14 @@ Database: nodes, edges, provenance tables
 ### 10.2 Impact on Other Features
 
 **Helps**:
+
 - SC-INCR-001/002: Incremental updates can be more precise
 - SC-CACHE-001: Cache effectiveness becomes provable
 - FR-018: Audit trail and learning from past conflicts
 - FR-014: Full compliance (not just repository_id)
 
 **Independent Of**:
+
 - Real-time performance (FR-005, FR-013)
 - Conflict prediction accuracy (SC-002)
 - Multi-source support (US3)
@@ -917,12 +956,14 @@ Database: nodes, edges, provenance tables
 
 **Risk**: Expanding scope increases implementation complexity
 **Mitigation**:
+
 - CocoIndex provides most of the data automatically
 - Phased approach (foundation → integration → validation)
 - Backward compatible with optional fields initially
 
 **Risk**: CocoIndex API changes
 **Mitigation**:
+
 - ExecutionRecords API is stable (core dataflow concept)
 - Even if API changes, basic capability preserved
 - Worst case: store less detailed provenance
@@ -934,17 +975,20 @@ Database: nodes, edges, provenance tables
 ## 11. Research Sources and References
 
 ### 11.1 CocoIndex Documentation
+
 - deep-architectural-research.md: Complete CocoIndex architecture analysis
 - research.md Task 1: CocoIndex Integration Architecture
 - research.md Task 8: Storage Backend Abstraction Pattern
 
 ### 11.2 Thread Real-Time Code Graph
+
 - spec.md: FR-014 provenance requirement
 - data-model.md: GraphNode, GraphEdge structures
 - tasks.md: T079 current scope
 - contracts/rpc-types.rs: API definitions
 
 ### 11.3 Key Architectural Documents
+
 - CLAUDE.md: Project architecture and CocoIndex integration
 - Constitution v2.0.0: Service-library architecture principles
 

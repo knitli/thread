@@ -75,7 +75,7 @@ fn skip_comment_or_unnamed(n: &Node<impl Doc>) -> bool {
 
 impl MatchStrictness {
     pub(crate) fn match_terminal(
-        &self,
+        self,
         is_named: bool,
         text: &str,
         goal_kind: u16,
@@ -110,7 +110,7 @@ impl MatchStrictness {
     }
 
     // TODO: this is a method for working around trailing nodes after pattern is matched
-    pub(crate) fn should_skip_trailing<D: Doc>(&self, candidate: &Node<D>) -> bool {
+    pub(crate) fn should_skip_trailing<D: Doc>(self, candidate: &Node<D>) -> bool {
         match self {
             Self::Cst | Self::Ast => false,
             Self::Smart => true,
@@ -119,7 +119,7 @@ impl MatchStrictness {
     }
 
     pub(crate) fn should_skip_goal<'p>(
-        &self,
+        self,
         goal_children: &mut Peekable<impl Iterator<Item = &'p PatternNode>>,
     ) -> bool {
         while let Some(pattern) = goal_children.peek() {

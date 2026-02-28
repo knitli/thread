@@ -8,7 +8,6 @@
 //! Tests backend factory pattern, feature gating, and end-to-end
 //! storage operations across all three backend implementations.
 
-use std::collections::HashSet;
 use std::path::{Path, PathBuf};
 use thread_flow::incremental::DependencyGraph;
 use thread_flow::incremental::backends::{BackendConfig, BackendType, create_backend};
@@ -338,7 +337,7 @@ async fn test_e2e_full_graph_persistence() {
     );
 
     // 5. Verify affected files computation works after load
-    let changed = HashSet::from([PathBuf::from("c.rs")]);
+    let changed: thread_utils::RapidSet<PathBuf> = [PathBuf::from("c.rs")].into_iter().collect();
     let affected = loaded_graph.find_affected_files(&changed);
 
     assert!(
@@ -415,7 +414,8 @@ async fn test_e2e_incremental_invalidation() {
     );
 
     // Find affected files
-    let changed = HashSet::from([PathBuf::from("config.rs")]);
+    let changed: thread_utils::RapidSet<PathBuf> =
+        [PathBuf::from("config.rs")].into_iter().collect();
     let affected = graph.find_affected_files(&changed);
 
     assert!(

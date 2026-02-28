@@ -166,14 +166,11 @@ async fn test_extract_symbols_schema() {
             assert_eq!(kind, TableKind::LTable, "Should be LTable");
 
             // Verify row structure has 3 fields: name, kind, scope
-            match row.fields.as_ref() {
-                fields => {
-                    assert_eq!(fields.len(), 3, "Symbol should have 3 fields");
-                    assert_eq!(fields[0].name, "name");
-                    assert_eq!(fields[1].name, "kind");
-                    assert_eq!(fields[2].name, "scope");
-                }
-            }
+            let fields = row.fields.as_ref();
+            assert_eq!(fields.len(), 3, "Symbol should have 3 fields");
+            assert_eq!(fields[0].name, "name");
+            assert_eq!(fields[1].name, "kind");
+            assert_eq!(fields[2].name, "scope");
         }
         _ => panic!("Expected Table type"),
     }
@@ -397,14 +394,11 @@ async fn test_extract_imports_schema() {
             assert_eq!(kind, TableKind::LTable, "Should be LTable");
 
             // Verify row structure has 3 fields: symbol_name, source_path, kind
-            match row.fields.as_ref() {
-                fields => {
-                    assert_eq!(fields.len(), 3, "Import should have 3 fields");
-                    assert_eq!(fields[0].name, "symbol_name");
-                    assert_eq!(fields[1].name, "source_path");
-                    assert_eq!(fields[2].name, "kind");
-                }
-            }
+            let fields = row.fields.as_ref();
+            assert_eq!(fields.len(), 3, "Import should have 3 fields");
+            assert_eq!(fields[0].name, "symbol_name");
+            assert_eq!(fields[1].name, "source_path");
+            assert_eq!(fields[2].name, "kind");
         }
         _ => panic!("Expected Table type"),
     }
@@ -623,13 +617,10 @@ async fn test_extract_calls_schema() {
             assert_eq!(kind, TableKind::LTable, "Should be LTable");
 
             // Verify row structure has 2 fields: function_name, arguments_count
-            match row.fields.as_ref() {
-                fields => {
-                    assert_eq!(fields.len(), 2, "Call should have 2 fields");
-                    assert_eq!(fields[0].name, "function_name");
-                    assert_eq!(fields[1].name, "arguments_count");
-                }
-            }
+            let fields = row.fields.as_ref();
+            assert_eq!(fields.len(), 2, "Call should have 2 fields");
+            assert_eq!(fields[0].name, "function_name");
+            assert_eq!(fields[1].name, "arguments_count");
         }
         _ => panic!("Expected Table type"),
     }

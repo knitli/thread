@@ -255,10 +255,10 @@ impl Matcher for Pattern {
         node: Node<'tree, D>,
         env: &mut Cow<MetaVarEnv<'tree, D>>,
     ) -> Option<Node<'tree, D>> {
-        if let Some(k) = self.root_kind {
-            if node.kind_id() != k {
-                return None;
-            }
+        if let Some(k) = self.root_kind
+            && node.kind_id() != k
+        {
+            return None;
         }
         // do not pollute the env if pattern does not match
         let mut may_write = Cow::Borrowed(env.as_ref());
@@ -364,8 +364,7 @@ mod test {
         let cand = pattern_node(cand);
         let cand = cand.root();
         let nm = pattern.find_node(cand).unwrap();
-        let mapped_env = RapidMap::from(nm.get_env().clone());
-        mapped_env
+        RapidMap::from(nm.get_env().clone())
     }
 
     #[test]
@@ -488,7 +487,7 @@ mod test {
     }
 
     #[test]
-    #[ignore]
+    #[ignore = "multi-node patterns not yet implemented"]
     fn test_multi_node_pattern() {
         let pattern = Pattern::new("a;b;c;", &Tsx);
         let kinds = pattern.potential_kinds().expect("should have kinds");
@@ -497,7 +496,7 @@ mod test {
     }
 
     #[test]
-    #[ignore]
+    #[ignore = "multi-node patterns not yet implemented"]
     fn test_multi_node_meta_var() {
         let env = match_env("a;$B;c", "a;b;c");
         assert_eq!(env["B"], "b");
@@ -506,7 +505,7 @@ mod test {
     }
 
     #[test]
-    #[ignore]
+    #[ignore = "struct layout is compiler and platform specific"]
     fn test_pattern_size() {
         assert_eq!(std::mem::size_of::<Pattern>(), 40);
     }
@@ -587,7 +586,7 @@ mod test {
     fn test_contextual_pattern_vars() {
         let pattern =
             Pattern::contextual("<div ref={$A}/>", "jsx_attribute", &Tsx).expect("correct");
-        assert_eq!(pattern.defined_vars(), ["A"].into_iter().collect());
+        assert_eq!(pattern.defined_vars(), std::iter::once("A").collect());
     }
 
     #[test]

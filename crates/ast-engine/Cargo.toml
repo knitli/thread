@@ -4,7 +4,7 @@
 
 [package]
 name = "thread-ast-engine"
-version = "0.1.0"
+version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 description = "Core AST engine for Thread - parsing, matching, and transforming code using AST patterns. Forked from ast-grep-core."
@@ -23,6 +23,7 @@ name = "performance_improvements"
 
 [dependencies]
 bit-set.workspace = true
+mimalloc = { workspace = true, optional = true }
 # regex required for pattern matching
 regex = { workspace = true, optional = true }
 thiserror.workspace = true
@@ -34,7 +35,7 @@ thread-utils = { workspace = true, default-features = false, features = [
 tree-sitter = { workspace = true, optional = true }
 
 [dev-dependencies]
-criterion = { version = "0.8.0", features = ["html_reports"] }
+criterion = { version = "0.8.2", features = ["html_reports"] }
 thread-language = { workspace = true, features = ["all-parsers"] }
 tree-sitter-typescript = "0.23.2"
 
@@ -42,11 +43,15 @@ tree-sitter-typescript = "0.23.2"
 cc = "1.2.30"
 
 [features]
-default = ["matching", "parsing"]
+default = ["matching", "mimalloc", "parsing"]
 # The 'matching' feature enables the pattern matching engine
 matching = ["dep:regex"]
+mimalloc = ["dep:mimalloc", "thread-utils/mimalloc"]
 # The 'parsing' feature enables the tree-sitter backend
 parsing = ["dep:tree-sitter"]
+worker = [
+  "thread-utils/worker"
+]  # feature flag for cloud edge deployment specific logic
 
 [lints]
 # Enable linting for the crate

@@ -46,7 +46,7 @@ fn io_bound_work(_n: u32) -> Result<(), ExecutionError> {
 
 /// Fails on multiples of 10.
 fn conditional_failure(n: u32) -> Result<(), ExecutionError> {
-    if n % 10 == 0 {
+    if n.is_multiple_of(10) {
         Err(ExecutionError::Failed(format!("Item {} failed", n)))
     } else {
         Ok(())
@@ -638,11 +638,19 @@ mod performance_tests {
 
         let items: Vec<u32> = (0..500).collect();
 
+        // Heavier work to ensure parallelism overhead is negligible relative to computation
+        let heavy_work = |_n: u32| -> Result<(), ExecutionError> {
+            let _result: u64 = (0..500_000)
+                .map(|i| (i as u64).wrapping_mul(i as u64))
+                .sum();
+            Ok(())
+        };
+
         // Single thread
         let single = Executor::rayon(Some(1)).unwrap();
         let start = Instant::now();
         single
-            .execute_batch(items.clone(), cpu_intensive_work)
+            .execute_batch(items.clone(), heavy_work)
             .await
             .unwrap();
         let single_time = start.elapsed();
@@ -650,10 +658,7 @@ mod performance_tests {
         // Four threads
         let multi = Executor::rayon(Some(4)).unwrap();
         let start = Instant::now();
-        multi
-            .execute_batch(items, cpu_intensive_work)
-            .await
-            .unwrap();
+        multi.execute_batch(items, heavy_work).await.unwrap();
         let multi_time = start.elapsed();
 
         let speedup = single_time.as_secs_f64() / multi_time.as_secs_f64();

@@ -256,7 +256,7 @@ mod tests {
         // Test strings of various lengths to exercise both SIMD and scalar paths
         for i in 1..=100 {
             let ascii_string = "a".repeat(i);
-            assert!(is_ascii_simd(&ascii_string), "Failed for length {}", i);
+            assert!(is_ascii_simd(&ascii_string), "Failed for length {i}");
         }
     }
 
@@ -292,8 +292,7 @@ mod tests {
             assert_eq!(
                 is_ascii_simd(test_str),
                 test_str.is_ascii(),
-                "Mismatch for string: {:?}",
-                test_str
+                "Mismatch for string: {test_str:?}"
             );
         }
 
@@ -311,8 +310,7 @@ mod tests {
             assert_eq!(
                 is_ascii_simd(ch),
                 ch.is_ascii(),
-                "Mismatch for non-ASCII character: {:?}",
-                ch
+                "Mismatch for non-ASCII character: {ch:?}"
             );
         }
     }
@@ -372,8 +370,8 @@ mod tests {
 
     #[test]
     fn test_find_last_byte_single() {
-        assert_eq!(find_last_byte_simd(&[b'a'], b'a', false), Some(0));
-        assert_eq!(find_last_byte_simd(&[b'a'], b'b', false), None);
+        assert_eq!(find_last_byte_simd(b"a", b'a', false), Some(0));
+        assert_eq!(find_last_byte_simd(b"a", b'b', false), None);
     }
 
     #[test]
@@ -434,7 +432,7 @@ mod tests {
         for test_str in test_strings {
             let simd_count = count_utf8_chars_simd(test_str.as_bytes());
             let std_count = test_str.chars().count();
-            assert_eq!(simd_count, std_count, "Mismatch for string: {:?}", test_str);
+            assert_eq!(simd_count, std_count, "Mismatch for string: {test_str:?}");
         }
     }
 
@@ -509,8 +507,7 @@ mod tests {
                     let simd = get_char_column_simd(text, offset);
                     assert_eq!(
                         original, simd,
-                        "Mismatch for text: {:?}, offset: {}",
-                        text, offset
+                        "Mismatch for text: {text:?}, offset: {offset}"
                     );
                 }
             }

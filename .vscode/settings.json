@@ -2,10 +2,10 @@
   "git.enabled": true,
   "chat.mcp.serverSampling": {
     "allowedModels": {
-      "claude-sonnet-4.5": true,
+      "claude-sonnet-4.6": true,
       "claude-haiku-4.5": true,
       "gemini-3.0-flash": true,
-      "gpt-5.1-codex-max": true
+      "gpt-5.3-codex": true
     },
     "autoApprove": {
       "allowedDuringChat": true,
@@ -33,4 +33,7 @@
   "scm.inputFontSize": 13,
   "debug.console.fontSize": 14,
   "terminal.integrated.fontSize": 14,
+  "rust-analyzer.files.exclude": [
+    "crates/flow/tests/test_data/syntax_error.rs"
+  ]
 }

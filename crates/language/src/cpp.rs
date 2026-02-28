@@ -5,7 +5,6 @@
 // SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
-
 use super::*;
 
 fn test_match(query: &str, source: &str) {

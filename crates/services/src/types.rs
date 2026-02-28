@@ -23,8 +23,8 @@
 //! - [`AnalysisContext`] - Carries execution and analysis context across service boundaries
 
 use std::any::Any;
-use std::collections::HashMap;
 use std::path::PathBuf;
+use thread_utils::RapidMap;
 
 // Conditionally import thread dependencies when available
 #[cfg(feature = "ast-grep-backend")]
@@ -322,13 +322,13 @@ impl<'tree, D: Doc> CodeMatch<'tree, D> {
 #[derive(Debug, Default, Clone)]
 pub struct DocumentMetadata {
     /// Symbols defined in this document (functions, classes, variables)
-    pub defined_symbols: HashMap<String, SymbolInfo>,
+    pub defined_symbols: RapidMap<String, SymbolInfo>,
 
     /// Symbols imported from other files
-    pub imported_symbols: HashMap<String, ImportInfo>,
+    pub imported_symbols: RapidMap<String, ImportInfo>,
 
     /// Symbols exported by this file
-    pub exported_symbols: HashMap<String, ExportInfo>,
+    pub exported_symbols: RapidMap<String, ExportInfo>,
 
     /// Function calls made in this document
     pub function_calls: Vec<CallInfo>,
@@ -337,7 +337,7 @@ pub struct DocumentMetadata {
     pub type_info: Vec<TypeInfo>,
 
     /// Language-specific metadata
-    pub language_metadata: HashMap<String, String>,
+    pub language_metadata: RapidMap<String, String>,
 }
 
 /// Information about a symbol definition
@@ -394,7 +394,7 @@ pub struct CrossFileRelationship {
     pub target_file: PathBuf,
     pub source_symbol: String,
     pub target_symbol: String,
-    pub relationship_data: HashMap<String, String>,
+    pub relationship_data: RapidMap<String, String>,
 }
 
 /// Context for pattern matches
@@ -402,7 +402,7 @@ pub struct CrossFileRelationship {
 pub struct MatchContext {
     pub execution_scope: ExecutionScope,
     pub analysis_depth: AnalysisDepth,
-    pub context_data: HashMap<String, String>,
+    pub context_data: RapidMap<String, String>,
 }
 
 /// Execution scope for analysis operations
@@ -458,7 +458,7 @@ pub struct AnalysisContext {
     pub execution_config: ExecutionConfig,
 
     /// Custom context data
-    pub context_data: HashMap<String, String>,
+    pub context_data: RapidMap<String, String>,
 }
 
 impl Default for AnalysisContext {
@@ -471,7 +471,7 @@ impl Default for AnalysisContext {
             exclude_patterns: vec!["**/node_modules/**".to_string(), "**/target/**".to_string()],
             max_files: None,
             execution_config: ExecutionConfig::default(),
-            context_data: HashMap::new(),
+            context_data: thread_utils::get_map(),
         }
     }
 }

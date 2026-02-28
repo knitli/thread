@@ -1,11 +1,9 @@
-#![cfg(test)]
-
 // SPDX-FileCopyrightText: 2022 Herrington Darkholme <2883231+HerringtonDarkholme@users.noreply.github.com>
 // SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
 // SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
-
+#![cfg(test)]
 use super::*;
 
 fn test_match(query: &str, source: &str) {
@@ -52,15 +50,15 @@ func intSeq() {
       i++
   }()
 }"#,
-        r#"defer func() {
-$$$BODY }()"#,
-        r#"func b() { $$$BODY }"#,
+        r#"defer func() { $$$BODY }()"#,
+        r#"func b() { $$$BODY}"#,
     );
     assert_eq!(
         ret,
         r#"
 func intSeq() {
-  func b() { i++ }
+  func b() { i++
+  }
 }"#
     );
 }

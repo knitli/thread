@@ -21,7 +21,6 @@ use recoco::ops::sdk::{
 use recoco::setup::{ChangeDescription, CombinedState, ResourceSetupChange, SetupChangeType};
 use recoco::utils::prelude::Error as RecocoError;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use std::fmt::Debug;
 use std::hash::Hash;
 use std::sync::Arc;
@@ -509,7 +508,9 @@ impl D1SetupState {
         for field in key_fields {
             key_columns.push(ColumnSchema {
                 name: field.name.clone(),
+                // spellchecker:off
                 sql_type: value_type_to_sql(&field.value_type.typ),
+                // spellchecker:on
                 nullable: field.value_type.nullable,
                 primary_key: true,
             });
@@ -518,7 +519,9 @@ impl D1SetupState {
         for field in value_fields {
             value_columns.push(ColumnSchema {
                 name: field.name.clone(),
+                // spellchecker:off
                 sql_type: value_type_to_sql(&field.value_type.typ),
+                // spellchecker:on
                 nullable: field.value_type.nullable,
                 primary_key: false,
             });
@@ -747,10 +750,10 @@ impl TargetFactoryBase for D1TargetFactory {
         &self,
         mutations: Vec<ExportTargetMutationWithContext<'async_trait, Self::ExportContext>>,
     ) -> Result<(), RecocoError> {
-        let mut mutations_by_db: HashMap<
+        let mut mutations_by_db: thread_utils::RapidMap<
             String,
             Vec<&ExportTargetMutationWithContext<'_, Self::ExportContext>>,
-        > = HashMap::new();
+        > = thread_utils::get_map();
 
         for mutation in &mutations {
             mutations_by_db

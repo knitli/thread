@@ -17,14 +17,17 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 ## Research Deliverables
 
 ### 1. RESEARCH_SUMMARY.md (START HERE)
+
 **Purpose**: Executive summary and quick reference
 **Length**: ~10 pages
 **Best For**:
+
 - Decision makers and stakeholders
 - 30-minute overview needed
 - Understanding core findings quickly
 
 **Key Sections**:
+
 - Quick Findings (the answer to the research question)
 - Executive Summary (context and importance)
 - Technical Details (CocoIndex architecture)
@@ -37,29 +40,33 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 ---
 
 ### 2. PROVENANCE_RESEARCH_REPORT.md (COMPREHENSIVE ANALYSIS)
+
 **Purpose**: Complete technical research with full analysis
 **Length**: ~40 pages
 **Best For**:
+
 - Technical leads and architects
 - Deep understanding of CocoIndex capabilities
 - Understanding trade-offs and decisions
 - Research validation and verification
 
 **Key Sections**:
+
 - Executive Summary (findings summary)
 - 1. CocoIndex Native Provenance Capabilities (detailed)
-- 2. Current T079 Implementation Scope (what's missing)
-- 3. Comparative Analysis (cocoindex vs T079)
-- 4. Enhanced FR-014 Implementation (with code examples)
-- 5. Use Cases Enabled (concrete benefits)
-- 6. Implementation Recommendations
-- 7. Missed Opportunities Summary
-- 8. Recommended Implementation Order
-- 9. Architecture Diagrams
-- 10. Conclusion and Next Steps
-- 11. Research Sources and References
+- 1. Current T079 Implementation Scope (what's missing)
+- 1. Comparative Analysis (cocoindex vs T079)
+- 1. Enhanced FR-014 Implementation (with code examples)
+- 1. Use Cases Enabled (concrete benefits)
+- 1. Implementation Recommendations
+- 1. Missed Opportunities Summary
+- 1. Recommended Implementation Order
+- 1. Architecture Diagrams
+- 1. Conclusion and Next Steps
+- 1. Research Sources and References
 
 **Contains**:
+
 - Full comparative matrix (CocoIndex vs T079)
 - Use case walkthroughs with examples
 - Risk mitigation strategies
@@ -72,48 +79,52 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 ---
 
 ### 3. PROVENANCE_ENHANCEMENT_SPEC.md (IMPLEMENTATION GUIDE)
+
 **Purpose**: Detailed specification for T079 implementation
 **Length**: ~30 pages
 **Best For**:
+
 - Implementation team members
 - Software architects
 - Database schema designers
 - API designers
 
 **Key Sections**:
+
 - 1. Data Model Enhancements
   - New provenance types (SourceVersion, LineageRecord, etc.)
   - Updated GraphNode structure
   - Updated GraphEdge structure
   - Conflict provenance types
 
-- 2. Storage Schema Changes
+- 1. Storage Schema Changes
   - PostgreSQL migrations
   - D1 (Cloudflare) schema
 
-- 3. API Additions
+- 1. API Additions
   - ProvenanceQuery trait
   - RPC type extensions
 
-- 4. Implementation Tasks (Updated T079)
+- 1. Implementation Tasks (Updated T079)
   - Task breakdown: T079.1 through T079.8
   - Effort estimates
   - Dependency graph
 
-- 5. Backward Compatibility Strategy
+- 1. Backward Compatibility Strategy
   - Phased rollout approach
   - Migration scripts
 
-- 6. Success Validation
+- 1. Success Validation
   - Metrics to track
   - Test scenarios
 
-- 7. Recommended Rollout Timeline
+- 1. Recommended Rollout Timeline
   - Week-by-week schedule
 
-- 8. Risk Mitigation
+- 1. Risk Mitigation
 
 **Contains**:
+
 - Complete Rust code examples
 - SQL migration scripts
 - Task list with time estimates
@@ -127,6 +138,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 ---
 
 ### 4. PROVENANCE_RESEARCH_INDEX.md (THIS FILE)
+
 **Purpose**: Navigation guide for all research documents
 **Contains**: This document - how to use all the research
 
@@ -135,6 +147,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 ## How to Use These Documents
 
 ### For Decision Makers
+
 1. **Start**: RESEARCH_SUMMARY.md
 2. **Focus on**:
    - "Quick Findings" section
@@ -144,6 +157,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 4. **Outcome**: Understanding of findings and recommended action
 
 ### For Technical Leads
+
 1. **Start**: RESEARCH_SUMMARY.md (quick context)
 2. **Deep Dive**: PROVENANCE_RESEARCH_REPORT.md
 3. **Focus on**:
@@ -154,6 +168,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 5. **Outcome**: Understanding of technical approach and decisions
 
 ### For Implementation Team
+
 1. **Start**: RESEARCH_SUMMARY.md (15 min overview)
 2. **Reference**: PROVENANCE_RESEARCH_REPORT.md (understand "why")
 3. **Implement using**: PROVENANCE_ENHANCEMENT_SPEC.md
@@ -165,6 +180,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 6. **Outcome**: Production-ready implementation
 
 ### For Architects
+
 1. **Start**: RESEARCH_SUMMARY.md (quick context)
 2. **Analysis**: PROVENANCE_RESEARCH_REPORT.md
 3. **Focus on**:
@@ -180,25 +196,30 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 ## Research Question & Answer
 
 ### Question
+
 **How can CocoIndex's native provenance tracking enhance FR-014 ("System MUST track analysis provenance showing which data source, version, and timestamp each graph node originated from") compared to T079's current "repository_id only" approach?**
 
 ### Answer (Quick)
+
 CocoIndex has sophisticated automatic lineage tracking that captures source versions, transformation pipelines, cache status, execution timeline, and upstream dependencies. T079's current scope (repository_id only) misses 80% of valuable provenance data. By leveraging CocoIndex's native capabilities, we can fully implement FR-014, enable incremental update optimization, debug conflict detection, and create complete audit trails - with only slightly more effort than the current approach.
 
 ### Answer (Extended)
-**See RESEARCH_SUMMARY.md "Key Findings" section for full details**
+
+#### See RESEARCH_SUMMARY.md "Key Findings" section for full details
 
 ---
 
 ## Key Findings at a Glance
 
 ### Finding 1: CocoIndex Architecture Supports Provenance
+
 - ✓ Each stage of the pipeline is tracked automatically
 - ✓ Input/output hashes available
 - ✓ Execution times and cache status captured
 - ✓ Queryable via ExecutionRecords API
 
 ### Finding 2: Current T079 Scope Gap
+
 - ✓ Adds: repository_id
 - ✗ Missing: source_version
 - ✗ Missing: source_timestamp
@@ -206,7 +227,8 @@ CocoIndex has sophisticated automatic lineage tracking that captures source vers
 - ✗ Missing: cache status
 - ✗ Missing: upstream_hashes
 
-### Finding 3: Enhanced Provenance Enables...
+### Finding 3: Enhanced Provenance Enables
+
 - Conflict detection debugging (which tiers ran?)
 - Cache effectiveness validation (cache hits really happening?)
 - Incremental update optimization (which nodes to re-analyze?)
@@ -214,6 +236,7 @@ CocoIndex has sophisticated automatic lineage tracking that captures source vers
 - Stale analysis detection (is this analysis fresh?)
 
 ### Finding 4: Effort & Value Trade-off
+
 - **Effort**: 25-35 hours (1-2 weeks)
 - **Value**: Complete FR-014 compliance + incremental optimization + debugging tools
 - **Risk**: Low (backward compatible, phased approach)
@@ -224,24 +247,28 @@ CocoIndex has sophisticated automatic lineage tracking that captures source vers
 ## Implementation Roadmap
 
 ### Phase 1: Foundation (Week 1)
+
 - Define provenance types
 - Update GraphNode/GraphEdge
 - **Tasks**: T079.1, T079.2, T079.3
 - **Effort**: 8-10 hours
 
 ### Phase 2: Storage (Week 2)
+
 - Create database migrations
 - Implement storage persistence
 - **Tasks**: T079.4, T079.5
 - **Effort**: 8-10 hours
 
 ### Phase 3: Collection (Week 3)
+
 - Implement query APIs
 - Build CocoIndex integration
 - **Tasks**: T079.6, T079.7
 - **Effort**: 10-12 hours
 
 ### Phase 4: Validation (Week 4)
+
 - Documentation and examples
 - Testing and validation
 - **Tasks**: T079.8
@@ -254,6 +281,7 @@ CocoIndex has sophisticated automatic lineage tracking that captures source vers
 ## Key Documents Referenced
 
 ### From the Codebase
+
 - `specs/001-realtime-code-graph/spec.md` - FR-014 requirement
 - `specs/001-realtime-code-graph/data-model.md` - Current schema
 - `specs/001-realtime-code-graph/tasks.md` - T079 task
@@ -263,6 +291,7 @@ CocoIndex has sophisticated automatic lineage tracking that captures source vers
 - `CLAUDE.md` - Project architecture
 
 ### From This Research
+
 - `RESEARCH_SUMMARY.md` - Executive summary
 - `PROVENANCE_RESEARCH_REPORT.md` - Complete analysis
 - `PROVENANCE_ENHANCEMENT_SPEC.md` - Implementation spec
@@ -273,7 +302,7 @@ CocoIndex has sophisticated automatic lineage tracking that captures source vers
 ## Quick Reference: What Each Document Answers
 
 | Question | Answer Location |
-|----------|-----------------|
+| ---------- | ----------------- |
 | What did you find? | RESEARCH_SUMMARY.md - Quick Findings |
 | Why does this matter? | RESEARCH_SUMMARY.md - Why It Matters |
 | What's the recommendation? | RESEARCH_SUMMARY.md - Recommendations |
@@ -291,22 +320,26 @@ CocoIndex has sophisticated automatic lineage tracking that captures source vers
 ## Recommended Reading Order
 
 ### If You Have 30 Minutes
+
 1. RESEARCH_SUMMARY.md - Read all sections
 2. Decision: Accept or decline enhanced T079 scope
 
 ### If You Have 90 Minutes
+
 1. RESEARCH_SUMMARY.md - Read all
 2. PROVENANCE_RESEARCH_REPORT.md - Sections 1-4
 3. PROVENANCE_ENHANCEMENT_SPEC.md - Section 4 (task list)
 4. Decision and preliminary planning
 
 ### If You Have 3+ Hours
+
 1. RESEARCH_SUMMARY.md - Complete
 2. PROVENANCE_RESEARCH_REPORT.md - Complete
 3. PROVENANCE_ENHANCEMENT_SPEC.md - Complete
 4. Detailed implementation planning
 
 ### If You're Implementing
+
 1. RESEARCH_SUMMARY.md - 15 minute overview
 2. PROVENANCE_RESEARCH_REPORT.md - Sections 4-5 (why this matters)
 3. PROVENANCE_ENHANCEMENT_SPEC.md - Section 1-4 (what to code)
@@ -317,7 +350,7 @@ CocoIndex has sophisticated automatic lineage tracking that captures source vers
 ## Key Statistics
 
 | Metric | Value |
-|--------|-------|
+| -------- | ------- |
 | Research Duration | 4+ hours |
 | Comprehensive Report | 40 pages |
 | Implementation Spec | 30 pages |
@@ -333,29 +366,35 @@ CocoIndex has sophisticated automatic lineage tracking that captures source vers
 ## Next Steps After Reading
 
 ### Step 1: Understand (30 min)
+
 - Read RESEARCH_SUMMARY.md
 - Understand key findings
 
 ### Step 2: Decide (30 min)
+
 - Accept expanded T079 scope (recommended)
 - Or: Justify sticking with repository_id only
 
 ### Step 3: Plan (1-2 hours)
+
 - Assign T079.1-T079.8 tasks to team members
 - Schedule 4-week implementation phase
 - Allocate resources
 
 ### Step 4: Prepare (1 hour)
+
 - Review PROVENANCE_ENHANCEMENT_SPEC.md
 - Identify technical questions
 - Prepare development environment
 
 ### Step 5: Implement (1-2 weeks)
+
 - Follow phased approach
 - Reference spec during coding
 - Validate with test scenarios
 
 ### Step 6: Validate (3-5 days)
+
 - Run test scenarios
 - Verify incremental updates
 - Confirm audit trails work
@@ -376,6 +415,7 @@ CocoIndex has sophisticated automatic lineage tracking that captures source vers
 
 **Research**: Comprehensive analysis of CocoIndex provenance capabilities
 **Sources**:
+
 - CocoIndex architectural documentation
 - Thread project specifications and code
 - Real-Time Code Graph Intelligence feature requirements
@@ -387,6 +427,7 @@ CocoIndex has sophisticated automatic lineage tracking that captures source vers
 ## Contact & Questions
 
 For questions about this research:
+
 1. **Quick answers**: RESEARCH_SUMMARY.md FAQ section
 2. **Technical details**: PROVENANCE_RESEARCH_REPORT.md relevant sections
 3. **Implementation**: PROVENANCE_ENHANCEMENT_SPEC.md task descriptions
@@ -394,6 +435,6 @@ For questions about this research:
 
 ---
 
-**End of Index**
+## End of Index
 
 Start with **RESEARCH_SUMMARY.md** for a quick overview, or choose your document above based on your role and available time.

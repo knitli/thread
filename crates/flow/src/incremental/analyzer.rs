@@ -45,10 +45,11 @@ use super::dependency_builder::DependencyGraphBuilder;
 use super::graph::DependencyGraph;
 use super::storage::{StorageBackend, StorageError};
 use super::types::AnalysisDefFingerprint;
+use futures::stream::{self, StreamExt};
 use metrics::{counter, gauge, histogram};
-use std::collections::HashSet;
 use std::path::{Path, PathBuf};
 use std::time::Instant;
+use thread_utils::RapidSet;
 use tracing::{debug, info, instrument, warn};
 
 // ─── Error Types ─────────────────────────────────────────────────────────────
@@ -237,28 +238,31 @@ impl IncrementalAnalyzer {
             return Ok(AnalysisResult::empty());
         }
 
+        let concurrency = std::thread::available_parallelism()
+            .map(|n| n.get())
+            .unwrap_or(4);
+
+        let paths_owned = paths.to_vec();
+        let file_data = stream::iter(paths_owned)
+            .map(|path| async move {
+                let content = tokio::fs::read(&path).await?;
+                let fp = AnalysisDefFingerprint::new(&content);
+                Ok::<(PathBuf, AnalysisDefFingerprint), std::io::Error>((path, fp))
+            })
+            .buffer_unordered(concurrency)
+            .collect::<Vec<Result<_, _>>>()
+            .await;
+
         let mut changed_files = Vec::new();
         let mut cache_hits = 0;
         let mut cache_total = 0;
 
-        for path in paths {
+        for data in file_data {
+            let (path, current_fp) = data.map_err(AnalyzerError::Io)?;
             debug!(file_path = ?path, "analyzing file");
-            // Check if file exists
-            if !tokio::fs::try_exists(path).await? {
-                return Err(AnalyzerError::Io(std::io::Error::new(
-                    std::io::ErrorKind::NotFound,
-                    format!("File not found: {}", path.display()),
-                )));
-            }
-
-            // Read file content
-            let content = tokio::fs::read(path).await?;
-
-            // Compute current fingerprint
-            let current_fp = AnalysisDefFingerprint::new(&content);
 
             // Load stored fingerprint
-            let stored_fp = self.storage.load_fingerprint(path).await?;
+            let stored_fp = self.storage.load_fingerprint(&path).await?;
 
             cache_total += 1;
 
@@ -267,23 +271,23 @@ impl IncrementalAnalyzer {
                     // Compare fingerprints
                     if stored.fingerprint().as_slice() != current_fp.fingerprint().as_slice() {
                         // Content changed - save new fingerprint
-                        info!("cache miss - content changed");
+                        info!(file = ?path, "cache miss - content changed");
                         counter!("cache_misses_total").increment(1);
                         changed_files.push(path.clone());
-                        let _ = self.storage.save_fingerprint(path, &current_fp).await;
+                        let _ = self.storage.save_fingerprint(&path, &current_fp).await;
                     } else {
                         // Cache hit - no change
-                        info!("cache hit");
+                        info!(file = ?path, "cache hit");
                         counter!("cache_hits_total").increment(1);
                         cache_hits += 1;
                     }
                 }
                 None => {
                     // New file - no cached fingerprint, save it
-                    info!("cache miss - new file");
+                    info!(file = ?path, "cache miss - new file");
                     counter!("cache_misses_total").increment(1);
                     changed_files.push(path.clone());
-                    let _ = self.storage.save_fingerprint(path, &current_fp).await;
+                    let _ = self.storage.save_fingerprint(&path, &current_fp).await;
                 }
             }
         }
@@ -352,8 +356,8 @@ impl IncrementalAnalyzer {
             return Ok(Vec::new());
         }
 
-        // Convert to HashSet for efficient lookup
-        let changed_set: HashSet<PathBuf> = changed.iter().cloned().collect();
+        // Convert to RapidSet for efficient lookup
+        let changed_set: RapidSet<PathBuf> = changed.iter().cloned().collect();
 
         // Use graph's BFS traversal to find affected files
         let affected_set = self.dependency_graph.find_affected_files(&changed_set);
@@ -391,8 +395,8 @@ impl IncrementalAnalyzer {
             return Ok(());
         }
 
-        // Convert to HashSet for topological sort
-        let file_set: HashSet<PathBuf> = files.iter().cloned().collect();
+        // Convert to RapidSet for topological sort
+        let file_set: RapidSet<PathBuf> = files.iter().cloned().collect();
 
         // Sort files in dependency order (dependencies before dependents)
         let sorted_files = self

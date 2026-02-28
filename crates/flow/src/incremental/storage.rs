@@ -168,7 +168,7 @@ pub trait StorageBackend: Send + Sync + std::fmt::Debug {
 /// ```
 #[derive(Debug)]
 pub struct InMemoryStorage {
-    fingerprints: tokio::sync::RwLock<std::collections::HashMap<PathBuf, AnalysisDefFingerprint>>,
+    fingerprints: tokio::sync::RwLock<thread_utils::RapidMap<PathBuf, AnalysisDefFingerprint>>,
     edges: tokio::sync::RwLock<Vec<DependencyEdge>>,
 }
 
@@ -176,7 +176,7 @@ impl InMemoryStorage {
     /// Creates a new empty in-memory storage backend.
     pub fn new() -> Self {
         Self {
-            fingerprints: tokio::sync::RwLock::new(std::collections::HashMap::new()),
+            fingerprints: tokio::sync::RwLock::new(thread_utils::get_map()),
             edges: tokio::sync::RwLock::new(Vec::new()),
         }
     }

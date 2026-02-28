@@ -124,7 +124,7 @@ impl PerformanceMetrics {
         let total = self.fingerprint_total.load(Ordering::Relaxed);
         let duration_ns = self.fingerprint_duration_ns.load(Ordering::Relaxed);
 
-        let avg_ns = if total > 0 { duration_ns / total } else { 0 };
+        let avg_ns = duration_ns.checked_div(total).unwrap_or(0);
 
         FingerprintStats {
             total_count: total,
@@ -159,7 +159,7 @@ impl PerformanceMetrics {
         let duration_ns = self.query_duration_ns.load(Ordering::Relaxed);
         let errors = self.query_errors.load(Ordering::Relaxed);
 
-        let avg_ns = if count > 0 { duration_ns / count } else { 0 };
+        let avg_ns = duration_ns.checked_div(count).unwrap_or(0);
         let error_rate = if count > 0 {
             (errors as f64 / count as f64) * 100.0
         } else {

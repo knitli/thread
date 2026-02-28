@@ -4,7 +4,7 @@
 
 [package]
 name = "thread-language"
-version = "0.1.0"
+version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 description = "Language definitions and parsers for Thread"
@@ -27,6 +27,7 @@ name = "extension_matching"
 aho-corasick = { workspace = true }
 cfg-if = { workspace = true }
 ignore = { workspace = true }
+mimalloc = { workspace = true, optional = true }
 serde = { workspace = true }
 thread-ast-engine = { workspace = true }
 thread-utils = { workspace = true, default-features = false, features = [
@@ -37,34 +38,37 @@ tree-sitter-bash = { version = "0.25.0", optional = true }
 tree-sitter-c = { version = "0.24.1", optional = true }
 tree-sitter-c-sharp = { version = "0.23.1", optional = true }
 tree-sitter-cpp = { version = "0.23.4", optional = true }
-tree-sitter-css = { version = "0.23.2", optional = true }
+tree-sitter-css = { version = "0.25.0", optional = true }
 tree-sitter-elixir = { version = "0.3.4", optional = true }
-tree-sitter-go = { version = "0.23.4", optional = true }
+tree-sitter-go = { version = "0.25.0", optional = true }
 tree-sitter-haskell = { version = "0.23.1", optional = true }
+tree-sitter-hcl = { version = "1.1.0", optional = true }
 tree-sitter-html = { version = "0.23.2", optional = true }
 tree-sitter-java = { version = "0.23.5", optional = true }
-tree-sitter-javascript = { version = "0.23.1", optional = true }
+tree-sitter-javascript = { version = "0.25.0", optional = true }
 tree-sitter-json = { version = "0.24.8", optional = true }
 tree-sitter-kotlin = { package = "tree-sitter-kotlin-sg", version = "0.4.0", optional = true }
-tree-sitter-lua = { version = "0.2.0", optional = true }
-tree-sitter-php = { version = "0.23.11", optional = true }
-tree-sitter-python = { version = "0.23.6", optional = true }
+tree-sitter-lua = { version = "0.4.1", optional = true }
+tree-sitter-nix = { version = "0.3.0", optional = true }
+tree-sitter-php = { version = "0.24.2", optional = true }
+tree-sitter-python = { version = "0.25.0", optional = true }
 tree-sitter-ruby = { version = "0.23.1", optional = true }
 tree-sitter-rust = { version = "0.24.0", optional = true }
 tree-sitter-scala = { version = "0.24.0", optional = true }
+tree-sitter-solidity = { version = "1.2.13", optional = true }
 tree-sitter-swift = { version = "0.7.1", optional = true }
 tree-sitter-typescript = { version = "0.23.2", optional = true }
 tree-sitter-yaml = { version = "0.7.1", optional = true }
 
 [dev-dependencies]
-criterion = { version = "0.6", features = ["html_reports"] }
+criterion = { version = "0.8.2", features = ["html_reports"] }
 thread-ast-engine = { workspace = true, features = ["matching", "parsing"] }
 
 [build-dependencies]
 cc = "1.2.30"
 
 [features]
-default = ["all-parsers", "tree-sitter-parsing"]
+default = ["all-parsers", "mimalloc", "tree-sitter-parsing"]
 #! Important: `all-parsers` feature enables all tree-sitter parsers
 # Language groups
 all-parsers = [
@@ -76,6 +80,7 @@ all-parsers = [
   "elixir",
   "go",
   "haskell",
+  "hcl",
   "html",
   "html-embedded",
   "java",
@@ -83,11 +88,13 @@ all-parsers = [
   "json",
   "kotlin",
   "lua",
+  "nix",
   "php",
   "python",
   "ruby",
   "rust",
   "scala",
+  "solidity",
   "swift",
   "tree-sitter-parsing",
   "tsx",
@@ -104,6 +111,7 @@ css-napi = ["napi-environment", "tree-sitter-css"]
 elixir = ["tree-sitter-elixir", "tree-sitter-parsing"]
 go = ["tree-sitter-go", "tree-sitter-parsing"]
 haskell = ["tree-sitter-haskell", "tree-sitter-parsing"]
+hcl = ["tree-sitter-hcl", "tree-sitter-parsing"]
 html = ["tree-sitter-html", "tree-sitter-parsing"]
 html-embedded = [
   "css",
@@ -122,6 +130,7 @@ json = ["tree-sitter-json", "tree-sitter-parsing"]
 kotlin = ["tree-sitter-kotlin", "tree-sitter-parsing"]
 lua = ["tree-sitter-lua", "tree-sitter-parsing"]
 matching = ["thread-ast-engine/matching", "tree-sitter-parsing"]
+mimalloc = ["dep:mimalloc"]
 napi-compatible = [
   "css-napi",
   "html-napi",
@@ -138,6 +147,7 @@ napi-compatible = [
 #! Tree-sitter cannot build for NAPI-WASM
 #! (that's Node API -- wasm for nodejs environments)
 napi-environment = []
+nix = ["tree-sitter-nix", "tree-sitter-parsing"]
 no-enabled-langs = []
 php = ["tree-sitter-parsing", "tree-sitter-php"]
 profiling = []
@@ -145,10 +155,12 @@ python = ["tree-sitter-parsing", "tree-sitter-python"]
 ruby = ["tree-sitter-parsing", "tree-sitter-ruby"]
 rust = ["tree-sitter-parsing", "tree-sitter-rust"]
 scala = ["tree-sitter-parsing", "tree-sitter-scala"]
+solidity = ["tree-sitter-parsing", "tree-sitter-solidity"]
 swift = ["tree-sitter-parsing", "tree-sitter-swift"]
 tree-sitter-parsing = ["thread-ast-engine/parsing"]
 tsx = ["tree-sitter-parsing", "tree-sitter-typescript"]
 tsx-napi = ["napi-environment", "tree-sitter-typescript"]
 typescript = ["tree-sitter-parsing", "tree-sitter-typescript"]
 typescript-napi = ["napi-environment", "tree-sitter-typescript"]
+worker = ["thread-ast-engine/worker", "thread-utils/worker"]
 yaml = ["tree-sitter-parsing", "tree-sitter-yaml"]

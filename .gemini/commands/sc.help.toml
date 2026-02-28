@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 description = "List all available /sc commands and their functionality"
-prompt = """
+prompt = '''
 ---
 name: help
 description: "List all available /sc commands and their functionality"
@@ -96,7 +96,7 @@ SuperClaude supports behavioral flags to enable specific execution modes and too
 
 | Flag | Trigger | Behavior |
 |------|---------|----------|
-| `--delegate [auto\|files\|folders]` | >7 directories OR >50 files | Enable sub-agent parallel processing with intelligent routing |
+| `--delegate [auto\\|files\\|folders]` | >7 directories OR >50 files | Enable sub-agent parallel processing with intelligent routing |
 | `--concurrency [n]` | Resource optimization needs | Control max concurrent operations (range: 1-15) |
 | `--loop` | Improvement keywords (polish, refine, enhance) | Enable iterative improvement cycles with validation gates |
 | `--iterations [n]` | Specific improvement cycle requirements | Set improvement cycle count (range: 1-10) |
@@ -153,4 +153,4 @@ SuperClaude supports behavioral flags to enable specific execution modes and too
 
 **Note:** This list is manually generated and may become outdated. If you suspect it is inaccurate, please consider regenerating it or contacting a maintainer.
 
-"""
+'''

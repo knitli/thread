@@ -1,0 +1,14 @@
+
+# repo-level .gitconfig to setup git drivers for codeweaver
+[core]
+    attributesfile = .gitattributes
+    excludesfile = .gitignore
+    autocrlf = false
+    symlinks = true
+
+[alias]
+    root = "rev-parse --show-toplevel"
+
+[merge "ours"]
+    name = "Keep ours merge"
+    driver = true

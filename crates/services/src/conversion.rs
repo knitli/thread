@@ -16,7 +16,7 @@ use crate::error::ServiceResult;
 #[cfg(feature = "matching")]
 use crate::types::{CallInfo, DocumentMetadata, ImportInfo, ImportKind};
 #[cfg(feature = "matching")]
-use std::collections::HashMap;
+use thread_utils::RapidMap;
 
 cfg_if::cfg_if!(
     if #[cfg(feature = "ast-grep-backend")] {
@@ -84,8 +84,8 @@ pub fn extract_basic_metadata<D: Doc>(
 
 /// Extract function definitions using ast-grep patterns
 #[cfg(feature = "matching")]
-fn extract_functions<D: Doc>(root_node: &Node<D>) -> ServiceResult<HashMap<String, SymbolInfo>> {
-    let mut functions = HashMap::new();
+fn extract_functions<D: Doc>(root_node: &Node<D>) -> ServiceResult<RapidMap<String, SymbolInfo>> {
+    let mut functions = thread_utils::get_map();
 
     // Try different function patterns based on common languages
     let patterns = [
@@ -122,8 +122,8 @@ fn extract_functions<D: Doc>(root_node: &Node<D>) -> ServiceResult<HashMap<Strin
 fn extract_imports<D: Doc>(
     root_node: &Node<D>,
     language: &SupportLang,
-) -> ServiceResult<HashMap<String, ImportInfo>> {
-    let mut imports = HashMap::new();
+) -> ServiceResult<RapidMap<String, ImportInfo>> {
+    let mut imports = thread_utils::get_map();
 
     let patterns = match language {
         SupportLang::Rust => vec!["use $PATH;", "use $PATH::$ITEM;", "use $PATH::{$$$ITEMS};"],

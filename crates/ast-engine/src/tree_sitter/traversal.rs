@@ -581,15 +581,15 @@ mod test {
     use std::ops::Range;
 
     // recursive pre order as baseline
-    fn pre_order(node: Node<StrDoc<Tsx>>) -> Vec<Range<usize>> {
+    fn pre_order(node: &Node<StrDoc<Tsx>>) -> Vec<Range<usize>> {
         let mut ret = vec![node.range()];
-        ret.extend(node.children().flat_map(pre_order));
+        ret.extend(node.children().flat_map(|n| pre_order(&n)));
         ret
     }
 
     // recursion baseline
-    fn post_order(node: Node<StrDoc<Tsx>>) -> Vec<Range<usize>> {
-        let mut ret: Vec<_> = node.children().flat_map(post_order).collect();
+    fn post_order(node: &Node<StrDoc<Tsx>>) -> Vec<Range<usize>> {
+        let mut ret: Vec<_> = node.children().flat_map(|n| post_order(&n)).collect();
         ret.push(node.range());
         ret
     }
@@ -598,7 +598,7 @@ mod test {
         let grep = Tsx.ast_grep(source);
         let node = grep.root();
         let iterative: Vec<_> = Pre::new(&node).map(|n| n.range()).collect();
-        let recursive = pre_order(node);
+        let recursive = pre_order(&node);
         assert_eq!(iterative, recursive);
     }
 
@@ -606,7 +606,7 @@ mod test {
         let grep = Tsx.ast_grep(source);
         let node = grep.root();
         let iterative: Vec<_> = Post::new(&node).map(|n| n.range()).collect();
-        let recursive = post_order(node);
+        let recursive = post_order(&node);
         assert_eq!(iterative, recursive);
     }
 
@@ -679,20 +679,20 @@ mod test {
         assert!(post.starts_with(&post2));
     }
 
-    fn pre_order_with_matcher(node: Node<StrDoc<Tsx>>, matcher: &str) -> Vec<Range<usize>> {
+    fn pre_order_with_matcher(node: &Node<StrDoc<Tsx>>, matcher: &str) -> Vec<Range<usize>> {
         if node.matches(matcher) {
             vec![node.range()]
         } else {
             node.children()
-                .flat_map(|n| pre_order_with_matcher(n, matcher))
+                .flat_map(|n| pre_order_with_matcher(&n, matcher))
                 .collect()
         }
     }
 
-    fn post_order_with_matcher(node: Node<StrDoc<Tsx>>, matcher: &str) -> Vec<Range<usize>> {
+    fn post_order_with_matcher(node: &Node<StrDoc<Tsx>>, matcher: &str) -> Vec<Range<usize>> {
         let mut ret: Vec<_> = node
             .children()
-            .flat_map(|n| post_order_with_matcher(n, matcher))
+            .flat_map(|n| post_order_with_matcher(&n, matcher))
             .collect();
         if ret.is_empty() && node.matches(matcher) {
             ret.push(node.range());
@@ -715,7 +715,7 @@ mod test {
         for case in MATCHER_CASES {
             let grep = Tsx.ast_grep(case);
             let node = grep.root();
-            let recur = pre_order_with_matcher(grep.root(), matcher);
+            let recur = pre_order_with_matcher(&node, matcher);
             let visit: Vec<_> = Visitor::new(matcher)
                 .reentrant(false)
                 .visit(node)
@@ -730,7 +730,7 @@ mod test {
         for case in MATCHER_CASES {
             let grep = Tsx.ast_grep(case);
             let node = grep.root();
-            let recur = post_order_with_matcher(grep.root(), matcher);
+            let recur = post_order_with_matcher(&node, matcher);
             let visit: Vec<_> = Visitor::new(matcher)
                 .algorithm::<PostOrder>()
                 .reentrant(false)
@@ -747,14 +747,14 @@ mod test {
         let matcher = "true";
         let case = "((((true))));true";
         let grep = Tsx.ast_grep(case);
-        let recur = pre_order_with_matcher(grep.root(), matcher);
+        let recur = pre_order_with_matcher(&grep.root(), matcher);
         let visit: Vec<_> = Visitor::new(matcher)
             .reentrant(false)
             .visit(grep.root())
             .map(|n| n.range())
             .collect();
         assert_eq!(recur, visit);
-        let recur = post_order_with_matcher(grep.root(), matcher);
+        let recur = post_order_with_matcher(&grep.root(), matcher);
         let visit: Vec<_> = Visitor::new(matcher)
             .algorithm::<PostOrder>()
             .reentrant(false)

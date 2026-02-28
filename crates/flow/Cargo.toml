@@ -5,7 +5,7 @@
 
 [package]
 name = "thread-flow"
-version = "0.1.0"
+version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 description = "Thread dataflow integration for data processing pipelines, using CocoIndex."
@@ -49,9 +49,11 @@ base64 = "0.22"
 bytes = "1.10"
 deadpool-postgres = { version = "0.14", optional = true }
 env_logger = "0.11"
+futures = { workspace = true }
 # Logging and observability
 log = "0.4"
-metrics = "0.23"
+metrics = "0.24"
+mimalloc = { workspace = true, optional = true }
 # Optional: query result caching
 moka = { version = "0.12", features = ["future"], optional = true }
 # Optional: parallel processing for CLI (not available in workers)
@@ -80,7 +82,7 @@ thread-services = { workspace = true, features = [
   "ast-grep-backend",
   "serialization",
 ] }
-thread-utils = { workspace = true }
+thread-utils = { workspace = true, features = ["hashers"] }
 tokio = { workspace = true }
 # Optional: PostgreSQL storage backend for incremental updates
 tokio-postgres = { version = "0.7", optional = true }
@@ -93,23 +95,23 @@ tracing-subscriber = { version = "0.3", features = [
 tree-sitter = { workspace = true }
 
 [dev-dependencies]
-criterion = "0.5"
+criterion = "0.8.2"
 deadpool-postgres = "0.14"
-futures = "0.3"
-md5 = "0.7"
-metrics-exporter-prometheus = "0.16"
-rusqlite = { version = "0.32", features = ["bundled"] }
+md5 = "0.8"
+metrics-exporter-prometheus = "0.18"
+rusqlite = { version = "*", features = ["bundled"] }
 tempfile = "3.13"
-testcontainers = "0.23"
-testcontainers-modules = { version = "0.11", features = ["postgres"] }
+testcontainers = "*"
+testcontainers-modules = { version = "*", features = ["postgres"] }
 tokio-postgres = "0.7"
 
 [features]
-default = ["parallel", "postgres-backend", "recoco-minimal"]
+default = ["mimalloc", "parallel", "postgres-backend", "recoco-minimal"]
 # Query result caching (optional, for production deployments)
 caching = ["dep:moka"]
 # Cloudflare D1 storage backend (edge deployment)
 d1-backend = []
+mimalloc = ["dep:mimalloc"]
 # Note: recoco-cloud and recoco-full disabled due to dependency conflicts
 # TODO: Re-enable once ReCoco resolves crc version conflicts between S3 and sqlx
 # recoco-cloud = ["recoco-minimal", "recoco/source-s3"]
@@ -130,4 +132,9 @@ recoco-postgres = [
   "recoco/target-postgres",
 ]  # Add PostgreSQL export
 # Edge deployment (no filesystem, no parallel processing, alternative sources/targets needed)
-worker = []
+worker = [
+  "thread-ast-engine/worker",
+  "thread-language/worker",
+  "thread-services/worker",
+  "thread-utils/worker"
+]  # Worker-specific optimizations and compatibility adjustments
