@@ -83,7 +83,7 @@ async fn run_cache_example() {
     // Example 3: Multiple file scenario
     println!("\n--- Example 3: Batch Processing with Cache ---\n");
 
-    let files = vec![
+    let files = [
         "fn add(a: i32, b: i32) -> i32 { a + b }",
         "fn subtract(a: i32, b: i32) -> i32 { a - b }",
         "fn multiply(a: i32, b: i32) -> i32 { a * b }",

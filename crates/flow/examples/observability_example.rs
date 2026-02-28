@@ -146,7 +146,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Test invalidation
     let start = Instant::now();
-    let affected = analyzer.invalidate_dependents(&[file2.clone()]).await?;
+    let affected = analyzer
+        .invalidate_dependents(std::slice::from_ref(&file2))
+        .await?;
 
     tracing::info!(
         "invalidation: {} affected files, duration: {:?}",

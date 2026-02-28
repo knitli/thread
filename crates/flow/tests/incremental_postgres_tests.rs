@@ -159,7 +159,7 @@ async fn test_fingerprint_with_last_analyzed() {
     let (backend, _container) = setup_backend().await;
 
     let mut fp = AnalysisDefFingerprint::new(b"content");
-    fp.set_last_analyzed(1706400000_000_000);
+    fp.set_last_analyzed(1_706_400_000_000_000);
 
     backend
         .save_fingerprint(Path::new("file.rs"), &fp)
@@ -172,7 +172,7 @@ async fn test_fingerprint_with_last_analyzed() {
         .unwrap()
         .unwrap();
 
-    assert_eq!(loaded.last_analyzed, Some(1706400000_000_000));
+    assert_eq!(loaded.last_analyzed, Some(1_706_400_000_000_000));
 }
 
 #[tokio::test]

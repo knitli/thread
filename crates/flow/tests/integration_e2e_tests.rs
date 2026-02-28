@@ -183,7 +183,9 @@ async fn test_e2e_single_file_analysis() {
         .await;
 
     // Analyze and extract dependencies (E2E workflow)
-    fixture.analyze_and_extract(&[file.clone()]).await;
+    fixture
+        .analyze_and_extract(std::slice::from_ref(&file))
+        .await;
 
     // Verify file was processed
     fixture.assert_fingerprint_count(1).await;
@@ -221,17 +223,23 @@ async fn test_e2e_cache_hit_validation() {
     let file = fixture.create_file("test.rs", "const X: u32 = 42;").await;
 
     // First analysis
-    let result1 = fixture.analyze_and_extract(&[file.clone()]).await;
+    let result1 = fixture
+        .analyze_and_extract(std::slice::from_ref(&file))
+        .await;
     assert_eq!(result1.changed_files.len(), 1);
     assert_eq!(result1.cache_hit_rate, 0.0);
 
     // Second analysis - same content
-    let result2 = fixture.analyze_and_extract(&[file.clone()]).await;
+    let result2 = fixture
+        .analyze_and_extract(std::slice::from_ref(&file))
+        .await;
     assert_eq!(result2.changed_files.len(), 0);
     assert_eq!(result2.cache_hit_rate, 1.0);
 
     // Third analysis - still cached
-    let result3 = fixture.analyze_and_extract(&[file.clone()]).await;
+    let result3 = fixture
+        .analyze_and_extract(std::slice::from_ref(&file))
+        .await;
     assert_eq!(result3.changed_files.len(), 0);
     assert_eq!(result3.cache_hit_rate, 1.0);
 }
@@ -243,7 +251,9 @@ async fn test_e2e_full_reanalysis_trigger() {
     let file = fixture.create_file("data.rs", "const X: i32 = 10;").await;
 
     // First analysis
-    fixture.analyze_and_extract(&[file.clone()]).await;
+    fixture
+        .analyze_and_extract(std::slice::from_ref(&file))
+        .await;
 
     // Modify the file
     fixture
@@ -251,7 +261,9 @@ async fn test_e2e_full_reanalysis_trigger() {
         .await;
 
     // Second analysis should detect change
-    let result = fixture.analyze_and_extract(&[file.clone()]).await;
+    let result = fixture
+        .analyze_and_extract(std::slice::from_ref(&file))
+        .await;
     assert_eq!(result.changed_files.len(), 1);
     assert_eq!(result.cache_hit_rate, 0.0); // Content changed, no cache hit
 }
@@ -325,11 +337,15 @@ async fn test_e2e_incremental_vs_full_comparison() {
     let file = fixture.create_file("compare.rs", "fn test() {}").await;
 
     // Full analysis (first time)
-    let full_result = fixture.analyze_and_extract(&[file.clone()]).await;
+    let full_result = fixture
+        .analyze_and_extract(std::slice::from_ref(&file))
+        .await;
     assert_eq!(full_result.changed_files.len(), 1);
 
     // Incremental analysis (second time, no change)
-    let incremental_result = fixture.analyze_and_extract(&[file.clone()]).await;
+    let incremental_result = fixture
+        .analyze_and_extract(std::slice::from_ref(&file))
+        .await;
     assert_eq!(incremental_result.changed_files.len(), 0);
 
     // Incremental should be faster (demonstrated by cache hit)
@@ -358,7 +374,7 @@ async fn test_e2e_rust_cross_file_deps() {
     // Extract dependencies
     let affected = fixture
         .analyzer
-        .invalidate_dependents(&[lib.clone()])
+        .invalidate_dependents(std::slice::from_ref(&lib))
         .await
         .expect("invalidate");
 
@@ -455,7 +471,7 @@ async fn test_e2e_python_import_chains() {
         .invalidate_dependents(&[base])
         .await
         .expect("invalidate");
-    assert!(affected.len() >= 1); // At least base itself
+    assert!(!affected.is_empty()); // At least base itself
 }
 
 #[tokio::test]
@@ -588,7 +604,7 @@ async fn test_e2e_linear_dependency_chain() {
     // Change D should affect all upstream
     let affected = fixture
         .analyzer
-        .invalidate_dependents(&[d.clone()])
+        .invalidate_dependents(std::slice::from_ref(&d))
         .await
         .expect("invalidate");
     assert!(affected.contains(&d));
@@ -613,7 +629,7 @@ async fn test_e2e_tree_dependencies() {
         .invalidate_dependents(&[d])
         .await
         .expect("invalidate");
-    assert!(affected.len() >= 1);
+    assert!(!affected.is_empty());
 }
 
 #[tokio::test]
@@ -632,7 +648,7 @@ async fn test_e2e_diamond_dependencies() {
 
     let affected = fixture
         .analyzer
-        .invalidate_dependents(&[d.clone()])
+        .invalidate_dependents(std::slice::from_ref(&d))
         .await
         .expect("invalidate");
     // Diamond pattern should handle convergent paths correctly
@@ -680,7 +696,7 @@ async fn test_e2e_symbol_level_tracking() {
         .invalidate_dependents(&[types])
         .await
         .expect("invalidate");
-    assert!(affected.len() >= 1);
+    assert!(!affected.is_empty());
 }
 
 #[tokio::test]
@@ -703,7 +719,7 @@ async fn test_e2e_reexport_chains() {
         .invalidate_dependents(&[core])
         .await
         .expect("invalidate");
-    assert!(affected.len() >= 1);
+    assert!(!affected.is_empty());
 }
 
 #[tokio::test]
@@ -729,7 +745,7 @@ async fn test_e2e_weak_vs_strong_dependencies() {
         .invalidate_dependents(&[strong_dep])
         .await
         .expect("invalidate");
-    assert!(strong_affected.len() >= 1);
+    assert!(!strong_affected.is_empty());
 
     // Weak dependencies do not propagate (isolated node)
     let weak_affected = fixture
@@ -757,7 +773,7 @@ async fn test_e2e_partial_dependency_updates() {
     // Only mid1 depends on base
     let affected = fixture
         .analyzer
-        .invalidate_dependents(&[base.clone()])
+        .invalidate_dependents(std::slice::from_ref(&base))
         .await
         .expect("invalidate");
     assert!(affected.contains(&base));
@@ -780,7 +796,7 @@ async fn test_e2e_transitive_closure() {
     // E change should transitively affect all
     let affected = fixture
         .analyzer
-        .invalidate_dependents(&[e.clone()])
+        .invalidate_dependents(std::slice::from_ref(&e))
         .await
         .expect("invalidate");
     assert!(affected.contains(&e));
@@ -915,11 +931,15 @@ async fn test_e2e_race_condition_prevention() {
     let file = fixture.create_file("race.rs", "// Initial").await;
 
     // First analysis
-    fixture.analyze_and_extract(&[file.clone()]).await;
+    fixture
+        .analyze_and_extract(std::slice::from_ref(&file))
+        .await;
 
     // Concurrent modification and analysis (tokio ensures serialization)
     fixture.update_file(&file, "// Modified").await;
-    let result = fixture.analyze_and_extract(&[file.clone()]).await;
+    let result = fixture
+        .analyze_and_extract(std::slice::from_ref(&file))
+        .await;
 
     assert_eq!(result.changed_files.len(), 1);
 }
@@ -977,7 +997,7 @@ async fn test_e2e_concurrent_invalidation() {
         .invalidate_dependents(&[base])
         .await
         .expect("invalidate");
-    assert!(affected.len() >= 1);
+    assert!(!affected.is_empty());
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1005,12 +1025,16 @@ async fn test_e2e_state_transitions() {
     let file = fixture.create_file("state.rs", "// State 1").await;
 
     // State 1: Initial
-    fixture.analyze_and_extract(&[file.clone()]).await;
+    fixture
+        .analyze_and_extract(std::slice::from_ref(&file))
+        .await;
     fixture.assert_fingerprint_count(1).await;
 
     // State 2: Modified
     fixture.update_file(&file, "// State 2").await;
-    fixture.analyze_and_extract(&[file.clone()]).await;
+    fixture
+        .analyze_and_extract(std::slice::from_ref(&file))
+        .await;
     fixture.assert_fingerprint_count(1).await; // Still 1 file
 
     // State 3: Deleted
@@ -1077,7 +1101,9 @@ async fn test_e2e_storage_consistency() {
     let mut fixture = IntegrationFixture::new().await;
 
     let file = fixture.create_file("consistency.rs", "// Consistent").await;
-    fixture.analyze_and_extract(&[file.clone()]).await;
+    fixture
+        .analyze_and_extract(std::slice::from_ref(&file))
+        .await;
 
     // Verify storage by checking fingerprint was created
     fixture.assert_fingerprint_count(1).await;
@@ -1163,7 +1189,9 @@ async fn test_e2e_concurrent_modifications() {
         .await;
 
     // First analysis
-    fixture.analyze_and_extract(&[file.clone()]).await;
+    fixture
+        .analyze_and_extract(std::slice::from_ref(&file))
+        .await;
 
     // Concurrent modification
     fixture.update_file(&file, "// Version 2").await;

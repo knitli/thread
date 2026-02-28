@@ -825,7 +825,7 @@ async fn test_real_world_deep_nesting() {
         let module_path = format!("{}mod.rs", current_path);
 
         let content = if level == 0 {
-            format!("pub mod level_1;\npub fn level_0() {{}}")
+            "pub mod level_1;\npub fn level_0() {}".to_string()
         } else if level < 9 {
             format!(
                 "pub mod level_{};\npub fn level_{}() {{}}\n",
@@ -1132,7 +1132,7 @@ async fn test_real_world_binary_files() {
 
     // Only Rust file should be analyzed
     assert!(
-        result.changed_files.len() >= 1,
+        !result.changed_files.is_empty(),
         "Expected at least 1 file analyzed (binary skipped)"
     );
 }
@@ -1158,7 +1158,7 @@ async fn test_real_world_symlinks() {
     let result = fixture.analyze_and_extract(&paths).await;
 
     // Both should be analyzed (symlink follows to original)
-    assert!(result.changed_files.len() >= 1);
+    assert!(!result.changed_files.is_empty());
 }
 
 /// Validates handling of Unicode and non-ASCII characters.

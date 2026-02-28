@@ -191,7 +191,7 @@ pub struct Config {
         // InMemory storage is always available and functional
         // Just verify we can create it without errors
         // (Full storage API tests are in incremental_d1_tests.rs and incremental_integration_tests.rs)
-        assert!(true, "InMemory storage initialized successfully");
+        // InMemory storage initialized successfully (assertion omitted; storage creation above is the check)
     }
 
     /// Verifies Postgres storage initialization (feature-gated).
@@ -401,8 +401,10 @@ mod config {
     #[tokio::test]
     async fn test_config_backward_compatibility() {
         // Simulate old config without new fields
-        let mut old_config = ProductionConfig::default();
-        old_config.database_url = None; // Optional field
+        let old_config = ProductionConfig {
+            database_url: None,
+            ..ProductionConfig::default()
+        };
 
         // Should handle missing optional fields gracefully
         assert!(

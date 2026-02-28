@@ -122,7 +122,7 @@ async fn test_analyze_changes_detects_new_file() {
 
     let result = fixture
         .analyzer
-        .analyze_changes(&[file.clone()])
+        .analyze_changes(std::slice::from_ref(&file))
         .await
         .unwrap();
 
@@ -138,7 +138,7 @@ async fn test_analyze_changes_detects_modified_file() {
     // First analysis - establish baseline
     let _ = fixture
         .analyzer
-        .analyze_changes(&[file.clone()])
+        .analyze_changes(std::slice::from_ref(&file))
         .await
         .unwrap();
 
@@ -148,7 +148,7 @@ async fn test_analyze_changes_detects_modified_file() {
     // Second analysis - should detect change
     let result = fixture
         .analyzer
-        .analyze_changes(&[file.clone()])
+        .analyze_changes(std::slice::from_ref(&file))
         .await
         .unwrap();
 
@@ -164,14 +164,14 @@ async fn test_analyze_changes_detects_unchanged_file() {
     // First analysis
     let _ = fixture
         .analyzer
-        .analyze_changes(&[file.clone()])
+        .analyze_changes(std::slice::from_ref(&file))
         .await
         .unwrap();
 
     // Second analysis - no changes
     let result = fixture
         .analyzer
-        .analyze_changes(&[file.clone()])
+        .analyze_changes(std::slice::from_ref(&file))
         .await
         .unwrap();
 
@@ -248,7 +248,7 @@ async fn test_analyze_changes_handles_deleted_file() {
     // Establish baseline
     let _ = fixture
         .analyzer
-        .analyze_changes(&[file.clone()])
+        .analyze_changes(std::slice::from_ref(&file))
         .await
         .unwrap();
 
@@ -256,7 +256,10 @@ async fn test_analyze_changes_handles_deleted_file() {
     fixture.delete_file(&file).await;
 
     // Analysis should handle deletion gracefully
-    let result = fixture.analyzer.analyze_changes(&[file.clone()]).await;
+    let result = fixture
+        .analyzer
+        .analyze_changes(std::slice::from_ref(&file))
+        .await;
 
     // Should either return error or mark as changed/deleted
     assert!(result.is_err() || result.unwrap().changed_files.contains(&file));
@@ -515,7 +518,7 @@ async fn test_reanalyze_invalidated_updates_fingerprints() {
     // Initial analysis
     let _ = fixture
         .analyzer
-        .analyze_changes(&[file.clone()])
+        .analyze_changes(std::slice::from_ref(&file))
         .await
         .unwrap();
 
@@ -525,7 +528,7 @@ async fn test_reanalyze_invalidated_updates_fingerprints() {
     // Reanalyze
     fixture
         .analyzer
-        .reanalyze_invalidated(&[file.clone()])
+        .reanalyze_invalidated(std::slice::from_ref(&file))
         .await
         .unwrap();
 
@@ -633,14 +636,14 @@ async fn test_no_changes_workflow() {
     // Establish baseline
     let _ = fixture
         .analyzer
-        .analyze_changes(&[file.clone()])
+        .analyze_changes(std::slice::from_ref(&file))
         .await
         .unwrap();
 
     // No changes
     let result = fixture
         .analyzer
-        .analyze_changes(&[file.clone()])
+        .analyze_changes(std::slice::from_ref(&file))
         .await
         .unwrap();
 

@@ -108,7 +108,7 @@ fn bench_new_from_extension(c: &mut Criterion) {
         b.iter(|| {
             for (filename, _) in &test_cases {
                 let path = Path::new(filename);
-                black_box(from_extension_original_path(&path));
+                black_box(from_extension_original_path(path));
             }
         })
     });

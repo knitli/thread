@@ -306,7 +306,7 @@ fn create_test_rust_file(name: &str, imports: &[&str]) -> String {
         content.push_str(&format!("use {};\n", import));
     }
 
-    content.push_str("\n");
+    content.push('\n');
     content.push_str(&format!("pub fn {}() {{\n", name));
     content.push_str("    println!(\"Hello from {}\");\n");
     content.push_str("}\n");

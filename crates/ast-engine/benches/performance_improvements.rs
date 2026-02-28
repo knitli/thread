@@ -9,8 +9,8 @@
 //!
 //! Key optimizations measured:
 //! - Pattern compilation cache: thread-local cache avoids re-parsing patterns
-//! - Arc<str> interning: MetaVariableID uses Arc<str> to reduce clone costs
-//! - MetaVarEnv operations: allocation behavior of the matching environment
+//! - Arc<str> interning: `MetaVariableID` uses Arc<str> to reduce clone costs
+//! - `MetaVarEnv` operations: allocation behavior of the matching environment
 
 use criterion::{Criterion, criterion_group, criterion_main};
 use std::hint::black_box;
@@ -19,7 +19,7 @@ use thread_language::Tsx;
 use thread_utils::RapidMap;
 
 fn bench_pattern_conversion(c: &mut Criterion) {
-    let source_code = r#"
+    let source_code = r"
         function complexFunction(a, b, c) {
             if (a > b) {
                 return c.map(x => x * 2).filter(x => x > 10);
@@ -33,7 +33,7 @@ fn bench_pattern_conversion(c: &mut Criterion) {
                 return result;
             }
         }
-    "#;
+    ";
 
     let pattern_str = "function $NAME($$$ARGS) { $$$BODY }";
 
@@ -42,9 +42,8 @@ fn bench_pattern_conversion(c: &mut Criterion) {
             let pattern = Pattern::new(black_box(pattern_str), &Tsx);
             let root = Root::str(black_box(source_code), Tsx);
             let node = root.root();
-            let matches: Vec<_> = node.find_all(&pattern).collect();
-            black_box(matches.len())
-        })
+            black_box(node.find_all(&pattern).count())
+        });
     });
 }
 
@@ -63,12 +62,12 @@ fn bench_meta_var_env_conversion(c: &mut Criterion) {
                 let env_map: RapidMap<String, String> = RapidMap::from(m.get_env().clone());
                 black_box(env_map);
             }
-        })
+        });
     });
 }
 
 fn bench_pattern_children_collection(c: &mut Criterion) {
-    let source_code = r#"
+    let source_code = r"
         class TestClass {
             method1() { return 1; }
             method2() { return 2; }
@@ -76,7 +75,7 @@ fn bench_pattern_children_collection(c: &mut Criterion) {
             method4() { return 4; }
             method5() { return 5; }
         }
-    "#;
+    ";
 
     c.bench_function("pattern_children_collection", |b| {
         b.iter(|| {
@@ -84,7 +83,7 @@ fn bench_pattern_children_collection(c: &mut Criterion) {
             let pattern = Pattern::new("class $NAME { $$$METHODS }", &Tsx);
             let matches: Vec<_> = root.root().find_all(&pattern).collect();
             black_box(matches);
-        })
+        });
     });
 }
 
@@ -107,7 +106,7 @@ fn bench_pattern_cache_hit(c: &mut Criterion) {
             // Using &str triggers `impl Matcher for str` which uses the cache
             let found = node.find(black_box(pattern_str));
             black_box(found.is_some())
-        })
+        });
     });
 
     // Measure repeated matching - the pattern cache should provide large speedup
@@ -122,7 +121,7 @@ fn bench_pattern_cache_hit(c: &mut Criterion) {
             let node = root.root();
             let found = node.find(black_box(pattern_str));
             black_box(found.is_some())
-        })
+        });
     });
 
     // Compare with pre-compiled pattern (no cache overhead at all)
@@ -133,23 +132,23 @@ fn bench_pattern_cache_hit(c: &mut Criterion) {
             let node = root.root();
             let found = node.find(&pattern);
             black_box(found.is_some())
-        })
+        });
     });
 
     group.finish();
 }
 
-/// Benchmark: MetaVarEnv clone cost with Arc<str> keys.
+/// Benchmark: `MetaVarEnv` clone cost with Arc<str> keys.
 ///
-/// Arc<str> cloning is a single atomic increment (~1ns) vs String::clone
+/// Arc<str> cloning is a single atomic increment (~1ns) vs `String::clone`
 /// which copies the entire buffer. This benchmark measures the env clone
 /// overhead in the pattern matching hot path.
 fn bench_env_clone_cost(c: &mut Criterion) {
-    let source_code = r#"
+    let source_code = r"
         function foo(a, b, c, d, e) {
             return a + b + c + d + e;
         }
-    "#;
+    ";
     let pattern_str = "function $NAME($$$PARAMS) { $$$BODY }";
 
     c.bench_function("env_clone_with_arc_str", |b| {
@@ -163,7 +162,7 @@ fn bench_env_clone_cost(c: &mut Criterion) {
                 let cloned = m.get_env().clone();
                 black_box(cloned);
             }
-        })
+        });
     });
 }
 
@@ -198,7 +197,7 @@ fn bench_multi_pattern_scanning(c: &mut Criterion) {
                 total += node.find_all(pattern).count();
             }
             black_box(total)
-        })
+        });
     });
 }
 

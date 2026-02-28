@@ -259,6 +259,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 /// Helper to create a symbol entry for testing
+#[allow(clippy::too_many_arguments)]
 fn create_symbol_entry(
     hash: &str,
     file_path: &str,

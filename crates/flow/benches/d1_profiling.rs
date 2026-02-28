@@ -557,9 +557,9 @@ fn bench_batch_operations(c: &mut Criterion) {
     let context = create_benchmark_context();
 
     // Create batch test data
-    let batch_10: Vec<_> = (0..10).map(|i| create_test_entry(i)).collect();
-    let batch_100: Vec<_> = (0..100).map(|i| create_test_entry(i)).collect();
-    let batch_1000: Vec<_> = (0..1000).map(|i| create_test_entry(i)).collect();
+    let batch_10: Vec<_> = (0..10).map(create_test_entry).collect();
+    let batch_100: Vec<_> = (0..100).map(create_test_entry).collect();
+    let batch_1000: Vec<_> = (0..1000).map(create_test_entry).collect();
 
     group.bench_function("batch_upsert_10_entries", |b| {
         b.iter(|| {

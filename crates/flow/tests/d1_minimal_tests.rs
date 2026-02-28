@@ -96,7 +96,7 @@ fn test_basic_value_to_json_int64() {
 
 #[test]
 fn test_basic_value_to_json_float32() {
-    let value = BasicValue::Float32(3.14);
+    let value = BasicValue::Float32(std::f32::consts::PI);
     let json = basic_value_to_json(&value).expect("Failed to convert float32");
     assert!(json.is_number());
 
@@ -108,7 +108,7 @@ fn test_basic_value_to_json_float32() {
 
 #[test]
 fn test_basic_value_to_json_float64() {
-    let value = BasicValue::Float64(2.718281828);
+    let value = BasicValue::Float64(std::f64::consts::E);
     let json = basic_value_to_json(&value).expect("Failed to convert float64");
     assert!(json.is_number());
 

@@ -569,10 +569,11 @@ async fn test_graph_circular_dependency_detection() {
     assert!(result.is_err());
     match result.unwrap_err() {
         GraphError::CyclicDependency(path) => {
+            let p = path.as_path();
             assert!(
-                path == PathBuf::from("A")
-                    || path == PathBuf::from("B")
-                    || path == PathBuf::from("C")
+                p == std::path::Path::new("A")
+                    || p == std::path::Path::new("B")
+                    || p == std::path::Path::new("C")
             );
         }
     }

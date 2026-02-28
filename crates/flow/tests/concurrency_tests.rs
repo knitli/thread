@@ -46,7 +46,7 @@ fn io_bound_work(_n: u32) -> Result<(), ExecutionError> {
 
 /// Fails on multiples of 10.
 fn conditional_failure(n: u32) -> Result<(), ExecutionError> {
-    if n % 10 == 0 {
+    if n.is_multiple_of(10) {
         Err(ExecutionError::Failed(format!("Item {} failed", n)))
     } else {
         Ok(())

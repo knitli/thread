@@ -215,11 +215,11 @@ fn benchmark_cache_hit_rates(c: &mut Criterion) {
 
             for file in &files {
                 let fp = compute_content_fingerprint(file);
-                if cache.contains_key(&fp) {
-                    hits += 1;
-                } else {
+                if let std::collections::hash_map::Entry::Vacant(e) = cache.entry(fp) {
                     misses += 1;
-                    cache.insert(fp, ());
+                    e.insert(());
+                } else {
+                    hits += 1;
                 }
             }
 
