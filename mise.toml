@@ -235,14 +235,14 @@ arg "<bump>" help="type of semver release" {
   choices "major" "minor" "patch"
 }
 flag "-d --dry-run" help="Dry run only"
+flag "-n --no-publish" help="Skip publishing to crates.io (useful for batching first-time releases across the 5-new-crate rate limit)"
 '''
 run = '''
 rm -f .changelog-generated
-if [ "${usage_dry_run}" ]; then
-  cargo release "$usage_bump"
-else
-  cargo release -x "$usage_bump"
-fi
+flags=()
+[ "${usage_dry_run}" ]   && flags+=(--allow-dirty) || flags+=(-x)
+[ "${usage_no_publish}" ] && flags+=(--no-publish)
+cargo release "${flags[@]}" "$usage_bump"
 rm -f .changelog-generated
 '''
 
