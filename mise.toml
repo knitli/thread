@@ -239,10 +239,15 @@ flag "-n --no-publish" help="Skip publishing to crates.io (useful for batching f
 '''
 run = '''
 rm -f .changelog-generated
-flags=()
-[ "${usage_dry_run}" ]   && flags+=(--allow-dirty) || flags+=(-x)
-[ "${usage_no_publish}" ] && flags+=(--no-publish)
-cargo release "${flags[@]}" "$usage_bump"
+if [ "${usage_dry_run}" ] && [ "${usage_no_publish}" ]; then
+  cargo release --no-publish "$usage_bump"
+elif [ "${usage_dry_run}" ]; then
+  cargo release "$usage_bump"
+elif [ "${usage_no_publish}" ]; then
+  cargo release -x --no-publish "$usage_bump"
+else
+  cargo release -x "$usage_bump"
+fi
 rm -f .changelog-generated
 '''
 
