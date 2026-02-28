@@ -19,6 +19,12 @@ Thread follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and uses
 
 - (**release**) Update release task to use correct argument handling and fix changelog command([`6ba33c9`](https://github.com/knitli/thread/commit/6ba33c9f92450e750992a30ec3e20a8facd1bc5d))
 
+- (**gitignore**) Ignore generated changelog sentinel file([`08c1260`](https://github.com/knitli/thread/commit/08c1260c45c55d848ababa2265dc693ba1099f5b))
+
+- (**release**) Enhance release command to support no-publish flag and improve argument handling([`092ed0c`](https://github.com/knitli/thread/commit/092ed0c26c7e318ed14fd177d9312bf218b5d40f))
+
+- (**release**) Improve argument handling in release command for dry run and no-publish options([`46f983b`](https://github.com/knitli/thread/commit/46f983bd65626b719730351d2eb9e925f62efe2d))
+
 ### Documentation
 
 - Add AI-native knowledge layer architectural design report (#71)([`591f187`](https://github.com/knitli/thread/commit/591f187e8b41e61605459dccbbcf5431e604cd42))
@@ -30,6 +36,8 @@ Thread follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and uses
 - (**thread**) Implement main thread crate to unify crate exposure (#75)([`eead51d`](https://github.com/knitli/thread/commit/eead51dcb62ee0b6fe99856ce40ef929df1c7d41))
 
 - (**dev**) Improve repo tasks; remove outdated docs([`cadf4b5`](https://github.com/knitli/thread/commit/cadf4b562ccb390180e1bcfa96ed24d68e7d9a75))
+
+- (**release**) Enhance changelog generation and update crate versions([`0cccf69`](https://github.com/knitli/thread/commit/0cccf694af276988bf1434ece8430f99791fc58b))
 
 ### Miscellaneous
 

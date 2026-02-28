@@ -39,7 +39,7 @@ body = """
 {% endfor %}\
 {% endfor %}\n
 """
-footer = ""
+footer = "<!-- spellchecker:on -->"
 trim = true
 
 [git]
