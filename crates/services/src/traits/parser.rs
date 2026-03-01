@@ -9,7 +9,7 @@
 
 use async_trait::async_trait;
 use std::path::Path;
-use thread_utils::RapidMap;
+use thread_utilities::RapidMap;
 
 use crate::error::{ParseError, ServiceResult};
 use crate::types::{AnalysisContext, ParsedDocument};
@@ -294,7 +294,7 @@ impl Default for ParserCapabilities {
             supports_metadata_collection: true,
             supports_cross_file_analysis: false,
             performance_profile: PerformanceProfile::Balanced,
-            capability_flags: thread_utils::get_map(),
+            capability_flags: thread_utilities::get_map(),
         }
     }
 }
@@ -347,7 +347,7 @@ impl Default for ParserConfig {
             collect_metadata: true,
             enable_error_recovery: true,
             execution_strategy: None, // Auto-detect
-            custom_options: thread_utils::get_map(),
+            custom_options: thread_utilities::get_map(),
         }
     }
 }

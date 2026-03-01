@@ -100,7 +100,7 @@ thread-flow = { path = "crates/flow", version = "*", default-features = false }
 thread-language = { path = "crates/language", version = "*", default-features = false }
 thread-rule-engine = { path = "crates/rule-engine", version = "*", default-features = false }
 thread-services = { path = "crates/services", version = "*", default-features = false }
-thread-utils = { path = "crates/utils", version = "*", default-features = false }
+thread-utilities = { path = "crates/utils", version = "*", default-features = false }
 thread-wasm = { path = "crates/wasm", version = "*", default-features = false }
 
 [workspace.lints.clippy]

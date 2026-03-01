@@ -21,7 +21,7 @@ use metrics::gauge;
 use std::collections::VecDeque;
 use std::fmt;
 use std::path::{Path, PathBuf};
-use thread_utils::{RapidMap, RapidSet};
+use thread_utilities::{RapidMap, RapidSet};
 
 /// Errors that can occur during dependency graph operations.
 #[derive(Debug)]
@@ -60,7 +60,7 @@ impl std::error::Error for GraphError {}
 /// use thread_flow::incremental::graph::DependencyGraph;
 /// use thread_flow::incremental::types::{DependencyEdge, DependencyType};
 /// use std::path::PathBuf;
-/// use thread_utils::RapidSet;
+/// use thread_utilities::RapidSet;
 ///
 /// let mut graph = DependencyGraph::new();
 ///
@@ -110,10 +110,10 @@ impl DependencyGraph {
     /// ```
     pub fn new() -> Self {
         Self {
-            nodes: thread_utils::get_map(),
+            nodes: thread_utilities::get_map(),
             edges: Vec::new(),
-            forward_adj: thread_utils::get_map(),
-            reverse_adj: thread_utils::get_map(),
+            forward_adj: thread_utilities::get_map(),
+            reverse_adj: thread_utilities::get_map(),
         }
     }
 
@@ -247,7 +247,7 @@ impl DependencyGraph {
     /// use thread_flow::incremental::graph::DependencyGraph;
     /// use thread_flow::incremental::types::{DependencyEdge, DependencyType};
     /// use std::path::PathBuf;
-    /// use thread_utils::RapidSet;
+    /// use thread_utilities::RapidSet;
     ///
     /// let mut graph = DependencyGraph::new();
     ///
@@ -267,8 +267,8 @@ impl DependencyGraph {
     /// assert!(affected.contains(&PathBuf::from("C")));
     /// ```
     pub fn find_affected_files(&self, changed_files: &RapidSet<PathBuf>) -> RapidSet<PathBuf> {
-        let mut affected = thread_utils::get_set();
-        let mut visited = thread_utils::get_set();
+        let mut affected = thread_utilities::get_set();
+        let mut visited = thread_utilities::get_set();
         let mut queue: VecDeque<PathBuf> = changed_files.iter().cloned().collect();
 
         while let Some(file) = queue.pop_front() {
@@ -314,7 +314,7 @@ impl DependencyGraph {
     /// use thread_flow::incremental::graph::DependencyGraph;
     /// use thread_flow::incremental::types::{DependencyEdge, DependencyType};
     /// use std::path::PathBuf;
-    /// use thread_utils::RapidSet;
+    /// use thread_utilities::RapidSet;
     ///
     /// let mut graph = DependencyGraph::new();
     /// // A depends on B, B depends on C
@@ -338,8 +338,8 @@ impl DependencyGraph {
     /// ```
     pub fn topological_sort(&self, files: &RapidSet<PathBuf>) -> Result<Vec<PathBuf>, GraphError> {
         let mut sorted = Vec::new();
-        let mut visited = thread_utils::get_set();
-        let mut temp_mark = thread_utils::get_set();
+        let mut visited = thread_utilities::get_set();
+        let mut temp_mark = thread_utilities::get_set();
 
         for file in files {
             if !visited.contains(file) {
@@ -629,7 +629,7 @@ mod tests {
             DependencyType::Import,
         ));
 
-        let changed: thread_utils::RapidSet<PathBuf> =
+        let changed: thread_utilities::RapidSet<PathBuf> =
             [PathBuf::from("utils.rs")].into_iter().collect();
         let affected = graph.find_affected_files(&changed);
 
@@ -654,7 +654,7 @@ mod tests {
             DependencyType::Import,
         ));
 
-        let changed: thread_utils::RapidSet<PathBuf> = [PathBuf::from("C")].into_iter().collect();
+        let changed: thread_utilities::RapidSet<PathBuf> = [PathBuf::from("C")].into_iter().collect();
         let affected = graph.find_affected_files(&changed);
 
         assert_eq!(affected.len(), 3);
@@ -689,7 +689,7 @@ mod tests {
             DependencyType::Import,
         ));
 
-        let changed: thread_utils::RapidSet<PathBuf> = [PathBuf::from("D")].into_iter().collect();
+        let changed: thread_utilities::RapidSet<PathBuf> = [PathBuf::from("D")].into_iter().collect();
         let affected = graph.find_affected_files(&changed);
 
         assert_eq!(affected.len(), 4);
@@ -716,7 +716,7 @@ mod tests {
             DependencyType::Import,
         ));
 
-        let changed: thread_utils::RapidSet<PathBuf> = [PathBuf::from("B")].into_iter().collect();
+        let changed: thread_utilities::RapidSet<PathBuf> = [PathBuf::from("B")].into_iter().collect();
         let affected = graph.find_affected_files(&changed);
 
         assert!(affected.contains(&PathBuf::from("A")));
@@ -741,7 +741,7 @@ mod tests {
             DependencyType::Export, // Weak
         ));
 
-        let changed: thread_utils::RapidSet<PathBuf> = [PathBuf::from("B")].into_iter().collect();
+        let changed: thread_utilities::RapidSet<PathBuf> = [PathBuf::from("B")].into_iter().collect();
         let affected = graph.find_affected_files(&changed);
 
         assert!(affected.contains(&PathBuf::from("A")));
@@ -762,7 +762,7 @@ mod tests {
             DependencyType::Import,
         ));
 
-        let changed = thread_utils::get_set();
+        let changed = thread_utilities::get_set();
         let affected = graph.find_affected_files(&changed);
         assert!(affected.is_empty());
     }
@@ -770,7 +770,7 @@ mod tests {
     #[test]
     fn test_find_affected_files_unknown_file() {
         let graph = DependencyGraph::new();
-        let changed: thread_utils::RapidSet<PathBuf> =
+        let changed: thread_utilities::RapidSet<PathBuf> =
             [PathBuf::from("nonexistent.rs")].into_iter().collect();
         let affected = graph.find_affected_files(&changed);
 
@@ -795,7 +795,7 @@ mod tests {
             DependencyType::Import,
         ));
 
-        let changed: thread_utils::RapidSet<PathBuf> = [PathBuf::from("C"), PathBuf::from("D")]
+        let changed: thread_utilities::RapidSet<PathBuf> = [PathBuf::from("C"), PathBuf::from("D")]
             .into_iter()
             .collect();
         let affected = graph.find_affected_files(&changed);
@@ -821,7 +821,7 @@ mod tests {
             DependencyType::Import,
         ));
 
-        let files: thread_utils::RapidSet<PathBuf> =
+        let files: thread_utilities::RapidSet<PathBuf> =
             [PathBuf::from("A"), PathBuf::from("B"), PathBuf::from("C")]
                 .into_iter()
                 .collect();
@@ -863,7 +863,7 @@ mod tests {
             DependencyType::Import,
         ));
 
-        let files: thread_utils::RapidSet<PathBuf> = [
+        let files: thread_utilities::RapidSet<PathBuf> = [
             PathBuf::from("A"),
             PathBuf::from("B"),
             PathBuf::from("C"),
@@ -903,7 +903,7 @@ mod tests {
             DependencyType::Import,
         ));
 
-        let files: thread_utils::RapidSet<PathBuf> = [
+        let files: thread_utilities::RapidSet<PathBuf> = [
             PathBuf::from("A"),
             PathBuf::from("B"),
             PathBuf::from("C"),
@@ -928,7 +928,7 @@ mod tests {
     #[test]
     fn test_topological_sort_single_node() {
         let graph = DependencyGraph::new();
-        let files: thread_utils::RapidSet<PathBuf> =
+        let files: thread_utilities::RapidSet<PathBuf> =
             [PathBuf::from("only.rs")].into_iter().collect();
 
         let sorted = graph.topological_sort(&files).unwrap();
@@ -938,7 +938,7 @@ mod tests {
     #[test]
     fn test_topological_sort_empty_set() {
         let graph = DependencyGraph::new();
-        let files = thread_utils::get_set();
+        let files = thread_utilities::get_set();
 
         let sorted = graph.topological_sort(&files).unwrap();
         assert!(sorted.is_empty());
@@ -966,7 +966,7 @@ mod tests {
         ));
 
         // Sort only A and B
-        let files: thread_utils::RapidSet<PathBuf> = [PathBuf::from("A"), PathBuf::from("B")]
+        let files: thread_utilities::RapidSet<PathBuf> = [PathBuf::from("A"), PathBuf::from("B")]
             .into_iter()
             .collect();
 
@@ -996,7 +996,7 @@ mod tests {
             DependencyType::Import,
         ));
 
-        let files: thread_utils::RapidSet<PathBuf> = [PathBuf::from("A"), PathBuf::from("B")]
+        let files: thread_utilities::RapidSet<PathBuf> = [PathBuf::from("A"), PathBuf::from("B")]
             .into_iter()
             .collect();
         let result = graph.topological_sort(&files);
@@ -1035,7 +1035,7 @@ mod tests {
             DependencyType::Import,
         ));
 
-        let files: thread_utils::RapidSet<PathBuf> =
+        let files: thread_utilities::RapidSet<PathBuf> =
             [PathBuf::from("A"), PathBuf::from("B"), PathBuf::from("C")]
                 .into_iter()
                 .collect();
@@ -1054,7 +1054,7 @@ mod tests {
             DependencyType::Import,
         ));
 
-        let files: thread_utils::RapidSet<PathBuf> = [PathBuf::from("A")].into_iter().collect();
+        let files: thread_utilities::RapidSet<PathBuf> = [PathBuf::from("A")].into_iter().collect();
         let result = graph.topological_sort(&files);
         assert!(result.is_err());
     }

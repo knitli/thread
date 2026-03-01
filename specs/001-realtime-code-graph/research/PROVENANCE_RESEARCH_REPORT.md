@@ -224,7 +224,7 @@ pub struct ExecutionRecord {
 }
 
 pub struct DependencyGraph {
-    nodes: thread_utils::RapidMap<String, DependencyNode>,
+    nodes: thread_utilities::RapidMap<String, DependencyNode>,
     edges: Vec<(String, String)>, // operation -> operation dependencies
 }
 ```
@@ -427,7 +427,7 @@ pub struct LineageRecord {
     pub executed_at: DateTime<Utc>,
     pub duration_ms: u64,
     pub success: bool,
-    pub metadata: thread_utils::RapidMap<String, String>,   // Language, config version, etc.
+    pub metadata: thread_utilities::RapidMap<String, String>,   // Language, config version, etc.
 }
 
 pub enum OperationType {

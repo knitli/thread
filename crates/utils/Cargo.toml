@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT OR Apache-2.0
 
 [package]
-name = "thread-utils"
+name = "thread-utilities"
 version = "0.1.1"
 edition.workspace = true
 rust-version.workspace = true

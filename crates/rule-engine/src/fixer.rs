@@ -15,7 +15,7 @@ use thread_ast_engine::replacer::{Content, Replacer, TemplateFix, TemplateFixErr
 use thread_ast_engine::{Doc, Language, Matcher, NodeMatch};
 
 use std::ops::Range;
-use thread_utils::{RapidMap, RapidSet};
+use thread_utilities::{RapidMap, RapidSet};
 
 /// A pattern string or fix object to auto fix the issue.
 /// It can reference metavariables appeared in rule.

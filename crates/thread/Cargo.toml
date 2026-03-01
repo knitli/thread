@@ -28,7 +28,7 @@ thread-flow = { workspace = true, optional = true }
 thread-language = { workspace = true, optional = true }
 thread-rule-engine = { workspace = true, optional = true }
 thread-services = { workspace = true, optional = true }
-thread-utils = { workspace = true, optional = true }
+thread-utilities = { workspace = true, optional = true }
 
 [features]
 default = ["ast", "language", "mimalloc", "rule", "services"]
@@ -72,7 +72,7 @@ services = [
   "thread-services/serialization"
 ]
 # Shared utilities
-utils = ["dep:thread-utils"]
+utils = ["dep:thread-utilities"]
 # Special feature for WASM/Edge deployment
 worker = [
   "ast",
@@ -85,5 +85,5 @@ worker = [
   "thread-rule-engine?/worker",
   "thread-services?/ast-grep-backend",
   "thread-services?/worker",
-  "thread-utils?/worker"
+  "thread-utilities?/worker"
 ]

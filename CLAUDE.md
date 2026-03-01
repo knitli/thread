@@ -35,7 +35,7 @@ Thread follows a **service-library dual architecture** (Constitution v2.0.0, Pri
 - **`thread-language`** - Language definitions and tree-sitter parser integrations (supports 20+ languages)
 - **`thread-rule-engine`** - Rule-based scanning and transformation system with YAML configuration support
 - **`thread-flow`** - Dataflow orchestration layer implementing ReCoco (Rust-only fork of CocoIndex) with heavy feature-gating for modular builds
-- **`thread-utils`** - Shared utilities including SIMD optimizations and hash functions
+- **`thread-utilities`** - Shared utilities including SIMD optimizations and hash functions
 - **`thread-wasm`** - WebAssembly bindings for browser and edge deployment
 
 ### Service Layer (Orchestration & Persistence)
@@ -244,7 +244,7 @@ fix: "let $NAME = $VALUE"
 
 ### Optimization Features
 
-- SIMD optimizations in `thread-utils` for fast string operations
+- SIMD optimizations in `thread-utilities` for fast string operations
 - Parallel processing capabilities with rayon
 - Memory-efficient AST representation
 - Content-addressable storage for deduplication

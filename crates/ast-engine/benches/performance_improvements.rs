@@ -16,7 +16,7 @@ use criterion::{Criterion, criterion_group, criterion_main};
 use std::hint::black_box;
 use thread_ast_engine::{Pattern, Root};
 use thread_language::Tsx;
-use thread_utils::RapidMap;
+use thread_utilities::RapidMap;
 
 fn bench_pattern_conversion(c: &mut Criterion) {
     let source_code = r"

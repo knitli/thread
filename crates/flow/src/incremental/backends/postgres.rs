@@ -37,7 +37,7 @@ use async_trait::async_trait;
 use deadpool_postgres::{Config, Pool, Runtime};
 use recoco::utils::fingerprint::Fingerprint;
 use std::path::{Path, PathBuf};
-use thread_utils::RapidSet;
+use thread_utilities::RapidSet;
 use tokio_postgres::NoTls;
 
 /// PostgreSQL storage backend for the incremental update system.
@@ -491,8 +491,8 @@ impl StorageBackend for PostgresIncrementalBackend {
         let src_rows = client.query(&src_stmt, &[]).await.map_err(pg_error)?;
 
         // Build source files map grouped by fingerprint_path
-        let mut source_map: thread_utils::RapidMap<String, RapidSet<PathBuf>> =
-            thread_utils::get_map();
+        let mut source_map: thread_utilities::RapidMap<String, RapidSet<PathBuf>> =
+            thread_utilities::get_map();
         for row in &src_rows {
             let fp_path: String = row.get(0);
             let src_path: String = row.get(1);

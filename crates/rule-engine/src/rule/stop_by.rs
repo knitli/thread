@@ -15,7 +15,7 @@ use serde::de::{self, Deserializer, MapAccess, Visitor};
 use serde::{Deserialize, Serialize};
 
 use std::fmt;
-use thread_utils::RapidSet;
+use thread_utilities::RapidSet;
 
 // NB StopBy's JsonSchema is changed in xtask/schema.rs
 // revise schema is easier than manually implementation

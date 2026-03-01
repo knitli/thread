@@ -26,7 +26,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use thread_utils::RapidMap;
+use thread_utilities::RapidMap;
 
 /// Represents the version of source code being analyzed
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -378,7 +378,7 @@ impl GraphEdge {
 use crate::ConflictPrediction;
 use crate::provenance::{Provenance, LineageRecord};
 use chrono::{DateTime, Utc};
-use thread_utils::RapidMap;
+use thread_utilities::RapidMap;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ConflictProvenance {

@@ -9,7 +9,7 @@
 
 use crate::types::Doc;
 use async_trait::async_trait;
-use thread_utils::RapidMap;
+use thread_utilities::RapidMap;
 
 use crate::error::{AnalysisError, ServiceResult};
 use crate::types::{AnalysisContext, CodeMatch, CrossFileRelationship, ParsedDocument};
@@ -352,7 +352,7 @@ impl Default for AnalyzerCapabilities {
             supports_incremental_analysis: false,
             supported_analysis_depths: vec![AnalysisDepth::Syntax, AnalysisDepth::Local],
             performance_profile: AnalysisPerformanceProfile::Balanced,
-            capability_flags: thread_utils::get_map(),
+            capability_flags: thread_utilities::get_map(),
         }
     }
 }
@@ -420,7 +420,7 @@ impl Default for AnalysisConfig {
             collect_relationships: false,
             enable_pattern_caching: true,
             performance_profile: None, // Auto-detect
-            custom_options: thread_utils::get_map(),
+            custom_options: thread_utilities::get_map(),
         }
     }
 }

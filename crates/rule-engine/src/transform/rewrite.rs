@@ -162,7 +162,7 @@ mod test {
     use crate::rule::referent_rule::RuleRegistration;
     use crate::rule_core::SerializableRuleCore;
     use crate::test::TypeScript;
-    use thread_utils::RapidSet;
+    use thread_utilities::RapidSet;
 
     fn apply_transformation(
         rewrite: Rewrite<String>,

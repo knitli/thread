@@ -82,7 +82,7 @@ thread-services = { workspace = true, features = [
   "ast-grep-backend",
   "serialization",
 ] }
-thread-utils = { workspace = true, features = ["hashers"] }
+thread-utilities = { workspace = true, features = ["hashers"] }
 tokio = { workspace = true }
 # Optional: PostgreSQL storage backend for incremental updates
 tokio-postgres = { version = "0.7", optional = true }
@@ -136,5 +136,5 @@ worker = [
   "thread-ast-engine/worker",
   "thread-language/worker",
   "thread-services/worker",
-  "thread-utils/worker"
+  "thread-utilities/worker"
 ]  # Worker-specific optimizations and compatibility adjustments

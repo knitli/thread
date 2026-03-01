@@ -282,7 +282,7 @@ pub struct ErrorContext {
     pub operation: Option<String>,
 
     /// Additional context data
-    pub context_data: thread_utils::RapidMap<String, String>,
+    pub context_data: thread_utilities::RapidMap<String, String>,
 }
 
 impl ErrorContext {

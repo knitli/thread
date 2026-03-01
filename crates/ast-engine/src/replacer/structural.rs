@@ -188,7 +188,7 @@ mod test {
     use crate::language::Tsx;
     use crate::meta_var::MetaVarEnv;
     use crate::{NodeMatch, Root, replacer::Replacer, tree_sitter::LanguageExt};
-    use thread_utils::RapidMap;
+    use thread_utilities::RapidMap;
 
     fn test_pattern_replace(replacer: &str, vars: &[(&str, &str)], expected: &str) {
         let mut env = MetaVarEnv::new();

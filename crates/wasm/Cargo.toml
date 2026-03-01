@@ -57,7 +57,7 @@ js-sys = { version = "0.3.77" }
 rayon = { workspace = true, features = ["web_spin_lock"], optional = true }
 serde = { workspace = true, optional = true }
 thread-language = { workspace = true }
-thread-utils = { workspace = true, default-features = false, features = [
+thread-utilities = { workspace = true, default-features = false, features = [
   "hashers",
 ] }
 wasm-bindgen = { version = "0.2.100", optional = true }

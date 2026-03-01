@@ -671,7 +671,7 @@ async fn test_e2e_circular_detection() {
     fixture.analyzer.graph_mut().add_edge(edge_b_to_a);
 
     // Topological sort should fail on cycle
-    let files: thread_utils::RapidSet<PathBuf> = [a.clone(), b.clone()].into_iter().collect();
+    let files: thread_utilities::RapidSet<PathBuf> = [a.clone(), b.clone()].into_iter().collect();
     let result = fixture.analyzer.graph().topological_sort(&files);
     assert!(result.is_err(), "Should detect circular dependency");
 }

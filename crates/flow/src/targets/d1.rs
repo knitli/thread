@@ -750,10 +750,10 @@ impl TargetFactoryBase for D1TargetFactory {
         &self,
         mutations: Vec<ExportTargetMutationWithContext<'async_trait, Self::ExportContext>>,
     ) -> Result<(), RecocoError> {
-        let mut mutations_by_db: thread_utils::RapidMap<
+        let mut mutations_by_db: thread_utilities::RapidMap<
             String,
             Vec<&ExportTargetMutationWithContext<'_, Self::ExportContext>>,
-        > = thread_utils::get_map();
+        > = thread_utilities::get_map();
 
         for mutation in &mutations {
             mutations_by_db

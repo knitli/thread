@@ -37,7 +37,7 @@ use crate::{Doc, Node};
 #[cfg(feature = "matching")]
 use std::borrow::Cow;
 use std::sync::Arc;
-use thread_utils::{RapidMap, map_with_capacity};
+use thread_utilities::{RapidMap, map_with_capacity};
 
 /// Interned string type for meta-variable identifiers.
 ///
@@ -436,7 +436,7 @@ mod test {
     }
 
     fn match_constraints(pattern: &str, node: &str) -> bool {
-        let mut matchers = thread_utils::RapidMap::default();
+        let mut matchers = thread_utilities::RapidMap::default();
         matchers.insert(Arc::from("A"), Pattern::new(pattern, &Tsx));
         let mut env = MetaVarEnv::new();
         let root = Tsx.ast_grep(node);

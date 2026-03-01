@@ -24,7 +24,7 @@
 
 use std::any::Any;
 use std::path::PathBuf;
-use thread_utils::RapidMap;
+use thread_utilities::RapidMap;
 
 // Conditionally import thread dependencies when available
 #[cfg(feature = "ast-grep-backend")]
@@ -471,7 +471,7 @@ impl Default for AnalysisContext {
             exclude_patterns: vec!["**/node_modules/**".to_string(), "**/target/**".to_string()],
             max_files: None,
             execution_config: ExecutionConfig::default(),
-            context_data: thread_utils::get_map(),
+            context_data: thread_utilities::get_map(),
         }
     }
 }

@@ -25,7 +25,7 @@ use thiserror::Error;
 
 use std::borrow::Cow;
 use std::ops::{Deref, DerefMut};
-use thread_utils::RapidMap;
+use thread_utilities::RapidMap;
 
 #[derive(Serialize, Deserialize, Clone, Debug, Default, JsonSchema)]
 #[serde(rename_all = "camelCase")]

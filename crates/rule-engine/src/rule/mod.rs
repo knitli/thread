@@ -32,7 +32,7 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 use thiserror::Error;
-use thread_utils::RapidSet;
+use thread_utilities::RapidSet;
 
 /// A rule object to find matching AST nodes. We have three categories of rules in ast-grep.
 ///

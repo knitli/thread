@@ -312,7 +312,7 @@ thread-wasm-0.1.0.tar.gz
 - Only on tagged releases
 
 **Publication Order** (respecting dependencies):
-1. `thread-utils`
+1. `thread-utilities`
 2. `thread-language`
 3. `thread-ast-engine`
 4. `thread-rule-engine`

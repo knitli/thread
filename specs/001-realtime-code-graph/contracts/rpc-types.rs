@@ -18,7 +18,7 @@
 
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
-use thread_utils::RapidMap;
+use thread_utilities::RapidMap;
 
 // ============================================================================
 // Core RPC Trait

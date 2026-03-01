@@ -16,7 +16,7 @@ use thread_ast_engine::tree_sitter::{StrDoc, TSRange};
 #[cfg(feature = "matching")]
 use thread_ast_engine::{Doc, Node};
 #[cfg(feature = "html-embedded")]
-use thread_utils::RapidMap;
+use thread_utilities::RapidMap;
 
 /// HTML language implementation with language injection capabilities.
 ///

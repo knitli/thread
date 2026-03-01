@@ -429,7 +429,7 @@ pub async fn connect_realtime(server: &str) -> Result<RealtimeClient> {
 
 **Rationale**:
 
-1. **Single Workspace Coherence**: Thread already has established workspace with `thread-ast-engine`, `thread-language`, `thread-rule-engine`, `thread-services`, `thread-utils`, `thread-wasm`. Adding new crates to existing workspace maintains build system coherence and dependency management.
+1. **Single Workspace Coherence**: Thread already has established workspace with `thread-ast-engine`, `thread-language`, `thread-rule-engine`, `thread-services`, `thread-utilities`, `thread-wasm`. Adding new crates to existing workspace maintains build system coherence and dependency management.
 
 2. **Library-Service Boundary Preservation**: New crates clearly split library (reusable graph algorithms) vs service (persistent storage, caching, real-time). Aligns with Constitution Principle I (Service-Library Dual Architecture).
 
@@ -441,7 +441,7 @@ pub async fn connect_realtime(server: &str) -> Result<RealtimeClient> {
 
 **NEW Library Crates** (reusable, WASM-compatible):
 
-- `thread-graph`: Core graph data structures, traversal algorithms, pathfinding (depends on: thread-utils)
+- `thread-graph`: Core graph data structures, traversal algorithms, pathfinding (depends on: thread-utilities)
 - `thread-indexer`: Multi-source code indexing, file watching, change detection (depends on: thread-ast-engine, thread-language)
 - `thread-conflict`: Conflict detection engine (multi-tier: AST diff, semantic, graph) (depends on: thread-graph, thread-ast-engine)
 
@@ -457,7 +457,7 @@ pub async fn connect_realtime(server: &str) -> Result<RealtimeClient> {
 - `thread-ast-engine`: **REUSED** - AST parsing foundation (no changes)
 - `thread-language`: **REUSED** - Language support (no changes)
 - `thread-rule-engine`: **EXTENDED** - Add pattern-based conflict detection rules (depends on: thread-conflict)
-- `thread-utils`: **REUSED** - SIMD, hashing utilities (no changes)
+- `thread-utilities`: **REUSED** - SIMD, hashing utilities (no changes)
 - `thread-wasm`: **EXTENDED** - Add edge deployment features for new crates (depends on: thread-api, thread-realtime)
 
 **Dependency Graph**:
@@ -502,7 +502,7 @@ pub async fn connect_realtime(server: &str) -> Result<RealtimeClient> {
 - thread-conflict
 - thread-ast-engine (existing)
 - thread-language (existing)
-- thread-utils (existing)
+- thread-utilities (existing)
 
 **Service Crates** (deployment-specific):
 

@@ -159,7 +159,7 @@ mod test {
     use crate::meta_var::MetaVarEnv;
     use crate::tree_sitter::StrDoc;
     use crate::{Node, Root};
-    use thread_utils::RapidMap;
+    use thread_utilities::RapidMap;
 
     fn find_node_recursive<'tree>(
         goal: &Pattern,

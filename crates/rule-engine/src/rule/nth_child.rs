@@ -11,7 +11,7 @@ use thread_ast_engine::meta_var::MetaVarEnv;
 use thread_ast_engine::{Doc, Matcher, Node};
 
 use std::borrow::Cow;
-use thread_utils::RapidSet;
+use thread_utilities::RapidSet;
 
 use bit_set::BitSet;
 use schemars::JsonSchema;

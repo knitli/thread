@@ -9,7 +9,7 @@ use super::{Ctx, TransformError, string_case};
 use thread_ast_engine::meta_var::MetaVariable;
 use thread_ast_engine::source::Content;
 use thread_ast_engine::{Doc, Language};
-use thread_utils::is_ascii_simd;
+use thread_utilities::is_ascii_simd;
 
 use regex::Regex;
 use schemars::JsonSchema;
@@ -300,7 +300,7 @@ mod test {
     use crate::{DeserializeEnv, Transformation};
     use serde_yaml::with::singleton_map_recursive;
     use thread_ast_engine::tree_sitter::LanguageExt;
-    use thread_utils::RapidMap;
+    use thread_utilities::RapidMap;
 
     type R = std::result::Result<(), ()>;
 

@@ -20,7 +20,7 @@ use parse::ParseTransError;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
-use thread_utils::RapidMap;
+use thread_utilities::RapidMap;
 
 pub use trans::Trans;
 

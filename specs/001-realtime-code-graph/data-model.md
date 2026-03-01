@@ -125,7 +125,7 @@ pub struct CodeFile {
     // NOTE: `ast: Root` is intentionally ABSENT. tree-sitter's `Tree`/`Root` is an opaque
     // C struct — not serializable, not persistable, and not Send. AST is obtained on demand
     // via `tree_sitter_parse(source_bytes, language)`. For frequently-accessed files, use a
-    // separate AstCache (e.g., LRU thread_utils::RapidMap<ContentHash, Root>) owned by the analysis session,
+    // separate AstCache (e.g., LRU thread_utilities::RapidMap<ContentHash, Root>) owned by the analysis session,
     // never stored in CodeFile itself.
 }
 
@@ -233,7 +233,7 @@ pub struct SourceLocation {
 pub struct SemanticMetadata {
     pub visibility: Visibility,          // Public, Private, Protected (language-agnostic)
     pub generic_params: Vec<String>,     // Generic type parameters (language-agnostic)
-    pub attributes: thread_utils::RapidMap<Box<str>, serde_json::Value>, // Language-specific metadata.
+    pub attributes: thread_utilities::RapidMap<Box<str>, serde_json::Value>, // Language-specific metadata.
     // Documented attribute keys:
     //   "mutability"  → bool   — Rust: mutable binding or field
     //   "async"       → bool   — Rust/JS/Python/Go: async function
@@ -552,7 +552,7 @@ pub enum EngineType {
 }
 
 pub struct EngineConfig {
-    pub params: thread_utils::RapidMap<String, serde_json::Value>, // Key-value configuration
+    pub params: thread_utilities::RapidMap<String, serde_json::Value>, // Key-value configuration
     pub enabled_languages: Vec<Language>, // Languages this engine supports
     pub performance_tuning: PerformanceTuning, // Resource limits
 }
@@ -592,10 +592,10 @@ pub struct Delta {
     pub user_id: UserId,
     pub repository_id: RepositoryId,
     pub session_id: SessionId,
-    pub changed_nodes: thread_utils::RapidMap<NodeId, GraphNode>,  // Modified or added nodes (local state)
-    pub removed_nodes: thread_utils::RapidSet<NodeId>,             // Nodes deleted in local working state
+    pub changed_nodes: thread_utilities::RapidMap<NodeId, GraphNode>,  // Modified or added nodes (local state)
+    pub removed_nodes: thread_utilities::RapidSet<NodeId>,             // Nodes deleted in local working state
     pub added_edges: Vec<GraphEdge>,                // New relationships in local working state
-    pub removed_edges: thread_utils::RapidSet<EdgeId>,             // Removed relationships in local working state
+    pub removed_edges: thread_utilities::RapidSet<EdgeId>,             // Removed relationships in local working state
     pub base_ref: String,                           // Git ref this delta was forked from (e.g., "main@abc123")
     pub created_at: DateTime<Utc>,
     pub last_updated: DateTime<Utc>,

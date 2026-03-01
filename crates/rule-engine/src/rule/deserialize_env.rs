@@ -17,7 +17,7 @@ use thread_ast_engine::language::Language;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
-use thread_utils::RapidMap;
+use thread_utilities::RapidMap;
 
 #[derive(Serialize, Deserialize, Clone, JsonSchema)]
 pub struct SerializableGlobalRule<L: Language> {

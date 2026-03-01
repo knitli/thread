@@ -25,7 +25,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
    - Supports 20+ languages: Rust, JS/TS, Python, Go, Java, C/C++, etc.
    - Tier-based language support (Tier 1: primary, Tier 2: full, Tier 3: basic)
 
-4. **thread-utils** (`crates/utils/`)
+4. **thread-utilities** (`crates/utils/`)
    - Shared utilities across crates
    - SIMD optimizations for string operations
    - Hash functions (rapidhash)

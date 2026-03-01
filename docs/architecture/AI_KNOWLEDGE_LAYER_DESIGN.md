@@ -598,7 +598,7 @@ crates/
 ├── thread-language/       # EXISTING: Language definitions
 ├── thread-rule-engine/    # EXISTING: Rule-based scanning
 ├── thread-flow/           # EXISTING: Dataflow orchestration (ReCoco)
-├── thread-utils/          # EXISTING: Shared utilities
+├── thread-utilities/          # EXISTING: Shared utilities
 ├── thread-wasm/           # EXISTING: WASM bindings
 │
 ├── thread-graph/          # FROM 001: Core graph structures + algorithms

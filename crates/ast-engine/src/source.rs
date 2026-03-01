@@ -299,6 +299,6 @@ impl Content for String {
     /// of unusually long lines. Modest improvements for standard code lines (~100 chars)
     fn get_char_column(&self, _col: usize, offset: usize) -> usize {
         // Use SIMD-optimized version from utils crate
-        thread_utils::get_char_column_simd(self, offset)
+        thread_utilities::get_char_column_simd(self, offset)
     }
 }

@@ -36,7 +36,7 @@ thread-ast-engine = { workspace = true, default-features = false, features = [
 ], optional = true }
 # thread-rule-engine = { workspace = true, default-features = false }
 thread-language = { workspace = true, default-features = false, optional = true }
-thread-utils = { workspace = true, default-features = false, features = [
+thread-utilities = { workspace = true, default-features = false, features = [
   "hashers",
 ] }
 # Tower for service composition and BoxError pattern
@@ -78,5 +78,5 @@ tower-services = ["dep:tower", "dep:tower-service"]
 worker = [
   "thread-ast-engine?/worker",
   "thread-language?/worker",
-  "thread-utils/worker"
+  "thread-utilities/worker"
 ]

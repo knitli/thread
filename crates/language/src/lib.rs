@@ -173,7 +173,7 @@ use thread_ast_engine::meta_var::MetaVariable;
 #[cfg(feature = "tree-sitter-parsing")]
 use thread_ast_engine::tree_sitter::{LanguageExt, StrDoc, TSLanguage, TSRange};
 #[allow(unused_imports)]
-use thread_utils::RapidMap;
+use thread_utilities::RapidMap;
 
 /// Implements standard [`Language`] and [`LanguageExt`] traits for languages that accept `$` in identifiers.
 ///

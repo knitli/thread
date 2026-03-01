@@ -27,7 +27,7 @@ mimalloc = { workspace = true, optional = true }
 # regex required for pattern matching
 regex = { workspace = true, optional = true }
 thiserror.workspace = true
-thread-utils = { workspace = true, default-features = false, features = [
+thread-utilities = { workspace = true, default-features = false, features = [
   "hashers",
   "simd",
 ] }
@@ -46,11 +46,11 @@ cc = "1.2.30"
 default = ["matching", "mimalloc", "parsing"]
 # The 'matching' feature enables the pattern matching engine
 matching = ["dep:regex"]
-mimalloc = ["dep:mimalloc", "thread-utils/mimalloc"]
+mimalloc = ["dep:mimalloc", "thread-utilities/mimalloc"]
 # The 'parsing' feature enables the tree-sitter backend
 parsing = ["dep:tree-sitter"]
 worker = [
-  "thread-utils/worker"
+  "thread-utilities/worker"
 ]  # feature flag for cloud edge deployment specific logic
 
 [lints]

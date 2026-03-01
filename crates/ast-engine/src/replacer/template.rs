@@ -14,7 +14,7 @@ use crate::source::{Content, Doc};
 use thiserror::Error;
 
 use std::borrow::Cow;
-use thread_utils::{RapidSet, get_set};
+use thread_utilities::{RapidSet, get_set};
 
 #[derive(Debug, Clone)]
 pub enum TemplateFix {
@@ -180,7 +180,7 @@ mod test {
     use crate::meta_var::{MetaVarEnv, MetaVariable};
     use crate::tree_sitter::LanguageExt;
     use std::sync::Arc;
-    use thread_utils::RapidMap;
+    use thread_utilities::RapidMap;
 
     #[test]
     fn test_example() {

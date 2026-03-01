@@ -14,7 +14,7 @@ use thiserror::Error;
 
 use std::borrow::Cow;
 use std::sync::{Arc, Weak};
-use thread_utils::{RapidMap, RapidSet, set_with_capacity};
+use thread_utilities::{RapidMap, RapidSet, set_with_capacity};
 
 #[derive(Debug)]
 pub struct Registration<R>(Arc<RapidMap<String, R>>);

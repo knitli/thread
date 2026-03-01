@@ -126,7 +126,7 @@ exceptions = [
   { allow = ["AGPL-3.0-or-later"], crate = "xtask" },
   { allow = ["AGPL-3.0-or-later"], crate = "thread-ast-engine" },
   { allow = ["AGPL-3.0-or-later"], crate = "thread-rule-engine" },
-  { allow = ["AGPL-3.0-or-later"], crate = "thread-utils" },
+  { allow = ["AGPL-3.0-or-later"], crate = "thread-utilities" },
   { allow = ["AGPL-3.0-or-later"], crate = "thread-language" },
   { allow = ["AGPL-3.0-or-later"], crate = "thread-flow" },
   { allow = ["AGPL-3.0-or-later"], crate = "thread" },

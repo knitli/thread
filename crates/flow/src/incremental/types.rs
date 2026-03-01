@@ -10,7 +10,7 @@
 use recoco::utils::fingerprint::{Fingerprint, Fingerprinter};
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
-use thread_utils::RapidSet;
+use thread_utilities::RapidSet;
 
 /// Tracks the fingerprint and source files for an analysis result.
 ///
@@ -197,7 +197,7 @@ impl AnalysisDefFingerprint {
         let mut fingerprinter = Fingerprinter::default();
         fingerprinter.write_raw_bytes(content);
         Self {
-            source_files: thread_utils::get_set(),
+            source_files: thread_utilities::get_set(),
             fingerprint: fingerprinter.into_fingerprint(),
             last_analyzed: None,
         }
@@ -217,7 +217,7 @@ impl AnalysisDefFingerprint {
     ///
     /// ```rust
     /// use thread_flow::incremental::types::AnalysisDefFingerprint;
-    /// use thread_utils::RapidSet;
+    /// use thread_utilities::RapidSet;
     /// use std::path::PathBuf;
     ///
     /// let sources = RapidSet::from([PathBuf::from("dep.rs")]);

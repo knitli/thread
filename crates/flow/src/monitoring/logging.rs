@@ -299,7 +299,7 @@ macro_rules! timed_operation {
 
 /// Structured logging helpers
 pub mod structured {
-    use thread_utils::RapidMap;
+    use thread_utilities::RapidMap;
 
     /// Build a structured log context
     pub struct LogContext {
@@ -310,7 +310,7 @@ pub mod structured {
         /// Create a new log context
         pub fn new() -> Self {
             Self {
-                fields: thread_utils::get_map(),
+                fields: thread_utilities::get_map(),
             }
         }
 

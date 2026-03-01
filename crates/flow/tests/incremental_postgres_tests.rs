@@ -126,7 +126,7 @@ async fn test_upsert_fingerprint() {
 async fn test_fingerprint_with_source_files() {
     let (backend, _container) = setup_backend().await;
 
-    let sources: thread_utils::RapidSet<PathBuf> = [
+    let sources: thread_utilities::RapidSet<PathBuf> = [
         PathBuf::from("src/utils.rs"),
         PathBuf::from("src/config.rs"),
     ]
@@ -207,7 +207,7 @@ async fn test_delete_nonexistent_fingerprint() {
 async fn test_delete_fingerprint_cascades_source_files() {
     let (backend, _container) = setup_backend().await;
 
-    let sources: thread_utils::RapidSet<PathBuf> = [PathBuf::from("dep.rs")].into_iter().collect();
+    let sources: thread_utilities::RapidSet<PathBuf> = [PathBuf::from("dep.rs")].into_iter().collect();
     let fp = AnalysisDefFingerprint::with_sources(b"content", sources);
 
     backend
@@ -226,7 +226,7 @@ async fn test_delete_fingerprint_cascades_source_files() {
         b"new content",
         [PathBuf::from("other.rs")]
             .into_iter()
-            .collect::<thread_utils::RapidSet<PathBuf>>(),
+            .collect::<thread_utilities::RapidSet<PathBuf>>(),
     );
     backend
         .save_fingerprint(Path::new("main.rs"), &fp2)
@@ -416,7 +416,7 @@ async fn test_full_graph_with_fingerprints_and_sources() {
     let (backend, _container) = setup_backend().await;
 
     // Save fingerprints with source files
-    let sources_a: thread_utils::RapidSet<PathBuf> =
+    let sources_a: thread_utilities::RapidSet<PathBuf> =
         [PathBuf::from("dep1.rs"), PathBuf::from("dep2.rs")]
             .into_iter()
             .collect();

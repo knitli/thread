@@ -586,7 +586,7 @@ Performance:
 CocoIndex's default hashing must be **replaced** with Thread's rapidhash:
 
 ```rust
-use thread_utils::hash_help::{rapidhash_bytes, rapidhash_file};
+use thread_utilities::hash_help::{rapidhash_bytes, rapidhash_file};
 
 // Custom hasher for CocoIndex
 pub struct ThreadHasher;
@@ -1292,7 +1292,7 @@ pub fn edge_rapidhash(bytes: &[u8]) -> u64 {
 // Durable Objects for WebSocket management
 #[cfg(feature = "cloudflare-edge")]
 pub struct ConflictSubscriptionsDurableObject {
-    subscriptions: thread_utils::RapidMap<String, WebSocket>,
+    subscriptions: thread_utilities::RapidMap<String, WebSocket>,
 }
 ```
 

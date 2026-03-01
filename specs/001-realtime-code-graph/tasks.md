@@ -51,7 +51,7 @@ See `crates/flow/` for the existing foundation.
   - Variants: DataLoadFailed, InvalidJson, InvalidToml, UnknownSemanticClass
 
 - [ ] **T-C04**: Implement `rules.rs`
-  - Deserialize `universal_rules.json` → `thread_utils::RapidMap<Box<str>, SemanticClass>` (exact) + majority maps
+  - Deserialize `universal_rules.json` → `thread_utilities::RapidMap<Box<str>, SemanticClass>` (exact) + majority maps
   - Deserialize `categories.json` → category map
   - Deserialize TOML overrides per SupportLang language
   - String-keyed fallback map for non-SupportLang languages (best-effort coverage)

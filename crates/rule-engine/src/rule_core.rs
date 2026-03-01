@@ -24,7 +24,7 @@ use thiserror::Error;
 
 use std::borrow::Cow;
 use std::ops::Deref;
-use thread_utils::{RapidMap, RapidSet};
+use thread_utilities::{RapidMap, RapidSet};
 
 #[derive(Error, Debug)]
 pub enum RuleCoreError {

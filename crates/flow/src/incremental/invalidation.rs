@@ -19,7 +19,7 @@ use super::graph::{DependencyGraph, GraphError};
 use metrics::histogram;
 use std::path::{Path, PathBuf};
 use std::time::Instant;
-use thread_utils::{RapidMap, RapidSet};
+use thread_utilities::{RapidMap, RapidSet};
 use tracing::{info, warn};
 
 /// Errors that can occur during invalidation detection.
@@ -45,7 +45,7 @@ pub enum InvalidationError {
 /// ```rust
 /// use thread_flow::incremental::invalidation::InvalidationDetector;
 /// use thread_flow::incremental::DependencyGraph;
-/// use thread_utils::RapishSet;
+/// use thread_utilities::RapishSet;
 /// use std::path::PathBuf;
 ///
 /// let graph = DependencyGraph::new();
@@ -407,10 +407,10 @@ impl TarjanState {
     fn new() -> Self {
         Self {
             index_counter: 0,
-            indices: thread_utils::get_map(),
-            lowlinks: thread_utils::get_map(),
+            indices: thread_utilities::get_map(),
+            lowlinks: thread_utilities::get_map(),
             stack: Vec::new(),
-            on_stack: thread_utils::get_set(),
+            on_stack: thread_utilities::get_set(),
         }
     }
 }

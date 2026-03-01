@@ -49,7 +49,7 @@ use futures::stream::{self, StreamExt};
 use metrics::{counter, gauge, histogram};
 use std::path::{Path, PathBuf};
 use std::time::Instant;
-use thread_utils::RapidSet;
+use thread_utilities::RapidSet;
 use tracing::{debug, info, instrument, warn};
 
 // ─── Error Types ─────────────────────────────────────────────────────────────

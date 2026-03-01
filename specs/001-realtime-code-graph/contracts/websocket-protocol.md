@@ -449,7 +449,7 @@ use worker::*;
 pub struct AnalysisSession {
     state: State,
     env: Env,
-    connections: thread_utils::RapidMap<String, WebSocket>,
+    connections: thread_utilities::RapidMap<String, WebSocket>,
 }
 
 #[durable_object]

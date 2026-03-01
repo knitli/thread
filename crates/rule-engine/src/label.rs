@@ -8,7 +8,7 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::ops::Range;
 use thread_ast_engine::{Doc, Node, NodeMatch};
-use thread_utils::RapidMap;
+use thread_utilities::RapidMap;
 
 #[derive(Serialize, Deserialize, Debug, Clone, JsonSchema, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
@@ -120,7 +120,7 @@ mod tests {
         let doc = TypeScript::Tsx.ast_grep("let foo = 42;");
         let pattern = Pattern::try_new("let $A = $B;", &TypeScript::Tsx).unwrap();
         let m = doc.root().find(pattern).unwrap();
-        let mut config = thread_utils::RapidMap::default();
+        let mut config = thread_utilities::RapidMap::default();
         config.insert(
             "A".to_string(),
             LabelConfig {
@@ -139,7 +139,7 @@ mod tests {
         let doc = TypeScript::Tsx.ast_grep("let foo = 42, bar = 99;");
         let pattern = Pattern::try_new("let $A = $B, $C = $D;", &TypeScript::Tsx).unwrap();
         let m = doc.root().find(pattern).unwrap();
-        let mut config = thread_utils::RapidMap::default();
+        let mut config = thread_utilities::RapidMap::default();
         config.insert(
             "A".to_string(),
             LabelConfig {

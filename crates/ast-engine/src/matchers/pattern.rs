@@ -15,7 +15,7 @@ use crate::{Doc, Node, Root};
 
 use bit_set::BitSet;
 use std::borrow::Cow;
-use thread_utils::RapidSet;
+use thread_utilities::RapidSet;
 
 impl PatternBuilder<'_> {
     pub fn build<D, F>(&self, parse: F) -> Result<Pattern, PatternError>
@@ -317,7 +317,7 @@ mod test {
     use crate::matcher::MatcherExt;
     use crate::meta_var::MetaVarEnv;
     use crate::tree_sitter::StrDoc;
-    use thread_utils::RapidMap;
+    use thread_utilities::RapidMap;
 
     fn pattern_node(s: &str) -> Root<StrDoc<Tsx>> {
         Root::str(s, Tsx)

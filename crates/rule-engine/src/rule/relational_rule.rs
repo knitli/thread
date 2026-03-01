@@ -14,7 +14,7 @@ use thread_ast_engine::{Doc, Matcher, Node};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
-use thread_utils::RapidSet;
+use thread_utilities::RapidSet;
 
 #[derive(Serialize, Deserialize, Clone, Debug, JsonSchema)]
 #[serde(rename_all = "camelCase")]

@@ -180,13 +180,13 @@ impl ExecutionContext for FileSystemContext {
 
 /// In-memory execution context for testing and WASM environments
 pub struct MemoryContext {
-    content: thread_utils::RapidMap<String, String>,
+    content: thread_utilities::RapidMap<String, String>,
 }
 
 impl MemoryContext {
     pub fn new() -> Self {
         Self {
-            content: thread_utils::RapidMap::default(),
+            content: thread_utilities::RapidMap::default(),
         }
     }
 

@@ -65,7 +65,7 @@ pub mod performance;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, RwLock};
 use std::time::{Duration, Instant};
-use thread_utils::RapidMap;
+use thread_utilities::RapidMap;
 
 /// Metrics collector for Thread Flow operations
 #[derive(Clone)]
@@ -105,7 +105,7 @@ impl Metrics {
                 files_processed: AtomicU64::new(0),
                 symbols_extracted: AtomicU64::new(0),
                 start_time: Instant::now(),
-                errors_by_type: RwLock::new(thread_utils::get_map()),
+                errors_by_type: RwLock::new(thread_utilities::get_map()),
             }),
         }
     }

@@ -81,7 +81,7 @@ pub mod services {
 /// Shared utilities and performance-critical primitives.
 #[cfg(feature = "utils")]
 pub mod utils {
-    pub use thread_utils::*;
+    pub use thread_utilities::*;
 }
 
 // Re-export common types at the top level for better ergonomics

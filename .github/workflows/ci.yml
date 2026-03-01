@@ -610,7 +610,7 @@ jobs:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
         run: |
           # Publish in dependency order
-          cargo publish -p thread-utils --allow-dirty || echo "Package already published"
+          cargo publish -p thread-utilities --allow-dirty || echo "Package already published"
           cargo publish -p thread-language --allow-dirty || echo "Package already published"
           cargo publish -p thread-ast-engine --allow-dirty || echo "Package already published"
           cargo publish -p thread-rule-engine --allow-dirty || echo "Package already published"

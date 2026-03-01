@@ -38,7 +38,7 @@ impl<D: thread_ast_engine::source::Doc + Send + Sync> CodeAnalyzer<D> for CocoIn
             supports_incremental_analysis: true,
             supported_analysis_depths: vec![], // TODO
             performance_profile: thread_services::traits::AnalysisPerformanceProfile::Balanced,
-            capability_flags: thread_utils::get_map(),
+            capability_flags: thread_utilities::get_map(),
         }
     }
 

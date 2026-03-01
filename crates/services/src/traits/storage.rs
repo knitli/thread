@@ -10,7 +10,7 @@
 
 use async_trait::async_trait;
 use std::time::{Duration, SystemTime};
-use thread_utils::RapidMap;
+use thread_utilities::RapidMap;
 
 use crate::error::ServiceResult;
 use crate::types::{AnalysisContext, CrossFileRelationship, ParsedDocument};

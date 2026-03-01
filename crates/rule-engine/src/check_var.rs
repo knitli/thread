@@ -12,7 +12,7 @@ use crate::rule_config::RuleConfigError;
 use crate::rule_core::RuleCoreError;
 use crate::transform::{Transform, TransformError};
 
-use thread_utils::{RapidMap, RapidSet};
+use thread_utilities::{RapidMap, RapidSet};
 
 type RResult<T> = std::result::Result<T, RuleCoreError>;
 

@@ -324,7 +324,7 @@ crates/
 ├── thread-rule-engine/    # EXISTING → EXTENDED: Pattern-based conflict rules
 │   └── src/
 │       └── conflict_rules/ # NEW: Conflict detection rule definitions
-├── thread-utils/          # EXISTING → REUSED: SIMD, hashing utilities
+├── thread-utilities/          # EXISTING → REUSED: SIMD, hashing utilities
 └── thread-wasm/           # EXISTING → EXTENDED: Edge deployment features
     ├── src/
     │   ├── api_bindings.rs # NEW: WASM bindings for thread-api
@@ -383,12 +383,12 @@ Library Layer (reusable, embeddable):
 
     thread-graph
        └─> thread-definitions (semantic classification)
-       └─> thread-utils (SIMD, hashing)
+       └─> thread-utilities (SIMD, hashing)
 
     thread-definitions
        └─> thread-language (SupportLang)
 
-    thread-ast-engine, thread-language, thread-utils (existing, no changes)
+    thread-ast-engine, thread-language, thread-utilities (existing, no changes)
 
 Edge Deployment:
     thread-wasm (WASM bindings)

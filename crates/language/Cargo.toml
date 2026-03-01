@@ -30,7 +30,7 @@ ignore = { workspace = true }
 mimalloc = { workspace = true, optional = true }
 serde = { workspace = true }
 thread-ast-engine = { workspace = true }
-thread-utils = { workspace = true, default-features = false, features = [
+thread-utilities = { workspace = true, default-features = false, features = [
   "hashers",
 ] }
 tree-sitter = { workspace = true }
@@ -162,5 +162,5 @@ tsx = ["tree-sitter-parsing", "tree-sitter-typescript"]
 tsx-napi = ["napi-environment", "tree-sitter-typescript"]
 typescript = ["tree-sitter-parsing", "tree-sitter-typescript"]
 typescript-napi = ["napi-environment", "tree-sitter-typescript"]
-worker = ["thread-ast-engine/worker", "thread-utils/worker"]
+worker = ["thread-ast-engine/worker", "thread-utilities/worker"]
 yaml = ["tree-sitter-parsing", "tree-sitter-yaml"]

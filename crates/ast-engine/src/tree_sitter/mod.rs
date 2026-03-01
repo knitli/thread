@@ -80,7 +80,7 @@ use std::borrow::Cow;
 use std::num::NonZero;
 use thiserror::Error;
 #[cfg(feature = "matching")]
-use thread_utils::RapidMap;
+use thread_utilities::RapidMap;
 pub use traversal::{TsPre, Visitor};
 pub use tree_sitter::Language as TSLanguage;
 use tree_sitter::{InputEdit, LanguageError, Node, Parser, Point, Tree};

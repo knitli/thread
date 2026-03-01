@@ -103,7 +103,7 @@ Thread follows a **service-library dual architecture** with six main crates plus
 - **`thread-ast-engine`** - Core AST parsing, pattern matching, and transformation engine
 - **`thread-language`** - Language definitions and tree-sitter parser integrations (20+ languages)
 - **`thread-rule-engine`** - Rule-based scanning and transformation with YAML configuration
-- **`thread-utils`** - Shared utilities including SIMD optimizations and hash functions
+- **`thread-utilities`** - Shared utilities including SIMD optimizations and hash functions
 - **`thread-wasm`** - WebAssembly bindings for browser and edge deployment
 
 ### Service Layer (Orchestration & Persistence)

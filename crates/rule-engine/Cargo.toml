@@ -28,7 +28,7 @@ serde_json = { workspace = true }
 serde_yaml = { workspace = true }
 thiserror.workspace = true
 thread-ast-engine = { workspace = true, features = ["matching", "parsing"] }
-thread-utils = { workspace = true, default-features = false, features = [
+thread-utilities = { workspace = true, default-features = false, features = [
   "hashers",
   "simd",
 ] }
@@ -55,5 +55,5 @@ mimalloc = ["dep:mimalloc"]
 # we need to separate serialization, but that's a big job, and ideally rework ast-engine to allow narrower featuring
 worker = [
   "thread-ast-engine/worker",
-  "thread-utils/worker",
+  "thread-utilities/worker",
 ]  # feature flag for cloud edge deployment specific logic
