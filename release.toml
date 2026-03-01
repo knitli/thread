@@ -5,22 +5,8 @@
 # cargo-release workspace configuration
 # https://github.com/crate-ci/cargo-release/blob/master/docs/reference.md
 allow-branch = ["main"]
-shared-version = true
+shared-version = false
 consolidate-commits = true
 push-remote = "origin"
-pre-release-hook = [
-  "bash",
-  "-c",
-  '''
-  SENTINEL="${WORKSPACE_ROOT}/.changelog-generated"
-  if [ ! -f "$SENTINEL" ]; then
-    touch "$SENTINEL"
-    mise -yq trust || true
-    mise run //:changelog
-  fi
-  ''',
-]
-pre-release-commit-message = "chore(release): v{{version}}"
-tag-name = "v{{version}}"
 push = true
 publish = true

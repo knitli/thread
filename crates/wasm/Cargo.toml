@@ -5,7 +5,7 @@
 
 [package]
 name = "thread-wasm"
-version.workspace = true
+version = "0.0.1"
 edition.workspace = true
 rust-version.workspace = true
 description = "WASM bindings for Thread. Deploy Thread to the web!"

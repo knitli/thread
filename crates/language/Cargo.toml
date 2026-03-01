@@ -4,7 +4,7 @@
 
 [package]
 name = "thread-language"
-version.workspace = true
+version = "0.1.0"
 edition.workspace = true
 rust-version.workspace = true
 description = "Language definitions and parsers for Thread"

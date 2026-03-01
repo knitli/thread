@@ -4,7 +4,7 @@
 
 [package]
 name = "thread-utils"
-version.workspace = true
+version = "0.1.1"
 edition.workspace = true
 rust-version.workspace = true
 description = "A collection of utilities for working with Thread. Includes fast hashers, SIMD operations, and more."

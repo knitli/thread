@@ -266,3 +266,6 @@ crates/cloudflare/
 .workbench/
 codeweaver_semantic_package/
 .changelog-generated
+
+*.local.*
+**/*.local.*
