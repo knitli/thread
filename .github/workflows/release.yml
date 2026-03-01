@@ -7,6 +7,8 @@
 name: Release
 on:
   push:
+    branches:
+      - main
     tags:
       - v*.*.*
   workflow_dispatch:
@@ -27,12 +29,14 @@ jobs:
     name: Create Release
     runs-on: ubuntu-latest
     outputs:
+      assets: ${{ steps.create_release.outputs.assets }}
       upload_url: ${{ steps.create_release.outputs.upload_url }}
+      url: ${{ steps.create_release.outputs.url }}
       version: ${{ steps.get_version.outputs.version }}
     steps:
       - run: |
-          apt update && sudo apt install -y clang llvm-dev
-      - uses: actions/checkout@v4
+          sudo apt update && sudo apt install -y clang llvm-dev
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Get version
@@ -48,36 +52,42 @@ jobs:
           fi
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
           echo "Version: ${VERSION}"
-      - name: Generate changelog
-        id: changelog
-        env:
-          VERSION: ${{ steps.get_version.outputs.version }}
+      - name: Setup mise
+        uses: jdx/mise-action@v3
+        with:
+          install: true
+          cache: true
+          experimental: true
+          mise_toml: |
+            [tools]
+            "pipx:reuse" = "latest"
+            python = "3.13"
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          reshim: true
+      - name: Generate sbom
+        id: sbom
         run: |
-          # Extract changelog for this version
-          if [ -f "CHANGELOG.md" ]; then
-              CHANGELOG="$(sed -n "/## \[${VERSION}\]/,/## \[/p" CHANGELOG.md | sed '$ d')"
-          else
-              CHANGELOG="Release ${VERSION}"
-          fi
-          {
-              echo "changelog<<EOF"
-              echo "$CHANGELOG"
-              echo "EOF"
-          } >> "$GITHUB_OUTPUT"
+          mise x "pipx:reuse" -- reuse spdx --add-license-concluded --creator-organization "Knitli Inc." -o "sbom-${{ steps.get_version.outputs.version }}.spdx"
+          echo "sbom_path=sbom-${{ steps.get_version.outputs.version }}.spdx" >> "$GITHUB_OUTPUT"
+          echo "sbom_content=$(cat sbom-${{ steps.get_version.outputs.version }}.spdx)" >> "$GITHUB_OUTPUT"
       - name: Create GitHub Release
         id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.get_version.outputs.version }}
-          release_name: Release ${{ steps.get_version.outputs.version }}
-          body: ${{ steps.changelog.outputs.changelog }}
+          name: Release ${{ steps.get_version.outputs.version }}
+          generate_release_notes: true
+          fail_on_unmatched_files: false
+          repository: ${{ github.repository }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           draft: false
           prerelease: false
-  # Build CLI binaries for multiple platforms
+          make_latest: true
+          files: |
+            ${{ steps.sbom.outputs.sbom_path }}
+  # Build binaries for multiple platforms
   build-cli:
-    name: Build CLI (${{ matrix.target }})
+    name: Build (${{ matrix.target }})
     needs: create-release
     strategy:
       fail-fast: false
@@ -136,10 +146,14 @@ jobs:
           USE_CROSS: ${{ matrix.cross }}
         run: |
           if [ "${USE_CROSS}" == "true" ]; then
-              cross build --release --target "${TARGET}" --features parallel,caching
+              cross build --workspace --release --target "${TARGET}" --features parallel,caching
           else
-              cargo build --release --target "${TARGET}" --features parallel,caching
+              cargo build --workspace --release --target "${TARGET}" --features parallel,caching
           fi
+          cargo install cargo-cyclonedx --locked
+          cargo cyclonedx --format json --output "sbom-${TARGET}.json"
+          cargo cyclonedx --format xml --output "sbom-${TARGET}.xml"
+          cargo cyclonedx --all-dependencies --include-license-text --format json --output "sbom-complete-${TARGET}.json"
         shell: bash
       - name: Strip binary (if applicable)
         if: matrix.strip
@@ -158,11 +172,11 @@ jobs:
         run: |
           ARCHIVE_NAME="thread-${VERSION}-${TARGET}"
           if [ "${OS_TYPE}" == "windows-latest" ]; then
-              7z a "${ARCHIVE_NAME}.zip" "./target/${TARGET}/release/thread.exe"
+              7z a "${ARCHIVE_NAME}.zip" "./target/${TARGET}/release/thread.exe ./sbom-${TARGET}.json ./sbom-${TARGET}.xml ./sbom-complete-${TARGET}.json"
               echo "asset_path=${ARCHIVE_NAME}.zip" >> "$GITHUB_OUTPUT"
               echo "asset_content_type=application/zip" >> "$GITHUB_OUTPUT"
           else
-              tar czf "${ARCHIVE_NAME}.tar.gz" -C "target/${TARGET}/release" thread
+              tar czf "${ARCHIVE_NAME}.tar.gz" -C "target/${TARGET}/release" thread "./sbom-${TARGET}.json" "./sbom-${TARGET}.xml" "./sbom-complete-${TARGET}.json" thread
               echo "asset_path=${ARCHIVE_NAME}.tar.gz" >> "$GITHUB_OUTPUT"
               echo "asset_content_type=application/gzip" >> "$GITHUB_OUTPUT"
           fi
@@ -177,83 +191,6 @@ jobs:
           asset_path: ${{ steps.archive.outputs.asset_path }}
           asset_name: ${{ steps.archive.outputs.asset_name }}${{ matrix.os == 'windows-latest' && '.zip' || '.tar.gz' }}
           asset_content_type: ${{ steps.archive.outputs.asset_content_type }}
-  # Build and publish WASM package
-  build-wasm:
-    name: Build & Publish WASM
-    needs: create-release
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: recursive
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: wasm32-unknown-unknown
-      - name: Cache Rust dependencies
-        uses: Swatinem/rust-cache@v2
-      - name: Install wasm-pack
-        uses: jetli/wasm-pack-action@v0.4.0
-      - name: Build WASM package
-        run: cargo run -p xtask build-wasm --release
-      - name: Create WASM archive
-        env:
-          VERSION: ${{ needs.create-release.outputs.version }}
-        run: |
-          ARCHIVE_NAME="thread-wasm-${VERSION}"
-          tar czf "${ARCHIVE_NAME}.tar.gz" \
-              thread_wasm_bg.wasm \
-              thread_wasm.js \
-              thread_wasm.d.ts \
-              package.json
-      - name: Upload WASM archive
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VERSION: ${{ needs.create-release.outputs.version }}
-        with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: thread-wasm-${{ needs.create-release.outputs.version }}.tar.gz
-          asset_name: thread-wasm-${{ needs.create-release.outputs.version }}.tar.gz
-          asset_content_type: application/gzip
-  # Build Docker images
-  build-docker:
-    name: Build Docker Images
-    needs: create-release
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: recursive
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ghcr.io/${{ github.repository }}
-          tags: |
-            type=semver,pattern={{version}},value=v${{ needs.create-release.outputs.version }}
-            type=semver,pattern={{major}}.{{minor}},value=v${{ needs.create-release.outputs.version }}
-            type=semver,pattern={{major}},value=v${{ needs.create-release.outputs.version }}
-            type=raw,value=latest
-      - name: Build and push
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-  # Publish to crates.io (optional, requires CARGO_REGISTRY_TOKEN)
   publish-crates:
     name: Publish to crates.io
     needs:
@@ -262,11 +199,11 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: recursive
       - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@nightly
       - name: Cache Rust dependencies
         uses: Swatinem/rust-cache@v2
       - name: Install cargo-release
@@ -277,56 +214,19 @@ jobs:
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
         run: cargo release publish --no-confirm
-  # Deploy to Cloudflare Workers (Edge deployment)
-  deploy-edge:
-    name: Deploy to Cloudflare Edge
-    needs:
-      - create-release
-      - build-wasm
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
-    environment:
-      name: production-edge
-      url: https://thread.knitli.com
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: recursive
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: wasm32-unknown-unknown
-      - name: Cache Rust dependencies
-        uses: Swatinem/rust-cache@v2
-      - name: Install wasm-pack
-        uses: jetli/wasm-pack-action@v0.4.0
-      - name: Build WASM for Workers
-        run: cargo run -p xtask build-wasm --release
-      - name: Deploy to Cloudflare Workers
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: deploy --env production
   # Release notification
   notify:
     name: Release Notification
     needs:
       - create-release
       - build-cli
-      - build-wasm
-      - build-docker
     runs-on: ubuntu-latest
     if: always()
     steps:
       - name: Check release status
         env:
           VERSION: ${{ needs.create-release.outputs.version }}
-          CLI_RESULT: ${{ needs.build-cli.result }}
-          WASM_RESULT: ${{ needs.build-wasm.result }}
-          DOCKER_RESULT: ${{ needs.build-docker.result }}
+          RESULT: ${{ needs.build-cli.result }}
         run: |
           echo "Release v${VERSION} completed"
-          echo "CLI builds: ${CLI_RESULT}"
-          echo "WASM build: ${WASM_RESULT}"
-          echo "Docker build: ${DOCKER_RESULT}"
+          echo "Build result: ${RESULT}"
