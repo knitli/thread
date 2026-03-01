@@ -3,20 +3,23 @@
 #
 # SPDX-License-Identifier: MIT OR Apache-2.0
 # ! GitHub Action for automated releases
-# ! Builds and publishes releases for multiple platforms
+# ! cargo smart-release drives versioning, changelogs, crates.io publishing, and tagging.
+# ! Binary builds and GitHub release creation depend on the smart-release job output.
 name: Release
 on:
-  push:
-    branches:
-      - main
-    tags:
-      - v*.*.*
   workflow_dispatch:
     inputs:
-      version:
-        description: Version to release (e.g., 0.1.0)
-        required: true
-        type: string
+      bump:
+        description: Bump level (auto = detect from conventional commits per crate)
+        required: false
+        default: auto
+        type: choice
+        options:
+          - auto
+          - major
+          - minor
+          - patch
+          - keep
 env:
   CARGO_TERM_COLOR: always
   CARGO_INCREMENTAL: 0
@@ -24,34 +27,60 @@ permissions:
   contents: write
   packages: write
 jobs:
-  # Create GitHub release
-  create-release:
-    name: Create Release
+  # Version, changelog, tag, and publish all crates via cargo smart-release
+  smart-release:
+    name: Version, Changelog & Publish
     runs-on: ubuntu-latest
     outputs:
-      assets: ${{ steps.create_release.outputs.assets }}
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
-      url: ${{ steps.create_release.outputs.url }}
-      version: ${{ steps.get_version.outputs.version }}
+      version: ${{ steps.get-version.outputs.version }}
     steps:
       - run: |
           sudo apt update && sudo apt install -y clang llvm-dev
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Get version
-        id: get_version
-        env:
-          INPUT_VERSION: ${{ github.event.inputs.version }}
-          REF_NAME: ${{ github.ref }}
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+      - name: Install cargo-smart-release
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-smart-release
+      - name: Configure git
         run: |
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            VERSION="${INPUT_VERSION}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+      - name: Run cargo smart-release
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+          BUMP: ${{ inputs.bump }}
+        run: |
+          if [ "${BUMP}" != "auto" ]; then
+            cargo smart-release --execute --bump "${BUMP}"
           else
-            VERSION="${REF_NAME#refs/tags/v}"
+            cargo smart-release --execute
           fi
+      - name: Get released version (thread CLI crate)
+        id: get-version
+        run: |
+          VERSION=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[] | select(.name == "thread") | .version')
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
-          echo "Version: ${VERSION}"
+  # Generate SBOM and create the GitHub release using the version from smart-release
+  create-release:
+    name: Create GitHub Release
+    needs: smart-release
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+      url: ${{ steps.create_release.outputs.url }}
+    steps:
+      - run: |
+          sudo apt update && sudo apt install -y clang llvm-dev
+      - uses: actions/checkout@v4
+        with:
+          ref: thread-v${{ needs.smart-release.outputs.version }}
+          fetch-depth: 0
       - name: Setup mise
         uses: jdx/mise-action@v3
         with:
@@ -66,16 +95,17 @@ jobs:
           reshim: true
       - name: Generate sbom
         id: sbom
+        env:
+          VERSION: ${{ needs.smart-release.outputs.version }}
         run: |
-          mise x "pipx:reuse" -- reuse spdx --add-license-concluded --creator-organization "Knitli Inc." -o "sbom-${{ steps.get_version.outputs.version }}.spdx"
-          echo "sbom_path=sbom-${{ steps.get_version.outputs.version }}.spdx" >> "$GITHUB_OUTPUT"
-          echo "sbom_content=$(cat sbom-${{ steps.get_version.outputs.version }}.spdx)" >> "$GITHUB_OUTPUT"
+          mise x "pipx:reuse" -- reuse spdx --add-license-concluded --creator-organization "Knitli Inc." -o "sbom-${VERSION}.spdx"
+          echo "sbom_path=sbom-${VERSION}.spdx" >> "$GITHUB_OUTPUT"
       - name: Create GitHub Release
         id: create_release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ steps.get_version.outputs.version }}
-          name: Release ${{ steps.get_version.outputs.version }}
+          tag_name: thread-v${{ needs.smart-release.outputs.version }}
+          name: Release ${{ needs.smart-release.outputs.version }}
           generate_release_notes: true
           fail_on_unmatched_files: false
           repository: ${{ github.repository }}
@@ -88,7 +118,9 @@ jobs:
   # Build binaries for multiple platforms
   build-cli:
     name: Build (${{ matrix.target }})
-    needs: create-release
+    needs:
+      - smart-release
+      - create-release
     strategy:
       fail-fast: false
       matrix:
@@ -128,6 +160,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: thread-v${{ needs.smart-release.outputs.version }}
           submodules: recursive
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
@@ -166,17 +199,17 @@ jobs:
       - name: Create archive
         id: archive
         env:
-          VERSION: ${{ needs.create-release.outputs.version }}
+          VERSION: ${{ needs.smart-release.outputs.version }}
           TARGET: ${{ matrix.target }}
           OS_TYPE: ${{ matrix.os }}
         run: |
           ARCHIVE_NAME="thread-${VERSION}-${TARGET}"
           if [ "${OS_TYPE}" == "windows-latest" ]; then
-              7z a "${ARCHIVE_NAME}.zip" "./target/${TARGET}/release/thread.exe ./sbom-${TARGET}.json ./sbom-${TARGET}.xml ./sbom-complete-${TARGET}.json"
+              7z a "${ARCHIVE_NAME}.zip" "./target/${TARGET}/release/thread.exe" "./sbom-${TARGET}.json" "./sbom-${TARGET}.xml" "./sbom-complete-${TARGET}.json"
               echo "asset_path=${ARCHIVE_NAME}.zip" >> "$GITHUB_OUTPUT"
               echo "asset_content_type=application/zip" >> "$GITHUB_OUTPUT"
           else
-              tar czf "${ARCHIVE_NAME}.tar.gz" -C "target/${TARGET}/release" thread "./sbom-${TARGET}.json" "./sbom-${TARGET}.xml" "./sbom-complete-${TARGET}.json" thread
+              tar czf "${ARCHIVE_NAME}.tar.gz" -C "target/${TARGET}/release" thread -C "${GITHUB_WORKSPACE}" "sbom-${TARGET}.json" "sbom-${TARGET}.xml" "sbom-complete-${TARGET}.json"
               echo "asset_path=${ARCHIVE_NAME}.tar.gz" >> "$GITHUB_OUTPUT"
               echo "asset_content_type=application/gzip" >> "$GITHUB_OUTPUT"
           fi
@@ -191,45 +224,18 @@ jobs:
           asset_path: ${{ steps.archive.outputs.asset_path }}
           asset_name: ${{ steps.archive.outputs.asset_name }}${{ matrix.os == 'windows-latest' && '.zip' || '.tar.gz' }}
           asset_content_type: ${{ steps.archive.outputs.asset_content_type }}
-  publish-crates:
-    name: Publish to crates.io
-    needs:
-      - create-release
-      - build-cli
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          submodules: recursive
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@nightly
-      - name: Cache Rust dependencies
-        uses: Swatinem/rust-cache@v2
-      - name: Install cargo-smart-release
-        uses: taiki-e/install-action@v2
-        with:
-          tool: cargo-smart-release
-      - name: Configure git for smart-release
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-      - name: Publish to crates.io
-        env:
-          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
-        run: cargo smart-release --execute --no-push --no-tag --no-changelog --bump keep
   # Release notification
   notify:
     name: Release Notification
     needs:
-      - create-release
+      - smart-release
       - build-cli
     runs-on: ubuntu-latest
     if: always()
     steps:
       - name: Check release status
         env:
-          VERSION: ${{ needs.create-release.outputs.version }}
+          VERSION: ${{ needs.smart-release.outputs.version }}
           RESULT: ${{ needs.build-cli.result }}
         run: |
           echo "Release v${VERSION} completed"
