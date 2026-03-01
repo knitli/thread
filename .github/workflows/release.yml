@@ -57,9 +57,11 @@ jobs:
           BUMP: ${{ inputs.bump }}
         run: |
           if [ "${BUMP}" != "auto" ]; then
-            cargo smart-release --execute --bump "${BUMP}"
+            cargo smart-release --execute --bump "${BUMP}" --update-crates-index --allow-fully-generated-changelogs \
+              --changelog-without clippy --commit-prefix 'chore(release): '
           else
-            cargo smart-release --execute
+            cargo smart-release --execute --update-crates-index --allow-fully-generated-changelogs \
+              --changelog-without clippy --commit-prefix 'chore(release): '
           fi
       - name: Get released version (thread CLI crate)
         id: get-version
