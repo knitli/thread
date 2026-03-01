@@ -7,38 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## v0.1.0 (2026-03-01)
 
+<csr-id-659510d42574fe2efe5639bb749d9f29445e7d88/>
+
 ### New Features
 
  - <csr-id-eead51dcb62ee0b6fe99856ce40ef929df1c7d41/> Implement main thread crate to unify crate exposure
    * feat(thread): Implement main thread crate to unify crate exposure
-   
-   * fix(tests): fixed failing tests and clarified language in planning docs
-   
-   * fix(tests): fixed several test and typing issues
-   
-   * fix: missing re-export causing failing tests. All tests across codebase now passing
-   
-   * fix: multiple test and typing fixes. test suite now all green.
-   
-   * chore(ci): update cargo-deny to ignore trivial dependency lockfile duplications
-   
-   * chore(lint): formatting and minor fixes
-   
-   * chore(fmt): formatted codebase
-   
-   * feat: add support for terraform, nix, and solidity; update language tests
-   
-   * feat: add support for terraform, nix, and solidity; update language tests
-   
-   * fix: fixed issue where all-features caused failures in CI due to conflicting feature flags
-   
-   * fix(ci): correct issue where Rust stable causes lint failures (thread-services uses experimental trait aliases)
-   
-   * fix(ci): Remove cargo license check from CI; redundant with cargo deny, which is more reliable
-   
-   * fix(ci): remove Semgrep-SAST check; semgrep-action is deprecated and caused failing CI from deprecation warnings
-   
-   * [38;5;238m─────┬──────────────────────────────────────────────────────────────────────────[0m
+* fix(tests): fixed failing tests and clarified language in planning docs
+* fix(tests): fixed several test and typing issues
+* fix: missing re-export causing failing tests. All tests across codebase now passing
+* fix: multiple test and typing fixes. test suite now all green.
+* chore(ci): update cargo-deny to ignore trivial dependency lockfile duplications
+* chore(lint): formatting and minor fixes
+* chore(fmt): formatted codebase
+* feat: add support for terraform, nix, and solidity; update language tests
+* feat: add support for terraform, nix, and solidity; update language tests
+* fix: fixed issue where all-features caused failures in CI due to conflicting feature flags
+* fix(ci): correct issue where Rust stable causes lint failures (thread-services uses experimental trait aliases)
+* fix(ci): Remove cargo license check from CI; redundant with cargo deny, which is more reliable
+* fix(ci): remove Semgrep-SAST check; semgrep-action is deprecated and caused failing CI from deprecation warnings
+* [38;5;238m─────┬──────────────────────────────────────────────────────────────────────────[0m
         [38;5;238m│ [0m[1mSTDIN[0m
    [38;5;238m─────┼──────────────────────────────────────────────────────────────────────────[0m
    [38;5;238m   1[0m [38;5;238m│[0m [38;5;231mfix(thread): expose flow module under worker feature; fix test type annotation[0m
@@ -54,8 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    [38;5;238m  11[0m [38;5;238m│[0m
    [38;5;238m  12[0m [38;5;238m│[0m [38;5;231mCo-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>[0m
    [38;5;238m─────┴──────────────────────────────────────────────────────────────────────────[0m
-   
-   * [38;5;238m─────┬──────────────────────────────────────────────────────────────────────────[0m
+* [38;5;238m─────┬──────────────────────────────────────────────────────────────────────────[0m
         [38;5;238m│ [0m[1mSTDIN[0m
    [38;5;238m─────┼──────────────────────────────────────────────────────────────────────────[0m
    [38;5;238m   1[0m [38;5;238m│[0m [38;5;231mfix(ci): resolve three clippy errors causing CI failures[0m
@@ -72,8 +59,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    [38;5;238m  12[0m [38;5;238m│[0m
    [38;5;238m  13[0m [38;5;238m│[0m [38;5;231mCo-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>[0m
    [38;5;238m─────┴──────────────────────────────────────────────────────────────────────────[0m
-   
-   * [38;5;238m─────┬──────────────────────────────────────────────────────────────────────────[0m
+* [38;5;238m─────┬──────────────────────────────────────────────────────────────────────────[0m
         [38;5;238m│ [0m[1mSTDIN[0m
    [38;5;238m─────┼──────────────────────────────────────────────────────────────────────────[0m
    [38;5;238m   1[0m [38;5;238m│[0m [38;5;231mfix(ci): resolve additional clippy lints in flow crate[0m
@@ -89,12 +75,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    [38;5;238m  11[0m [38;5;238m│[0m
    [38;5;238m  12[0m [38;5;238m│[0m [38;5;231mCo-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>[0m
    [38;5;238m─────┴──────────────────────────────────────────────────────────────────────────[0m
-   
-   * fix(lint): fix lint warnings
-   
-   * feat: replace HashMap/Set usage with RapidMap/Set across flow crate; linting
-   
-   * [38;5;238m─────┬──────────────────────────────────────────────────────────────────────────[0m
+* fix(lint): fix lint warnings
+* feat: replace HashMap/Set usage with RapidMap/Set across flow crate; linting
+* [38;5;238m─────┬──────────────────────────────────────────────────────────────────────────[0m
         [38;5;238m│ [0m[1mSTDIN[0m
    [38;5;238m─────┼──────────────────────────────────────────────────────────────────────────[0m
    [38;5;238m   1[0m [38;5;238m│[0m [38;5;231mfeat(alloc): add mimalloc as optional global allocator across all crates[0m
@@ -118,8 +101,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    [38;5;238m  19[0m [38;5;238m│[0m
    [38;5;238m  20[0m [38;5;238m│[0m [38;5;231mCo-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>[0m
    [38;5;238m─────┴──────────────────────────────────────────────────────────────────────────[0m
-   
-   * [38;5;238m─────┬──────────────────────────────────────────────────────────────────────────[0m
+* [38;5;238m─────┬──────────────────────────────────────────────────────────────────────────[0m
         [38;5;238m│ [0m[1mSTDIN[0m
    [38;5;238m─────┼──────────────────────────────────────────────────────────────────────────[0m
    [38;5;238m   1[0m [38;5;238m│[0m [38;5;231mfix(alloc): remove duplicate #[global_allocator] from all library crates[0m
@@ -145,10 +127,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    [38;5;238m  21[0m [38;5;238m│[0m
    [38;5;238m  22[0m [38;5;238m│[0m [38;5;231mCo-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>[0m
    [38;5;238m─────┴──────────────────────────────────────────────────────────────────────────[0m
-   
-   * fix: developer error with mimalloc usage :)
-   
-   * [38;5;238m─────┬──────────────────────────────────────────────────────────────────────────[0m
+* fix: developer error with mimalloc usage :)
+* [38;5;238m─────┬──────────────────────────────────────────────────────────────────────────[0m
         [38;5;238m│ [0m[1mSTDIN[0m
    [38;5;238m─────┼──────────────────────────────────────────────────────────────────────────[0m
    [38;5;238m   1[0m [38;5;238m│[0m [38;2;248;248;242mfix(lint): resolve clippy warnings in thread-utils tests[0m
@@ -159,8 +139,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    [38;5;238m   6[0m [38;5;238m│[0m
    [38;5;238m   7[0m [38;5;238m│[0m [38;2;248;248;242mCo-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>[0m
    [38;5;238m─────┴──────────────────────────────────────────────────────────────────────────[0m
-   
-   * [38;5;238m─────┬──────────────────────────────────────────────────────────────────────────[0m
+* [38;5;238m─────┬──────────────────────────────────────────────────────────────────────────[0m
         [38;5;238m│ [0m[1mSTDIN[0m
    [38;5;238m─────┼──────────────────────────────────────────────────────────────────────────[0m
    [38;5;238m   1[0m [38;5;238m│[0m [38;5;231mfix(lint): pass MatchStrictness by value in ast-engine match functions[0m
@@ -170,8 +149,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    [38;5;238m   5[0m [38;5;238m│[0m
    [38;5;238m   6[0m [38;5;238m│[0m [38;5;231mCo-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>[0m
    [38;5;238m─────┴──────────────────────────────────────────────────────────────────────────[0m
-   
-   * [38;5;238m─────┬──────────────────────────────────────────────────────────────────────────[0m
+* [38;5;238m─────┬──────────────────────────────────────────────────────────────────────────[0m
         [38;5;238m│ [0m[1mSTDIN[0m
    [38;5;238m─────┼──────────────────────────────────────────────────────────────────────────[0m
    [38;5;238m   1[0m [38;5;238m│[0m [38;5;231mfix(tooling): pin mise rust tool to nightly[0m
@@ -182,8 +160,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    [38;5;238m   6[0m [38;5;238m│[0m
    [38;5;238m   7[0m [38;5;238m│[0m [38;5;231mCo-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>[0m
    [38;5;238m─────┴──────────────────────────────────────────────────────────────────────────[0m
-   
-   * [38;5;238m─────┬──────────────────────────────────────────────────────────────────────────[0m
+* [38;5;238m─────┬──────────────────────────────────────────────────────────────────────────[0m
         [38;5;238m│ [0m[1mSTDIN[0m
    [38;5;238m─────┼──────────────────────────────────────────────────────────────────────────[0m
    [38;5;238m   1[0m [38;5;238m│[0m [38;5;231mfix(ci): scope integration tests to flow crate[0m
@@ -198,8 +175,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    [38;5;238m  10[0m [38;5;238m│[0m
    [38;5;238m  11[0m [38;5;238m│[0m [38;5;231mCo-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>[0m
    [38;5;238m─────┴──────────────────────────────────────────────────────────────────────────[0m
-   
-   * [38;5;238m─────┬──────────────────────────────────────────────────────────────────────────[0m
+* [38;5;238m─────┬──────────────────────────────────────────────────────────────────────────[0m
         [38;5;238m│ [0m[1mSTDIN[0m
    [38;5;238m─────┼──────────────────────────────────────────────────────────────────────────[0m
    [38;5;238m   1[0m [38;5;238m│[0m [38;5;231mfix(ci): use single-line run for integration test command[0m
@@ -210,8 +186,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    [38;5;238m   6[0m [38;5;238m│[0m
    [38;5;238m   7[0m [38;5;238m│[0m [38;5;231mCo-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>[0m
    [38;5;238m─────┴──────────────────────────────────────────────────────────────────────────[0m
-   
-   * [38;5;238m─────┬──────────────────────────────────────────────────────────────────────────[0m
+* [38;5;238m─────┬──────────────────────────────────────────────────────────────────────────[0m
         [38;5;238m│ [0m[1mSTDIN[0m
    [38;5;238m─────┼──────────────────────────────────────────────────────────────────────────[0m
    [38;5;238m   1[0m [38;5;238m│[0m [38;5;231mfix(lint): resolve clippy warnings in test, bench, and example files[0m
@@ -230,8 +205,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    [38;5;238m  14[0m [38;5;238m│[0m
    [38;5;238m  15[0m [38;5;238m│[0m [38;5;231mCo-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>[0m
    [38;5;238m─────┴──────────────────────────────────────────────────────────────────────────[0m
-   
-   * fix: corrected version to current 0.2.0
+* fix: corrected version to current 0.2.0
 
 ### Refactor
 
@@ -239,12 +213,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    - Updated all occurrences of `thread_utils` to `thread_utilities` in source files, tests, and documentation.
    - Adjusted Cargo.toml files to reflect the new crate name.
 
+### Chore
+
+ - <csr-id-aac8239716f1a57806c308f0e44e41289e6cc9d0/> Release thread-utilities v0.1.3, thread-ast-engine v0.1.0, thread-language v0.1.0, thread-services v0.1.0, thread-flow v0.1.0, thread-rule-engine v0.1.0, thread v0.1.0
+
 ### Commit Statistics
 
 <csr-read-only-do-not-edit/>
 
- - 2 commits contributed to the release over the course of 1 calendar day.
- - 2 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 3 commits contributed to the release over the course of 1 calendar day.
+ - 3 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 1 unique issue was worked on: [#75](https://github.com/knitli/thread/issues/75)
 
 ### Commit Details
@@ -256,6 +234,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  * **[#75](https://github.com/knitli/thread/issues/75)**
     - Implement main thread crate to unify crate exposure ([`eead51d`](https://github.com/knitli/thread/commit/eead51dcb62ee0b6fe99856ce40ef929df1c7d41))
  * **Uncategorized**
+    - Release thread-utilities v0.1.3, thread-ast-engine v0.1.0, thread-language v0.1.0, thread-services v0.1.0, thread-flow v0.1.0, thread-rule-engine v0.1.0, thread v0.1.0 ([`aac8239`](https://github.com/knitli/thread/commit/aac8239716f1a57806c308f0e44e41289e6cc9d0))
     - Rename thread-utils to thread-utilities across the codebase. Crates.io namespace conflict required the rename. ([`659510d`](https://github.com/knitli/thread/commit/659510d42574fe2efe5639bb749d9f29445e7d88))
 </details>
 
