@@ -4,7 +4,7 @@
 
 [package]
 name = "thread-ast-engine"
-version = "0.1.0"
+version = "0.1.1"
 edition.workspace = true
 rust-version.workspace = true
 description = "Core AST engine for Thread - parsing, matching, and transforming code using AST patterns. Forked from ast-grep-core."
