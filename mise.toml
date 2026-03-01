@@ -20,7 +20,6 @@ cargo-binstall = "latest"
 "cargo:cargo-edit" = "latest"
 "cargo:cargo-generate" = "latest"
 "cargo:cargo-nextest" = "latest"
-"cargo:cargo-release" = "latest"
 "cargo:cargo-smart-release" = "latest"
 "cargo:cargo-watch" = "latest"
 "cargo:git-cliff" = "latest"
@@ -231,24 +230,17 @@ eval "$exec_cmd"
 
 [tasks.release]
 usage = '''
-arg "<bump>" help="type of semver release" {
-  choices "major" "minor" "patch"
+arg "[bump]" help="bump level: major, minor, patch, or keep; omit to auto-detect from commits" {
+  choices "major" "minor" "patch" "keep"
 }
-flag "-d --dry-run" help="Dry run only"
-flag "-n --no-publish" help="Skip publishing to crates.io (useful for batching first-time releases across the 5-new-crate rate limit)"
 '''
+description = "Dry-run release preview using cargo smart-release — actual releases happen in CI"
 run = '''
-rm -f .changelog-generated
-if [ "${usage_dry_run}" ] && [ "${usage_no_publish}" ]; then
-  cargo release --no-publish "$usage_bump"
-elif [ "${usage_dry_run}" ]; then
-  cargo release "$usage_bump"
-elif [ "${usage_no_publish}" ]; then
-  cargo release -x --no-publish "$usage_bump"
+if [ -n "${usage_bump}" ]; then
+  cargo smart-release --bump "${usage_bump}"
 else
-  cargo release -x "$usage_bump"
+  cargo smart-release
 fi
-rm -f .changelog-generated
 '''
 
 [tasks.changelog]
