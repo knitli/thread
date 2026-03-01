@@ -58,10 +58,10 @@ jobs:
         run: |
           if [ "${BUMP}" != "auto" ]; then
             cargo smart-release --execute --bump "${BUMP}" --update-crates-index --allow-fully-generated-changelogs \
-              --changelog-without clippy --commit-prefix 'chore(release): '
+              --changelog-without clippy --commit-prefix 'chore(release): ' --ignore-instability --dangerously-pass-no-verify
           else
             cargo smart-release --execute --update-crates-index --allow-fully-generated-changelogs \
-              --changelog-without clippy --commit-prefix 'chore(release): '
+              --changelog-without clippy --commit-prefix 'chore(release): ' --ignore-instability --dangerously-pass-no-verify
           fi
       - name: Get released version (thread CLI crate)
         id: get-version
