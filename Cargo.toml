@@ -39,7 +39,13 @@ keywords = [
   "static-analysis",
   "tree-sitter",
 ]
-categories = ["development-tools", "parser-implementations", "text-processing"]
+categories = [
+  "artificial-intelligence",
+  "command-line-utilities",
+  "development-tools",
+  "parser-implementations",
+  "text-processing"
+]
 include = [
   "CHANGELOG.md",
   "CONTRIBUTING.md",

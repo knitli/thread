@@ -11,8 +11,8 @@ description = "Rule-based scanning and transformation engine for Thread"
 readme = "README.md"
 repository.workspace = true
 license = "AGPL-3.0-or-later AND MIT"
-keywords = ["ast", "codemod", "pattern", "rewrite", "rules", "search"]
-categories = ["command-line-utilities", "development-tools", "parsing"]
+keywords = ["ast", "codemod", "rewrite", "rules", "search"]
+categories.workspace = true
 include.workspace = true
 
 # [features] # we need to separate serialization, but that's a big job, and ideally rework ast-engine to allow narrower featuring

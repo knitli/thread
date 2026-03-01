@@ -12,8 +12,14 @@ documentation.workspace = true
 homepage.workspace = true
 repository.workspace = true
 license.workspace = true
-keywords = ["fast", "hashing", "performance", "simd", "thread", "utils"]
-categories = ["data-structures", "performance", "utils"]
+keywords = ["fast", "hashing", "performance", "simd"]
+categories = [
+  "algorithms",
+  "data-structures",
+  "development-tools",
+  "parser-implementations",
+  "text-processing"
+]
 include.workspace = true
 
 [dependencies]

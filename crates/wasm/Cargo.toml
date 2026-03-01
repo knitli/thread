@@ -14,7 +14,7 @@ readme = "README.md"
 repository.workspace = true
 license.workspace = true
 keywords = ["bindings", "thread", "wasm", "webassembly"]
-categories = ["webassembly"]
+categories = ["development-tools", "parser-implementations", "wasm"]
 include.workspace = true
 publish = true
 

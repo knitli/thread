@@ -14,7 +14,7 @@ homepage.workspace = true
 repository.workspace = true
 license = "AGPL-3.0-or-later AND MIT"
 keywords = ["ast", "codemod", "pattern", "rewrite", "search"]
-categories = ["command-line-utilities", "development-tools", "parsing"]
+categories.workspace = true
 include.workspace = true
 
 [[bench]]

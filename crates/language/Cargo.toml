@@ -11,8 +11,8 @@ description = "Language definitions and parsers for Thread"
 readme = "README.md"
 repository.workspace = true
 license = "AGPL-3.0-or-later AND MIT"
-keywords = ["ast", "codemod", "languages", "pattern", "rewrite", "search"]
-categories = ["ast", "codemod", "pattern", "rewrite", "search"]
+keywords = ["ast", "codemod", "languages"]
+categories.workspace = true
 include.workspace = true
 
 [[bench]]

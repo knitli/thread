@@ -11,8 +11,8 @@ description = "Service layer interfaces for Thread"
 readme = "README.md"
 repository.workspace = true
 license.workspace = true
-keywords = ["ast", "interface", "pattern", "services"]
-categories = ["ast", "interface", "pattern", "services"]
+keywords.workspace = true
+categories.workspace = true
 include.workspace = true
 
 [dependencies]
