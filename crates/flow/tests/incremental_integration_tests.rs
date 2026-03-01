@@ -337,7 +337,8 @@ async fn test_e2e_full_graph_persistence() {
     );
 
     // 5. Verify affected files computation works after load
-    let changed: thread_utilities::RapidSet<PathBuf> = [PathBuf::from("c.rs")].into_iter().collect();
+    let changed: thread_utilities::RapidSet<PathBuf> =
+        [PathBuf::from("c.rs")].into_iter().collect();
     let affected = loaded_graph.find_affected_files(&changed);
 
     assert!(

@@ -5,12 +5,13 @@
 
 //! Benchmarks for performance improvements in ast-engine crate
 //!
-//! Run with: cargo bench --package thread-ast-engine
+//! These benchmarks live in thread-language because they need a concrete
+//! language implementation (Tsx) to exercise thread-ast-engine's pattern
+//! matching and parsing APIs. thread-ast-engine cannot depend on
+//! thread-language (which itself depends on thread-ast-engine) without
+//! creating a circular publish dependency.
 //!
-//! Key optimizations measured:
-//! - Pattern compilation cache: thread-local cache avoids re-parsing patterns
-//! - Arc<str> interning: `MetaVariableID` uses Arc<str> to reduce clone costs
-//! - `MetaVarEnv` operations: allocation behavior of the matching environment
+//! Run with: cargo bench --package thread-language --bench performance_improvements
 
 use criterion::{Criterion, criterion_group, criterion_main};
 use std::hint::black_box;

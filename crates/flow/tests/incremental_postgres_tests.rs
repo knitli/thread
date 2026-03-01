@@ -207,7 +207,8 @@ async fn test_delete_nonexistent_fingerprint() {
 async fn test_delete_fingerprint_cascades_source_files() {
     let (backend, _container) = setup_backend().await;
 
-    let sources: thread_utilities::RapidSet<PathBuf> = [PathBuf::from("dep.rs")].into_iter().collect();
+    let sources: thread_utilities::RapidSet<PathBuf> =
+        [PathBuf::from("dep.rs")].into_iter().collect();
     let fp = AnalysisDefFingerprint::with_sources(b"content", sources);
 
     backend

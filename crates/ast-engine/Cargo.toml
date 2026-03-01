@@ -17,10 +17,6 @@ keywords = ["ast", "codemod", "pattern", "rewrite", "search"]
 categories.workspace = true
 include.workspace = true
 
-[[bench]]
-harness = false
-name = "performance_improvements"
-
 [dependencies]
 bit-set.workspace = true
 mimalloc = { workspace = true, optional = true }
@@ -36,7 +32,6 @@ tree-sitter = { workspace = true, optional = true }
 
 [dev-dependencies]
 criterion = { version = "0.8.2", features = ["html_reports"] }
-thread-language = { workspace = true, features = ["all-parsers"] }
 tree-sitter-typescript = "0.23.2"
 
 [build-dependencies]

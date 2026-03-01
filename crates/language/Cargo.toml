@@ -23,6 +23,10 @@ name = "performance"
 harness = false
 name = "extension_matching"
 
+[[bench]]
+harness = false
+name = "performance_improvements"
+
 [dependencies]
 aho-corasick = { workspace = true }
 cfg-if = { workspace = true }

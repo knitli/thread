@@ -4023,7 +4023,6 @@ dependencies = [
  "mimalloc",
  "regex",
  "thiserror",
- "thread-language",
  "thread-utilities",
  "tree-sitter",
  "tree-sitter-typescript",

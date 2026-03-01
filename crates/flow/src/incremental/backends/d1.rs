@@ -556,8 +556,10 @@ impl StorageBackend for D1IncrementalBackend {
             .await?;
 
         // Build source files map grouped by fingerprint_path.
-        let mut source_map: thread_utilities::RapidMap<String, thread_utilities::RapidSet<PathBuf>> =
-            thread_utilities::get_map();
+        let mut source_map: thread_utilities::RapidMap<
+            String,
+            thread_utilities::RapidSet<PathBuf>,
+        > = thread_utilities::get_map();
         for row in &src_result.results {
             if let (Some(fp_path), Some(src_path)) = (
                 row["fingerprint_path"].as_str(),

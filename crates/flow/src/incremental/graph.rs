@@ -654,7 +654,8 @@ mod tests {
             DependencyType::Import,
         ));
 
-        let changed: thread_utilities::RapidSet<PathBuf> = [PathBuf::from("C")].into_iter().collect();
+        let changed: thread_utilities::RapidSet<PathBuf> =
+            [PathBuf::from("C")].into_iter().collect();
         let affected = graph.find_affected_files(&changed);
 
         assert_eq!(affected.len(), 3);
@@ -689,7 +690,8 @@ mod tests {
             DependencyType::Import,
         ));
 
-        let changed: thread_utilities::RapidSet<PathBuf> = [PathBuf::from("D")].into_iter().collect();
+        let changed: thread_utilities::RapidSet<PathBuf> =
+            [PathBuf::from("D")].into_iter().collect();
         let affected = graph.find_affected_files(&changed);
 
         assert_eq!(affected.len(), 4);
@@ -716,7 +718,8 @@ mod tests {
             DependencyType::Import,
         ));
 
-        let changed: thread_utilities::RapidSet<PathBuf> = [PathBuf::from("B")].into_iter().collect();
+        let changed: thread_utilities::RapidSet<PathBuf> =
+            [PathBuf::from("B")].into_iter().collect();
         let affected = graph.find_affected_files(&changed);
 
         assert!(affected.contains(&PathBuf::from("A")));
@@ -741,7 +744,8 @@ mod tests {
             DependencyType::Export, // Weak
         ));
 
-        let changed: thread_utilities::RapidSet<PathBuf> = [PathBuf::from("B")].into_iter().collect();
+        let changed: thread_utilities::RapidSet<PathBuf> =
+            [PathBuf::from("B")].into_iter().collect();
         let affected = graph.find_affected_files(&changed);
 
         assert!(affected.contains(&PathBuf::from("A")));
