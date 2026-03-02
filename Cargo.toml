@@ -33,7 +33,6 @@ repository = "https://github.com/knitli/thread"
 license = "AGPL-3.0-or-later"
 keywords = [
   "code-analysis",
-  "context",
   "parsing",
   "repository-tools",
   "static-analysis",
