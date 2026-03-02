@@ -5,11 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## v0.1.0 (2026-03-01)
+## v0.1.0 (2026-03-02)
 
 <csr-id-d5519df7aac003c85d71d15b561d29b63fe4c00d/>
 <csr-id-659510d42574fe2efe5639bb749d9f29445e7d88/>
 <csr-id-f9c25705eba3262b41e538a4db64e8d8e1ea4185/>
+<csr-id-aac8239716f1a57806c308f0e44e41289e6cc9d0/>
 
 ### New Features
 
@@ -242,6 +243,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    
    * Add comprehensive tests for hash_help module
 
+### Chore
+
+ - <csr-id-36bde537ea20079f4923856b149efa99b9957063/> Release thread-ast-engine v0.1.0, thread-language v0.1.0, thread-services v0.1.0, thread-flow v0.1.0, thread-rule-engine v0.1.0, thread v0.1.0
+
 ### Bug Fixes
 
  - <csr-id-b1bd3d4053fdb978e3db6582dbf487c76e119b62/> break circular dev-dependency between ast-engine and language
@@ -266,8 +271,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 6 commits contributed to the release over the course of 29 calendar days.
- - 6 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 7 commits contributed to the release over the course of 30 calendar days.
+ - 7 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 2 unique issues were worked on: [#48](https://github.com/knitli/thread/issues/48), [#75](https://github.com/knitli/thread/issues/75)
 
 ### Commit Details
@@ -281,6 +286,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  * **[#75](https://github.com/knitli/thread/issues/75)**
     - Implement main thread crate to unify crate exposure ([`eead51d`](https://github.com/knitli/thread/commit/eead51dcb62ee0b6fe99856ce40ef929df1c7d41))
  * **Uncategorized**
+    - Release thread-ast-engine v0.1.0, thread-language v0.1.0, thread-services v0.1.0, thread-flow v0.1.0, thread-rule-engine v0.1.0, thread v0.1.0 ([`36bde53`](https://github.com/knitli/thread/commit/36bde537ea20079f4923856b149efa99b9957063))
     - Break circular dev-dependency between ast-engine and language ([`b1bd3d4`](https://github.com/knitli/thread/commit/b1bd3d4053fdb978e3db6582dbf487c76e119b62))
     - Release thread-utilities v0.1.3, thread-ast-engine v0.1.0, thread-language v0.1.0, thread-services v0.1.0, thread-flow v0.1.0, thread-rule-engine v0.1.0, thread v0.1.0 ([`aac8239`](https://github.com/knitli/thread/commit/aac8239716f1a57806c308f0e44e41289e6cc9d0))
     - Rename thread-utils to thread-utilities across the codebase. Crates.io namespace conflict required the rename. ([`659510d`](https://github.com/knitli/thread/commit/659510d42574fe2efe5639bb749d9f29445e7d88))
