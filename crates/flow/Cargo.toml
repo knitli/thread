@@ -99,10 +99,10 @@ criterion = "0.8.2"
 deadpool-postgres = "0.14"
 md5 = "0.8"
 metrics-exporter-prometheus = "0.18"
-rusqlite = { version = "*", features = ["bundled"] }
+rusqlite = { version = "0.32.1", features = ["bundled"] }
 tempfile = "3.13"
-testcontainers = "*"
-testcontainers-modules = { version = "*", features = ["postgres"] }
+testcontainers = "0.27.1"
+testcontainers-modules = { version = "0.15.0", features = ["postgres"] }
 tokio-postgres = "0.7"
 
 [features]
