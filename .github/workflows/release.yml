@@ -23,6 +23,7 @@ on:
 env:
   CARGO_TERM_COLOR: always
   CARGO_INCREMENTAL: 0
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 permissions:
   contents: write
   packages: write
@@ -160,12 +161,12 @@ jobs:
             ext: .exe
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: thread-v${{ needs.smart-release.outputs.version }}
           submodules: recursive
       - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@nightly
         with:
           targets: ${{ matrix.target }}
       - name: Cache Rust dependencies
