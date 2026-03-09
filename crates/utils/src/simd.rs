@@ -532,4 +532,60 @@ mod tests {
         let long_with_newline = "a".repeat(500) + "\n" + &"b".repeat(300);
         assert_eq!(get_char_column_simd(&long_with_newline, 800), 299);
     }
+
+    #[test]
+    fn test_get_char_column_long_utf8() {
+        // Test with long UTF-8 strings to exercise SIMD chunking
+        let long_utf8 = "🚀".repeat(100);
+        let offset = long_utf8.len();
+        assert_eq!(get_char_column_simd(&long_utf8, offset), 100);
+
+        let long_mixed = ("abcde".to_string() + "🚀").repeat(50);
+        let offset = long_mixed.len();
+        // 5 ASCII + 1 emoji = 6 chars per repeat, 50 repeats = 300 chars
+        assert_eq!(get_char_column_simd(&long_mixed, offset), 300);
+    }
+
+    #[test]
+    fn test_get_char_column_consecutive_newlines() {
+        let text = "line1\n\nline3";
+        // text[5] is '\n', text[6] is '\n', text[7] is 'l'
+        assert_eq!(get_char_column_simd(text, 6), 0); // Position after first \n (at second \n)
+        assert_eq!(get_char_column_simd(text, 7), 0); // Position after second \n (at 'l')
+        assert_eq!(get_char_column_simd(text, 8), 1); // Position after 'l' (at 'i')
+
+        let many_newlines = "\n\n\n\n";
+        assert_eq!(get_char_column_simd(many_newlines, 2), 0);
+        assert_eq!(get_char_column_simd(many_newlines, 4), 0);
+    }
+
+    #[test]
+    fn test_get_char_column_utf8_boundary() {
+        // SIMD widths often 16, 32, 64. Place UTF-8 across boundaries.
+        for width in [16, 32, 64] {
+            let mut text = "a".repeat(width - 1);
+            text.push('🚀'); // 4 bytes, starts at width-1, ends at width+3
+            text.push_str("next");
+
+            // Offset right after 🚀
+            assert_eq!(get_char_column_simd(&text, width + 3), width);
+            // Offset in the middle of "next"
+            assert_eq!(get_char_column_simd(&text, width + 5), width + 2);
+        }
+    }
+
+    #[test]
+    fn test_get_char_column_newline_at_start() {
+        let text = "\nline1";
+        assert_eq!(get_char_column_simd(text, 0), 0);
+        assert_eq!(get_char_column_simd(text, 1), 0);
+        assert_eq!(get_char_column_simd(text, 2), 1);
+    }
+
+    #[test]
+    fn test_get_char_column_utf8_at_start() {
+        let text = "🚀line1";
+        assert_eq!(get_char_column_simd(text, 4), 1);
+        assert_eq!(get_char_column_simd(text, 5), 2);
+    }
 }
