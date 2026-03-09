@@ -251,7 +251,7 @@ pub fn get_indent_at_offset<C: Content>(src: &[C::Underlying]) -> usize {
     get_indent_at_offset_with_tab::<C>(src).0
 }
 
-/// returns (indent, is_tab)
+/// returns (indent, `is_tab`)
 pub fn get_indent_at_offset_with_tab<C: Content>(src: &[C::Underlying]) -> (usize, bool) {
     let lookahead = src.len().max(MAX_LOOK_AHEAD) - MAX_LOOK_AHEAD;
 
@@ -294,9 +294,9 @@ fn remove_indent<C: Content>(indent: usize, src: &[C::Underlying]) -> Vec<C::Und
             let mut stripped = line;
             let mut count = 0;
             while count < indent {
-                if let Some(rest) = stripped.strip_prefix(&[space.clone()]) {
+                if let Some(rest) = stripped.strip_prefix(std::slice::from_ref(&space)) {
                     stripped = rest;
-                } else if let Some(rest) = stripped.strip_prefix(&[tab.clone()]) {
+                } else if let Some(rest) = stripped.strip_prefix(std::slice::from_ref(&tab)) {
                     stripped = rest;
                 } else {
                     break;
