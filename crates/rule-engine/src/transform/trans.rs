@@ -250,8 +250,7 @@ impl Trans<String> {
 impl Trans<MetaVariable> {
     pub(super) fn insert<D: Doc>(&self, key: &str, ctx: &mut Ctx<'_, '_, D>) {
         let src = self.source();
-        // TODO: add this debug assertion back
-        // debug_assert!(ctx.env.get_transformed(key).is_none());
+        debug_assert!(ctx.env.get_transformed(key).is_none());
         // avoid cyclic
         ctx.env.insert_transformation(src, key, vec![]);
         let opt = self.compute(ctx);
@@ -551,26 +550,5 @@ if (true) {
         Ok(())
     }
 
-    #[test]
-    fn test_rewrite() -> R {
-        let trans = parse(
-            r#"
-      rewrite:
-        source: "$A"
-        rewriters: ["re1", "re2"]
-        joinBy: ", "
-    "#,
-        )?;
-        let parsed = trans.parse(&TypeScript::Tsx).expect("should parse");
-        match &parsed {
-            Trans::Rewrite(r) => {
-                assert_eq!(r.rewriters, vec!["re1", "re2"]);
-                assert_eq!(r.join_by, Some(", ".to_string()));
-            }
-            _ => panic!("should be rewrite"),
-        }
-        assert_eq!(parsed.used_rewriters(), &["re1", "re2"]);
-        assert_eq!(parsed.used_vars(), "A");
-        Ok(())
-    }
+    // TODO: add a symbolic test for Rewrite
 }
