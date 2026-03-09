@@ -188,15 +188,7 @@ pub fn formatted_slice<'a, C: Content>(
     }
     let (indent, is_tab) = get_indent_at_offset_with_tab::<C>(content.get_range(0..start));
     Cow::Owned(
-        indent_lines::<C>(
-            0,
-            &DeindentedExtract::MultiLine(
-                slice,
-                indent,
-            ),
-            is_tab,
-        )
-        .into_owned(),
+        indent_lines::<C>(0, &DeindentedExtract::MultiLine(slice, indent), is_tab).into_owned(),
     )
 }
 
@@ -224,13 +216,21 @@ pub fn indent_lines<'a, C: Content>(
     }
 }
 
-fn indent_lines_impl<'a, C, Lines>(indent: usize, mut lines: Lines, is_tab: bool) -> Vec<C::Underlying>
+fn indent_lines_impl<'a, C, Lines>(
+    indent: usize,
+    mut lines: Lines,
+    is_tab: bool,
+) -> Vec<C::Underlying>
 where
     C: Content + 'a,
     Lines: Iterator<Item = &'a [C::Underlying]>,
 {
     let mut ret = vec![];
-    let indent_char = if is_tab { get_tab::<C>() } else { get_space::<C>() };
+    let indent_char = if is_tab {
+        get_tab::<C>()
+    } else {
+        get_space::<C>()
+    };
     let leading: Vec<_> = std::iter::repeat_n(indent_char, indent).collect();
     // first line wasn't indented, so we don't add leading spaces
     if let Some(line) = lines.next() {
@@ -496,5 +496,4 @@ pass
         let actual = test_replace_with_indent(target, 14, inserted);
         assert_eq!(actual, "def abc():\n\t\tpass");
     }
-
 }

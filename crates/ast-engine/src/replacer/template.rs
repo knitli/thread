@@ -82,7 +82,9 @@ fn create_template(
         {
             fragments.push(tmpl[len..len + offset + i].to_string());
             // NB we have to count ident of the full string
-            let (indent, is_tab) = super::indent::get_indent_at_offset_with_tab::<String>(&tmpl.as_bytes()[..len + offset + i]);
+            let (indent, is_tab) = super::indent::get_indent_at_offset_with_tab::<String>(
+                &tmpl.as_bytes()[..len + offset + i],
+            );
             vars.push((meta_var, indent, is_tab));
             len += skipped + offset + i;
             offset = 0;
