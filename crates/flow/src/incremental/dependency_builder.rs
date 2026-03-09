@@ -507,4 +507,16 @@ mod tests {
         assert_eq!(builder.graph().node_count(), 0);
         assert_eq!(builder.graph().edge_count(), 0);
     }
+
+    #[tokio::test]
+    async fn test_unsupported_language_error() {
+        let storage = Box::new(InMemoryStorage::new());
+        let mut builder = DependencyGraphBuilder::new(storage);
+        let path = Path::new("unsupported.java");
+        let result = builder.extract_file(path).await;
+        match result {
+            Err(BuildError::UnsupportedLanguage(p)) => assert_eq!(p, path),
+            _ => panic!("Expected UnsupportedLanguage error"),
+        }
+    }
 }

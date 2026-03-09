@@ -31,7 +31,7 @@
 
 use std::path::{Path, PathBuf};
 use tempfile::TempDir;
-use thread_flow::incremental::dependency_builder::{DependencyGraphBuilder, Language};
+use thread_flow::incremental::dependency_builder::{BuildError, DependencyGraphBuilder, Language};
 use thread_flow::incremental::extractors::LanguageDetector;
 use thread_flow::incremental::storage::InMemoryStorage;
 
@@ -515,9 +515,10 @@ async fn test_unsupported_language() {
     let result = builder.extract_file(&java_file).await;
 
     // Should return UnsupportedLanguage error
-    assert!(
-        result.is_err(),
-        "Extracting unsupported language should fail"
-    );
-    // TODO: Verify specific error type when BuildError is implemented
+    match result {
+        Err(BuildError::UnsupportedLanguage(path)) => {
+            assert_eq!(path, java_file);
+        }
+        _ => panic!("Expected UnsupportedLanguage error, got {:?}", result),
+    }
 }
