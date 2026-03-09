@@ -30,13 +30,15 @@ extend-ignore-identifiers-re = [
   "prev",
   "normalises",
   "goes",
+  "inout",
+  "Bare",
 ]
 
 [files]
 ignore-hidden = false
 ignore-files = true
 extend-exclude = [
-  "./CHANGELOG.md",
+  "CHANGELOG.md",
   "/usr/**/*",
   "/tmp/**/*",
   "/**/node_modules/**",
