@@ -236,6 +236,22 @@ impl StorageBackend for FailingStorage {
         self.inner.save_edge(edge).await
     }
 
+    async fn save_edges_batch(&self, edges: &[DependencyEdge]) -> Result<(), StorageError> {
+        if self.config.fail_on_save || self.should_fail() {
+            return Err(StorageError::Backend(
+                "Simulated edge save failure".to_string(),
+            ));
+        }
+
+        if self.config.simulate_conflict {
+            return Err(StorageError::Backend(
+                "Concurrent access conflict".to_string(),
+            ));
+        }
+
+        self.inner.save_edges_batch(edges).await
+    }
+
     async fn load_edges_from(&self, file_path: &Path) -> Result<Vec<DependencyEdge>, StorageError> {
         if self.config.fail_on_load || self.should_fail() {
             return Err(StorageError::Backend(

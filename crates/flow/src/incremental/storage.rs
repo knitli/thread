@@ -127,6 +127,21 @@ pub trait StorageBackend: Send + Sync + std::fmt::Debug {
     /// (from, to, from_symbol, to_symbol, dep_type).
     async fn save_edge(&self, edge: &DependencyEdge) -> Result<(), StorageError>;
 
+    /// Persists multiple dependency edges in a batch.
+    ///
+    /// This is more efficient than calling [`save_edge`](StorageBackend::save_edge)
+    /// individually for each edge, as it reduces round-trips to the storage backend.
+    ///
+    /// # Arguments
+    ///
+    /// * `edges` - Slice of dependency edges to persist.
+    async fn save_edges_batch(&self, edges: &[DependencyEdge]) -> Result<(), StorageError> {
+        for edge in edges {
+            self.save_edge(edge).await?;
+        }
+        Ok(())
+    }
+
     /// Loads all dependency edges originating from a file.
     async fn load_edges_from(&self, file_path: &Path) -> Result<Vec<DependencyEdge>, StorageError>;
 
@@ -227,6 +242,12 @@ impl StorageBackend for InMemoryStorage {
     async fn save_edge(&self, edge: &DependencyEdge) -> Result<(), StorageError> {
         let mut edges = self.edges.write().await;
         edges.push(edge.clone());
+        Ok(())
+    }
+
+    async fn save_edges_batch(&self, edges_to_save: &[DependencyEdge]) -> Result<(), StorageError> {
+        let mut edges = self.edges.write().await;
+        edges.extend(edges_to_save.iter().cloned());
         Ok(())
     }
 
