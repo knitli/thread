@@ -1712,10 +1712,12 @@ pub const fn extensions(lang: SupportLang) -> &'static [&'static str] {
 /// These are hardcoded matches
 #[inline]
 pub fn from_extension(path: &Path) -> Option<SupportLang> {
-    if let Some(ext) = path.extension().and_then(|e| e.to_str()) {
-        if let Some(lang) = from_extension_str(ext) {
-            return Some(lang);
-        }
+    if let Some(lang) = path
+        .extension()
+        .and_then(|e| e.to_str())
+        .and_then(from_extension_str)
+    {
+        return Some(lang);
     }
 
     // Handle extensionless files or files with unknown extensions
