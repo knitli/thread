@@ -1970,7 +1970,11 @@ mod test {
                 "#!/bin/bash\necho hello",
                 Some(SupportLang::Bash),
             ),
-            ("sh_script", "#!/bin/sh\necho hello", Some(SupportLang::Bash)),
+            (
+                "sh_script",
+                "#!/bin/sh\necho hello",
+                Some(SupportLang::Bash),
+            ),
             (
                 "python_script",
                 "#!/usr/bin/env python3\nprint('hello')",
@@ -1993,7 +1997,8 @@ mod test {
         for (name, content, expected) in scripts {
             let path = dir.join(name);
             let mut file = File::create(&path).expect("should create file");
-            file.write_all(content.as_bytes()).expect("should write to file");
+            file.write_all(content.as_bytes())
+                .expect("should write to file");
 
             assert_eq!(
                 from_extension(&path),
