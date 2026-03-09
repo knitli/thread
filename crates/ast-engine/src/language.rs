@@ -67,9 +67,17 @@ pub trait Language: Clone + std::fmt::Debug + Send + Sync + 'static {
     fn extract_meta_var(&self, source: &str) -> Option<MetaVariable> {
         extract_meta_var(source, self.expando_char())
     }
-    /// Return the file language from path. Return None if the file type is not supported.
+    /// Return the file language inferred from a filesystem path.
+    ///
+    /// The *default* implementation is not implemented and will panic if called.
+    /// Implementors should override this method and return `Some(Self)` when the
+    /// file type is supported and `None` when it is not.
     fn from_path<P: AsRef<Path>>(_path: P) -> Option<Self> {
-        unimplemented!("from_path is not implemented")
+        unimplemented!(
+            "Language::from_path is not implemented for type `{}`. \
+             Override Language::from_path for this type if path-based detection is required.",
+            std::any::type_name::<Self>()
+        )
     }
 
     fn kind_to_id(&self, kind: &str) -> u16;
@@ -86,12 +94,26 @@ mod test {
     use super::*;
     use crate::tree_sitter::{LanguageExt, StrDoc, TSLanguage};
 
+    // Shared helpers for test Language impls backed by tree-sitter-typescript.
+    fn tsx_kind_to_id(kind: &str) -> u16 {
+        let ts_lang: TSLanguage = tree_sitter_typescript::LANGUAGE_TSX.into();
+        ts_lang.id_for_node_kind(kind, /* named */ true)
+    }
+
+    fn tsx_field_to_id(field: &str) -> Option<u16> {
+        let ts_lang: TSLanguage = tree_sitter_typescript::LANGUAGE_TSX.into();
+        ts_lang.field_id_for_name(field).map(|f| f.get())
+    }
+
+    fn tsx_ts_language() -> TSLanguage {
+        tree_sitter_typescript::LANGUAGE_TSX.into()
+    }
+
     #[derive(Clone, Debug)]
     pub struct Tsx;
     impl Language for Tsx {
         fn kind_to_id(&self, kind: &str) -> u16 {
-            let ts_lang: TSLanguage = tree_sitter_typescript::LANGUAGE_TSX.into();
-            ts_lang.id_for_node_kind(kind, /* named */ true)
+            tsx_kind_to_id(kind)
         }
         fn field_to_id(&self, field: &str) -> Option<u16> {
             self.get_ts_language()
@@ -104,7 +126,70 @@ mod test {
     }
     impl LanguageExt for Tsx {
         fn get_ts_language(&self) -> TSLanguage {
-            tree_sitter_typescript::LANGUAGE_TSX.into()
+            tsx_ts_language()
         }
+    }
+
+    /// A minimal `Language` impl that does *not* override `from_path`, used to
+    /// verify that the default implementation panics.
+    #[derive(Clone, Debug)]
+    struct NoFromPath;
+    impl Language for NoFromPath {
+        fn kind_to_id(&self, kind: &str) -> u16 {
+            tsx_kind_to_id(kind)
+        }
+        fn field_to_id(&self, field: &str) -> Option<u16> {
+            tsx_field_to_id(field)
+        }
+        #[cfg(feature = "matching")]
+        fn build_pattern(&self, builder: &PatternBuilder) -> Result<Pattern, PatternError> {
+            builder.build(|src| StrDoc::try_new(src, self.clone()))
+        }
+    }
+    impl LanguageExt for NoFromPath {
+        fn get_ts_language(&self) -> TSLanguage {
+            tsx_ts_language()
+        }
+    }
+
+    /// A `Language` impl that *does* override `from_path`, used to verify that
+    /// overriding the default works correctly.
+    #[derive(Clone, Debug)]
+    struct TsxWithFromPath;
+    impl Language for TsxWithFromPath {
+        fn kind_to_id(&self, kind: &str) -> u16 {
+            tsx_kind_to_id(kind)
+        }
+        fn field_to_id(&self, field: &str) -> Option<u16> {
+            tsx_field_to_id(field)
+        }
+        #[cfg(feature = "matching")]
+        fn build_pattern(&self, builder: &PatternBuilder) -> Result<Pattern, PatternError> {
+            builder.build(|src| StrDoc::try_new(src, self.clone()))
+        }
+        fn from_path<P: AsRef<Path>>(path: P) -> Option<Self> {
+            path.as_ref()
+                .extension()
+                .and_then(|e| e.to_str())
+                .filter(|&e| e == "tsx")
+                .map(|_| Self)
+        }
+    }
+    impl LanguageExt for TsxWithFromPath {
+        fn get_ts_language(&self) -> TSLanguage {
+            tsx_ts_language()
+        }
+    }
+
+    #[test]
+    #[should_panic(expected = "Language::from_path is not implemented for type")]
+    fn default_from_path_panics() {
+        let _ = NoFromPath::from_path("some/file.rs");
+    }
+
+    #[test]
+    fn overridden_from_path_does_not_panic() {
+        assert!(TsxWithFromPath::from_path("component.tsx").is_some());
+        assert!(TsxWithFromPath::from_path("main.rs").is_none());
     }
 }
