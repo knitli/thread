@@ -473,7 +473,20 @@ impl IncrementalAnalyzer {
         // Save edges to storage in batch
         if !edges_to_save.is_empty() {
             if let Err(e) = self.storage.save_edges_batch(&edges_to_save).await {
-                eprintln!("Warning: Failed to save edges in batch: {}", e);
+                warn!(
+                    error = %e,
+                    "batch save failed, falling back to individual saves"
+                );
+                for edge in &edges_to_save {
+                    if let Err(e) = self.storage.save_edge(edge).await {
+                        warn!(
+                            file_from = ?edge.from,
+                            file_to = ?edge.to,
+                            error = %e,
+                            "failed to save edge individually"
+                        );
+                    }
+                }
             }
         }
 

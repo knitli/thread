@@ -147,10 +147,8 @@ impl PostgresIncrementalBackend {
             .batch_execute(migration_sql)
             .await
             .map_err(|e| StorageError::Backend(format!("Migration failed: {e}")))?;
-
         Ok(())
     }
-
 }
 
 #[async_trait]
