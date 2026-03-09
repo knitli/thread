@@ -327,6 +327,23 @@ mod tests {
 
     // Tests for hash_file_with_seed
     #[test]
+    fn test_hash_file_with_seed_empty() -> Result<(), std::io::Error> {
+        let mut temp_file = tempfile::NamedTempFile::new()?;
+        temp_file.flush()?;
+
+        let seed = 12345u64;
+
+        let mut file1 = temp_file.reopen()?;
+        let hash1 = hash_file_with_seed(&mut file1, seed)?;
+
+        let mut file2 = temp_file.reopen()?;
+        let hash2 = hash_file_with_seed(&mut file2, seed)?;
+
+        assert_eq!(hash1, hash2, "Empty file hash with seed should be deterministic");
+        Ok(())
+    }
+
+    #[test]
     fn test_hash_file_with_seed_deterministic() -> Result<(), std::io::Error> {
         let mut temp_file = tempfile::NamedTempFile::new()?;
         temp_file.write_all(b"test data")?;
@@ -362,6 +379,25 @@ mod tests {
         assert_ne!(hash1, hash2);
         assert_ne!(hash1, hash3);
         assert_ne!(hash2, hash3);
+        Ok(())
+    }
+
+    #[test]
+    fn test_hash_file_with_seed_large() -> Result<(), std::io::Error> {
+        let mut temp_file = tempfile::NamedTempFile::new()?;
+        let large_data = vec![0xCDu8; LARGE_FILE_SIZE];
+        temp_file.write_all(&large_data)?;
+        temp_file.flush()?;
+
+        let seed = 54321u64;
+
+        let mut file1 = temp_file.reopen()?;
+        let hash1 = hash_file_with_seed(&mut file1, seed)?;
+
+        let mut file2 = temp_file.reopen()?;
+        let hash2 = hash_file_with_seed(&mut file2, seed)?;
+
+        assert_eq!(hash1, hash2, "Large file hash with seed should be deterministic");
         Ok(())
     }
 
