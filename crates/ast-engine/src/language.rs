@@ -67,9 +67,17 @@ pub trait Language: Clone + std::fmt::Debug + Send + Sync + 'static {
     fn extract_meta_var(&self, source: &str) -> Option<MetaVariable> {
         extract_meta_var(source, self.expando_char())
     }
-    /// Return the file language from path. Return None if the file type is not supported.
+    /// Return the file language inferred from a filesystem path.
+    ///
+    /// The *default* implementation is not implemented and will panic if called.
+    /// Implementors should override this method and return `Some(Self)` when the
+    /// file type is supported and `None` when it is not.
     fn from_path<P: AsRef<Path>>(_path: P) -> Option<Self> {
-        unimplemented!("from_path is not implemented")
+        unimplemented!(
+            "Language::from_path is not implemented for type `{}`. \
+             Override Language::from_path for this type if path-based detection is required.",
+            std::any::type_name::<Self>()
+        )
     }
 
     fn kind_to_id(&self, kind: &str) -> u16;
@@ -106,5 +114,35 @@ mod test {
         fn get_ts_language(&self) -> TSLanguage {
             tree_sitter_typescript::LANGUAGE_TSX.into()
         }
+    }
+
+    #[test]
+    #[should_panic(
+        expected = "Language::from_path is not implemented for type `thread_ast_engine::language::test::Tsx`. Override Language::from_path for this type if path-based detection is required."
+    )]
+    fn test_from_path_panics_by_default() {
+        let _ = Tsx::from_path("some_file.tsx");
+    }
+
+    #[derive(Clone, Debug)]
+    pub struct CustomLang;
+    impl Language for CustomLang {
+        fn from_path<P: AsRef<Path>>(_path: P) -> Option<Self> {
+            Some(CustomLang)
+        }
+        fn kind_to_id(&self, _kind: &str) -> u16 {
+            0
+        }
+        fn field_to_id(&self, _field: &str) -> Option<u16> {
+            None
+        }
+        fn build_pattern(&self, _builder: &PatternBuilder) -> Result<Pattern, PatternError> {
+            unimplemented!()
+        }
+    }
+
+    #[test]
+    fn test_from_path_override() {
+        assert!(CustomLang::from_path("some_file.custom").is_some());
     }
 }
