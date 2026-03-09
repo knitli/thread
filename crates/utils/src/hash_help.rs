@@ -339,7 +339,10 @@ mod tests {
         let mut file2 = temp_file.reopen()?;
         let hash2 = hash_file_with_seed(&mut file2, seed)?;
 
-        assert_eq!(hash1, hash2, "Empty file hash with seed should be deterministic");
+        assert_eq!(
+            hash1, hash2,
+            "Empty file hash with seed should be deterministic"
+        );
         Ok(())
     }
 
@@ -397,7 +400,10 @@ mod tests {
         let mut file2 = temp_file.reopen()?;
         let hash2 = hash_file_with_seed(&mut file2, seed)?;
 
-        assert_eq!(hash1, hash2, "Large file hash with seed should be deterministic");
+        assert_eq!(
+            hash1, hash2,
+            "Large file hash with seed should be deterministic"
+        );
         Ok(())
     }
 
