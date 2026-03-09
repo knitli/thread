@@ -1721,17 +1721,17 @@ pub fn from_extension(path: &Path) -> Option<SupportLang> {
     }
 
     // Handle extensionless files or files with unknown extensions
-    if let Some(file_name) = path.file_name().and_then(|n| n.to_str()) {
+    if let Some(_file_name) = path.file_name().and_then(|n| n.to_str()) {
         // 1. Check if the full filename matches a known extension (e.g. .bashrc)
         #[cfg(any(feature = "bash", feature = "all-parsers"))]
-        if constants::BASH_EXTS.contains(&file_name) {
+        if constants::BASH_EXTS.contains(&_file_name) {
             return Some(SupportLang::Bash);
         }
 
         // 2. Check known extensionless file names
         #[cfg(any(feature = "bash", feature = "all-parsers", feature = "ruby"))]
         for (name, lang) in constants::LANG_RELATIONSHIPS_WITH_NO_EXTENSION {
-            if *name == file_name {
+            if *name == _file_name {
                 return Some(*lang);
             }
         }
