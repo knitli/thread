@@ -22,6 +22,14 @@ extend-ignore-identifiers-re = [
   "strat",
   "Inferrable",
   "mis",  # Appears in ANSI escape sequences like [38;5;231m
+  "bare",
+  "MISE",
+  "prepend",
+  "ret",
+  "RET",
+  "prev",
+  "normalises",
+  "goes",
 ]
 
 [files]
