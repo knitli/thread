@@ -471,6 +471,7 @@ impl IncrementalAnalyzer {
         }
 
         // Save edges to storage in batch
+        #[allow(clippy::collapsible_if)]
         if !edges_to_save.is_empty() {
             if let Err(e) = self.storage.save_edges_batch(&edges_to_save).await {
                 warn!(
