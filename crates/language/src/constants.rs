@@ -1146,8 +1146,7 @@ cfg_if::cfg_if!(
 
 /// List of files that DO NOT have an extension but are still associated with a language.
 #[cfg(any(feature = "bash", feature = "all-parsers", feature = "ruby"))]
-#[allow(dead_code)]
-const LANG_RELATIONSHIPS_WITH_NO_EXTENSION: &[(&str, SupportLang)] = &[
+pub(crate) const LANG_RELATIONSHIPS_WITH_NO_EXTENSION: &[(&str, SupportLang)] = &[
     #[cfg(any(feature = "bash", feature = "all-parsers"))]
     ("profile", SupportLang::Bash),
     #[cfg(any(feature = "bash", feature = "all-parsers"))]
@@ -1156,8 +1155,6 @@ const LANG_RELATIONSHIPS_WITH_NO_EXTENSION: &[(&str, SupportLang)] = &[
     ("bash_logout", SupportLang::Bash),
     #[cfg(any(feature = "bash", feature = "all-parsers"))]
     ("bashrc", SupportLang::Bash),
-    #[cfg(any(feature = "bash", feature = "all-parsers"))]
-    ("profile", SupportLang::Bash),
     #[cfg(any(feature = "ruby", feature = "all-parsers"))]
     ("Rakefile", SupportLang::Ruby),
     #[cfg(any(feature = "ruby", feature = "all-parsers"))]

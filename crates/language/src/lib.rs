@@ -1712,14 +1712,78 @@ pub const fn extensions(lang: SupportLang) -> &'static [&'static str] {
 /// These are hardcoded matches
 #[inline]
 pub fn from_extension(path: &Path) -> Option<SupportLang> {
-    let ext = path.extension()?.to_str()?.to_ascii_lowercase();
-    from_extension_str(&ext)
+    if let Some(lang) = path
+        .extension()
+        .and_then(|e| e.to_str())
+        .and_then(from_extension_str)
+    {
+        return Some(lang);
+    }
+
+    // Handle extensionless files or files with unknown extensions
+    if let Some(file_name) = path.file_name().and_then(|n| n.to_str()) {
+        // 1. Check if the full filename matches a known extension (e.g. .bashrc)
+        #[cfg(any(feature = "bash", feature = "all-parsers"))]
+        if constants::BASH_EXTS.contains(&file_name) {
+            return Some(SupportLang::Bash);
+        }
+
+        // 2. Check known extensionless file names
+        #[cfg(any(feature = "bash", feature = "all-parsers", feature = "ruby"))]
+        for (name, lang) in constants::LANG_RELATIONSHIPS_WITH_NO_EXTENSION {
+            if *name == file_name {
+                return Some(*lang);
+            }
+        }
+    }
+
+    // 3. Try shebang check as last resort
+    from_shebang(path)
+}
+
+fn from_shebang(path: &Path) -> Option<SupportLang> {
+    use std::fs::File;
+    use std::io::Read;
+
+    let mut file = File::open(path).ok()?;
+    // Only read the first 128 bytes to be safe against large lines/binary files
+    let mut buffer = [0; 128];
+    let n = file.read(&mut buffer).ok()?;
+    if n < 2 || buffer[0] != b'#' || buffer[1] != b'!' {
+        return None;
+    }
+
+    let first_line = String::from_utf8_lossy(&buffer[..n]);
+    let first_line = first_line.lines().next()?;
+
+    #[cfg(any(feature = "bash", feature = "all-parsers"))]
+    if first_line.contains("bash") || first_line.contains("sh") {
+        return Some(SupportLang::Bash);
+    }
+    #[cfg(any(feature = "python", feature = "all-parsers"))]
+    if first_line.contains("python") {
+        return Some(SupportLang::Python);
+    }
+    #[cfg(any(feature = "ruby", feature = "all-parsers"))]
+    if first_line.contains("ruby") {
+        return Some(SupportLang::Ruby);
+    }
+    #[cfg(any(
+        feature = "javascript",
+        feature = "all-parsers",
+        feature = "javascript-napi",
+        feature = "napi-compatible"
+    ))]
+    if first_line.contains("node") {
+        return Some(SupportLang::JavaScript);
+    }
+
+    None
 }
 
 #[inline]
 pub fn from_extension_str(ext: &str) -> Option<SupportLang> {
     let ext = ext.to_ascii_lowercase();
-    // TODO: Add shebang check if no ext
     if ext.is_empty() {
         return None;
     }
@@ -1892,4 +1956,82 @@ mod test {
     }
 
     // TODO: add test for file_types
+
+    #[test]
+    fn test_from_extension_shebang() {
+        use std::env;
+        use std::fs::{self, File};
+        use std::io::Write;
+
+        let dir = env::temp_dir().join("thread_shebang_test");
+        fs::create_dir_all(&dir).expect("should create temp dir");
+
+        let scripts = [
+            (
+                "bash_script",
+                "#!/bin/bash\necho hello",
+                Some(SupportLang::Bash),
+            ),
+            (
+                "sh_script",
+                "#!/bin/sh\necho hello",
+                Some(SupportLang::Bash),
+            ),
+            (
+                "python_script",
+                "#!/usr/bin/env python3\nprint('hello')",
+                Some(SupportLang::Python),
+            ),
+            (
+                "ruby_script",
+                "#!/usr/bin/ruby\nputs 'hello'",
+                Some(SupportLang::Ruby),
+            ),
+            (
+                "node_script",
+                "#!/usr/bin/env node\nconsole.log('hello')",
+                Some(SupportLang::JavaScript),
+            ),
+            ("no_shebang", "echo hello", None),
+            ("not_a_shebang", " #!/bin/bash", None),
+        ];
+
+        for (name, content, expected) in scripts {
+            let path = dir.join(name);
+            let mut file = File::create(&path).expect("should create file");
+            file.write_all(content.as_bytes())
+                .expect("should write to file");
+
+            assert_eq!(
+                from_extension(&path),
+                expected,
+                "Failed for script: {}",
+                name
+            );
+        }
+        let _ = fs::remove_dir_all(dir);
+    }
+
+    #[test]
+    fn test_from_extension_no_extension_files() {
+        let test_cases = [
+            (".bashrc", Some(SupportLang::Bash)),
+            ("bashrc", Some(SupportLang::Bash)),
+            ("profile", Some(SupportLang::Bash)),
+            ("Rakefile", Some(SupportLang::Ruby)),
+            ("Gemfile", Some(SupportLang::Ruby)),
+            ("config.ru", Some(SupportLang::Ruby)),
+            ("UNKNOWN_FILE", None),
+        ];
+
+        for (filename, expected) in test_cases {
+            let path = Path::new(filename);
+            assert_eq!(
+                from_extension(path),
+                expected,
+                "Failed for filename: {}",
+                filename
+            );
+        }
+    }
 }
