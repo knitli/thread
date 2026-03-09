@@ -4,7 +4,7 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later AND MIT
 
-use super::indent::{DeindentedExtract, extract_with_deindent, get_indent_at_offset, indent_lines};
+use super::indent::{DeindentedExtract, extract_with_deindent, indent_lines};
 use super::{MetaVarExtract, Replacer, split_first_meta_var};
 use crate::NodeMatch;
 use crate::language::Language;
@@ -52,10 +52,10 @@ impl TemplateFix {
 impl<D: Doc> Replacer<D> for TemplateFix {
     fn generate_replacement(&self, nm: &NodeMatch<'_, D>) -> Underlying<D> {
         let leading = nm.get_doc().get_source().get_range(0..nm.range().start);
-        let indent = get_indent_at_offset::<D::Source>(leading);
+        let (indent, is_tab) = super::indent::get_indent_at_offset_with_tab::<D::Source>(leading);
         let bytes = replace_fixer(self, nm.get_env());
         let replaced = DeindentedExtract::MultiLine(&bytes, 0);
-        indent_lines::<D::Source>(indent, &replaced).to_vec()
+        indent_lines::<D::Source>(indent, &replaced, is_tab).to_vec()
     }
 }
 
@@ -64,7 +64,7 @@ type Indent = usize;
 #[derive(Debug, Clone)]
 pub struct Template {
     fragments: Vec<String>,
-    vars: Vec<(MetaVarExtract, Indent)>,
+    vars: Vec<(MetaVarExtract, Indent, bool)>, // the third element is is_tab
 }
 
 fn create_template(
@@ -82,8 +82,8 @@ fn create_template(
         {
             fragments.push(tmpl[len..len + offset + i].to_string());
             // NB we have to count ident of the full string
-            let indent = get_indent_at_offset::<String>(&tmpl.as_bytes()[..len + offset + i]);
-            vars.push((meta_var, indent));
+            let (indent, is_tab) = super::indent::get_indent_at_offset_with_tab::<String>(&tmpl.as_bytes()[..len + offset + i]);
+            vars.push((meta_var, indent, is_tab));
             len += skipped + offset + i;
             offset = 0;
             continue;
@@ -113,8 +113,8 @@ fn replace_fixer<D: Doc>(fixer: &TemplateFix, env: &MetaVarEnv<'_, D>) -> Underl
     if let Some(frag) = frags.next() {
         ret.extend_from_slice(&D::Source::decode_str(frag));
     }
-    for ((var, indent), frag) in vars.zip(frags) {
-        if let Some(bytes) = maybe_get_var(env, var, indent.to_owned()) {
+    for ((var, indent, is_tab), frag) in vars.zip(frags) {
+        if let Some(bytes) = maybe_get_var(env, var, indent.to_owned(), is_tab.to_owned()) {
             ret.extend_from_slice(&bytes);
         }
         ret.extend_from_slice(&D::Source::decode_str(frag));
@@ -126,6 +126,7 @@ fn maybe_get_var<'e, 't, C, D>(
     env: &'e MetaVarEnv<'t, D>,
     var: &MetaVarExtract,
     indent: usize,
+    is_tab: bool,
 ) -> Option<Cow<'e, [C::Underlying]>>
 where
     C: Content + 'e,
@@ -136,7 +137,7 @@ where
             // transformed source does not have range, directly return bytes
             let source = env.get_transformed(name)?;
             let de_intended = DeindentedExtract::MultiLine(source, 0);
-            let bytes = indent_lines::<D::Source>(indent, &de_intended);
+            let bytes = indent_lines::<D::Source>(indent, &de_intended, is_tab);
             return Some(Cow::Owned(bytes.into()));
         }
         MetaVarExtract::Single(name) => {
@@ -160,7 +161,7 @@ where
         }
     };
     let extracted = extract_with_deindent(source, range);
-    let bytes = indent_lines::<D::Source>(indent, &extracted);
+    let bytes = indent_lines::<D::Source>(indent, &extracted, is_tab);
     Some(Cow::Owned(bytes.into()))
 }
 
