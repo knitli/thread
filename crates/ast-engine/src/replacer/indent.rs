@@ -325,17 +325,12 @@ mod test {
     fn test_deindent(source: &str, expected: &str, offset: usize) {
         let source = source.to_string();
         let expected = expected.trim();
-        let start = source[offset..]
-            .chars()
-            .take_while(|n| n.is_whitespace())
-            .count()
-            + offset;
-        let trailing_white = source
-            .chars()
-            .rev()
-            .take_while(|n| n.is_whitespace())
-            .count();
-        let end = source.chars().count() - trailing_white;
+        // Derive byte indices rather than character counts so that the slice
+        // operations (`extract_with_deindent`, `get_indent_at_offset_with_tab`)
+        // work correctly for non-ASCII / multi-byte UTF-8 input as well.
+        let leading_ws_bytes = source[offset..].len() - source[offset..].trim_start().len();
+        let start = offset + leading_ws_bytes;
+        let end = source.trim_end().len();
         let extracted = extract_with_deindent(&source, start..end);
         let (_, is_tab) = get_indent_at_offset_with_tab::<String>(&source.as_bytes()[..start]);
         let result_bytes = indent_lines::<String>(0, &extracted, is_tab);
