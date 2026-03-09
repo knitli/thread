@@ -204,16 +204,9 @@ pub fn init_logging(config: LogConfig) -> Result<(), LoggingError> {
     // Simple logging setup for now
     // In production, this would integrate with tracing-subscriber
 
-    // Set RUST_LOG if not already set
-    if env::var("RUST_LOG").is_err() {
-        unsafe {
-            env::set_var("RUST_LOG", format!("thread_flow={}", config.level));
-        }
-    }
-
-    // Initialize env_logger (simple implementation)
-    let mut builder = env_logger::builder();
-    builder.parse_env("RUST_LOG");
+    // Initialize env_logger with a default filter if RUST_LOG is not set
+    let env = env_logger::Env::default().default_filter_or(format!("thread_flow={}", config.level));
+    let mut builder = env_logger::Builder::from_env(env);
 
     if let Some(precision) = if config.timestamps {
         Some(env_logger::fmt::TimestampPrecision::Millis)

@@ -103,7 +103,7 @@
 //!     // Check if file changed
 //!     let file_path = Path::new("src/main.rs");
 //!     let new_fp = AnalysisDefFingerprint::new(b"new content");
-//!     
+//!
 //!     if let Some(old_fp) = backend.load_fingerprint(file_path).await? {
 //!         if !old_fp.content_matches(b"new content") {
 //!             // File changed - invalidate and re-analyze

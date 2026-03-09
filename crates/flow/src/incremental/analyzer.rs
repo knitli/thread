@@ -461,13 +461,31 @@ impl IncrementalAnalyzer {
 
         // Merge new edges from builder into our graph
         let new_graph = builder.graph();
+        let mut edges_to_save = Vec::new();
         for edge in &new_graph.edges {
             // Only add edges that involve files we're reanalyzing
             if file_set.contains(&edge.from) || file_set.contains(&edge.to) {
                 self.dependency_graph.add_edge(edge.clone());
-                // Save edge to storage
-                if let Err(e) = self.storage.save_edge(edge).await {
-                    eprintln!("Warning: Failed to save edge: {}", e);
+                edges_to_save.push(edge.clone());
+            }
+        }
+
+        // Save edges to storage in batch
+        if !edges_to_save.is_empty() {
+            if let Err(e) = self.storage.save_edges_batch(&edges_to_save).await {
+                warn!(
+                    error = %e,
+                    "batch save failed, falling back to individual saves"
+                );
+                for edge in &edges_to_save {
+                    if let Err(e) = self.storage.save_edge(edge).await {
+                        warn!(
+                            file_from = ?edge.from,
+                            file_to = ?edge.to,
+                            error = %e,
+                            "failed to save edge individually"
+                        );
+                    }
                 }
             }
         }
@@ -556,6 +574,13 @@ impl StorageBackend for DummyStorage {
     }
 
     async fn save_edge(&self, _edge: &super::types::DependencyEdge) -> Result<(), StorageError> {
+        Ok(())
+    }
+
+    async fn save_edges_batch(
+        &self,
+        _edges: &[super::types::DependencyEdge],
+    ) -> Result<(), StorageError> {
         Ok(())
     }
 

@@ -519,6 +519,6 @@ async fn test_unsupported_language() {
         Err(BuildError::UnsupportedLanguage(path)) => {
             assert_eq!(path, java_file);
         }
-        _ => panic!("Expected UnsupportedLanguage error, got {:?}", result),
+        other => panic!("Expected UnsupportedLanguage error, got {:?}", other),
     }
 }
