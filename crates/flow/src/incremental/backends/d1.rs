@@ -209,44 +209,6 @@ impl D1IncrementalBackend {
         Ok(())
     }
 
-    /// Saves multiple dependency edges in a batch.
-    ///
-    /// More efficient than calling [`save_edge`](StorageBackend::save_edge)
-    /// individually for each edge, as it reduces HTTP round-trips.
-    ///
-    /// # Arguments
-    ///
-    /// * `edges` - Slice of dependency edges to persist.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`StorageError::Backend`] if any operation fails.
-    pub async fn save_edges_batch(&self, edges: &[DependencyEdge]) -> Result<(), StorageError> {
-        if edges.is_empty() {
-            return Ok(());
-        }
-
-        let mut statements = Vec::with_capacity(edges.len());
-
-        for edge in edges {
-            let (sym_from, sym_to, sym_kind, strength) = extract_symbol_fields(&edge.symbol);
-
-            let params = vec![
-                serde_json::Value::String(edge.from.to_string_lossy().to_string()),
-                serde_json::Value::String(edge.to.to_string_lossy().to_string()),
-                serde_json::Value::String(edge.dep_type.to_string()),
-                opt_string_to_json(sym_from),
-                opt_string_to_json(sym_to),
-                opt_string_to_json(sym_kind.as_deref()),
-                opt_string_to_json(strength.as_deref()),
-            ];
-
-            statements.push((UPSERT_EDGE_SQL.to_string(), params));
-        }
-
-        self.execute_batch(statements).await
-    }
-
     /// Returns the D1 API URL for this database.
     fn api_url(&self) -> String {
         format!(
@@ -384,6 +346,32 @@ const SELECT_ALL_EDGES_SQL: &str = "\
 
 #[async_trait]
 impl StorageBackend for D1IncrementalBackend {
+    async fn save_edges_batch(&self, edges: &[DependencyEdge]) -> Result<(), StorageError> {
+        if edges.is_empty() {
+            return Ok(());
+        }
+
+        let mut statements = Vec::with_capacity(edges.len());
+
+        for edge in edges {
+            let (sym_from, sym_to, sym_kind, strength) = extract_symbol_fields(&edge.symbol);
+
+            let params = vec![
+                serde_json::Value::String(edge.from.to_string_lossy().to_string()),
+                serde_json::Value::String(edge.to.to_string_lossy().to_string()),
+                serde_json::Value::String(edge.dep_type.to_string()),
+                opt_string_to_json(sym_from),
+                opt_string_to_json(sym_to),
+                opt_string_to_json(sym_kind.as_deref()),
+                opt_string_to_json(strength.as_deref()),
+            ];
+
+            statements.push((UPSERT_EDGE_SQL.to_string(), params));
+        }
+
+        self.execute_batch(statements).await
+    }
+
     async fn save_fingerprint(
         &self,
         file_path: &Path,

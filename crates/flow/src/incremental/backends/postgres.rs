@@ -147,24 +147,13 @@ impl PostgresIncrementalBackend {
             .batch_execute(migration_sql)
             .await
             .map_err(|e| StorageError::Backend(format!("Migration failed: {e}")))?;
-
         Ok(())
     }
+}
 
-    /// Saves multiple dependency edges in a single transaction.
-    ///
-    /// This is more efficient than calling [`save_edge`](StorageBackend::save_edge)
-    /// individually for each edge, as it reduces round-trips to the database.
-    ///
-    /// # Arguments
-    ///
-    /// * `edges` - Slice of dependency edges to persist.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`StorageError::Backend`] if the transaction fails.
-    /// The transaction is rolled back on any error.
-    pub async fn save_edges_batch(&self, edges: &[DependencyEdge]) -> Result<(), StorageError> {
+#[async_trait]
+impl StorageBackend for PostgresIncrementalBackend {
+    async fn save_edges_batch(&self, edges: &[DependencyEdge]) -> Result<(), StorageError> {
         if edges.is_empty() {
             return Ok(());
         }
@@ -219,10 +208,7 @@ impl PostgresIncrementalBackend {
 
         Ok(())
     }
-}
 
-#[async_trait]
-impl StorageBackend for PostgresIncrementalBackend {
     async fn save_fingerprint(
         &self,
         file_path: &Path,
