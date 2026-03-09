@@ -52,7 +52,10 @@ pub use thread_ast_engine::{
 pub use thread_language::{SupportLang, SupportLangErr};
 
 #[cfg(not(feature = "ast-grep-backend"))]
-pub trait Doc = Clone + 'static;
+pub trait Doc: Clone + 'static {}
+
+#[cfg(not(feature = "ast-grep-backend"))]
+impl<T: Clone + 'static> Doc for T {}
 
 #[cfg(not(feature = "ast-grep-backend"))]
 #[derive(Debug, Clone)]
