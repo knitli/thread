@@ -306,7 +306,7 @@ fn remove_indent<C: Content>(indent: usize, src: &[C::Underlying]) -> Vec<C::Und
             stripped
         })
         .collect();
-    lines.join(&new_line).clone()
+    lines.join(&new_line)
 }
 
 #[cfg(test)]
