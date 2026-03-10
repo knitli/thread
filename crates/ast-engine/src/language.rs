@@ -68,13 +68,9 @@ pub trait Language: Clone + std::fmt::Debug + Send + Sync + 'static {
         extract_meta_var(source, self.expando_char())
     }
     /// Return the file language from path. Return None if the file type is not supported.
-    /// Will panic with an unimplimented error if called and not implemented
     fn from_path<P: AsRef<Path>>(_path: P) -> Option<Self> {
-        unimplemented!(
-            "Language::from_path is not implemented for type `{}`. \
-             Override Language::from_path for this type if path-based detection is required.",
-            std::any::type_name::<Self>()
-        )
+        // TODO: throw panic here if not implemented properly?
+        None
     }
 
     fn kind_to_id(&self, kind: &str) -> u16;

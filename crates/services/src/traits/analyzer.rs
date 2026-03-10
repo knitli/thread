@@ -30,20 +30,20 @@ use crate::types::{AnalysisContext, CodeMatch, CrossFileRelationship, ParsedDocu
 /// # Examples
 ///
 /// ## File-Level Pattern Matching (preserves ast-grep power)
-/// ```rust,ignore
+/// ```rust,no_run
 /// # use thread_services::traits::CodeAnalyzer;
-/// # use crate::types::{ParsedDocument, AnalysisContext};
+/// # use thread_services::types::{ParsedDocument, AnalysisContext};
 /// # struct MyAnalyzer;
 /// # #[async_trait::async_trait]
-/// # impl CodeAnalyzer<String> for MyAnalyzer {
+/// # impl CodeAnalyzer for MyAnalyzer {
 /// #     async fn find_pattern<D: thread_ast_engine::source::Doc>(&self, document: &ParsedDocument<D>, pattern: &str, context: &AnalysisContext) -> Result<Vec<thread_services::types::CodeMatch<'_, D>>, thread_services::error::ServiceError> { todo!() }
 /// #     async fn find_all_patterns<D: thread_ast_engine::source::Doc>(&self, document: &ParsedDocument<D>, patterns: &[&str], context: &AnalysisContext) -> Result<Vec<thread_services::types::CodeMatch<'_, D>>, thread_services::error::ServiceError> { todo!() }
 /// #     async fn replace_pattern<D: thread_ast_engine::source::Doc>(&self, document: &mut ParsedDocument<D>, pattern: &str, replacement: &str, context: &AnalysisContext) -> Result<usize, thread_services::error::ServiceError> { todo!() }
 /// #     async fn analyze_cross_file_relationships(&self, documents: &[ParsedDocument<impl thread_ast_engine::source::Doc>], context: &AnalysisContext) -> Result<Vec<thread_services::types::CrossFileRelationship>, thread_services::error::ServiceError> { todo!() }
 /// #     fn capabilities(&self) -> thread_services::traits::AnalyzerCapabilities { todo!() }
 /// # }
-/// # async fn example() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-/// # let document: ParsedDocument<String> = todo!();
+/// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+/// # let document: ParsedDocument<thread_ast_engine::tree_sitter::StrDoc<thread_language::SupportLang>> = todo!();
 /// let analyzer = MyAnalyzer;
 /// let context = AnalysisContext::default();
 ///
@@ -73,20 +73,20 @@ use crate::types::{AnalysisContext, CodeMatch, CrossFileRelationship, ParsedDocu
 /// ```
 ///
 /// ## Codebase-Level Analysis
-/// ```rust,ignore
+/// ```rust,no_run
 /// # use thread_services::traits::CodeAnalyzer;
-/// # use crate::types::{ParsedDocument, AnalysisContext, ExecutionScope};
+/// # use thread_services::types::{ParsedDocument, AnalysisContext, ExecutionScope};
 /// # struct MyAnalyzer;
 /// # #[async_trait::async_trait]
-/// # impl CodeAnalyzer<String> for MyAnalyzer {
+/// # impl CodeAnalyzer for MyAnalyzer {
 /// #     async fn find_pattern<D: thread_ast_engine::source::Doc>(&self, document: &ParsedDocument<D>, pattern: &str, context: &AnalysisContext) -> Result<Vec<thread_services::types::CodeMatch<'_, D>>, thread_services::error::ServiceError> { todo!() }
 /// #     async fn find_all_patterns<D: thread_ast_engine::source::Doc>(&self, document: &ParsedDocument<D>, patterns: &[&str], context: &AnalysisContext) -> Result<Vec<thread_services::types::CodeMatch<'_, D>>, thread_services::error::ServiceError> { todo!() }
 /// #     async fn replace_pattern<D: thread_ast_engine::source::Doc>(&self, document: &mut ParsedDocument<D>, pattern: &str, replacement: &str, context: &AnalysisContext) -> Result<usize, thread_services::error::ServiceError> { todo!() }
 /// #     async fn analyze_cross_file_relationships(&self, documents: &[ParsedDocument<impl thread_ast_engine::source::Doc>], context: &AnalysisContext) -> Result<Vec<thread_services::types::CrossFileRelationship>, thread_services::error::ServiceError> { todo!() }
 /// #     fn capabilities(&self) -> thread_services::traits::AnalyzerCapabilities { todo!() }
 /// # }
-/// # async fn example() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-/// # let documents: Vec<ParsedDocument<String>> = vec![];
+/// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+/// # let documents: Vec<ParsedDocument<thread_ast_engine::tree_sitter::StrDoc<thread_language::SupportLang>>> = vec![];
 /// let analyzer = MyAnalyzer;
 /// let mut context = AnalysisContext::default();
 /// context.scope = ExecutionScope::Codebase;
@@ -100,12 +100,12 @@ use crate::types::{AnalysisContext, CodeMatch, CrossFileRelationship, ParsedDocu
 /// // Build intelligence on top of ast-grep file-level analysis
 /// for rel in relationships {
 ///     match rel.kind {
-///         crate::types::RelationshipKind::Calls => {
+///         thread_services::types::RelationshipKind::Calls => {
 ///             println!("{} calls {} ({}->{})",
 ///                 rel.source_symbol, rel.target_symbol,
 ///                 rel.source_file.display(), rel.target_file.display());
 ///         },
-///         crate::types::RelationshipKind::Imports => {
+///         thread_services::types::RelationshipKind::Imports => {
 ///             println!("{} imports from {}",
 ///                 rel.source_file.display(), rel.target_file.display());
 ///         },

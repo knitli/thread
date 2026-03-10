@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
 // SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
 // SPDX-License-Identifier: AGPL-3.0-or-later
-#![allow(unexpected_cfgs)]
+#![feature(trait_alias)]
 //! # Thread Service Layer
 //!
 //! This crate provides the service layer interfaces for Thread that abstract over
@@ -32,15 +32,14 @@
 //! ## Examples
 //!
 //! ### Basic Usage - Preserving ast-grep Power
-//! ```rust,ignore
-//! use thread_services::types::{ParsedDocument, Doc};
-//! use crate::traits::CodeAnalyzer;
+//! ```rust,no_run
+//! use thread_services::types::ParsedDocument;
+//! use thread_services::traits::CodeAnalyzer;
 //!
-//! async fn analyze_code(document: &ParsedDocument<String>) {
+//! async fn analyze_code(document: &ParsedDocument<impl thread_ast_engine::source::Doc>) {
 //!     // Access underlying ast-grep functionality directly
-//!     let _root = document.ast_grep_root();
-//!     // Note: To use find_all, the document must be typed with actual AST types
-//!     // let matches = _root.root().find_all("fn $NAME($$$PARAMS) { $$$BODY }");
+//!     let root = document.ast_grep_root();
+//!     let matches = root.root().find_all("fn $NAME($$$PARAMS) { $$$BODY }");
 //!
 //!     // Plus codebase-level metadata
 //!     let symbols = document.metadata().defined_symbols.keys();
@@ -49,14 +48,14 @@
 //! ```
 //!
 //! ### Codebase-Level Intelligence
-//! ```rust,ignore
-//! use crate::traits::CodeAnalyzer;
-//! use crate::types::{AnalysisContext, ExecutionScope};
+//! ```rust,no_run
+//! use thread_services::traits::CodeAnalyzer;
+//! use thread_services::types::{AnalysisContext, ExecutionScope};
 //!
 //! async fn codebase_analysis(
-//!     analyzer: &dyn CodeAnalyzer<String>,
-//!     documents: &[thread_services::types::ParsedDocument<String>]
-//! ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+//!     analyzer: &dyn CodeAnalyzer,
+//!     documents: &[thread_services::types::ParsedDocument<impl thread_ast_engine::source::Doc>]
+//! ) -> Result<(), Box<dyn std::error::Error>> {
 //!     let mut context = AnalysisContext::default();
 //!     context.scope = ExecutionScope::Codebase;
 //!
