@@ -120,7 +120,7 @@ impl<'a, T: DependentRule> TopologicalSort<'a, T> {
             // if rule_id not found in local, it can be a global rule
             if let Some(env) = self.env {
                 // Note: We only check if the key is completely missing
-                if !env.contains_rule(key) {
+                if !env.contains_match_rule(key) {
                     return Err(ReferentRuleError::UndefinedUtil(key.to_string()));
                 }
             }
@@ -191,7 +191,9 @@ impl<L: Language> DeserializeEnv<L> {
     ) -> Result<GlobalRules, RuleCoreError> {
         let registration = GlobalRules::default();
         let utils = into_map(utils);
-        let order = TopologicalSort::get_order(&utils, None).map_err(RuleSerializeError::from)?;
+        let temp_env = RuleRegistration::from_globals(&registration);
+        let order = TopologicalSort::get_order(&utils, Some(&temp_env))
+            .map_err(RuleSerializeError::from)?;
         for id in order {
             let (lang, core) = utils.get(id).expect("must exist");
             let env = DeserializeEnv::new(lang.clone()).with_globals(&registration);

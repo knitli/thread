@@ -87,10 +87,8 @@ impl RuleRegistration {
         RegistrationRef { local, global }
     }
 
-    pub(crate) fn contains_rule(&self, id: &str) -> bool {
-        self.local.contains_key(id)
-            || self.global.contains_key(id)
-            || self.rewriters.contains_key(id)
+    pub(crate) fn contains_match_rule(&self, id: &str) -> bool {
+        self.local.contains_key(id) || self.global.contains_key(id)
     }
 
     pub(crate) fn insert_local(&self, id: &str, rule: Rule) -> Result<(), ReferentRuleError> {

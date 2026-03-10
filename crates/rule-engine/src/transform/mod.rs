@@ -73,7 +73,9 @@ impl Transform {
         let map = map?;
         let order = env.get_transform_order(&map).map_err(|e| match e {
             ReferentRuleError::CyclicRule(s) => TransformError::Cyclic(s),
-            _ => TransformError::Cyclic(e.to_string()),
+            _ => unreachable!(
+                "get_transform_order uses None for env, so only CyclicRule is possible"
+            ),
         })?;
         let transforms = order
             .iter()
