@@ -1735,6 +1735,9 @@ pub fn from_extension(path: &Path) -> Option<SupportLang> {
                 return Some(*lang);
             }
         }
+
+        // Silence unused variable warning if bash and ruby and all-parsers are not enabled
+        let _ = file_name;
     }
 
     // 3. Try shebang check as last resort
