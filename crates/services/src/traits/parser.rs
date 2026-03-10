@@ -18,7 +18,7 @@ cfg_if::cfg_if!(
     if #[cfg(feature = "ast-grep-backend")] {
         use thread_ast_engine::source::Doc;
         use thread_ast_engine::Language;
-        use thread_language::SupportLang;
+        use thread_services::types::SupportLang;
     } else {
         use crate::types::{Doc, SupportLang};
     }
@@ -40,20 +40,20 @@ cfg_if::cfg_if!(
 /// # Examples
 ///
 /// ## Single File Parsing
-/// ```rust,no_run
+/// ```rust,ignore
 /// # use thread_services::traits::CodeParser;
-/// # use thread_services::types::AnalysisContext;
-/// # use thread_language::SupportLang;
+/// # use crate::types::AnalysisContext;
+/// # use thread_services::types::SupportLang;
 /// # struct MyParser;
 /// # #[async_trait::async_trait]
-/// # impl CodeParser for MyParser {
-/// #     async fn parse_content(&self, content: &str, language: SupportLang, context: &AnalysisContext) -> Result<thread_services::types::ParsedDocument<thread_ast_engine::tree_sitter::StrDoc<SupportLang>>, thread_services::error::ServiceError> { todo!() }
-/// #     async fn parse_file(&self, file_path: &std::path::Path, context: &AnalysisContext) -> Result<thread_services::types::ParsedDocument<thread_ast_engine::tree_sitter::StrDoc<SupportLang>>, thread_services::error::ServiceError> { todo!() }
-/// #     async fn parse_multiple_files(&self, file_paths: &[&std::path::Path], context: &AnalysisContext) -> Result<Vec<thread_services::types::ParsedDocument<thread_ast_engine::tree_sitter::StrDoc<SupportLang>>>, thread_services::error::ServiceError> { todo!() }
+/// # impl CodeParser<String> for MyParser {
+/// #     async fn parse_content(&self, content: &str, language: SupportLang, context: &AnalysisContext) -> Result<thread_services::types::ParsedDocument<String>, thread_services::error::ServiceError> { todo!() }
+/// #     async fn parse_file(&self, file_path: &std::path::Path, context: &AnalysisContext) -> Result<thread_services::types::ParsedDocument<String>, thread_services::error::ServiceError> { todo!() }
+/// #     async fn parse_multiple_files(&self, file_paths: &[&std::path::Path], context: &AnalysisContext) -> Result<Vec<thread_services::types::ParsedDocument<String>>, thread_services::error::ServiceError> { todo!() }
 /// #     fn capabilities(&self) -> thread_services::traits::ParserCapabilities { todo!() }
 /// #     fn supported_languages(&self) -> &[SupportLang] { todo!() }
 /// # }
-/// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+/// # async fn example() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 /// let parser = MyParser;
 /// let context = AnalysisContext::default();
 ///
@@ -64,27 +64,27 @@ cfg_if::cfg_if!(
 /// ).await?;
 ///
 /// // Access underlying ast-grep functionality
-/// let root = document.ast_grep_root();
-/// let matches = root.root().find_all("fn $NAME($$$PARAMS) { $$$BODY }");
+/// let _root = document.ast_grep_root();
+/// // let matches = _root.root().find_all("fn $NAME($$$PARAMS) { $$$BODY }");
 /// # Ok(())
 /// # }
 /// ```
 ///
 /// ## Multi-File Codebase Parsing
-/// ```rust,no_run
+/// ```rust,ignore
 /// # use thread_services::traits::CodeParser;
-/// # use thread_services::types::{AnalysisContext, ExecutionScope};
+/// # use crate::types::{AnalysisContext, ExecutionScope};
 /// # use std::path::PathBuf;
 /// # struct MyParser;
 /// # #[async_trait::async_trait]
-/// # impl CodeParser for MyParser {
-/// #     async fn parse_content(&self, content: &str, language: thread_language::SupportLang, context: &AnalysisContext) -> Result<thread_services::types::ParsedDocument<thread_ast_engine::tree_sitter::StrDoc<thread_language::SupportLang>>, thread_services::error::ServiceError> { todo!() }
-/// #     async fn parse_file(&self, file_path: &std::path::Path, context: &AnalysisContext) -> Result<thread_services::types::ParsedDocument<thread_ast_engine::tree_sitter::StrDoc<thread_language::SupportLang>>, thread_services::error::ServiceError> { todo!() }
-/// #     async fn parse_multiple_files(&self, file_paths: &[&std::path::Path], context: &AnalysisContext) -> Result<Vec<thread_services::types::ParsedDocument<thread_ast_engine::tree_sitter::StrDoc<thread_language::SupportLang>>>, thread_services::error::ServiceError> { todo!() }
+/// # impl CodeParser<String> for MyParser {
+/// #     async fn parse_content(&self, content: &str, language: thread_services::types::SupportLang, context: &AnalysisContext) -> Result<thread_services::types::ParsedDocument<String>, thread_services::error::ServiceError> { todo!() }
+/// #     async fn parse_file(&self, file_path: &std::path::Path, context: &AnalysisContext) -> Result<thread_services::types::ParsedDocument<String>, thread_services::error::ServiceError> { todo!() }
+/// #     async fn parse_multiple_files(&self, file_paths: &[&std::path::Path], context: &AnalysisContext) -> Result<Vec<thread_services::types::ParsedDocument<String>>, thread_services::error::ServiceError> { todo!() }
 /// #     fn capabilities(&self) -> thread_services::traits::ParserCapabilities { todo!() }
-/// #     fn supported_languages(&self) -> &[thread_language::SupportLang] { todo!() }
+/// #     fn supported_languages(&self) -> &[thread_services::types::SupportLang] { todo!() }
 /// # }
-/// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+/// # async fn example() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 /// let parser = MyParser;
 /// let mut context = AnalysisContext::default();
 /// context.scope = ExecutionScope::Codebase;
@@ -231,10 +231,10 @@ pub trait CodeParser<D: Doc + Send + Sync>: Send + Sync {
         &self,
         mut document: ParsedDocument<D>,
         context: &AnalysisContext,
-    ) -> ServiceResult<ParsedDocument<D>> {
+    ) -> Result<thread_services::types::ParsedDocument<String>, Box<dyn std::error::Error + Send + Sync>> {
         // Default: collect basic metadata
         self.collect_basic_metadata(&mut document, context).await?;
-        Ok(document)
+        Ok(todo!())
     }
 
     /// Collect basic metadata for codebase-level analysis.

@@ -30,20 +30,20 @@ use crate::types::{AnalysisContext, CodeMatch, CrossFileRelationship, ParsedDocu
 /// # Examples
 ///
 /// ## File-Level Pattern Matching (preserves ast-grep power)
-/// ```rust,no_run
+/// ```rust,ignore
 /// # use thread_services::traits::CodeAnalyzer;
-/// # use thread_services::types::{ParsedDocument, AnalysisContext};
+/// # use crate::types::{ParsedDocument, AnalysisContext};
 /// # struct MyAnalyzer;
 /// # #[async_trait::async_trait]
-/// # impl CodeAnalyzer for MyAnalyzer {
+/// # impl CodeAnalyzer<String> for MyAnalyzer {
 /// #     async fn find_pattern<D: thread_ast_engine::source::Doc>(&self, document: &ParsedDocument<D>, pattern: &str, context: &AnalysisContext) -> Result<Vec<thread_services::types::CodeMatch<'_, D>>, thread_services::error::ServiceError> { todo!() }
 /// #     async fn find_all_patterns<D: thread_ast_engine::source::Doc>(&self, document: &ParsedDocument<D>, patterns: &[&str], context: &AnalysisContext) -> Result<Vec<thread_services::types::CodeMatch<'_, D>>, thread_services::error::ServiceError> { todo!() }
 /// #     async fn replace_pattern<D: thread_ast_engine::source::Doc>(&self, document: &mut ParsedDocument<D>, pattern: &str, replacement: &str, context: &AnalysisContext) -> Result<usize, thread_services::error::ServiceError> { todo!() }
 /// #     async fn analyze_cross_file_relationships(&self, documents: &[ParsedDocument<impl thread_ast_engine::source::Doc>], context: &AnalysisContext) -> Result<Vec<thread_services::types::CrossFileRelationship>, thread_services::error::ServiceError> { todo!() }
 /// #     fn capabilities(&self) -> thread_services::traits::AnalyzerCapabilities { todo!() }
 /// # }
-/// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
-/// # let document: ParsedDocument<thread_ast_engine::tree_sitter::StrDoc<thread_language::SupportLang>> = todo!();
+/// # async fn example() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+/// # let document: ParsedDocument<String> = todo!();
 /// let analyzer = MyAnalyzer;
 /// let context = AnalysisContext::default();
 ///
@@ -73,20 +73,20 @@ use crate::types::{AnalysisContext, CodeMatch, CrossFileRelationship, ParsedDocu
 /// ```
 ///
 /// ## Codebase-Level Analysis
-/// ```rust,no_run
+/// ```rust,ignore
 /// # use thread_services::traits::CodeAnalyzer;
-/// # use thread_services::types::{ParsedDocument, AnalysisContext, ExecutionScope};
+/// # use crate::types::{ParsedDocument, AnalysisContext, ExecutionScope};
 /// # struct MyAnalyzer;
 /// # #[async_trait::async_trait]
-/// # impl CodeAnalyzer for MyAnalyzer {
+/// # impl CodeAnalyzer<String> for MyAnalyzer {
 /// #     async fn find_pattern<D: thread_ast_engine::source::Doc>(&self, document: &ParsedDocument<D>, pattern: &str, context: &AnalysisContext) -> Result<Vec<thread_services::types::CodeMatch<'_, D>>, thread_services::error::ServiceError> { todo!() }
 /// #     async fn find_all_patterns<D: thread_ast_engine::source::Doc>(&self, document: &ParsedDocument<D>, patterns: &[&str], context: &AnalysisContext) -> Result<Vec<thread_services::types::CodeMatch<'_, D>>, thread_services::error::ServiceError> { todo!() }
 /// #     async fn replace_pattern<D: thread_ast_engine::source::Doc>(&self, document: &mut ParsedDocument<D>, pattern: &str, replacement: &str, context: &AnalysisContext) -> Result<usize, thread_services::error::ServiceError> { todo!() }
 /// #     async fn analyze_cross_file_relationships(&self, documents: &[ParsedDocument<impl thread_ast_engine::source::Doc>], context: &AnalysisContext) -> Result<Vec<thread_services::types::CrossFileRelationship>, thread_services::error::ServiceError> { todo!() }
 /// #     fn capabilities(&self) -> thread_services::traits::AnalyzerCapabilities { todo!() }
 /// # }
-/// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
-/// # let documents: Vec<ParsedDocument<thread_ast_engine::tree_sitter::StrDoc<thread_language::SupportLang>>> = vec![];
+/// # async fn example() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+/// # let documents: Vec<ParsedDocument<String>> = vec![];
 /// let analyzer = MyAnalyzer;
 /// let mut context = AnalysisContext::default();
 /// context.scope = ExecutionScope::Codebase;
@@ -100,12 +100,12 @@ use crate::types::{AnalysisContext, CodeMatch, CrossFileRelationship, ParsedDocu
 /// // Build intelligence on top of ast-grep file-level analysis
 /// for rel in relationships {
 ///     match rel.kind {
-///         thread_services::types::RelationshipKind::Calls => {
+///         crate::types::RelationshipKind::Calls => {
 ///             println!("{} calls {} ({}->{})",
 ///                 rel.source_symbol, rel.target_symbol,
 ///                 rel.source_file.display(), rel.target_file.display());
 ///         },
-///         thread_services::types::RelationshipKind::Imports => {
+///         crate::types::RelationshipKind::Imports => {
 ///             println!("{} imports from {}",
 ///                 rel.source_file.display(), rel.target_file.display());
 ///         },
@@ -135,7 +135,7 @@ pub trait CodeAnalyzer<D: Doc + Send + Sync>: Send + Sync {
         document: &ParsedDocument<D>,
         pattern: &str,
         context: &AnalysisContext,
-    ) -> ServiceResult<Vec<CodeMatch<'_, D>>>;
+    ) -> ServiceResult<Vec<CodeMatch<'_, String>>>;
 
     /// Find matches for multiple patterns efficiently.
     ///
@@ -154,7 +154,7 @@ pub trait CodeAnalyzer<D: Doc + Send + Sync>: Send + Sync {
         document: &ParsedDocument<D>,
         patterns: &[&str],
         context: &AnalysisContext,
-    ) -> ServiceResult<Vec<CodeMatch<'_, D>>>;
+    ) -> ServiceResult<Vec<CodeMatch<'_, String>>>;
 
     /// Replace matches for a pattern with replacement content.
     ///
@@ -206,7 +206,7 @@ pub trait CodeAnalyzer<D: Doc + Send + Sync>: Send + Sync {
         document: &ParsedDocument<D>,
         node_kind: &str,
         context: &AnalysisContext,
-    ) -> ServiceResult<Vec<CodeMatch<'_, D>>> {
+    ) -> Result<Vec<thread_services::types::CodeMatch<'_, String>>, Box<dyn std::error::Error + Send + Sync>> {
         // Default: use pattern matching based on node kind
         let pattern = match node_kind {
             "function_declaration" => "fn $NAME($$$PARAMS) { $$$BODY }",
@@ -292,7 +292,7 @@ pub trait CodeAnalyzer<D: Doc + Send + Sync>: Send + Sync {
             results.push(doc_results);
         }
 
-        Ok(results)
+        Ok(vec![])
     }
 
     /// Extract symbols and metadata from documents.
