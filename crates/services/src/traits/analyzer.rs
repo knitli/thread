@@ -135,7 +135,7 @@ pub trait CodeAnalyzer<D: Doc + Send + Sync>: Send + Sync {
         document: &ParsedDocument<D>,
         pattern: &str,
         context: &AnalysisContext,
-    ) -> ServiceResult<Vec<CodeMatch<'_, String>>>;
+    ) -> ServiceResult<Vec<CodeMatch<'_, D>>>;
 
     /// Find matches for multiple patterns efficiently.
     ///
@@ -154,7 +154,7 @@ pub trait CodeAnalyzer<D: Doc + Send + Sync>: Send + Sync {
         document: &ParsedDocument<D>,
         patterns: &[&str],
         context: &AnalysisContext,
-    ) -> ServiceResult<Vec<CodeMatch<'_, String>>>;
+    ) -> ServiceResult<Vec<CodeMatch<'_, D>>>;
 
     /// Replace matches for a pattern with replacement content.
     ///
@@ -206,7 +206,7 @@ pub trait CodeAnalyzer<D: Doc + Send + Sync>: Send + Sync {
         document: &ParsedDocument<D>,
         node_kind: &str,
         context: &AnalysisContext,
-    ) -> Result<Vec<thread_services::types::CodeMatch<'_, String>>, Box<dyn std::error::Error + Send + Sync>> {
+    ) -> ServiceResult<Vec<CodeMatch<'_, D>>> {
         // Default: use pattern matching based on node kind
         let pattern = match node_kind {
             "function_declaration" => "fn $NAME($$$PARAMS) { $$$BODY }",
@@ -292,7 +292,7 @@ pub trait CodeAnalyzer<D: Doc + Send + Sync>: Send + Sync {
             results.push(doc_results);
         }
 
-        Ok(vec![])
+        Ok(results)
     }
 
     /// Extract symbols and metadata from documents.

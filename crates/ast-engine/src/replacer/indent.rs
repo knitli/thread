@@ -101,6 +101,9 @@ fn get_new_line<C: Content>() -> C::Underlying {
 fn get_space<C: Content>() -> C::Underlying {
     C::decode_str(" ")[0].clone()
 }
+fn get_tab<C: Content>() -> C::Underlying {
+    C::decode_str("\t")[0].clone()
+}
 
 const MAX_LOOK_AHEAD: usize = 512;
 
@@ -183,21 +186,16 @@ pub fn formatted_slice<'a, C: Content>(
     if !slice.contains(&get_new_line::<C>()) {
         return Cow::Borrowed(slice);
     }
+    let (indent, is_tab) = get_indent_at_offset_with_tab::<C>(content.get_range(0..start));
     Cow::Owned(
-        indent_lines::<C>(
-            0,
-            &DeindentedExtract::MultiLine(
-                slice,
-                get_indent_at_offset::<C>(content.get_range(0..start)),
-            ),
-        )
-        .into_owned(),
+        indent_lines::<C>(0, &DeindentedExtract::MultiLine(slice, indent), is_tab).into_owned(),
     )
 }
 
 pub fn indent_lines<'a, C: Content>(
     indent: usize,
     extract: &'a DeindentedExtract<'a, C>,
+    is_tab: bool,
 ) -> Cow<'a, [C::Underlying]> {
     use DeindentedExtract::{MultiLine, SingleLine};
     let (lines, original_indent) = match extract {
@@ -213,18 +211,27 @@ pub fn indent_lines<'a, C: Content>(
         Ordering::Less => Cow::Owned(indent_lines_impl::<C, _>(
             indent - original_indent,
             lines.split(|b| *b == get_new_line::<C>()),
+            is_tab,
         )),
     }
 }
 
-fn indent_lines_impl<'a, C, Lines>(indent: usize, mut lines: Lines) -> Vec<C::Underlying>
+fn indent_lines_impl<'a, C, Lines>(
+    indent: usize,
+    mut lines: Lines,
+    is_tab: bool,
+) -> Vec<C::Underlying>
 where
     C: Content + 'a,
     Lines: Iterator<Item = &'a [C::Underlying]>,
 {
     let mut ret = vec![];
-    let space = get_space::<C>();
-    let leading: Vec<_> = std::iter::repeat_n(space, indent).collect();
+    let indent_char = if is_tab {
+        get_tab::<C>()
+    } else {
+        get_space::<C>()
+    };
+    let leading: Vec<_> = std::iter::repeat_n(indent_char, indent).collect();
     // first line wasn't indented, so we don't add leading spaces
     if let Some(line) = lines.next() {
         ret.extend(line.iter().cloned());
@@ -241,43 +248,65 @@ where
 /// returns 0 if no indent is found before the offset
 /// either truly no indent exists, or the offset is in a long line
 pub fn get_indent_at_offset<C: Content>(src: &[C::Underlying]) -> usize {
+    get_indent_at_offset_with_tab::<C>(src).0
+}
+
+/// returns (indent, `is_tab`)
+pub fn get_indent_at_offset_with_tab<C: Content>(src: &[C::Underlying]) -> (usize, bool) {
     let lookahead = src.len().max(MAX_LOOK_AHEAD) - MAX_LOOK_AHEAD;
 
     let mut indent = 0;
+    let mut is_tab = false;
     let new_line = get_new_line::<C>();
     let space = get_space::<C>();
-    // TODO: support TAB. only whitespace is supported now
+    let tab = get_tab::<C>();
     for c in src[lookahead..].iter().rev() {
         if *c == new_line {
-            return indent;
+            return (indent, is_tab);
         }
         if *c == space {
             indent += 1;
+        } else if *c == tab {
+            indent += 1;
+            is_tab = true;
         } else {
             indent = 0;
+            is_tab = false;
         }
     }
     // lookahead == 0 means we have indentation at first line.
     if lookahead == 0 && indent != 0 {
-        indent
+        (indent, is_tab)
     } else {
-        0
+        (0, false)
     }
 }
 
 // NOTE: we assume input is well indented.
 // following lines should have fewer indentations than initial line
 fn remove_indent<C: Content>(indent: usize, src: &[C::Underlying]) -> Vec<C::Underlying> {
-    let indentation: Vec<_> = std::iter::repeat_n(get_space::<C>(), indent).collect();
     let new_line = get_new_line::<C>();
+    let space = get_space::<C>();
+    let tab = get_tab::<C>();
     let lines: Vec<_> = src
         .split(|b| *b == new_line)
-        .map(|line| match line.strip_prefix(&*indentation) {
-            Some(stripped) => stripped,
-            None => line,
+        .map(|line| {
+            let mut stripped = line;
+            let mut count = 0;
+            while count < indent {
+                if let Some(rest) = stripped.strip_prefix(std::slice::from_ref(&space)) {
+                    stripped = rest;
+                } else if let Some(rest) = stripped.strip_prefix(std::slice::from_ref(&tab)) {
+                    stripped = rest;
+                } else {
+                    break;
+                }
+                count += 1;
+            }
+            stripped
         })
         .collect();
-    lines.join(&new_line).clone()
+    lines.join(&new_line)
 }
 
 #[cfg(test)]
@@ -299,7 +328,7 @@ mod test {
             .count();
         let end = source.chars().count() - trailing_white;
         let extracted = extract_with_deindent(&source, start..end);
-        let result_bytes = indent_lines::<String>(0, &extracted);
+        let result_bytes = indent_lines::<String>(0, &extracted, source.contains('\t'));
         let actual = std::str::from_utf8(&result_bytes).unwrap();
         assert_eq!(actual, expected);
     }
@@ -391,8 +420,8 @@ pass
     fn test_replace_with_indent(target: &str, start: usize, inserted: &str) -> String {
         let target = target.to_string();
         let replace_lines = DeindentedExtract::MultiLine(inserted.as_bytes(), 0);
-        let indent = get_indent_at_offset::<String>(&target.as_bytes()[..start]);
-        let ret = indent_lines::<String>(indent, &replace_lines);
+        let (indent, is_tab) = get_indent_at_offset_with_tab::<String>(&target.as_bytes()[..start]);
+        let ret = indent_lines::<String>(indent, &replace_lines, is_tab);
         String::from_utf8(ret.to_vec()).unwrap()
     }
 
@@ -444,5 +473,27 @@ pass
         let inserted = "def abc():\n  pass";
         let actual = test_replace_with_indent(target, 6, inserted);
         assert_eq!(actual, "def abc():\n    pass");
+    }
+
+    #[test]
+    fn test_tab_indent() {
+        let src = "\n\t\tdef test():\n\t\t\tpass";
+        let expected = "def test():\n\tpass";
+        test_deindent(src, expected, 0);
+    }
+
+    #[test]
+    fn test_tab_replace() {
+        let target = "\t\t";
+        let inserted = "def abc(): pass";
+        let actual = test_replace_with_indent(target, 2, inserted);
+        assert_eq!(actual, "def abc(): pass");
+        let inserted = "def abc():\n\tpass";
+        let actual = test_replace_with_indent(target, 2, inserted);
+        assert_eq!(actual, "def abc():\n\t\t\tpass");
+
+        let target = "\t\tdef abc():\n\t\t\t";
+        let actual = test_replace_with_indent(target, 14, inserted);
+        assert_eq!(actual, "def abc():\n\t\tpass");
     }
 }

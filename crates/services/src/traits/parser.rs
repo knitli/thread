@@ -18,7 +18,7 @@ cfg_if::cfg_if!(
     if #[cfg(feature = "ast-grep-backend")] {
         use thread_ast_engine::source::Doc;
         use thread_ast_engine::Language;
-        use thread_services::types::SupportLang;
+        use thread_language::SupportLang;
     } else {
         use crate::types::{Doc, SupportLang};
     }
@@ -231,10 +231,10 @@ pub trait CodeParser<D: Doc + Send + Sync>: Send + Sync {
         &self,
         mut document: ParsedDocument<D>,
         context: &AnalysisContext,
-    ) -> Result<thread_services::types::ParsedDocument<String>, Box<dyn std::error::Error + Send + Sync>> {
+    ) -> ServiceResult<ParsedDocument<D>> {
         // Default: collect basic metadata
         self.collect_basic_metadata(&mut document, context).await?;
-        Ok(todo!())
+        Ok(document)
     }
 
     /// Collect basic metadata for codebase-level analysis.
