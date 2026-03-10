@@ -30,6 +30,10 @@ extend-ignore-identifiers-re = [
   "prev",
   "normalises",
   "goes",
+  "inout",
+  "ba",
+  "ede",
+  "Bare",
 ]
 
 [files]
