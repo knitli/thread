@@ -551,5 +551,26 @@ if (true) {
         Ok(())
     }
 
-    // TODO: add a symbolic test for Rewrite
+    #[test]
+    fn test_rewrite() -> R {
+        let trans = parse(
+            r#"
+      rewrite:
+        source: "$A"
+        rewriters: ["re1", "re2"]
+        joinBy: ", "
+    "#,
+        )?;
+        let parsed = trans.parse(&TypeScript::Tsx).expect("should parse");
+        match &parsed {
+            Trans::Rewrite(r) => {
+                assert_eq!(r.rewriters, vec!["re1", "re2"]);
+                assert_eq!(r.join_by, Some(", ".to_string()));
+            }
+            _ => panic!("should be rewrite"),
+        }
+        assert_eq!(parsed.used_rewriters(), &["re1", "re2"]);
+        assert_eq!(parsed.used_vars(), "A");
+        Ok(())
+    }
 }
