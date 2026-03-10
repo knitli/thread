@@ -71,9 +71,10 @@ impl Transform {
             .map(|(key, val)| val.parse(&env.lang).map(|t| (key.to_string(), t)))
             .collect();
         let map = map?;
-        let order = env
-            .get_transform_order(&map)
-            .map_err(|e| match e { ReferentRuleError::CyclicRule(s) => TransformError::Cyclic(s), _ => TransformError::Cyclic(e.to_string()) })?;
+        let order = env.get_transform_order(&map).map_err(|e| match e {
+            ReferentRuleError::CyclicRule(s) => TransformError::Cyclic(s),
+            _ => TransformError::Cyclic(e.to_string()),
+        })?;
         let transforms = order
             .iter()
             .map(|&key| (key.to_string(), map[key].clone()))
