@@ -30,23 +30,13 @@ extend-ignore-identifiers-re = [
   "prev",
   "normalises",
   "goes",
-  "Bare",
-  "inout",
-  "ba",
-  "ede",
 ]
-
-[default.extend-words]
-Bare = "Bare"
-Supress = "Supress"
-teh = "teh"
-Teh = "Teh"
 
 [files]
 ignore-hidden = false
 ignore-files = true
 extend-exclude = [
-  "CHANGELOG.md",
+  "./CHANGELOG.md",
   "/usr/**/*",
   "/tmp/**/*",
   "/**/node_modules/**",

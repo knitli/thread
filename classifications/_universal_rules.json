@@ -1189,7 +1189,7 @@
     "inner": "syntax_punctuation",
     "inner_attribute_item": "syntax_annotation",
     "inner_doc_comment_marker": "syntax_literal",
-    "input": "syntax_keyword",
+    "inout": "syntax_keyword",
     "instance": "syntax_keyword",
     "instance_declarations": "definition_type",
     "instance_expression": "operation_operator",
