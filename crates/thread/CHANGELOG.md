@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2026 Knitli Inc. <knitli@knit.li>
+
+SPDX-License-Identifier: MIT OR Apache-2.0
+-->
+
 # Changelog
 
 All notable changes to this project will be documented in this file.
