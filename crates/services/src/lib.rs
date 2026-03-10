@@ -39,7 +39,7 @@
 //! async fn analyze_code(document: &ParsedDocument<String>) {
 //!     // Access underlying ast-grep functionality directly
 //!     let _root = document.ast_grep_root();
-// Note: To use find_all, the document must be typed with actual AST types
+//!     // Note: To use find_all, the document must be typed with actual AST types
 //!     // let matches = _root.root().find_all("fn $NAME($$$PARAMS) { $$$BODY }");
 //!
 //!     // Plus codebase-level metadata

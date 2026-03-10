@@ -29,6 +29,7 @@ extend-ignore-identifiers-re = [
   "RET",
   "prev",
   "normalises",
+  "inout",
   "goes",
 ]
 
