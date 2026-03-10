@@ -84,6 +84,7 @@ feature-depth = 1
 # output a note when they are encountered.
 ignore = [
   { id = "RUSTSEC-2024-0436", reason = "Paste is used as a dependency for macros, and is not used at runtime" },
+  { id = "RUSTSEC-2023-0071", reason = "No patch is available. The rsa crate is a transitive dependency via recoco-core -> sqlx -> sqlx-mysql. Thread does not use MySQL or perform RSA operations in network-observable contexts; the Marvin Attack timing sidechannel applies only when an attacker can observe network timing against an RSA private key operation. Track https://github.com/RustCrypto/RSA/issues/19 for upstream resolution." },
   # "RUSTSEC-0000-0000",
   # { id = "RUSTSEC-0000-0000", reason = "you can specify a reason the advisory is ignored" },
   # "a-crate-that-is-yanked@0.1.1", # you can also ignore yanked crate versions if you wish
