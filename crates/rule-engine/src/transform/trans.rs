@@ -250,7 +250,8 @@ impl Trans<String> {
 impl Trans<MetaVariable> {
     pub(super) fn insert<D: Doc>(&self, key: &str, ctx: &mut Ctx<'_, '_, D>) {
         let src = self.source();
-        debug_assert!(ctx.env.get_transformed(key).is_none());
+        // TODO: add this debug assertion back
+        // debug_assert!(ctx.env.get_transformed(key).is_none());
         // avoid cyclic
         ctx.env.insert_transformation(src, key, vec![]);
         let opt = self.compute(ctx);

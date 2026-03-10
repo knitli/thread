@@ -1721,7 +1721,6 @@ pub fn from_extension(path: &Path) -> Option<SupportLang> {
     }
 
     // Handle extensionless files or files with unknown extensions
-    #[allow(unused_variables)]
     if let Some(file_name) = path.file_name().and_then(|n| n.to_str()) {
         // 1. Check if the full filename matches a known extension (e.g. .bashrc)
         #[cfg(any(feature = "bash", feature = "all-parsers"))]
@@ -1736,6 +1735,9 @@ pub fn from_extension(path: &Path) -> Option<SupportLang> {
                 return Some(*lang);
             }
         }
+
+        // Silence unused variable warning if bash and ruby and all-parsers are not enabled
+        let _ = file_name;
     }
 
     // 3. Try shebang check as last resort

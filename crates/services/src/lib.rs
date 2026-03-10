@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
 // SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
 // SPDX-License-Identifier: AGPL-3.0-or-later
+#![feature(trait_alias)]
 //! # Thread Service Layer
 //!
 //! This crate provides the service layer interfaces for Thread that abstract over
