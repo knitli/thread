@@ -84,8 +84,7 @@
 //!
 //! ## Limitations
 //!
-//! - Handles both space-based and tab-based indentation; mixed indentation
-//!   (spaces and tabs on the same line) falls back to space-based re-indentation
+//! - Only supports space-based indentation (tabs not fully supported)
 //! - Assumes well-formed input indentation
 //! - Performance overhead for large code blocks
 //! - Complex algorithm with edge cases
@@ -121,13 +120,13 @@ pub enum DeindentedExtract<'a, C: Content> {
 
     /// Multi-line content with original indentation level recorded.
     ///
-    /// Contains the content bytes and the number of whitespace characters
-    /// (spaces or tabs) used for indentation in the original context. The first
-    /// line's indentation is not included in the content.
+    /// Contains the content bytes and the number of spaces that were used
+    /// for indentation in the original context. The first line's indentation
+    /// is not included in the content.
     ///
     /// # Fields
     /// - Content bytes with relative indentation preserved
-    /// - Original indentation level (number of whitespace characters)
+    /// - Original indentation level (number of spaces)
     MultiLine(&'a [C::Underlying], usize),
 }
 
@@ -252,40 +251,32 @@ pub fn get_indent_at_offset<C: Content>(src: &[C::Underlying]) -> usize {
     get_indent_at_offset_with_tab::<C>(src).0
 }
 
-/// Returns `(indent_count, is_tab)` for the current line's leading whitespace.
-///
-/// `is_tab` is `true` only when the entire indentation prefix consists of tab
-/// characters. For mixed indentation (e.g. `" \t"`) `is_tab` is `false` so that
-/// re-indentation falls back to space-based expansion rather than silently
-/// replacing the prefix with all tabs.
+/// returns (indent, `is_tab`)
 pub fn get_indent_at_offset_with_tab<C: Content>(src: &[C::Underlying]) -> (usize, bool) {
     let lookahead = src.len().max(MAX_LOOK_AHEAD) - MAX_LOOK_AHEAD;
 
     let mut indent = 0;
-    let mut has_tab = false;
-    let mut has_space = false;
+    let mut is_tab = false;
     let new_line = get_new_line::<C>();
     let space = get_space::<C>();
     let tab = get_tab::<C>();
     for c in src[lookahead..].iter().rev() {
         if *c == new_line {
-            return (indent, has_tab && !has_space);
+            return (indent, is_tab);
         }
         if *c == space {
             indent += 1;
-            has_space = true;
         } else if *c == tab {
             indent += 1;
-            has_tab = true;
+            is_tab = true;
         } else {
             indent = 0;
-            has_tab = false;
-            has_space = false;
+            is_tab = false;
         }
     }
     // lookahead == 0 means we have indentation at first line.
     if lookahead == 0 && indent != 0 {
-        (indent, has_tab && !has_space)
+        (indent, is_tab)
     } else {
         (0, false)
     }
@@ -325,15 +316,19 @@ mod test {
     fn test_deindent(source: &str, expected: &str, offset: usize) {
         let source = source.to_string();
         let expected = expected.trim();
-        // Derive byte indices rather than character counts so that the slice
-        // operations (`extract_with_deindent`, `get_indent_at_offset_with_tab`)
-        // work correctly for non-ASCII / multi-byte UTF-8 input as well.
-        let leading_ws_bytes = source[offset..].len() - source[offset..].trim_start().len();
-        let start = offset + leading_ws_bytes;
-        let end = source.trim_end().len();
+        let start = source[offset..]
+            .chars()
+            .take_while(|n| n.is_whitespace())
+            .count()
+            + offset;
+        let trailing_white = source
+            .chars()
+            .rev()
+            .take_while(|n| n.is_whitespace())
+            .count();
+        let end = source.chars().count() - trailing_white;
         let extracted = extract_with_deindent(&source, start..end);
-        let (_, is_tab) = get_indent_at_offset_with_tab::<String>(&source.as_bytes()[..start]);
-        let result_bytes = indent_lines::<String>(0, &extracted, is_tab);
+        let result_bytes = indent_lines::<String>(0, &extracted, source.contains('\t'));
         let actual = std::str::from_utf8(&result_bytes).unwrap();
         assert_eq!(actual, expected);
     }

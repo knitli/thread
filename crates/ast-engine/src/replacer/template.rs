@@ -116,7 +116,7 @@ fn replace_fixer<D: Doc>(fixer: &TemplateFix, env: &MetaVarEnv<'_, D>) -> Underl
         ret.extend_from_slice(&D::Source::decode_str(frag));
     }
     for ((var, indent, is_tab), frag) in vars.zip(frags) {
-        if let Some(bytes) = maybe_get_var(env, var, *indent, *is_tab) {
+        if let Some(bytes) = maybe_get_var(env, var, indent.to_owned(), is_tab.to_owned()) {
             ret.extend_from_slice(&bytes);
         }
         ret.extend_from_slice(&D::Source::decode_str(frag));
