@@ -38,7 +38,7 @@ fn into_map<L: Language>(
         .collect()
 }
 
-type OrderResult<T> = Result<T, String>;
+type OrderResult<T> = Result<T, ReferentRuleError>;
 
 /// A struct to store information to deserialize rules.
 #[derive(Clone, Debug)]
@@ -79,22 +79,24 @@ struct TopologicalSort<'a, T: DependentRule> {
     order: Vec<&'a str>,
     // bool stands for if the rule has completed visit
     seen: RapidMap<&'a str, bool>,
+    env: Option<&'a RuleRegistration>,
 }
 
 impl<'a, T: DependentRule> TopologicalSort<'a, T> {
-    fn get_order(maps: &RapidMap<String, T>) -> OrderResult<Vec<&str>> {
-        let mut top_sort = TopologicalSort::new(maps);
+    fn get_order(maps: &'a RapidMap<String, T>, env: Option<&'a RuleRegistration>) -> OrderResult<Vec<&'a str>> {
+        let mut top_sort = TopologicalSort::new(maps, env);
         for key in maps.keys() {
             top_sort.visit(key)?;
         }
         Ok(top_sort.order)
     }
 
-    fn new(maps: &'a RapidMap<String, T>) -> Self {
+    fn new(maps: &'a RapidMap<String, T>, env: Option<&'a RuleRegistration>) -> Self {
         Self {
             maps,
             order: vec![],
             seen: RapidMap::default(),
+            env,
         }
     }
 
@@ -105,7 +107,7 @@ impl<'a, T: DependentRule> TopologicalSort<'a, T> {
             return if completed {
                 Ok(())
             } else {
-                Err(key.to_string())
+                Err(ReferentRuleError::CyclicRule(key.to_string()))
             };
         }
         let Some(item) = self.maps.get(key) else {
@@ -113,7 +115,12 @@ impl<'a, T: DependentRule> TopologicalSort<'a, T> {
             // e.g. if key is rule_id
             // if rule_id not found in global, it can be a local rule
             // if rule_id not found in local, it can be a global rule
-            // TODO: add check here and return Err if rule not found
+            if let Some(env) = self.env {
+                // Note: We only check if the key is completely missing
+                if !env.contains_rule(key) {
+                    return Err(ReferentRuleError::UndefinedUtil(key.to_string()));
+                }
+            }
             return Ok(());
         };
         // mark the id as seen but not completed
@@ -165,8 +172,7 @@ impl<L: Language> DeserializeEnv<L> {
         self,
         utils: &RapidMap<String, SerializableRule>,
     ) -> Result<Self, RuleSerializeError> {
-        let order = TopologicalSort::get_order(utils)
-            .map_err(ReferentRuleError::CyclicRule)
+        let order = TopologicalSort::get_order(utils, Some(&self.registration))
             .map_err(RuleSerializeError::MatchesReference)?;
         for id in order {
             let rule = utils.get(id).expect("must exist");
@@ -182,8 +188,7 @@ impl<L: Language> DeserializeEnv<L> {
     ) -> Result<GlobalRules, RuleCoreError> {
         let registration = GlobalRules::default();
         let utils = into_map(utils);
-        let order = TopologicalSort::get_order(&utils)
-            .map_err(ReferentRuleError::CyclicRule)
+        let order = TopologicalSort::get_order(&utils, None)
             .map_err(RuleSerializeError::from)?;
         for id in order {
             let (lang, core) = utils.get(id).expect("must exist");
@@ -204,10 +209,11 @@ impl<L: Language> DeserializeEnv<L> {
     }
 
     pub(crate) fn get_transform_order<'a>(
-        &self,
+        &'a self,
         trans: &'a RapidMap<String, Trans<MetaVariable>>,
-    ) -> Result<Vec<&'a str>, String> {
-        TopologicalSort::get_order(trans)
+    ) -> Result<Vec<&'a str>, ReferentRuleError> {
+        // Transformations don't need env rule registration checks, pass None
+        TopologicalSort::get_order(trans, None)
     }
 
     pub fn with_globals(self, globals: &GlobalRules) -> Self {
@@ -277,7 +283,11 @@ local-rule:
         )
         .expect("failed to parse utils");
         // should not panic
-        DeserializeEnv::new(TypeScript::Tsx).with_utils(&utils)?;
+        let registration = GlobalRules::default();
+        let core: crate::rule_core::SerializableRuleCore = from_str("rule: {pattern: '123'}").unwrap();
+        let env_dummy = DeserializeEnv::new(TypeScript::Tsx).with_globals(&registration);
+        registration.insert("global-rule", core.get_matcher(env_dummy).unwrap()).unwrap();
+        DeserializeEnv::new(TypeScript::Tsx).with_globals(&registration).with_utils(&utils)?;
         Ok(())
     }
 

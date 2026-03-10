@@ -8,6 +8,7 @@ mod parse;
 mod rewrite;
 mod string_case;
 mod trans;
+use crate::rule::referent_rule::ReferentRuleError;
 
 use crate::{DeserializeEnv, RuleCore};
 
@@ -72,7 +73,7 @@ impl Transform {
         let map = map?;
         let order = env
             .get_transform_order(&map)
-            .map_err(TransformError::Cyclic)?;
+            .map_err(|e| match e { ReferentRuleError::CyclicRule(s) => TransformError::Cyclic(s), _ => TransformError::Cyclic(e.to_string()) })?;
         let transforms = order
             .iter()
             .map(|&key| (key.to_string(), map[key].clone()))

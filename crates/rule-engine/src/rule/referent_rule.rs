@@ -32,6 +32,10 @@ impl<R> Registration<R> {
         // it only insert new item to the RapidMap. It is safe to cast the raw ptr.
         unsafe { &mut *(Arc::as_ptr(&self.0) as *mut RapidMap<String, R>) }
     }
+
+    pub(crate) fn contains_key(&self, id: &str) -> bool {
+        self.0.contains_key(id)
+    }
 }
 pub type GlobalRules = Registration<RuleCore>;
 
@@ -81,6 +85,12 @@ impl RuleRegistration {
         let local = Arc::downgrade(&self.local.0);
         let global = Arc::downgrade(&self.global.0);
         RegistrationRef { local, global }
+    }
+
+    pub(crate) fn contains_rule(&self, id: &str) -> bool {
+        self.local.contains_key(id)
+            || self.global.contains_key(id)
+            || self.rewriters.contains_key(id)
     }
 
     pub(crate) fn insert_local(&self, id: &str, rule: Rule) -> Result<(), ReferentRuleError> {
