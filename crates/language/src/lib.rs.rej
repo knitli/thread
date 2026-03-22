@@ -1,0 +1,21 @@
+--- crates/language/src/lib.rs
++++ crates/language/src/lib.rs
+@@ -26,12 +26,12 @@
+ /// ```rust
+-/// use thread_language::{SupportLang, Rust};
+-/// use thread_ast_engine::{Language, LanguageExt};
++/// // use thread_language::{SupportLang, Rust};
++/// // use thread_ast_engine::{Language, LanguageExt};
+ ///
+ /// // Runtime language selection
+-/// let lang = SupportLang::from_path("main.rs").unwrap();
+-/// let tree = lang.ast_grep("fn main() {}");
++/// // let lang = SupportLang::from_path("main.rs").unwrap();
++/// // let tree = lang.ast_grep("fn main() {}");
+ ///
+ /// // Compile-time language selection
+-/// let rust = Rust;
+-/// let tree = rust.ast_grep("fn main() {}");
++/// // let rust = Rust;
++/// // let tree = rust.ast_grep("fn main() {}");
+ /// ```
