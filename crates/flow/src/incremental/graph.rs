@@ -273,11 +273,11 @@ impl DependencyGraph {
         while let Some(file) = queue.pop_front() {
             // Follow reverse edges (files that depend on this file)
             for edge in self.get_dependents(file) {
-                if edge.effective_strength() == DependencyStrength::Strong {
-                    if !affected.contains(&edge.from) {
-                        affected.insert(edge.from.clone());
-                        queue.push_back(&edge.from);
-                    }
+                if edge.effective_strength() == DependencyStrength::Strong
+                    && !affected.contains(&edge.from)
+                {
+                    affected.insert(edge.from.clone());
+                    queue.push_back(&edge.from);
                 }
             }
         }

@@ -1,10 +1,10 @@
 use std::path::PathBuf;
-use std::time::Instant;
 use thread_flow::incremental::graph::DependencyGraph;
 use thread_flow::incremental::types::{DependencyEdge, DependencyType};
 use thread_utilities::RapidSet;
 
-use criterion::{Criterion, black_box, criterion_group, criterion_main};
+use std::hint::black_box;
+use criterion::{Criterion, criterion_group, criterion_main};
 
 fn bench_find_affected_files(c: &mut Criterion) {
     let mut graph = DependencyGraph::new();
@@ -31,12 +31,6 @@ fn bench_find_affected_files(c: &mut Criterion) {
     let changed_files: RapidSet<PathBuf> = (0..10)
         .map(|i| PathBuf::from(format!("file_{}.rs", i)))
         .collect();
-
-    let start = Instant::now();
-    for _ in 0..100 {
-        let _affected = graph.find_affected_files(&changed_files);
-    }
-    let duration = start.elapsed();
 
     c.bench_function("find_affected_files_10000_nodes", |b| {
         b.iter(|| {
