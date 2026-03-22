@@ -844,33 +844,39 @@ async fn test_diff_setup_states_create_new_table() {
 }
 
 #[tokio::test]
-#[ignore = "Requires understanding StateChange construction from recoco - API changed"]
 async fn test_diff_setup_states_existing_table() {
-    // TODO: Update this test once we understand how to construct StateChange for existing state
-    // The new recoco API uses Vec<StateChange<T>> instead of Option<T> for staging field
-    // We need to figure out how to properly construct a StateChange with existing state
+    let factory = D1TargetFactory;
+    let key_fields = [test_field_schema("id", BasicValueType::Int64, false)];
+    let value_fields = [test_field_schema("name", BasicValueType::Str, false)];
 
-    let _factory = D1TargetFactory;
-    let _key_fields = [test_field_schema("id", BasicValueType::Int64, false)];
-    let _value_fields = [test_field_schema("name", BasicValueType::Str, false)];
+    let desired_state = D1SetupState::new(&test_table_id(), &key_fields, &value_fields)
+        .expect("Failed to create desired state");
 
-    // This needs proper StateChange construction:
-    // let _desired_state = D1SetupState::new(&test_table_id(), &_key_fields, &_value_fields)
-    //     .expect("Failed to create desired state");
+    let existing_state = desired_state.clone();
 
-    // let _existing_states: CombinedState<D1SetupState> = CombinedState {
-    //     staging: vec![/* StateChange with existing_state */],
-    //     current: None,  // or Some(state)?
-    //     legacy_state_key: None,
-    // };
+    let existing_states: CombinedState<D1SetupState> = CombinedState {
+        staging: vec![recoco::setup::StateChange::Upsert(existing_state)],
+        current: None,
+        legacy_state_key: None,
+    };
 
-    let _flow_context = Arc::new(recoco::ops::interface::FlowInstanceContext {
+    let flow_context = Arc::new(recoco::ops::interface::FlowInstanceContext {
         flow_instance_name: "test_flow".to_string(),
         auth_registry: Arc::new(recoco::setup::AuthRegistry::new()),
     });
 
-    // Test would verify that no CREATE TABLE is generated when table exists
-    // assert!(change.create_table_sql.is_none());
+    let change = factory
+        .diff_setup_states(
+            test_table_id(),
+            Some(desired_state),
+            existing_states,
+            flow_context,
+        )
+        .await
+        .expect("Failed to diff setup states");
+
+    // Test verifies that no CREATE TABLE is generated when table exists
+    assert!(change.create_table_sql.is_none());
 }
 
 #[test]
