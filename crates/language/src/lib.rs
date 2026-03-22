@@ -675,7 +675,6 @@ impl_lang!(Yaml, language_yaml);
 /// use thread_language::SupportLang;
 /// use thread_ast_engine::Language;
 /// use thread_ast_engine::tree_sitter::LanguageExt;
-/// use thread_ast_engine::tree_sitter::LanguageExt;
 ///
 /// let lang = SupportLang::Rust;
 /// let tree = lang.ast_grep("fn main() {}");
