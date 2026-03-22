@@ -67,6 +67,13 @@ pub fn extract_basic_metadata<D: Doc>(
         }
     }
 
+    // Extract class and struct definitions
+    if let Ok(class_matches) = extract_classes(&root_node) {
+        for (name, info) in class_matches {
+            metadata.defined_symbols.insert(name, info);
+        }
+    }
+
     // Extract import statements
     if let Ok(imports) = extract_imports(&root_node, &document.language) {
         for (name, info) in imports {
@@ -115,6 +122,43 @@ fn extract_functions<D: Doc>(root_node: &Node<D>) -> ServiceResult<RapidMap<Stri
     }
 
     Ok(functions)
+}
+
+/// Extract class and struct definitions using ast-grep patterns
+#[cfg(feature = "matching")]
+fn extract_classes<D: Doc>(root_node: &Node<D>) -> ServiceResult<RapidMap<String, SymbolInfo>> {
+    let mut classes = thread_utilities::get_map();
+
+    // Try different class/struct patterns based on common languages
+    let patterns = [
+        "struct $NAME { $$$BODY }",      // Rust, C++, C#
+        "class $NAME { $$$BODY }",       // TypeScript, JavaScript, Java, C#, C++
+        "class $NAME: $$$BODY",          // Python
+        "class $NAME($$$PARAMS): $$$BODY", // Python
+        "type $NAME struct { $$$BODY }", // Go
+        "interface $NAME { $$$BODY }",   // TypeScript, Java, C#
+    ];
+
+    for pattern in &patterns {
+        for node_match in root_node.find_all(pattern) {
+            if let Some(name_node) = node_match.get_env().get_match("NAME") {
+                let class_name = name_node.text().to_string();
+                let position = name_node.start_pos();
+
+                let symbol_info = SymbolInfo {
+                    name: class_name.clone(),
+                    kind: SymbolKind::Class,
+                    position,
+                    scope: "global".to_string(),    // Simplified for now
+                    visibility: Visibility::Public, // Simplified for now
+                };
+
+                classes.insert(class_name, symbol_info);
+            }
+        }
+    }
+
+    Ok(classes)
 }
 
 /// Extract import statements using language-specific patterns
