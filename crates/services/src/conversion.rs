@@ -131,12 +131,12 @@ fn extract_classes<D: Doc>(root_node: &Node<D>) -> ServiceResult<RapidMap<String
 
     // Try different class/struct patterns based on common languages
     let patterns = [
-        "struct $NAME { $$$BODY }",      // Rust, C++, C#
-        "class $NAME { $$$BODY }",       // TypeScript, JavaScript, Java, C#, C++
-        "class $NAME: $$$BODY",          // Python
+        "struct $NAME { $$$BODY }",        // Rust, C++, C#
+        "class $NAME { $$$BODY }",         // TypeScript, JavaScript, Java, C#, C++
+        "class $NAME: $$$BODY",            // Python
         "class $NAME($$$PARAMS): $$$BODY", // Python
-        "type $NAME struct { $$$BODY }", // Go
-        "interface $NAME { $$$BODY }",   // TypeScript, Java, C#
+        "type $NAME struct { $$$BODY }",   // Go
+        "interface $NAME { $$$BODY }",     // TypeScript, Java, C#
     ];
 
     for pattern in &patterns {
