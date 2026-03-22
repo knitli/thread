@@ -593,4 +593,70 @@ mod tests {
         ));
         assert!(recovery.auto_recoverable);
     }
+
+    struct MockRecoverableError(Option<ErrorRecovery>);
+
+    impl RecoverableError for MockRecoverableError {
+        fn recovery_info(&self) -> Option<ErrorRecovery> {
+            self.0.clone()
+        }
+    }
+
+    fn create_mock_error(strategy: RecoveryStrategy) -> MockRecoverableError {
+        MockRecoverableError(Some(ErrorRecovery {
+            strategy,
+            instructions: "test".to_string(),
+            auto_recoverable: true,
+        }))
+    }
+
+    #[test]
+    fn test_is_retryable() {
+        // True cases
+        let err = create_mock_error(RecoveryStrategy::Retry { max_attempts: 3 });
+        assert!(err.is_retryable());
+
+        // False cases
+        let err = create_mock_error(RecoveryStrategy::Skip);
+        assert!(!err.is_retryable());
+
+        let err = create_mock_error(RecoveryStrategy::Fallback {
+            strategy: "test".to_string(),
+        });
+        assert!(!err.is_retryable());
+
+        let err = create_mock_error(RecoveryStrategy::Abort);
+        assert!(!err.is_retryable());
+
+        let err = create_mock_error(RecoveryStrategy::Partial);
+        assert!(!err.is_retryable());
+
+        let err_none = MockRecoverableError(None);
+        assert!(!err_none.is_retryable());
+    }
+
+    #[test]
+    fn test_allows_partial() {
+        // True cases
+        let err = create_mock_error(RecoveryStrategy::Partial);
+        assert!(err.allows_partial());
+
+        let err = create_mock_error(RecoveryStrategy::Skip);
+        assert!(err.allows_partial());
+
+        // False cases
+        let err = create_mock_error(RecoveryStrategy::Retry { max_attempts: 3 });
+        assert!(!err.allows_partial());
+
+        let err = create_mock_error(RecoveryStrategy::Fallback {
+            strategy: "test".to_string(),
+        });
+        assert!(!err.allows_partial());
+
+        let err = create_mock_error(RecoveryStrategy::Abort);
+        assert!(!err.allows_partial());
+
+        let err_none = MockRecoverableError(None);
+        assert!(!err_none.allows_partial());
+    }
 }
