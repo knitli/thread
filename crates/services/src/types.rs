@@ -631,3 +631,85 @@ impl Range {
         self.start <= other.end && other.start <= self.end
     }
 }
+
+#[cfg(test)]
+mod range_tests {
+    use super::*;
+
+    // Helper to create positions
+    #[cfg(feature = "ast-grep-backend")]
+    fn pos(line: usize, byte_column: usize, byte_offset: usize) -> Position {
+        Position::new(line, byte_column, byte_offset)
+    }
+
+    #[cfg(not(feature = "ast-grep-backend"))]
+    fn pos(row: usize, column: usize, index: usize) -> Position {
+        Position::new(row, column, index)
+    }
+
+    #[test]
+    fn test_range_contains() {
+        let start = pos(1, 5, 15);
+        let end = pos(3, 10, 45);
+        let range = Range::new(start, end);
+
+        // Before range
+        assert!(!range.contains(pos(1, 4, 14)));
+        assert!(!range.contains(pos(0, 5, 5)));
+
+        // Exactly at start
+        assert!(range.contains(pos(1, 5, 15)));
+
+        // Inside range
+        assert!(range.contains(pos(2, 0, 25)));
+
+        // Exactly at end
+        assert!(range.contains(pos(3, 10, 45)));
+
+        // After range
+        assert!(!range.contains(pos(3, 11, 46)));
+        assert!(!range.contains(pos(4, 0, 50)));
+    }
+
+    #[test]
+    fn test_range_overlaps() {
+        let base_start = pos(2, 5, 25);
+        let base_end = pos(4, 10, 55);
+        let base = Range::new(base_start, base_end);
+
+        // 1. Completely before (no overlap)
+        let before = Range::new(pos(1, 0, 10), pos(2, 4, 24));
+        assert!(!base.overlaps(&before));
+        assert!(!before.overlaps(&base));
+
+        // 2. Ending exactly at start (overlap)
+        let abut_before = Range::new(pos(1, 0, 10), pos(2, 5, 25));
+        assert!(base.overlaps(&abut_before));
+        assert!(abut_before.overlaps(&base));
+
+        // 3. Overlapping start
+        let overlap_start = Range::new(pos(1, 0, 10), pos(3, 0, 35));
+        assert!(base.overlaps(&overlap_start));
+        assert!(overlap_start.overlaps(&base));
+
+        // 4. Completely inside
+        let inside = Range::new(pos(3, 0, 35), pos(3, 5, 40));
+        assert!(base.overlaps(&inside));
+        assert!(inside.overlaps(&base));
+
+        // 5. Overlapping end
+        let overlap_end = Range::new(pos(3, 0, 35), pos(5, 0, 65));
+        assert!(base.overlaps(&overlap_end));
+        assert!(overlap_end.overlaps(&base));
+
+        // 6. Starting exactly at end (overlap)
+        let abut_after = Range::new(pos(4, 10, 55), pos(5, 0, 65));
+        assert!(base.overlaps(&abut_after));
+        assert!(abut_after.overlaps(&base));
+
+        // 7. Completely after (no overlap)
+        let after = Range::new(pos(4, 11, 56), pos(5, 0, 65));
+        assert!(!base.overlaps(&after));
+        assert!(!after.overlaps(&base));
+    }
+}
