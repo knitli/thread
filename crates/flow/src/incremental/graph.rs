@@ -267,21 +267,17 @@ impl DependencyGraph {
     /// assert!(affected.contains(&PathBuf::from("C")));
     /// ```
     pub fn find_affected_files(&self, changed_files: &RapidSet<PathBuf>) -> RapidSet<PathBuf> {
-        let mut affected = thread_utilities::get_set();
-        let mut visited = thread_utilities::get_set();
-        let mut queue: VecDeque<PathBuf> = changed_files.iter().cloned().collect();
+        let mut affected = changed_files.clone();
+        let mut queue: VecDeque<&PathBuf> = changed_files.iter().collect();
 
         while let Some(file) = queue.pop_front() {
-            if !visited.insert(file.clone()) {
-                continue;
-            }
-
-            affected.insert(file.clone());
-
             // Follow reverse edges (files that depend on this file)
-            for edge in self.get_dependents(&file) {
+            for edge in self.get_dependents(file) {
                 if edge.effective_strength() == DependencyStrength::Strong {
-                    queue.push_back(edge.from.clone());
+                    if !affected.contains(&edge.from) {
+                        affected.insert(edge.from.clone());
+                        queue.push_back(&edge.from);
+                    }
                 }
             }
         }
