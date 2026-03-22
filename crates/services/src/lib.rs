@@ -183,14 +183,20 @@ impl FileSystemContext {
 impl ExecutionContext for FileSystemContext {
     fn read_content(&self, source: &str) -> Result<String, ServiceError> {
         let path = self.secure_path(source).ok_or_else(|| {
-            ServiceError::execution_dynamic(format!("Invalid path or directory traversal attempt: {}", source))
+            ServiceError::execution_dynamic(format!(
+                "Invalid path or directory traversal attempt: {}",
+                source
+            ))
         })?;
         Ok(std::fs::read_to_string(path)?)
     }
 
     fn write_content(&self, destination: &str, content: &str) -> Result<(), ServiceError> {
         let path = self.secure_path(destination).ok_or_else(|| {
-            ServiceError::execution_dynamic(format!("Invalid path or directory traversal attempt: {}", destination))
+            ServiceError::execution_dynamic(format!(
+                "Invalid path or directory traversal attempt: {}",
+                destination
+            ))
         })?;
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent)?;
@@ -288,10 +294,18 @@ mod tests {
 
         // Ensure read_content returns an error
         let read_err = ctx.read_content("../invalid.txt").unwrap_err();
-        assert!(read_err.to_string().contains("Invalid path or directory traversal attempt"));
+        assert!(
+            read_err
+                .to_string()
+                .contains("Invalid path or directory traversal attempt")
+        );
 
         // Ensure write_content returns an error
         let write_err = ctx.write_content("../invalid.txt", "data").unwrap_err();
-        assert!(write_err.to_string().contains("Invalid path or directory traversal attempt"));
+        assert!(
+            write_err
+                .to_string()
+                .contains("Invalid path or directory traversal attempt")
+        );
     }
 }
