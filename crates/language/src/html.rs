@@ -34,7 +34,8 @@ use thread_utilities::RapidMap;
 ///
 /// ```rust
 /// use thread_language::Html;
-/// use thread_ast_engine::{Language, LanguageExt};
+/// use thread_ast_engine::Language;
+/// use thread_ast_engine::tree_sitter::LanguageExt;
 ///
 /// let html = Html;
 /// let source = r#"

@@ -84,6 +84,7 @@ pub use template::{TemplateFix, TemplateFixError};
 ///
 /// ```rust,no_run
 /// # use thread_ast_engine::replacer::Replacer;
+/// # use thread_ast_engine::source::Content;
 /// # use thread_ast_engine::{Doc, NodeMatch};
 /// # use thread_ast_engine::meta_var::Underlying;
 /// struct CustomReplacer;
@@ -91,7 +92,7 @@ pub use template::{TemplateFix, TemplateFixError};
 /// impl<D: Doc> Replacer<D> for CustomReplacer {
 ///     fn generate_replacement(&self, nm: &NodeMatch<'_, D>) -> Underlying<D> {
 ///         // Custom replacement logic here
-///         "new_code".as_bytes().to_vec()
+///         D::Source::decode_str("new_code").into_owned()
 ///     }
 /// }
 /// ```
