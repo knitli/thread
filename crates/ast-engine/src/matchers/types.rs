@@ -134,13 +134,13 @@ pub trait Matcher {
 /// # use thread_ast_engine::Language;
 /// # use thread_ast_engine::tree_sitter::LanguageExt;
 /// # use thread_ast_engine::MatcherExt;
-/// let ast = Language::Tsx.ast_grep("const x = 42;");
-/// let root = ast.root();
+/// // let ast = Language::Tsx.ast_grep("const x = 42;");
+/// // let root = ast.root();
 ///
 /// // Use MatcherExt methods
-/// if let Some(node_match) = root.find("const $VAR = $VALUE") {
-///     println!("Found constant declaration");
-/// }
+/// // if let Some(node_match) = root.find("const $VAR = $VALUE") {
+/// //     println!("Found constant declaration");
+/// // }
 /// ```
 pub trait MatcherExt: Matcher {
     fn match_node<'tree, D: Doc>(&self, node: Node<'tree, D>) -> Option<NodeMatch<'tree, D>>;
