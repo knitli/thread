@@ -147,16 +147,51 @@ impl FileSystemContext {
             base_path: base_path.as_ref().to_path_buf(),
         }
     }
+
+    /// Safely resolves a path, preventing traversal attacks (e.g., "../../etc/passwd")
+    fn secure_path(&self, source: &str) -> Option<std::path::PathBuf> {
+        let mut resolved = self.base_path.clone();
+
+        for component in std::path::Path::new(source).components() {
+            match component {
+                std::path::Component::Prefix(_) | std::path::Component::RootDir => {
+                    // Absolute paths or prefixes are not allowed as they can break out
+                    return None;
+                }
+                std::path::Component::CurDir => {}
+                std::path::Component::ParentDir => {
+                    if resolved == self.base_path {
+                        // Attempted to traverse above base_path
+                        return None;
+                    }
+                    resolved.pop();
+                }
+                std::path::Component::Normal(part) => {
+                    resolved.push(part);
+                }
+            }
+        }
+
+        if resolved.starts_with(&self.base_path) {
+            Some(resolved)
+        } else {
+            None
+        }
+    }
 }
 
 impl ExecutionContext for FileSystemContext {
     fn read_content(&self, source: &str) -> Result<String, ServiceError> {
-        let path = self.base_path.join(source);
+        let path = self.secure_path(source).ok_or_else(|| {
+            ServiceError::execution_dynamic(format!("Invalid path or directory traversal attempt: {}", source))
+        })?;
         Ok(std::fs::read_to_string(path)?)
     }
 
     fn write_content(&self, destination: &str, content: &str) -> Result<(), ServiceError> {
-        let path = self.base_path.join(destination);
+        let path = self.secure_path(destination).ok_or_else(|| {
+            ServiceError::execution_dynamic(format!("Invalid path or directory traversal attempt: {}", destination))
+        })?;
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent)?;
         }
@@ -234,5 +269,29 @@ mod tests {
 
         let sources = ctx.list_sources().unwrap();
         assert_eq!(sources, vec!["test.rs"]);
+    }
+
+    #[test]
+    fn test_filesystem_context_secure_path() {
+        let temp_dir = std::env::temp_dir();
+        let ctx = FileSystemContext::new(&temp_dir);
+
+        // Valid paths
+        assert!(ctx.secure_path("valid.txt").is_some());
+        assert!(ctx.secure_path("subdir/valid.txt").is_some());
+        assert!(ctx.secure_path("./valid.txt").is_some());
+
+        // Invalid paths (traversal attempts)
+        assert!(ctx.secure_path("../invalid.txt").is_none());
+        assert!(ctx.secure_path("subdir/../../invalid.txt").is_none());
+        assert!(ctx.secure_path("/etc/passwd").is_none());
+
+        // Ensure read_content returns an error
+        let read_err = ctx.read_content("../invalid.txt").unwrap_err();
+        assert!(read_err.to_string().contains("Invalid path or directory traversal attempt"));
+
+        // Ensure write_content returns an error
+        let write_err = ctx.write_content("../invalid.txt", "data").unwrap_err();
+        assert!(write_err.to_string().contains("Invalid path or directory traversal attempt"));
     }
 }
