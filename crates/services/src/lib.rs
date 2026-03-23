@@ -147,16 +147,48 @@ impl FileSystemContext {
             base_path: base_path.as_ref().to_path_buf(),
         }
     }
+
+    /// Lexically validate path to prevent traversal attacks
+    fn secure_path(&self, source: &str) -> Result<std::path::PathBuf, ServiceError> {
+        use std::path::Component;
+
+        let path = Path::new(source);
+        let mut depth = 0;
+
+        for component in path.components() {
+            match component {
+                Component::Prefix(_) | Component::RootDir => {
+                    return Err(ServiceError::execution_dynamic(format!(
+                        "Absolute paths are not allowed: {source}"
+                    )));
+                }
+                Component::CurDir => {}
+                Component::ParentDir => {
+                    if depth == 0 {
+                        return Err(ServiceError::execution_dynamic(format!(
+                            "Path traversal outside of base path is not allowed: {source}"
+                        )));
+                    }
+                    depth -= 1;
+                }
+                Component::Normal(_) => {
+                    depth += 1;
+                }
+            }
+        }
+
+        Ok(self.base_path.join(source))
+    }
 }
 
 impl ExecutionContext for FileSystemContext {
     fn read_content(&self, source: &str) -> Result<String, ServiceError> {
-        let path = self.base_path.join(source);
+        let path = self.secure_path(source)?;
         Ok(std::fs::read_to_string(path)?)
     }
 
     fn write_content(&self, destination: &str, content: &str) -> Result<(), ServiceError> {
-        let path = self.base_path.join(destination);
+        let path = self.secure_path(destination)?;
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent)?;
         }
@@ -234,5 +266,27 @@ mod tests {
 
         let sources = ctx.list_sources().unwrap();
         assert_eq!(sources, vec!["test.rs"]);
+    }
+
+    #[test]
+    fn test_file_system_context_security() {
+        let temp = std::env::temp_dir();
+        let ctx = FileSystemContext::new(&temp);
+
+        // Valid paths
+        assert!(ctx.secure_path("test.txt").is_ok());
+        assert!(ctx.secure_path("dir/test.txt").is_ok());
+        assert!(ctx.secure_path("./test.txt").is_ok());
+        assert!(ctx.secure_path("dir/../test.txt").is_ok());
+
+        // Absolute paths
+        assert!(ctx.secure_path("/etc/passwd").is_err());
+        #[cfg(windows)]
+        assert!(ctx.secure_path("C:\\Windows\\System32\\cmd.exe").is_err());
+
+        // Traversal attacks
+        assert!(ctx.secure_path("../test.txt").is_err());
+        assert!(ctx.secure_path("dir/../../test.txt").is_err());
+        assert!(ctx.secure_path("dir/../inc/../../test.txt").is_err());
     }
 }
