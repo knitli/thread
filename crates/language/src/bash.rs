@@ -39,7 +39,6 @@ fn test_bash_pattern_no_match() {
 
 #[test]
 fn test_bash_replace() {
-    // TODO: change the replacer to log $A
-    let ret = test_replace("echo 123", "echo $A", "log 123");
+    let ret = test_replace("echo 123", "echo $A", "log $A");
     assert_eq!(ret, "log 123");
 }
