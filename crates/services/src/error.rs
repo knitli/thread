@@ -612,24 +612,23 @@ mod tests {
 
     #[test]
     fn test_is_retryable() {
-        // True cases
-        let err = create_mock_error(RecoveryStrategy::Retry { max_attempts: 3 });
-        assert!(err.is_retryable());
+        let cases = [
+            (RecoveryStrategy::Retry { max_attempts: 3 }, true),
+            (RecoveryStrategy::Skip, false),
+            (
+                RecoveryStrategy::Fallback {
+                    strategy: "test".to_string(),
+                },
+                false,
+            ),
+            (RecoveryStrategy::Abort, false),
+            (RecoveryStrategy::Partial, false),
+        ];
 
-        // False cases
-        let err = create_mock_error(RecoveryStrategy::Skip);
-        assert!(!err.is_retryable());
-
-        let err = create_mock_error(RecoveryStrategy::Fallback {
-            strategy: "test".to_string(),
-        });
-        assert!(!err.is_retryable());
-
-        let err = create_mock_error(RecoveryStrategy::Abort);
-        assert!(!err.is_retryable());
-
-        let err = create_mock_error(RecoveryStrategy::Partial);
-        assert!(!err.is_retryable());
+        for (strategy, expected) in cases {
+            let err = create_mock_error(strategy);
+            assert_eq!(err.is_retryable(), expected);
+        }
 
         let err_none = MockRecoverableError(None);
         assert!(!err_none.is_retryable());
@@ -637,24 +636,23 @@ mod tests {
 
     #[test]
     fn test_allows_partial() {
-        // True cases
-        let err = create_mock_error(RecoveryStrategy::Partial);
-        assert!(err.allows_partial());
+        let cases = [
+            (RecoveryStrategy::Partial, true),
+            (RecoveryStrategy::Skip, true),
+            (RecoveryStrategy::Retry { max_attempts: 3 }, false),
+            (
+                RecoveryStrategy::Fallback {
+                    strategy: "test".to_string(),
+                },
+                false,
+            ),
+            (RecoveryStrategy::Abort, false),
+        ];
 
-        let err = create_mock_error(RecoveryStrategy::Skip);
-        assert!(err.allows_partial());
-
-        // False cases
-        let err = create_mock_error(RecoveryStrategy::Retry { max_attempts: 3 });
-        assert!(!err.allows_partial());
-
-        let err = create_mock_error(RecoveryStrategy::Fallback {
-            strategy: "test".to_string(),
-        });
-        assert!(!err.allows_partial());
-
-        let err = create_mock_error(RecoveryStrategy::Abort);
-        assert!(!err.allows_partial());
+        for (strategy, expected) in cases {
+            let err = create_mock_error(strategy);
+            assert_eq!(err.allows_partial(), expected);
+        }
 
         let err_none = MockRecoverableError(None);
         assert!(!err_none.allows_partial());
