@@ -271,9 +271,10 @@ impl DependencyGraph {
         let mut queue: VecDeque<&PathBuf> = changed_files.iter().collect();
 
         while let Some(file) = queue.pop_front() {
-            if !affected.insert(file.clone()) {
+            if affected.contains(file) {
                 continue;
             }
+            affected.insert(file.clone());
 
             // Follow reverse edges (files that depend on this file)
             for edge in self.get_dependents(file) {
