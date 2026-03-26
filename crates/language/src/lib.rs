@@ -30,7 +30,7 @@
 //! use thread_ast_engine::tree_sitter::LanguageExt;
 //!
 //! // Runtime language selection
-//! let lang = SupportLang::from_path("main.rs").unwrap();
+//! let lang = SupportLang::from_path(std::path::Path::new("main.rs")).unwrap();
 //! let tree = lang.ast_grep("fn main() {}");
 //!
 //! // Compile-time language selection
