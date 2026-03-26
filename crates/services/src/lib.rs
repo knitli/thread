@@ -239,14 +239,14 @@ mod tests {
     #[test]
     fn test_memory_context_read_content_error() {
         let ctx = MemoryContext::new();
-        let result = ctx.read_content("non_existent.rs");
-        assert!(result.is_err());
+        let err = ctx
+            .read_content("non_existent.rs")
+            .expect_err("expected error when reading missing source");
 
-        match result.unwrap_err() {
-            ServiceError::Execution { message } => {
-                assert!(message.contains("Source not found: non_existent.rs"));
-            }
-            _ => panic!("Expected ServiceError::Execution"),
+        if let ServiceError::Execution { message } = err {
+            assert!(message.contains("Source not found: non_existent.rs"));
+        } else {
+            panic!("Expected ServiceError::Execution, got: {err:?}");
         }
     }
 }
