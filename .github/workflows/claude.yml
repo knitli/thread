@@ -43,6 +43,7 @@ jobs:
           label_trigger: claude
           base_branch: staging
           max_turns: "30"
+          allowed_bots: "Copilot"
           allowed_tools: &allowed_tools |
             mcp__context7__resolve-library-id
             mcp__context7__get-library-docs
@@ -113,6 +114,7 @@ jobs:
           label_trigger: claude
           base_branch: staging
           max_turns: "30"
+          allowed_bots: "Copilot"
           allowed_tools: *allowed_tools
           mcp_config: *mcp_config
           direct_prompt: |
@@ -137,6 +139,7 @@ jobs:
           mode: agent
           base_branch: staging
           max_turns: "30"
+          allowed_bots: "Copilot"
           allowed_tools: *allowed_tools
           mcp_config: *mcp_config
           direct_prompt: |
@@ -161,6 +164,7 @@ jobs:
           label_trigger: claude
           base_branch: staging
           max_turns: "30"
+          allowed_bots: "Copilot"
           allowed_tools: *allowed_tools
           mcp_config: *mcp_config
           direct_prompt: |
