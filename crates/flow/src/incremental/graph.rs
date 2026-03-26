@@ -278,7 +278,9 @@ impl DependencyGraph {
 
             // Follow reverse edges (files that depend on this file)
             for edge in self.get_dependents(file) {
-                if edge.effective_strength() == DependencyStrength::Strong {
+                if edge.effective_strength() == DependencyStrength::Strong
+                    && !affected.contains(&edge.from)
+                {
                     queue.push_back(&edge.from);
                 }
             }
