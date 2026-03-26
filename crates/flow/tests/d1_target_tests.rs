@@ -855,8 +855,8 @@ async fn test_diff_setup_states_existing_table() {
     let existing_state = desired_state.clone();
 
     let existing_states: CombinedState<D1SetupState> = CombinedState {
-        staging: vec![recoco::setup::StateChange::Upsert(existing_state)],
-        current: None,
+        staging: vec![],
+        current: Some(existing_state),
         legacy_state_key: None,
     };
 
@@ -877,6 +877,8 @@ async fn test_diff_setup_states_existing_table() {
 
     // Test verifies that no CREATE TABLE is generated when table exists
     assert!(change.create_table_sql.is_none());
+    assert!(change.create_indexes_sql.is_empty());
+    assert!(change.alter_table_sql.is_empty());
 }
 
 #[test]
