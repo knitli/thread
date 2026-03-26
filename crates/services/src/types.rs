@@ -621,12 +621,15 @@ impl Range {
         Self { start, end }
     }
 
-    /// Check if this range contains a position
+    /// Check if this range contains a position.
+    /// Range bounds are inclusive `[start, end]`.
     pub fn contains(&self, pos: Position) -> bool {
         pos >= self.start && pos <= self.end
     }
 
-    /// Check if this range overlaps with another range
+    /// Check if this range overlaps with another range.
+    /// Overlap is inclusive, so ranges that abut each other (e.g. `[A, B]` and `[B, C]`)
+    /// are considered overlapping.
     pub fn overlaps(&self, other: &Range) -> bool {
         self.start <= other.end && other.start <= self.end
     }
@@ -682,7 +685,7 @@ mod range_tests {
         assert!(!base.overlaps(&before));
         assert!(!before.overlaps(&base));
 
-        // 2. Ending exactly at start (overlap)
+        // 2. Ending exactly at start (inclusive overlap)
         let abut_before = Range::new(pos(1, 0, 10), pos(2, 5, 25));
         assert!(base.overlaps(&abut_before));
         assert!(abut_before.overlaps(&base));
@@ -702,7 +705,7 @@ mod range_tests {
         assert!(base.overlaps(&overlap_end));
         assert!(overlap_end.overlaps(&base));
 
-        // 6. Starting exactly at end (overlap)
+        // 6. Starting exactly at end (inclusive overlap)
         let abut_after = Range::new(pos(4, 10, 55), pos(5, 0, 65));
         assert!(base.overlaps(&abut_after));
         assert!(abut_after.overlaps(&base));
