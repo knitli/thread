@@ -145,7 +145,6 @@ fn parse_lang(
 ///
 /// ```rust,no_run
 /// # use thread_ast_engine::tree_sitter::StrDoc;
-/// # use thread_ast_engine::Doc;
 /// # #[derive(Clone, Debug)]
 /// # struct JavaScript;
 /// # impl thread_ast_engine::Language for JavaScript {
@@ -404,7 +403,7 @@ pub fn perform_edit<S: ContentExt>(tree: &mut Tree, input: &mut S, edit: &Edit<S
 /// use thread_ast_engine::tree_sitter::{LanguageExt, TSLanguage};
 /// use thread_ast_engine::Language;
 ///
-/// #[derive(Clone)]
+/// #[derive(Clone, Debug)]
 /// struct JavaScript;
 ///
 /// impl Language for JavaScript {
