@@ -101,9 +101,9 @@ impl PostgresIncrementalBackend {
             cfg.user = Some(user.to_string());
         }
         if let Some(password) = pg_config.get_password() {
-            let pwd_str = String::from_utf8(password.to_vec())
+            let pwd_str = std::str::from_utf8(password)
                 .map_err(|e| StorageError::Backend(format!("Invalid UTF-8 in password: {e}")))?;
-            cfg.password = Some(pwd_str);
+            cfg.password = Some(pwd_str.to_owned());
         }
         if let Some(dbname) = pg_config.get_dbname() {
             cfg.dbname = Some(dbname.to_string());
