@@ -235,4 +235,18 @@ mod tests {
         let sources = ctx.list_sources().unwrap();
         assert_eq!(sources, vec!["test.rs"]);
     }
+
+    #[test]
+    fn test_memory_context_read_content_error() {
+        let ctx = MemoryContext::new();
+        let err = ctx
+            .read_content("non_existent.rs")
+            .expect_err("expected error when reading missing source");
+
+        if let ServiceError::Execution { message } = err {
+            assert!(message.contains("Source not found: non_existent.rs"));
+        } else {
+            panic!("Expected ServiceError::Execution, got: {err:?}");
+        }
+    }
 }
