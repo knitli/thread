@@ -527,6 +527,7 @@ pub enum ExecutionStrategy {
 pub enum SymbolKind {
     Function,
     Class,
+    Struct,
     Interface,
     Variable,
     Constant,
