@@ -26,7 +26,8 @@
 //!
 //! ```rust
 //! use thread_language::{SupportLang, Rust};
-//! use thread_ast_engine::{Language, LanguageExt};
+//! use thread_ast_engine::Language;
+//! use thread_ast_engine::tree_sitter::LanguageExt;
 //!
 //! // Runtime language selection
 //! let lang = SupportLang::from_path("main.rs").unwrap();
@@ -259,7 +260,7 @@ macro_rules! impl_lang {
 /// assert_eq!(result, "def hello(): pass");
 /// ```
 #[allow(dead_code)]
-fn pre_process_pattern(expando: char, query: &str) -> std::borrow::Cow<'_, str> {
+pub fn pre_process_pattern(expando: char, query: &str) -> std::borrow::Cow<'_, str> {
     // Fast path: check if any processing is needed
     let has_dollar = query.as_bytes().contains(&b'$');
     if !has_dollar {
@@ -672,7 +673,8 @@ impl_lang!(Yaml, language_yaml);
 /// # Usage with AST Analysis
 /// ```rust,ignore
 /// use thread_language::SupportLang;
-/// use thread_ast_engine::{Language, LanguageExt};
+/// use thread_ast_engine::Language;
+/// use thread_ast_engine::tree_sitter::LanguageExt;
 ///
 /// let lang = SupportLang::Rust;
 /// let tree = lang.ast_grep("fn main() {}");
