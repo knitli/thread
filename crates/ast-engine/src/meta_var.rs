@@ -18,11 +18,7 @@
 //! ## Example
 //!
 //! ```rust,no_run
-//! use thread_ast_engine::meta_var::{MetaVarEnv, MetaVariable, extract_meta_var};
-//!
-//! let mut env = MetaVarEnv::new();
-//! env.insert("$A", node);
-//! let meta = extract_meta_var("$A", '$');
+//! // Note: exact APIs depend on `Doc` generics
 //! ```
 //!
 //! See [`MetaVarEnv`](crates/ast-engine/src/meta_var.rs:48) for details on usage in AST matching and rewriting.

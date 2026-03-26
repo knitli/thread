@@ -42,7 +42,8 @@
 //!
 //! ```rust,no_run
 //! # use thread_ast_engine::tree_sitter::{StrDoc, LanguageExt};
-//! # use thread_ast_engine::Language;
+//! # use thread_ast_engine::{Language, Doc};
+//! # #[derive(Clone, Debug)]
 //! # struct Tsx;
 //! # impl Language for Tsx {
 //! #     fn kind_to_id(&self, _: &str) -> u16 { 0 }

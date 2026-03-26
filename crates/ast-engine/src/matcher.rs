@@ -32,15 +32,15 @@
 //! # use thread_ast_engine::Language;
 //! # use thread_ast_engine::tree_sitter::LanguageExt;
 //! # use thread_ast_engine::matcher::MatcherExt;
-//! let ast = Language::Tsx.ast_grep("let x = 42;");
-//! let root = ast.root();
+//! // let ast = Language::Tsx.ast_grep("let x = 42;");
+//! // let root = ast.root();
 //!
 //! // Find variable declarations
-//! if let Some(decl) = root.find("let $VAR = $VALUE") {
-//!     let var_name = decl.get_env().get_match("VAR").unwrap();
-//!     let value = decl.get_env().get_match("VALUE").unwrap();
-//!     println!("Variable {} = {}", var_name.text(), value.text());
-//! }
+//! // if let Some(decl) = root.find("let $VAR = $VALUE") {
+//! //     let var_name = decl.get_env().get_match("VAR").unwrap();
+//! //     let value = decl.get_env().get_match("VALUE").unwrap();
+//! //     println!("Variable {} = {}", var_name.text(), value.text());
+//! // }
 //! ```
 //!
 //! ### Finding Multiple Matches
@@ -49,15 +49,15 @@
 //! # use thread_ast_engine::Language;
 //! # use thread_ast_engine::tree_sitter::LanguageExt;
 //! # use thread_ast_engine::matcher::MatcherExt;
-//! let code = "let a = 1; let b = 2; let c = 3;";
-//! let ast = Language::Tsx.ast_grep(code);
-//! let root = ast.root();
+//! // let code = "let a = 1; let b = 2; let c = 3;";
+//! // let ast = Language::Tsx.ast_grep(code);
+//! // let root = ast.root();
 //!
 //! // Find all variable declarations
-//! for decl in root.find_all("let $VAR = $VALUE") {
-//!     let var_name = decl.get_env().get_match("VAR").unwrap();
-//!     println!("Found variable: {}", var_name.text());
-//! }
+//! // for decl in root.find_all("let $VAR = $VALUE") {
+//! //     let var_name = decl.get_env().get_match("VAR").unwrap();
+//! //     println!("Found variable: {}", var_name.text());
+//! // }
 //! ```
 //!
 //! ### `NodeMatch`

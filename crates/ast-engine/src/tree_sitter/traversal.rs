@@ -73,7 +73,7 @@
 //! // Non-reentrant: only finds outer matches
 //! let outer_only: Vec<_> = Visitor::new("$FUNC($$$)")
 //!     .reentrant(false)
-//!     .visit(root)
+//!     .visit(root.clone())
 //!     .collect();
 //!
 //! // Reentrant: finds all matches including nested ones
