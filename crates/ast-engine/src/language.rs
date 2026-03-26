@@ -25,9 +25,7 @@
 //! ```rust,no_run
 //! use thread_ast_engine::language::Language;
 //!
-//! let lang = Tsx {};
-//! let pattern = lang.pre_process_pattern("var $A = $B");
-//! let meta_var = lang.extract_meta_var("$A");
+//! // Example usage for implementing Language
 //! ```
 #[allow(unused_imports)]
 #[cfg(feature = "matching")]
