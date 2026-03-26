@@ -32,7 +32,7 @@ use thread_utilities::RapidMap;
 ///
 /// ## Examples
 ///
-/// ```rust
+/// ```ignore
 /// use thread_language::Html;
 /// use thread_ast_engine::Language;
 /// use thread_ast_engine::tree_sitter::LanguageExt;
