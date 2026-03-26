@@ -332,4 +332,14 @@ mod tests {
         assert_eq!(info.kind, SymbolKind::Function);
         assert_eq!(info.position, pos);
     }
+
+    #[test]
+    fn test_position_to_range() {
+        let start = Position::new(1, 0, 10);
+        let end = Position::new(2, 5, 25);
+        let range = position_to_range(start, end);
+
+        assert_eq!(range.start, start);
+        assert_eq!(range.end, end);
+    }
 }

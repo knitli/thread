@@ -147,16 +147,88 @@ impl FileSystemContext {
             base_path: base_path.as_ref().to_path_buf(),
         }
     }
+
+    /// Lexically validate path to prevent traversal attacks and symlink escapes
+    fn secure_path(&self, source: &str) -> Result<std::path::PathBuf, ServiceError> {
+        use std::path::Component;
+
+        if source.is_empty() {
+            return Err(ServiceError::execution_static("Path cannot be empty"));
+        }
+
+        let path = Path::new(source);
+        let mut validated_path = std::path::PathBuf::new();
+        let mut depth = 0;
+
+        for component in path.components() {
+            match component {
+                Component::Prefix(_) | Component::RootDir => {
+                    return Err(ServiceError::execution_dynamic(format!(
+                        "Absolute paths are not allowed: {source}"
+                    )));
+                }
+                Component::CurDir => {}
+                Component::ParentDir => {
+                    if depth == 0 {
+                        return Err(ServiceError::execution_dynamic(format!(
+                            "Path traversal outside of base path is not allowed: {source}"
+                        )));
+                    }
+                    depth -= 1;
+                    validated_path.pop();
+                }
+                Component::Normal(c) => {
+                    depth += 1;
+                    validated_path.push(c);
+                }
+            }
+        }
+
+        let final_path = self.base_path.join(validated_path);
+
+        // 1. Lexical security check: ensure the final path is still under base_path
+        if !final_path.starts_with(&self.base_path) {
+            return Err(ServiceError::execution_dynamic(format!(
+                "Path validation failed: {source} lexically resolves outside base path"
+            )));
+        }
+
+        // 2. Physical security check: verify symlinks don't escape base_path
+        // We catch escapes by checking the longest existing prefix of the path.
+        // This is robust even for new files (write_content).
+        if let Ok(canonical_base) = self.base_path.canonicalize() {
+            let mut current = final_path.as_path();
+            while !current.exists() {
+                if let Some(parent) = current.parent() {
+                    current = parent;
+                } else {
+                    break;
+                }
+            }
+
+            if current.exists() {
+                if let Ok(canonical_prefix) = current.canonicalize() {
+                    if !canonical_prefix.starts_with(&canonical_base) {
+                        return Err(ServiceError::execution_dynamic(format!(
+                            "Path validation failed: {source} resolves outside base path via symlinks"
+                        )));
+                    }
+                }
+            }
+        }
+
+        Ok(final_path)
+    }
 }
 
 impl ExecutionContext for FileSystemContext {
     fn read_content(&self, source: &str) -> Result<String, ServiceError> {
-        let path = self.base_path.join(source);
+        let path = self.secure_path(source)?;
         Ok(std::fs::read_to_string(path)?)
     }
 
     fn write_content(&self, destination: &str, content: &str) -> Result<(), ServiceError> {
-        let path = self.base_path.join(destination);
+        let path = self.secure_path(destination)?;
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent)?;
         }
@@ -234,5 +306,48 @@ mod tests {
 
         let sources = ctx.list_sources().unwrap();
         assert_eq!(sources, vec!["test.rs"]);
+    }
+
+    #[test]
+    fn test_file_system_context_security() {
+        let temp = std::env::temp_dir();
+        let ctx = FileSystemContext::new(&temp);
+
+        // Valid paths
+        assert!(ctx.secure_path("test.txt").is_ok());
+        assert!(ctx.secure_path("dir/test.txt").is_ok());
+        assert!(ctx.secure_path("./test.txt").is_ok());
+        assert!(ctx.secure_path("dir/../test.txt").is_ok());
+
+        // Empty path
+        assert!(ctx.secure_path("").is_err());
+
+        // Absolute paths
+        assert!(ctx.secure_path("/etc/passwd").is_err());
+        #[cfg(windows)]
+        assert!(ctx.secure_path("C:\\Windows\\System32\\cmd.exe").is_err());
+
+        // Traversal attacks
+        assert!(ctx.secure_path("../test.txt").is_err());
+        assert!(ctx.secure_path("dir/../../test.txt").is_err());
+        assert!(ctx.secure_path("dir/../inc/../../test.txt").is_err());
+
+        // Verification of reconstruction
+        let path = ctx.secure_path("dir/./../test.txt").unwrap();
+        assert!(path.ends_with("test.txt"));
+        assert!(!path.to_string_lossy().contains(".."));
+     
+    #[test]
+    fn test_memory_context_read_content_error() {
+        let ctx = MemoryContext::new();
+        let err = ctx
+            .read_content("non_existent.rs")
+            .expect_err("expected error when reading missing source");
+
+        if let ServiceError::Execution { message } = err {
+            assert!(message.contains("Source not found: non_existent.rs"));
+        } else {
+            panic!("Expected ServiceError::Execution, got: {err:?}");
+        }
     }
 }

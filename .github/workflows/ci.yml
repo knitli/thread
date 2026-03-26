@@ -272,7 +272,7 @@ jobs:
           cargo nextest run --manifest-path crates/flow/Cargo.toml \
             --all-features \
             --test performance_regression_tests \
-            -- --nocapture
+            --no-capture
       - name: Check for regressions
         if: failure()
         run: |

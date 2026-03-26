@@ -593,4 +593,68 @@ mod tests {
         ));
         assert!(recovery.auto_recoverable);
     }
+
+    struct MockRecoverableError(Option<ErrorRecovery>);
+
+    impl RecoverableError for MockRecoverableError {
+        fn recovery_info(&self) -> Option<ErrorRecovery> {
+            self.0.clone()
+        }
+    }
+
+    fn create_mock_error(strategy: RecoveryStrategy) -> MockRecoverableError {
+        MockRecoverableError(Some(ErrorRecovery {
+            strategy,
+            instructions: "test".to_string(),
+            auto_recoverable: true,
+        }))
+    }
+
+    #[test]
+    fn test_is_retryable() {
+        let cases = [
+            (RecoveryStrategy::Retry { max_attempts: 3 }, true),
+            (RecoveryStrategy::Skip, false),
+            (
+                RecoveryStrategy::Fallback {
+                    strategy: "test".to_string(),
+                },
+                false,
+            ),
+            (RecoveryStrategy::Abort, false),
+            (RecoveryStrategy::Partial, false),
+        ];
+
+        for (strategy, expected) in cases {
+            let err = create_mock_error(strategy);
+            assert_eq!(err.is_retryable(), expected);
+        }
+
+        let err_none = MockRecoverableError(None);
+        assert!(!err_none.is_retryable());
+    }
+
+    #[test]
+    fn test_allows_partial() {
+        let cases = [
+            (RecoveryStrategy::Partial, true),
+            (RecoveryStrategy::Skip, true),
+            (RecoveryStrategy::Retry { max_attempts: 3 }, false),
+            (
+                RecoveryStrategy::Fallback {
+                    strategy: "test".to_string(),
+                },
+                false,
+            ),
+            (RecoveryStrategy::Abort, false),
+        ];
+
+        for (strategy, expected) in cases {
+            let err = create_mock_error(strategy);
+            assert_eq!(err.allows_partial(), expected);
+        }
+
+        let err_none = MockRecoverableError(None);
+        assert!(!err_none.allows_partial());
+    }
 }

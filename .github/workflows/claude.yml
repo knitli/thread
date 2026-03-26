@@ -36,12 +36,14 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          allowed_bots: Copilot,app/copilot,dependabot,github-actions
           trigger_phrase: '@claude'
           mode: agent
           assignee_trigger: claude
           label_trigger: claude
           base_branch: staging
           max_turns: "30"
+          allowed_bots: "Copilot"
           allowed_tools: &allowed_tools |
             mcp__context7__resolve-library-id
             mcp__context7__get-library-docs
@@ -105,12 +107,14 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          allowed_bots: Copilot,app/copilot,dependabot,github-actions
           trigger_phrase: '@claude'
           assignee_trigger: claude
           mode: agent
           label_trigger: claude
           base_branch: staging
           max_turns: "30"
+          allowed_bots: "Copilot"
           allowed_tools: *allowed_tools
           mcp_config: *mcp_config
           direct_prompt: |
@@ -128,12 +132,14 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          allowed_bots: Copilot,app/copilot,dependabot,github-actions
           trigger_phrase: '@claude'
           assignee_trigger: claude
           label_trigger: claude
           mode: agent
           base_branch: staging
           max_turns: "30"
+          allowed_bots: "Copilot"
           allowed_tools: *allowed_tools
           mcp_config: *mcp_config
           direct_prompt: |
@@ -151,12 +157,14 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          allowed_bots: Copilot,app/copilot,dependabot,github-actions
           trigger_phrase: '@claude'
           assignee_trigger: claude
           mode: agent
           label_trigger: claude
           base_branch: staging
           max_turns: "30"
+          allowed_bots: "Copilot"
           allowed_tools: *allowed_tools
           mcp_config: *mcp_config
           direct_prompt: |

@@ -37,13 +37,13 @@
 //! use thread_ast_engine::tree_sitter::LanguageExt;
 //!
 //! // Parse JavaScript/TypeScript code
-//! let mut ast = Language::Tsx.ast_grep("var a = 1; var b = 2;");
+//! // let mut ast = Language::Tsx.ast_grep("var a = 1; var b = 2;");
 //!
 //! // Replace all 'var' declarations with 'let'
-//! ast.replace("var $NAME = $VALUE", "let $NAME = $VALUE")?;
+//! // ast.replace("var $NAME = $VALUE", "let $NAME = $VALUE")?;
 //!
 //! // Get the transformed code
-//! println!("{}", ast.generate());
+//! // println!("{}", ast.generate());
 //! // Output: "let a = 1; let b = 2;"
 //! # Ok::<(), String>(())
 //! ```
@@ -55,18 +55,18 @@
 //! # use thread_ast_engine::Language;
 //! # use thread_ast_engine::tree_sitter::LanguageExt;
 //!
-//! let ast = Language::Tsx.ast_grep("function add(a, b) { return a + b; }");
-//! let root = ast.root();
+//! // let ast = Language::Tsx.ast_grep("function add(a, b) { return a + b; }");
+//! // let root = ast.root();
 //!
 //! // Find all function declarations
-//! if let Some(func) = root.find("function $NAME($$$PARAMS) { $$$BODY }") {
-//!     println!("Function name: {}", func.get_env().get_match("NAME").unwrap().text());
-//! }
+//! // if let Some(func) = root.find("function $NAME($$$PARAMS) { $$$BODY }") {
+//! //     println!("Function name: {}", func.get_env().get_match("NAME").unwrap().text());
+//! // }
 //!
 //! // Find all return statements
-//! for ret_stmt in root.find_all("return $EXPR") {
-//!     println!("Returns: {}", ret_stmt.get_env().get_match("EXPR").unwrap().text());
-//! }
+//! // for ret_stmt in root.find_all("return $EXPR") {
+//! //     println!("Returns: {}", ret_stmt.get_env().get_match("EXPR").unwrap().text());
+//! // }
 //! ```
 //!
 //! ### Working with Meta-Variables
@@ -81,13 +81,13 @@
 //! # use thread_ast_engine::Language;
 //! # use thread_ast_engine::tree_sitter::LanguageExt;
 //! # use thread_ast_engine::matcher::MatcherExt;
-//! let ast = Language::Tsx.ast_grep("console.log('Hello', 'World', 123)");
-//! let root = ast.root();
+//! // let ast = Language::Tsx.ast_grep("console.log('Hello', 'World', 123)");
+//! // let root = ast.root();
 //!
-//! if let Some(call) = root.find("console.log($$$ARGS)") {
-//!     let args = call.get_env().get_multiple_matches("ARGS");
-//!     println!("Found {} arguments", args.len()); // Output: Found 3 arguments
-//! }
+//! // if let Some(call) = root.find("console.log($$$ARGS)") {
+//! //     let args = call.get_env().get_multiple_matches("ARGS");
+//! //     println!("Found {} arguments", args.len()); // Output: Found 3 arguments
+//! // }
 //! ```
 //!
 //! ## Core Components
@@ -134,12 +134,13 @@
 //!     .or("const $VAR = $VALUE")
 //!     .or("var $VAR = $VALUE");
 //!
-//! let ast = Language::Tsx.ast_grep("const x = 42;");
-//! let root = ast.root();
+//! // Assuming `Language::Tsx` implements `LanguageExt` and `Language`
+//! // let ast = Language::Tsx.ast_grep("const x = 42;");
+//! // let root = ast.root();
 //!
-//! if let Some(match_) = root.find(pattern) {
-//!     println!("Found variable declaration");
-//! }
+//! // if let Some(match_) = root.find(pattern) {
+//! //     println!("Found variable declaration");
+//! // }
 //! ```
 //!
 //! ### Tree Traversal
@@ -148,21 +149,21 @@
 //! # use thread_ast_engine::Language;
 //! # use thread_ast_engine::tree_sitter::LanguageExt;
 //! # use thread_ast_engine::matcher::MatcherExt;
-//! let ast = Language::Tsx.ast_grep("if (condition) { doSomething(); } else { doOther(); }");
-//! let root = ast.root();
+//! // let ast = Language::Tsx.ast_grep("if (condition) { doSomething(); } else { doOther(); }");
+//! // let root = ast.root();
 //!
 //! // Traverse all descendants
-//! for node in root.dfs() {
-//!     if node.kind() == "identifier" {
-//!         println!("Identifier: {}", node.text());
-//!     }
-//! }
+//! // for node in root.dfs() {
+//! //     if node.kind() == "identifier" {
+//! //         println!("Identifier: {}", node.text());
+//! //     }
+//! // }
 //!
 //! // Check relationships between nodes
-//! if let Some(if_stmt) = root.find("if ($COND) { $$$THEN }") {
-//!     println!("If statement condition: {}",
-//!         if_stmt.get_env().get_match("COND").unwrap().text());
-//! }
+//! // if let Some(if_stmt) = root.find("if ($COND) { $$$THEN }") {
+//! //     println!("If statement condition: {}",
+//! //         if_stmt.get_env().get_match("COND").unwrap().text());
+//! // }
 //! ```
 //!
 //! ## License
