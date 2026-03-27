@@ -1,0 +1,20 @@
+# SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
+# SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+#
+# cargo-audit configuration file
+# See: https://github.com/rustsec/rustsec/blob/main/cargo-audit/README.md
+
+[advisories]
+# Advisories to ignore. Each entry may include a reason for ignoring.
+ignore = [
+  # RUSTSEC-2023-0071: Marvin Attack timing side-channel in the `rsa` crate.
+  # No patch is available upstream (https://github.com/RustCrypto/RSA/issues/19).
+  # The `rsa` crate enters our graph as a transitive dependency via
+  # recoco-core -> sqlx -> sqlx-mysql.  Thread does not use MySQL or perform
+  # RSA private-key operations in any network-observable context, so the
+  # timing side-channel described by the Marvin Attack cannot be exploited.
+  # Re-evaluate when the RustCrypto project publishes a constant-time fix.
+  "RUSTSEC-2023-0071",
+]
