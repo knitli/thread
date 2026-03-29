@@ -7,8 +7,8 @@ use pico_args::Arguments;
 use std::path::Path;
 use std::process::{Command, exit};
 
-const CRATE_PATH: &str = "crates/thread-wasm";
-const PKG_PATH: &str = "crates/thread-wasm/pkg";
+const CRATE_PATH: &str = "crates/wasm";
+const PKG_PATH: &str = "crates/wasm/pkg";
 const DIST_PATH: &str = "dist/thread-wasm.optimized.wasm";
 
 const HELP: &str = r"

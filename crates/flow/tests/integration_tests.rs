@@ -415,8 +415,6 @@ async fn test_parse_rust_code() {
     let output = result.unwrap();
 
     let symbols = extract_symbols(&output);
-    // Note: Currently only extracts functions, not structs/classes
-    // TODO: Add struct/class extraction in future
     if !symbols.is_empty() {
         let symbol_names: Vec<String> = symbols
             .iter()
@@ -426,15 +424,17 @@ async fn test_parse_rust_code() {
             })
             .collect();
 
-        // Look for functions that should be extracted
-        let found_function = symbol_names.iter().any(|name| {
+        // Look for functions and structs/classes that should be extracted
+        let found_function_or_struct = symbol_names.iter().any(|name| {
             name.contains("main")
                 || name.contains("process_user")
                 || name.contains("calculate_total")
+                || name.contains("User")
+                || name.contains("Role")
         });
         assert!(
-            found_function,
-            "Should find at least one function (main, process_user, or calculate_total). Found: {:?}",
+            found_function_or_struct,
+            "Should find at least one function or struct (main, process_user, calculate_total, User, or Role). Found: {:?}",
             symbol_names
         );
     } else {

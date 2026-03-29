@@ -21,7 +21,7 @@ use metrics::gauge;
 use std::collections::VecDeque;
 use std::fmt;
 use std::path::{Path, PathBuf};
-use thread_utilities::{RapidMap, RapidSet};
+use thread_utilities::{RapidMap, RapidSet, set_with_capacity};
 
 /// Errors that can occur during dependency graph operations.
 #[derive(Debug)]
@@ -268,20 +268,20 @@ impl DependencyGraph {
     /// ```
     pub fn find_affected_files(&self, changed_files: &RapidSet<PathBuf>) -> RapidSet<PathBuf> {
         let mut affected = thread_utilities::get_set();
-        let mut visited = thread_utilities::get_set();
-        let mut queue: VecDeque<PathBuf> = changed_files.iter().cloned().collect();
+        let mut queue: VecDeque<&PathBuf> = changed_files.iter().collect();
 
         while let Some(file) = queue.pop_front() {
-            if !visited.insert(file.clone()) {
+            if affected.contains(file) {
                 continue;
             }
-
             affected.insert(file.clone());
 
             // Follow reverse edges (files that depend on this file)
-            for edge in self.get_dependents(&file) {
-                if edge.effective_strength() == DependencyStrength::Strong {
-                    queue.push_back(edge.from.clone());
+            for edge in self.get_dependents(file) {
+                if edge.effective_strength() == DependencyStrength::Strong
+                    && !affected.contains(&edge.from)
+                {
+                    queue.push_back(&edge.from);
                 }
             }
         }

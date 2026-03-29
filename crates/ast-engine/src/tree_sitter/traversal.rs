@@ -26,6 +26,7 @@
 //! # use thread_ast_engine::tree_sitter::traversal::Visitor;
 //! # use thread_ast_engine::Language;
 //! # use thread_ast_engine::tree_sitter::LanguageExt;
+//! # #[derive(Clone, Debug)]
 //! # struct Tsx;
 //! # impl thread_ast_engine::Language for Tsx {
 //! #     fn kind_to_id(&self, _: &str) -> u16 { 0 }
@@ -56,6 +57,7 @@
 //! # use thread_ast_engine::tree_sitter::traversal::Visitor;
 //! # use thread_ast_engine::Language;
 //! # use thread_ast_engine::tree_sitter::LanguageExt;
+//! # #[derive(Clone, Debug)]
 //! # struct Tsx;
 //! # impl thread_ast_engine::Language for Tsx {
 //! #     fn kind_to_id(&self, _: &str) -> u16 { 0 }
@@ -71,7 +73,7 @@
 //! // Non-reentrant: only finds outer matches
 //! let outer_only: Vec<_> = Visitor::new("$FUNC($$$)")
 //!     .reentrant(false)
-//!     .visit(root)
+//!     .visit(root.clone())
 //!     .collect();
 //!
 //! // Reentrant: finds all matches including nested ones
@@ -117,6 +119,7 @@ use std::marker::PhantomData;
 /// # use thread_ast_engine::tree_sitter::traversal::Visitor;
 /// # use thread_ast_engine::Language;
 /// # use thread_ast_engine::tree_sitter::LanguageExt;
+/// # #[derive(Clone, Debug)]
 /// # struct Tsx;
 /// # impl thread_ast_engine::Language for Tsx {
 /// #     fn kind_to_id(&self, _: &str) -> u16 { 0 }

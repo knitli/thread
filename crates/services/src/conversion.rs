@@ -67,6 +67,13 @@ pub fn extract_basic_metadata<D: Doc>(
         }
     }
 
+    // Extract class and struct definitions
+    if let Ok(class_matches) = extract_classes(&root_node, &document.language) {
+        for (name, info) in class_matches {
+            metadata.defined_symbols.insert(name, info);
+        }
+    }
+
     // Extract import statements
     if let Ok(imports) = extract_imports(&root_node, &document.language) {
         for (name, info) in imports {
@@ -115,6 +122,62 @@ fn extract_functions<D: Doc>(root_node: &Node<D>) -> ServiceResult<RapidMap<Stri
     }
 
     Ok(functions)
+}
+
+/// Extract class and struct definitions using language-specific ast-grep patterns
+#[cfg(feature = "matching")]
+fn extract_classes<D: Doc>(
+    root_node: &Node<D>,
+    language: &SupportLang,
+) -> ServiceResult<RapidMap<String, SymbolInfo>> {
+    let mut classes = thread_utilities::get_map();
+
+    // Select language-specific patterns paired with their SymbolKind
+    let patterns: Vec<(&str, SymbolKind)> = match language {
+        SupportLang::Rust => vec![
+            ("struct $NAME { $$$BODY }", SymbolKind::Struct),  // braced struct
+            ("struct $NAME($$$FIELDS)", SymbolKind::Struct),   // tuple struct
+            ("struct $NAME", SymbolKind::Struct),              // unit struct
+        ],
+        SupportLang::Go => vec![
+            ("type $NAME struct { $$$BODY }", SymbolKind::Struct), // Go struct
+        ],
+        SupportLang::JavaScript | SupportLang::TypeScript => vec![
+            ("class $NAME { $$$BODY }", SymbolKind::Class),         // JS/TS class
+            ("interface $NAME { $$$BODY }", SymbolKind::Interface),  // TS interface
+        ],
+        SupportLang::Python => vec![
+            ("class $NAME: $$$BODY", SymbolKind::Class),            // simple Python class
+            ("class $NAME($$$PARAMS): $$$BODY", SymbolKind::Class), // Python class with bases
+        ],
+        _ => vec![
+            // Generic fallbacks for C++, Java, C#, etc.
+            ("struct $NAME { $$$BODY }", SymbolKind::Struct),
+            ("class $NAME { $$$BODY }", SymbolKind::Class),
+            ("interface $NAME { $$$BODY }", SymbolKind::Interface),
+        ],
+    };
+
+    for (pattern, kind) in &patterns {
+        for node_match in root_node.find_all(*pattern) {
+            if let Some(name_node) = node_match.get_env().get_match("NAME") {
+                let symbol_name = name_node.text().to_string();
+                let position = name_node.start_pos();
+
+                let symbol_info = SymbolInfo {
+                    name: symbol_name.clone(),
+                    kind: kind.clone(),
+                    position,
+                    scope: "global".to_string(),    // Simplified for now
+                    visibility: Visibility::Public, // Simplified for now
+                };
+
+                classes.insert(symbol_name, symbol_info);
+            }
+        }
+    }
+
+    Ok(classes)
 }
 
 /// Extract import statements using language-specific patterns
@@ -254,6 +317,7 @@ pub fn node_kind_to_symbol_kind(node_kind: &str) -> SymbolKind {
     match node_kind {
         "function_declaration" | "function_definition" => SymbolKind::Function,
         "class_declaration" | "class_definition" => SymbolKind::Class,
+        "struct_declaration" | "struct_definition" => SymbolKind::Struct,
         "interface_declaration" => SymbolKind::Interface,
         "variable_declaration" | "let_declaration" => SymbolKind::Variable,
         "const_declaration" | "constant" => SymbolKind::Constant,
@@ -331,5 +395,15 @@ mod tests {
         assert_eq!(info.name, "test_function");
         assert_eq!(info.kind, SymbolKind::Function);
         assert_eq!(info.position, pos);
+    }
+
+    #[test]
+    fn test_position_to_range() {
+        let start = Position::new(1, 0, 10);
+        let end = Position::new(2, 5, 25);
+        let range = position_to_range(start, end);
+
+        assert_eq!(range.start, start);
+        assert_eq!(range.end, end);
     }
 }

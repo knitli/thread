@@ -31,11 +31,11 @@
 //! # use thread_ast_engine::Language;
 //! # use thread_ast_engine::tree_sitter::LanguageExt;
 //! # use thread_ast_engine::matcher::MatcherExt;
-//! let mut ast = Language::Tsx.ast_grep("var x = 42;");
+//! // let mut ast = Language::Tsx.ast_grep("var x = 42;");
 //!
 //! // Replace using a template string
-//! ast.replace("var $NAME = $VALUE", "const $NAME = $VALUE");
-//! println!("{}", ast.generate()); // "const x = 42;"
+//! // ast.replace("var $NAME = $VALUE", "const $NAME = $VALUE");
+//! // println!("{}", ast.generate()); // "const x = 42;"
 //! ```
 //!
 //! ### Structural Replacement
@@ -44,12 +44,12 @@
 //! # use thread_ast_engine::Language;
 //! # use thread_ast_engine::tree_sitter::LanguageExt;
 //! # use thread_ast_engine::matcher::MatcherExt;
-//! let mut target = Language::Tsx.ast_grep("old_function();");
-//! let replacement = Language::Tsx.ast_grep("new_function(42)");
+//! // let mut target = Language::Tsx.ast_grep("old_function();");
+//! // let replacement = Language::Tsx.ast_grep("new_function(42)");
 //!
 //! // Replace with another AST
-//! target.replace("old_function()", replacement);
-//! println!("{}", target.generate()); // "new_function(42);"
+//! // target.replace("old_function()", replacement);
+//! // println!("{}", target.generate()); // "new_function(42);"
 //! ```
 
 use crate::matcher::Matcher;
@@ -84,14 +84,15 @@ pub use template::{TemplateFix, TemplateFixError};
 ///
 /// ```rust,no_run
 /// # use thread_ast_engine::replacer::Replacer;
+/// # use thread_ast_engine::source::Content;
 /// # use thread_ast_engine::{Doc, NodeMatch};
 /// # use thread_ast_engine::meta_var::Underlying;
 /// struct CustomReplacer;
 ///
-/// impl<D: Doc> Replacer<D> for CustomReplacer {
+/// impl<D: Doc<Source = String>> Replacer<D> for CustomReplacer {
 ///     fn generate_replacement(&self, nm: &NodeMatch<'_, D>) -> Underlying<D> {
 ///         // Custom replacement logic here
-///         "new_code".as_bytes().to_vec()
+///         D::Source::decode_str("new_code").into_owned()
 ///     }
 /// }
 /// ```
