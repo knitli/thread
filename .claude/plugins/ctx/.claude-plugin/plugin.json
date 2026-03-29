@@ -1,0 +1,19 @@
+{
+  "name": "ctx",
+  "version": "0.1.0",
+  "description": "Context hygiene for AI-assisted codebases. Finds stale, contradictory, and drifting AI context files (CLAUDE.md, AGENTS.md, Serena memories, Cursor rules, and 10+ more tool ecosystems).",
+  "author": "Knitli Inc.",
+  "homepage": "https://knitli.com/ctx",
+  "repository": "https://github.com/knitli/ctx",
+  "license": "MIT",
+  "keywords": [
+    "context",
+    "memory",
+    "staleness",
+    "drift",
+    "hygiene",
+    "CLAUDE.md",
+    "AGENTS.md",
+    "multi-agent"
+  ]
+}

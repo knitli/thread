@@ -269,3 +269,4 @@ codeweaver_semantic_package/
 
 *.local.*
 **/*.local.*
+.claude/*.local.*

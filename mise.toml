@@ -55,7 +55,7 @@ echo "Activating environment..."
 mise run enter
 '''
 # deactivate/unhook when you leave
-leave = '''eval "$(mise deactivate)" &/dev/null || true
+leave = '''eval "$(mise deactivate)" &>/dev/null || true
 echo "Environment deactivated"
 '''
 
@@ -83,6 +83,9 @@ run = '''
 mise -yq trust  || true
 mise -yq install || true
 '''
+[tasks.install-tools.env]
+MISE_YES = 1
+MISE_TRUST = 1
 
 [tasks.installhooks]
 depends = ["install-tools"]

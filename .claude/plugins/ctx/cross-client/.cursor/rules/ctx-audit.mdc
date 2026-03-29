@@ -1,0 +1,32 @@
+---
+description: Context hygiene checks when editing or reading AI context files
+globs: ["CLAUDE.md", "AGENTS.md", "GEMINI.md", ".serena/**", ".specify/**", ".cursor/rules/**", "claudedocs/**", "specs/**"]
+alwaysApply: false
+---
+
+# Context Hygiene Rule
+
+When you edit or read any AI context file matched by this rule's globs, apply these checks:
+
+## Before trusting claims in a context file
+
+Verify key factual claims against the actual codebase:
+- **Version numbers**: Check `Cargo.toml`, `package.json`, `pyproject.toml`
+- **File paths**: Confirm the referenced files/directories exist
+- **Dependency names**: Confirm they appear in the manifest
+- **Symbol names**: Search the codebase for referenced types, functions, modules
+- **Counts**: Verify "N crates", "N languages", etc. by actually counting
+
+## After editing code that context files reference
+
+If you renamed files, changed versions, restructured modules, or modified the architecture, check these files for stale references:
+- `CLAUDE.md` and `AGENTS.md` (root-level agent memory)
+- `.serena/memories/*` (Serena tool memories)
+- `.specify/memory/*` (spec-kit memory)
+- `GEMINI.md` (if not a symlink)
+
+Update any claims that no longer match reality.
+
+## Authoritative source order
+
+When files contradict each other: actual code > governance docs > CLAUDE.md/AGENTS.md > tool-specific memories > planning docs.
