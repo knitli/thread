@@ -102,7 +102,8 @@ jobs:
           cargo nextest run -p thread-language --features all-parsers,matching --no-fail-fast
       - name: Run tests (nextest, macOS - skip Docker-dependent tests)
         # macOS GitHub Actions runners (Apple Silicon) do not have Docker,
-        # so we exclude tests that use testcontainers to spin up Postgres.
+        # so we exclude the incremental_postgres_tests that use testcontainers
+        # to spin up Postgres containers.
         if: runner.os == 'macOS'
         run: |
           cargo nextest run --workspace --exclude thread-language --all-features --no-fail-fast \
@@ -136,6 +137,8 @@ jobs:
         # has no OS and therefore no standard C library headers. Provide a minimal stub
         # so that tree-sitter's error-reporting code (fprintf to stderr) compiles as a no-op.
         run: |
+          # CLANG_RES: clang's built-in resource directory, used below to provide
+          # low-level headers (e.g. stdarg.h, stddef.h) alongside the stdio.h stub.
           CLANG_RES=$(clang --print-resource-dir)
           mkdir -p /tmp/wasm-stubs
           cat > /tmp/wasm-stubs/stdio.h << 'WASM_STDIO_STUB'
