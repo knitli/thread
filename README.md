@@ -44,18 +44,19 @@ cargo build --workspace --all-features --release
 ### Basic Usage as Library
 
 ```rust
-use thread_ast_engine::{Root, Language};
+use thread::language::{SupportLang, LanguageExt};
 
-// Parse source code
-let source = "function hello() { return 42; }";
-let root = Root::new(source, Language::JavaScript)?;
+// Parse source code using language-specific AST
+let ast = SupportLang::JavaScript.ast_grep("function hello() { return 42; }");
+let root = ast.root();
 
 // Find all function declarations
 let functions = root.find_all("function $NAME($$$PARAMS) { $$$BODY }");
 
 // Extract function names
 for func in functions {
-    println!("Found function: {}", func.get_text("NAME")?);
+    let name = func.get_env().get_match("NAME").unwrap().text().to_string();
+    println!("Found function: {name}");
 }
 ```
 
@@ -77,21 +78,22 @@ let flow = ThreadFlowBuilder::new("analyze_rust")
 flow.execute().await?;
 ```
 
-### Command Line Usage
+### Command Line Usage (via `cargo run`)
+
+Thread is a library-first platform. The quickest way to invoke it from the shell is through `cargo run`:
 
 ```bash
-# Analyze a codebase (first run)
-thread analyze ./my-project
-# → Analyzing 1,000 files: 10.5s
+# Analyze a Rust project (first run)
+cargo run --release -- analyze ./my-project
 
 # Second run (with cache)
-thread analyze ./my-project
-# → Analyzing 1,000 files: 0.3s (100% cache hits, 35x faster!)
+cargo run --release -- analyze ./my-project
+# → Analysis 35x faster — 100% cache hits
 
 # Incremental update (only changed files)
 # Edit 10 files, then:
-thread analyze ./my-project
-# → Analyzing 10 files: 0.15s (990 files cached)
+cargo run --release -- analyze ./my-project
+# → Analyzes only the 10 changed files (990 files cached)
 ```
 
 ## Architecture
@@ -128,15 +130,14 @@ Thread follows a **service-library dual architecture** with six main crates plus
 
 ```bash
 # Build with CLI features (Postgres + Rayon parallelism)
-cargo build --release --features "recoco-postgres,parallel,caching"
+cargo build --release -p thread --features "flow"
 
 # Configure PostgreSQL backend
 export DATABASE_URL=postgresql://user:pass@localhost/thread_cache
 export RAYON_NUM_THREADS=8  # Use 8 cores
 
-# Run analysis
-./target/release/thread analyze ./large-codebase
-# → Performance: 1,000-10,000 files per run
+# Integrate in your project with Postgres + parallel features
+# thread-flow = { version = "0.1", features = ["postgres-backend", "parallel"] }
 ```
 
 **Features**: Direct filesystem access, multi-core parallelism, persistent caching, unlimited CPU time
@@ -322,10 +323,9 @@ cargo bench -p thread-flow
 
 ### Technical Documentation
 
-- [Integration Tests](claudedocs/INTEGRATION_TESTS.md) - E2E test design and coverage
-- [Error Recovery](claudedocs/ERROR_RECOVERY.md) - Error handling strategies
-- [Observability](claudedocs/OBSERVABILITY.md) - Metrics and monitoring
-- [Performance Benchmarks](claudedocs/PERFORMANCE_BENCHMARKS.md) - Benchmark suite design
+- [Phase 5 Completion Summary](claudedocs/PHASE5_COMPLETE.md) - Production validation results and benchmarks
+- [ReCoco Integration](claudedocs/RECOCO_INTEGRATION.md) - Dataflow integration design and patterns
+- [Incremental Update System](claudedocs/INCREMENTAL_UPDATE_SYSTEM_DESIGN.md) - Change detection and invalidation design
 
 ## Constitutional Compliance
 
