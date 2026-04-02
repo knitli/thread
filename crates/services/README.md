@@ -37,7 +37,7 @@ Add to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-thread-services = { version = "0.1", features = ["default"] }
+thread-services = "0.1"
 ```
 
 ### Basic Example

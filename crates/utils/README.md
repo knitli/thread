@@ -41,7 +41,8 @@ let mut map: RapidMap<String, u64> = get_map();
 map.insert("main.rs".into(), 0xdeadbeef);
 
 // Hash a file's contents for content-addressing
-let digest = thread_utilities::hash_file("src/main.rs")?;
+let mut file = std::fs::File::open("src/main.rs")?;
+let digest = thread_utilities::hash_file(&mut file)?;
 ```
 
 ### SIMD Utilities
@@ -49,11 +50,11 @@ let digest = thread_utilities::hash_file("src/main.rs")?;
 ```rust
 use thread_utilities::{is_ascii_simd, get_char_column_simd};
 
-// Fast ASCII check over a byte slice
-let all_ascii = is_ascii_simd(b"hello world");
+// Fast ASCII check over a string slice
+let all_ascii = is_ascii_simd("hello world");
 
 // Compute column position accounting for multi-byte chars
-let col = get_char_column_simd(b"fn \xc2\xb5main()", 4);
+let col = get_char_column_simd("fn µmain()", 3);
 ```
 
 ## License

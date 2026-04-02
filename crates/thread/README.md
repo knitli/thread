@@ -110,14 +110,19 @@ use thread::{CodeAnalyzer, CodeParser, ParsedDocument, ServiceError, ServiceResu
 
 ## WASM / Edge Deployment
 
-Use the `worker` feature for Cloudflare Workers:
+For WASM and Cloudflare Workers deployment, use the dedicated [`thread-wasm`](../wasm) crate
+rather than the `thread` crate directly. `thread-wasm` is pre-configured with the correct
+feature combination and WASM-bindgen bindings.
 
-```toml
-[dependencies]
-thread = { version = "0.1", default-features = false, features = ["worker"] }
+```bash
+# Build WASM for Cloudflare Workers
+cargo run -p xtask build-wasm --release
+
+# Build WASM with multi-threading (browser)
+cargo run -p xtask build-wasm --multi-threading --release
 ```
 
-See [`thread-wasm`](../wasm) for the WASM build pipeline and deployment tooling.
+See [`thread-wasm`](../wasm) for the full build pipeline and deployment tooling.
 
 ## Related Crates
 

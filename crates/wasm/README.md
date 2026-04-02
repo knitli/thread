@@ -64,7 +64,7 @@ See [Edge Deployment Guide](../../docs/deployment/EDGE_DEPLOYMENT.md) for the fu
 ## Related Crates
 
 - [`thread`](../thread) — Unified entry point crate (uses `worker` feature for WASM builds)
-- [`thread-language`](../language) — Language parsers (WASM-compatible via `napi-environment` feature)
+- [`thread-language`](../language) — Language parsers (WASM-compatible via `worker` feature set used by `thread-wasm`)
 - [`xtask`](../../xtask) — Custom build tasks for WASM compilation and optimization
 
 ## License

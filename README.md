@@ -78,23 +78,30 @@ let flow = ThreadFlowBuilder::new("analyze_rust")
 flow.execute().await?;
 ```
 
-### Command Line Usage (via `cargo run`)
+### Using Thread as a Library
 
-Thread is a library-first platform. The quickest way to invoke it from the shell is through `cargo run`:
+Thread is a **library-first** platform with no standalone CLI binary. Integrate it in your own
+project:
 
-```bash
-# Analyze a Rust project (first run)
-cargo run --release -- analyze ./my-project
-
-# Second run (with cache)
-cargo run --release -- analyze ./my-project
-# → Analysis 35x faster — 100% cache hits
-
-# Incremental update (only changed files)
-# Edit 10 files, then:
-cargo run --release -- analyze ./my-project
-# → Analyzes only the 10 changed files (990 files cached)
+```toml
+[dependencies]
+thread = "0.1"
 ```
+
+```rust
+use thread::language::{SupportLang, LanguageExt};
+
+let ast = SupportLang::Rust.ast_grep("fn main() { println!(\"hello\"); }");
+let root = ast.root();
+
+for m in root.find_all("println!($$$ARGS)") {
+    println!("Found println! call");
+}
+```
+
+For dataflow pipelines with persistent caching, see the
+[Dataflow Pipelines section](#with-dataflow-pipelines) and the
+[`thread-flow` README](crates/flow/README.md).
 
 ## Architecture
 

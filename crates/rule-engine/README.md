@@ -36,21 +36,32 @@ fix: "let $NAME = $VALUE"
 ### Use Rules in Rust
 
 ```rust
-use thread_rule_engine::RuleConfig;
+use thread_rule_engine::{from_yaml_string, GlobalRules, RuleConfig};
+use thread_language::SupportLang;
 
-let rule: RuleConfig = serde_yaml::from_str(r#"
+// Build a registry for cross-rule references (empty for standalone rules)
+let globals = GlobalRules::default();
+
+// Deserialize YAML into a typed RuleConfig
+let rules: Vec<RuleConfig<SupportLang>> = from_yaml_string(r#"
 id: no-console-log
 message: "Remove debug console.log calls before committing"
 language: JavaScript
 severity: error
 rule:
   pattern: "console.log($$$ARGS)"
-"#)?;
+"#, &globals)?;
 
-// Apply rule to an AST root
-let matches = rule.find_all(&root);
-for m in matches {
-    println!("{}: {}", m.rule_id(), m.message());
+let rule = &rules[0];
+
+// Obtain a compiled matcher and apply it to an AST root
+use thread_language::LanguageExt;
+let ast = SupportLang::JavaScript.ast_grep("console.log('hello'); doWork();");
+let root = ast.root();
+let matcher = rule.get_matcher(&globals)?;
+
+for m in root.find_all(matcher) {
+    println!("{}: {}", rule.id, rule.message);
 }
 ```
 
