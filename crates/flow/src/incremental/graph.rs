@@ -21,7 +21,7 @@ use metrics::gauge;
 use std::collections::VecDeque;
 use std::fmt;
 use std::path::{Path, PathBuf};
-use thread_utilities::{RapidMap, RapidSet, set_with_capacity};
+use thread_utilities::{RapidMap, RapidSet};
 
 /// Errors that can occur during dependency graph operations.
 #[derive(Debug)]

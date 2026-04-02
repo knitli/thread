@@ -325,13 +325,33 @@ jobs:
     steps:
       - name: Check all jobs
         run: |
-          if [[ "${{ needs.quick-checks.result }}" != "success" ]] || \
-             [[ "${{ needs.test.result }}" != "success" ]] || \
-             [[ "${{ needs.wasm.result }}" != "success" ]] || \
-             [[ "${{ needs.security_audit.result }}" != "success" ]] || \
-             [[ "${{ needs.license.result }}" != "success" ]] || \
-             [[ "${{ needs.performance_regression.result }}" != "success" ]]; then
-            echo "❌ One or more required jobs failed"
+          # Treat both "success" and "skipped" as passing.
+          # Jobs with `if:` conditions (e.g. performance_regression) report
+          # "skipped" when their condition is false — that is not a failure.
+          passed() { [[ "$1" == "success" || "$1" == "skipped" ]]; }
+
+          ok=true
+          for job in \
+            "quick-checks=${{ needs.quick-checks.result }}" \
+            "test=${{ needs.test.result }}" \
+            "wasm=${{ needs.wasm.result }}" \
+            "security_audit=${{ needs.security_audit.result }}" \
+            "license=${{ needs.license.result }}" \
+            "performance_regression=${{ needs.performance_regression.result }}"; do
+            name="${job%%=*}"
+            result="${job##*=}"
+            if passed "$result"; then
+              echo "✅ $name: $result"
+            else
+              echo "❌ $name: $result"
+              ok=false
+            fi
+          done
+
+          if [[ "$ok" != "true" ]]; then
+            echo ""
+            echo "❌ One or more required jobs failed or were cancelled"
             exit 1
           fi
+          echo ""
           echo "✅ All required jobs passed!"

@@ -135,19 +135,19 @@ fn extract_classes<D: Doc>(
     // Select language-specific patterns paired with their SymbolKind
     let patterns: Vec<(&str, SymbolKind)> = match language {
         SupportLang::Rust => vec![
-            ("struct $NAME { $$$BODY }", SymbolKind::Struct),  // braced struct
-            ("struct $NAME($$$FIELDS)", SymbolKind::Struct),   // tuple struct
-            ("struct $NAME", SymbolKind::Struct),              // unit struct
+            ("struct $NAME { $$$BODY }", SymbolKind::Struct), // braced struct
+            ("struct $NAME($$$FIELDS)", SymbolKind::Struct),  // tuple struct
+            ("struct $NAME", SymbolKind::Struct),             // unit struct
         ],
         SupportLang::Go => vec![
             ("type $NAME struct { $$$BODY }", SymbolKind::Struct), // Go struct
         ],
         SupportLang::JavaScript | SupportLang::TypeScript => vec![
-            ("class $NAME { $$$BODY }", SymbolKind::Class),         // JS/TS class
-            ("interface $NAME { $$$BODY }", SymbolKind::Interface),  // TS interface
+            ("class $NAME { $$$BODY }", SymbolKind::Class), // JS/TS class
+            ("interface $NAME { $$$BODY }", SymbolKind::Interface), // TS interface
         ],
         SupportLang::Python => vec![
-            ("class $NAME: $$$BODY", SymbolKind::Class),            // simple Python class
+            ("class $NAME: $$$BODY", SymbolKind::Class), // simple Python class
             ("class $NAME($$$PARAMS): $$$BODY", SymbolKind::Class), // Python class with bases
         ],
         _ => vec![
