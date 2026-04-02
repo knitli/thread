@@ -3,8 +3,8 @@ use thread_flow::incremental::graph::DependencyGraph;
 use thread_flow::incremental::types::{DependencyEdge, DependencyType};
 use thread_utilities::RapidSet;
 
-use std::hint::black_box;
 use criterion::{Criterion, criterion_group, criterion_main};
+use std::hint::black_box;
 
 fn bench_find_affected_files(c: &mut Criterion) {
     let mut graph = DependencyGraph::new();

@@ -1738,8 +1738,8 @@ pub fn from_extension(path: &Path) -> Option<SupportLang> {
             }
         }
 
-        // Silence unused variable warning if bash and ruby and all-parsers are not enabled
-        let _ = _file_name;
+        // Silence unused variable warning when bash, ruby, and all-parsers features are all disabled
+        let _ = file_name;
     }
 
     // 3. Try shebang check as last resort
@@ -1759,6 +1759,8 @@ fn from_shebang(path: &Path) -> Option<SupportLang> {
     }
 
     let first_line = String::from_utf8_lossy(&buffer[..n]);
+    // `first_line` may appear unused when no shebang-checked language features are enabled.
+    #[allow(unused_variables)]
     let first_line = first_line.lines().next()?;
 
     #[cfg(any(feature = "bash", feature = "all-parsers"))]

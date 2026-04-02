@@ -206,14 +206,13 @@ impl FileSystemContext {
                 }
             }
 
-            if current.exists() {
-                if let Ok(canonical_prefix) = current.canonicalize() {
-                    if !canonical_prefix.starts_with(&canonical_base) {
-                        return Err(ServiceError::execution_dynamic(format!(
-                            "Path validation failed: {source} resolves outside base path via symlinks"
-                        )));
-                    }
-                }
+            if current.exists()
+                && let Ok(canonical_prefix) = current.canonicalize()
+                && !canonical_prefix.starts_with(&canonical_base)
+            {
+                return Err(ServiceError::execution_dynamic(format!(
+                    "Path validation failed: {source} resolves outside base path via symlinks"
+                )));
             }
         }
 
@@ -336,7 +335,8 @@ mod tests {
         let path = ctx.secure_path("dir/./../test.txt").unwrap();
         assert!(path.ends_with("test.txt"));
         assert!(!path.to_string_lossy().contains(".."));
-     
+    }
+
     #[test]
     fn test_memory_context_read_content_error() {
         let ctx = MemoryContext::new();
