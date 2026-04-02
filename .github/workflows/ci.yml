@@ -95,8 +95,18 @@ jobs:
       - name: Run tests (nextest)
         # thread-language's napi-* features conflict with tree-sitter-parsing at runtime;
         # run it separately with only the compatible feature set.
+        # On Linux and Windows, run all tests (Docker is available for testcontainers).
+        if: runner.os != 'macOS'
         run: |
           cargo nextest run --workspace --exclude thread-language --all-features --no-fail-fast
+          cargo nextest run -p thread-language --features all-parsers,matching --no-fail-fast
+      - name: Run tests (nextest, macOS - skip Docker-dependent tests)
+        # macOS GitHub Actions runners (Apple Silicon) do not have Docker,
+        # so we exclude tests that use testcontainers to spin up Postgres.
+        if: runner.os == 'macOS'
+        run: |
+          cargo nextest run --workspace --exclude thread-language --all-features --no-fail-fast \
+            -E "not (package(thread-flow) and test(postgres))"
           cargo nextest run -p thread-language --features all-parsers,matching --no-fail-fast
       - name: Run doc tests
         run: |
@@ -119,6 +129,27 @@ jobs:
         uses: Swatinem/rust-cache@v2
         with:
           cache-on-failure: true
+      - name: Install clang for WASM C compilation
+        run: sudo apt-get update -qq && sudo apt-get install -y clang
+      - name: Set up C header stubs for wasm32-unknown-unknown
+        # tree-sitter 0.25+ includes stdio.h in its C source, but wasm32-unknown-unknown
+        # has no OS and therefore no standard C library headers. Provide a minimal stub
+        # so that tree-sitter's error-reporting code (fprintf to stderr) compiles as a no-op.
+        run: |
+          CLANG_RES=$(clang --print-resource-dir)
+          mkdir -p /tmp/wasm-stubs
+          cat > /tmp/wasm-stubs/stdio.h << 'WASM_STDIO_STUB'
+          #pragma once
+          #include <stdarg.h>
+          typedef void FILE;
+          #define stderr ((FILE*)0)
+          #define stdout ((FILE*)0)
+          #define stdin  ((FILE*)0)
+          static inline int fprintf(FILE *f, const char *fmt, ...) { (void)f; (void)fmt; return 0; }
+          static inline int vfprintf(FILE *f, const char *fmt, va_list ap) { (void)f; (void)fmt; (void)ap; return 0; }
+          static inline int printf(const char *fmt, ...) { (void)fmt; return 0; }
+          WASM_STDIO_STUB
+          echo "CFLAGS_wasm32_unknown_unknown=-I/tmp/wasm-stubs -I${CLANG_RES}/include" >> "$GITHUB_ENV"
       - name: Install wasm-pack
         uses: jetli/wasm-pack-action@v0.4.0
       - name: Build WASM (dev)
@@ -163,6 +194,9 @@ jobs:
     name: Security Audit
     needs: quick-checks
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
     steps:
       - uses: actions/checkout@v4
         with:
