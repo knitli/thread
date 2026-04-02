@@ -18,7 +18,7 @@ SPDX-License-Identifier: MIT OR Apache-2.0
 - ✅ **Content-Addressed Caching**: Blake3 fingerprinting enables 99.7% cost reduction and 346x faster analysis on repeated runs
 - ✅ **Incremental Updates**: Only reanalyze changed files—unmodified code skips processing automatically
 - ✅ **Dual Deployment**: Single codebase compiles to both CLI (Rayon + Postgres) and Edge (tokio + D1 on Cloudflare Workers)
-- ✅ **Multi-Language Support**: 20+ languages via tree-sitter (Rust, TypeScript, Python, Go, Java, C/C++, and more)
+- ✅ **Multi-Language Support**: 26 languages via tree-sitter (Rust, TypeScript, Python, Go, Java, C/C++, Solidity, HCL, Nix, and more)
 - ✅ **Pattern Matching**: Powerful AST-based pattern matching with meta-variables for complex queries
 - ✅ **Production Performance**: >1,000 files/sec throughput, >90% cache hit rate, <50ms p95 latency
 
@@ -101,7 +101,7 @@ Thread follows a **service-library dual architecture** with six main crates plus
 ### Library Core (Reusable Components)
 
 - **`thread-ast-engine`** - Core AST parsing, pattern matching, and transformation engine
-- **`thread-language`** - Language definitions and tree-sitter parser integrations (20+ languages)
+- **`thread-language`** - Language definitions and tree-sitter parser integrations (26 languages)
 - **`thread-rule-engine`** - Rule-based scanning and transformation with YAML configuration
 - **`thread-utilities`** - Shared utilities including SIMD optimizations and hash functions
 - **`thread-wasm`** - WebAssembly bindings for browser and edge deployment
@@ -166,16 +166,19 @@ See [Edge Deployment Guide](docs/deployment/EDGE_DEPLOYMENT.md) for complete set
 
 ## Language Support
 
-Thread supports 20+ programming languages via tree-sitter parsers:
+Thread supports **26 programming languages** via tree-sitter parsers:
 
 ### Tier 1 (Primary Focus)
-- Rust, JavaScript/TypeScript, Python, Go, Java
+- Rust, JavaScript/TypeScript/TSX, Python, Go, Java
 
 ### Tier 2 (Full Support)
 - C/C++, C#, PHP, Ruby, Swift, Kotlin, Scala
 
-### Tier 3 (Basic Support)
-- Bash, CSS, HTML, JSON, YAML, Lua, Elixir, Haskell
+### Tier 3 (Community/Domain Languages)
+- Bash, CSS, HTML (with embedded JS/CSS), JSON, YAML, Lua, Elixir, Haskell
+
+### Tier 4 (Specialized)
+- HCL/Terraform, Nix, Solidity
 
 Each language provides full AST parsing, symbol extraction, and pattern matching capabilities.
 
@@ -251,7 +254,7 @@ fix: "let $NAME = $VALUE"
 
 ### Prerequisites
 
-- **Rust**: 1.85.0 or later (edition 2024)
+- **Rust**: 1.89 or later (edition 2024)
 - **Tools**: cargo-nextest (optional), mise (optional)
 
 ### Building
@@ -316,7 +319,6 @@ cargo bench -p thread-flow
 ### API Documentation
 
 - **Rustdoc**: Run `cargo doc --open --no-deps --workspace` for full API documentation
-- **Examples**: See `examples/` directory for usage patterns
 
 ### Technical Documentation
 
@@ -429,4 +431,4 @@ Special thanks to all contributors and the open source community.
 **Created by**: [Knitli Inc.](https://knitli.com)
 **Maintained by**: Thread Team
 **License**: AGPL-3.0-or-later (with commercial license option)
-**Version**: 0.0.1
+**Version**: 0.1.0

@@ -11,7 +11,7 @@ Language definitions and tree-sitter parsers for the Thread AST analysis toolkit
 
 ## Overview
 
-`thread-language` provides unified language support for AST-based code analysis and transformation. Built on tree-sitter grammars, it implements consistent Rust traits ([`Language`](src/lib.rs) and [`LanguageExt`](src/lib.rs)) across 24+ programming languages.
+`thread-language` provides unified language support for AST-based code analysis and transformation. Built on tree-sitter grammars, it implements consistent Rust traits ([`Language`](src/lib.rs) and [`LanguageExt`](src/lib.rs)) across **26 programming languages**.
 
 This crate is a fork of `ast-grep-language`, enhanced with improved performance, better feature organization, and streamlined language detection.
 
@@ -29,8 +29,10 @@ These languages require special handling for metavariables because they don't ac
 - **Elixir** - Uses `µ` as expando character
 - **Go** - Uses `µ` as expando character
 - **Haskell** - Uses `µ` as expando character
+- **HCL/Terraform** - Uses `µ` as expando character
 - **HTML** - Uses `z` as expando character with injection support
 - **Kotlin** - Uses `µ` as expando character
+- **Nix** - Uses `_` as expando character
 - **PHP** - Uses `µ` as expando character
 - **Python** - Uses `µ` as expando character
 - **Ruby** - Uses `µ` as expando character
@@ -47,6 +49,7 @@ These languages accept `$` in identifiers and use standard pattern processing:
 - **JSON**
 - **Lua**
 - **Scala**
+- **Solidity**
 - **TypeScript**
 - **TSX**
 - **YAML**
@@ -83,9 +86,9 @@ thread-language = { version = "0.1", default-features = false, features = ["rust
 
 Available language features:
 
-- `bash`, `c`, `cpp`, `csharp`, `css`, `elixir`, `go`, `haskell`, `html`, `html-embedded`
-- `java`, `javascript`, `json`, `kotlin`, `lua`, `php`, `python`
-- `ruby`, `rust`, `scala`, `swift`, `typescript`, `tsx`, `yaml`
+- `bash`, `c`, `cpp`, `csharp`, `css`, `elixir`, `go`, `haskell`, `hcl`, `html`, `html-embedded`
+- `java`, `javascript`, `json`, `kotlin`, `lua`, `nix`, `php`, `python`
+- `ruby`, `rust`, `scala`, `solidity`, `swift`, `typescript`, `tsx`, `yaml`
 
 ## Usage
 
