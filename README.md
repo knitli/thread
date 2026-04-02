@@ -18,7 +18,7 @@ SPDX-License-Identifier: MIT OR Apache-2.0
 - ✅ **Content-Addressed Caching**: Blake3 fingerprinting enables 99.7% cost reduction and 346x faster analysis on repeated runs
 - ✅ **Incremental Updates**: Only reanalyze changed files—unmodified code skips processing automatically
 - ✅ **Dual Deployment**: Single codebase compiles to both CLI (Rayon + Postgres) and Edge (tokio + D1 on Cloudflare Workers)
-- ✅ **Multi-Language Support**: 20+ languages via tree-sitter (Rust, TypeScript, Python, Go, Java, C/C++, and more)
+- ✅ **Multi-Language Support**: 26 languages via tree-sitter (Rust, TypeScript, Python, Go, Java, C/C++, Solidity, HCL, Nix, and more)
 - ✅ **Pattern Matching**: Powerful AST-based pattern matching with meta-variables for complex queries
 - ✅ **Production Performance**: >1,000 files/sec throughput, >90% cache hit rate, <50ms p95 latency
 
@@ -44,18 +44,19 @@ cargo build --workspace --all-features --release
 ### Basic Usage as Library
 
 ```rust
-use thread_ast_engine::{Root, Language};
+use thread::language::{SupportLang, LanguageExt};
 
-// Parse source code
-let source = "function hello() { return 42; }";
-let root = Root::new(source, Language::JavaScript)?;
+// Parse source code using language-specific AST
+let ast = SupportLang::JavaScript.ast_grep("function hello() { return 42; }");
+let root = ast.root();
 
 // Find all function declarations
 let functions = root.find_all("function $NAME($$$PARAMS) { $$$BODY }");
 
 // Extract function names
 for func in functions {
-    println!("Found function: {}", func.get_text("NAME")?);
+    let name = func.get_env().get_match("NAME").unwrap().text().to_string();
+    println!("Found function: {name}");
 }
 ```
 
@@ -77,22 +78,30 @@ let flow = ThreadFlowBuilder::new("analyze_rust")
 flow.execute().await?;
 ```
 
-### Command Line Usage
+### Using Thread as a Library
 
-```bash
-# Analyze a codebase (first run)
-thread analyze ./my-project
-# → Analyzing 1,000 files: 10.5s
+Thread is a **library-first** platform with no standalone CLI binary. Integrate it in your own
+project:
 
-# Second run (with cache)
-thread analyze ./my-project
-# → Analyzing 1,000 files: 0.3s (100% cache hits, 35x faster!)
-
-# Incremental update (only changed files)
-# Edit 10 files, then:
-thread analyze ./my-project
-# → Analyzing 10 files: 0.15s (990 files cached)
+```toml
+[dependencies]
+thread = "0.1"
 ```
+
+```rust
+use thread::language::{SupportLang, LanguageExt};
+
+let ast = SupportLang::Rust.ast_grep("fn main() { println!(\"hello\"); }");
+let root = ast.root();
+
+for m in root.find_all("println!($$$ARGS)") {
+    println!("Found println! call");
+}
+```
+
+For dataflow pipelines with persistent caching, see the
+[Dataflow Pipelines section](#with-dataflow-pipelines) and the
+[`thread-flow` README](crates/flow/README.md).
 
 ## Architecture
 
@@ -101,7 +110,7 @@ Thread follows a **service-library dual architecture** with six main crates plus
 ### Library Core (Reusable Components)
 
 - **`thread-ast-engine`** - Core AST parsing, pattern matching, and transformation engine
-- **`thread-language`** - Language definitions and tree-sitter parser integrations (20+ languages)
+- **`thread-language`** - Language definitions and tree-sitter parser integrations (26 languages)
 - **`thread-rule-engine`** - Rule-based scanning and transformation with YAML configuration
 - **`thread-utilities`** - Shared utilities including SIMD optimizations and hash functions
 - **`thread-wasm`** - WebAssembly bindings for browser and edge deployment
@@ -128,15 +137,14 @@ Thread follows a **service-library dual architecture** with six main crates plus
 
 ```bash
 # Build with CLI features (Postgres + Rayon parallelism)
-cargo build --release --features "recoco-postgres,parallel,caching"
+cargo build --release -p thread --features "flow"
 
 # Configure PostgreSQL backend
 export DATABASE_URL=postgresql://user:pass@localhost/thread_cache
 export RAYON_NUM_THREADS=8  # Use 8 cores
 
-# Run analysis
-./target/release/thread analyze ./large-codebase
-# → Performance: 1,000-10,000 files per run
+# Integrate in your project with Postgres + parallel features
+# thread-flow = { version = "0.1", features = ["postgres-backend", "parallel"] }
 ```
 
 **Features**: Direct filesystem access, multi-core parallelism, persistent caching, unlimited CPU time
@@ -166,16 +174,19 @@ See [Edge Deployment Guide](docs/deployment/EDGE_DEPLOYMENT.md) for complete set
 
 ## Language Support
 
-Thread supports 20+ programming languages via tree-sitter parsers:
+Thread supports **26 programming languages** via tree-sitter parsers:
 
 ### Tier 1 (Primary Focus)
-- Rust, JavaScript/TypeScript, Python, Go, Java
+- Rust, JavaScript/TypeScript/TSX, Python, Go, Java
 
 ### Tier 2 (Full Support)
 - C/C++, C#, PHP, Ruby, Swift, Kotlin, Scala
 
-### Tier 3 (Basic Support)
-- Bash, CSS, HTML, JSON, YAML, Lua, Elixir, Haskell
+### Tier 3 (Community/Domain Languages)
+- Bash, CSS, HTML (with embedded JS/CSS), JSON, YAML, Lua, Elixir, Haskell
+
+### Tier 4 (Specialized)
+- HCL/Terraform, Nix, Solidity
 
 Each language provides full AST parsing, symbol extraction, and pattern matching capabilities.
 
@@ -251,7 +262,7 @@ fix: "let $NAME = $VALUE"
 
 ### Prerequisites
 
-- **Rust**: 1.85.0 or later (edition 2024)
+- **Rust**: 1.89 or later (edition 2024)
 - **Tools**: cargo-nextest (optional), mise (optional)
 
 ### Building
@@ -316,14 +327,12 @@ cargo bench -p thread-flow
 ### API Documentation
 
 - **Rustdoc**: Run `cargo doc --open --no-deps --workspace` for full API documentation
-- **Examples**: See `examples/` directory for usage patterns
 
 ### Technical Documentation
 
-- [Integration Tests](claudedocs/INTEGRATION_TESTS.md) - E2E test design and coverage
-- [Error Recovery](claudedocs/ERROR_RECOVERY.md) - Error handling strategies
-- [Observability](claudedocs/OBSERVABILITY.md) - Metrics and monitoring
-- [Performance Benchmarks](claudedocs/PERFORMANCE_BENCHMARKS.md) - Benchmark suite design
+- [Phase 5 Completion Summary](claudedocs/PHASE5_COMPLETE.md) - Production validation results and benchmarks
+- [ReCoco Integration](claudedocs/RECOCO_INTEGRATION.md) - Dataflow integration design and patterns
+- [Incremental Update System](claudedocs/INCREMENTAL_UPDATE_SYSTEM_DESIGN.md) - Change detection and invalidation design
 
 ## Constitutional Compliance
 
@@ -429,4 +438,4 @@ Special thanks to all contributors and the open source community.
 **Created by**: [Knitli Inc.](https://knitli.com)
 **Maintained by**: Thread Team
 **License**: AGPL-3.0-or-later (with commercial license option)
-**Version**: 0.0.1
+**Version**: 0.1.0
