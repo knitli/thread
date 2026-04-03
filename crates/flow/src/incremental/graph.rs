@@ -260,7 +260,7 @@ impl DependencyGraph {
     /// ));
     ///
     /// // Change C -> affects B and A
-    /// let changed = RapidSet::from([PathBuf::from("C")]);
+    /// let changed: RapidSet<PathBuf> = [PathBuf::from("C")].into_iter().collect();
     /// let affected = graph.find_affected_files(&changed);
     /// assert!(affected.contains(&PathBuf::from("A")));
     /// assert!(affected.contains(&PathBuf::from("B")));
@@ -325,9 +325,9 @@ impl DependencyGraph {
     ///     PathBuf::from("B"), PathBuf::from("C"), DependencyType::Import,
     /// ));
     ///
-    /// let files = RapidSet::from([
+    /// let files: RapidSet<PathBuf> = [
     ///     PathBuf::from("A"), PathBuf::from("B"), PathBuf::from("C"),
-    /// ]);
+    /// ].into_iter().collect();
     /// let sorted = graph.topological_sort(&files).unwrap();
     /// // C should come before B, B before A
     /// let pos_a = sorted.iter().position(|p| p == &PathBuf::from("A")).unwrap();

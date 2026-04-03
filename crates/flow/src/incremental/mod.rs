@@ -36,8 +36,8 @@
 //!     AnalysisDefFingerprint, DependencyEdge, DependencyType,
 //! };
 //! use thread_flow::incremental::graph::DependencyGraph;
+//! use thread_utilities::RapidSet;
 //! use std::path::PathBuf;
-//! use std::collections::HashSet;
 //!
 //! // Create a dependency graph
 //! let mut graph = DependencyGraph::new();
@@ -51,7 +51,7 @@
 //! });
 //!
 //! // Find files affected by a change to utils.rs
-//! let changed = HashSet::from([PathBuf::from("src/utils.rs")]);
+//! let changed: RapidSet<PathBuf> = [PathBuf::from("src/utils.rs")].into_iter().collect();
 //! let affected = graph.find_affected_files(&changed);
 //! assert!(affected.contains(&PathBuf::from("src/main.rs")));
 //! ```
