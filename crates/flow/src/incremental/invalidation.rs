@@ -45,7 +45,6 @@ pub enum InvalidationError {
 /// ```rust
 /// use thread_flow::incremental::invalidation::InvalidationDetector;
 /// use thread_flow::incremental::DependencyGraph;
-/// use thread_utilities::RapishSet;
 /// use std::path::PathBuf;
 ///
 /// let graph = DependencyGraph::new();

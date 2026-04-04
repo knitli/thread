@@ -8,3 +8,33 @@ path = ["claudedocs/**", "crates/**/claudedocs/**"]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2025 Knitli Inc. <knitli@knit.li>"
 SPDX-License-Identifier = "MIT OR Apache-2.0"
+
+[[annotations]]
+path = [".claude/plugins/**", "ctx-plugin/**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2025 Knitli Inc. <knitli@knit.li>"
+SPDX-License-Identifier = "MIT OR Apache-2.0"
+
+[[annotations]]
+path = [".vscode/**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2025 Knitli Inc. <knitli@knit.li>"
+SPDX-License-Identifier = "MIT OR Apache-2.0"
+
+[[annotations]]
+path = ["crates/flow/benches/bench_graph_traversal.rs"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2025 Knitli Inc. <knitli@knit.li>"
+SPDX-License-Identifier = "AGPL-3.0-or-later"
+
+[[annotations]]
+path = ["get_comments.js"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2025 Knitli Inc. <knitli@knit.li>"
+SPDX-License-Identifier = "MIT OR Apache-2.0"
+
+[[annotations]]
+path = ["specs/**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2025 Knitli Inc. <knitli@knit.li>"
+SPDX-License-Identifier = "MIT OR Apache-2.0"

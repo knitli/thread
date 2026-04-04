@@ -220,7 +220,7 @@ impl AnalysisDefFingerprint {
     /// use thread_utilities::RapidSet;
     /// use std::path::PathBuf;
     ///
-    /// let sources = RapidSet::from([PathBuf::from("dep.rs")]);
+    /// let sources: RapidSet<PathBuf> = [PathBuf::from("dep.rs")].into_iter().collect();
     /// let fp = AnalysisDefFingerprint::with_sources(b"content", sources);
     /// assert_eq!(fp.source_files.len(), 1);
     /// ```
