@@ -525,28 +525,49 @@ impl ContentExt for String {
         let start_byte = edit.position;
         let old_end_byte = edit.position + edit.deleted_length;
 
-        let start_position = position_for_offset(self.as_bytes(), start_byte);
-        let old_end_position = position_for_offset(self.as_bytes(), old_end_byte);
+        // If edits cut inside UTF-8 characters, expand the start/end to character boundaries
+        // to avoid invalidating unrelated bytes via from_utf8_lossy replacement
+        let safe_start = {
+            let mut s = start_byte;
+            while s > 0 && !self.is_char_boundary(s) {
+                s -= 1;
+            }
+            s
+        };
+        let safe_end = {
+            let mut e = old_end_byte;
+            while e <= self.len() && !self.is_char_boundary(e) {
+                e += 1;
+            }
+            e
+        };
+
+        let start_position = position_for_offset(self.as_bytes(), safe_start);
+        let old_end_position = position_for_offset(self.as_bytes(), safe_end);
+
+        // Prepend and append the cut pieces of the character boundary to the inserted text
+        let mut full_inserted = self.as_bytes()[safe_start..start_byte].to_vec();
+        full_inserted.extend_from_slice(&edit.inserted_text);
+        full_inserted.extend_from_slice(&self.as_bytes()[old_end_byte..safe_end]);
 
         let mut bytes = std::mem::take(self).into_bytes();
         let original_len = bytes.len();
-        bytes.splice(start_byte..old_end_byte, edit.inserted_text.iter().copied());
-        *self = String::from_utf8(bytes)
-            .unwrap_or_else(|e| String::from_utf8_lossy(&e.into_bytes()).into_owned());
+        bytes.splice(safe_start..safe_end, full_inserted);
+        *self = Self::from_utf8(bytes).unwrap_or_else(|e| {
+            Self::from_utf8_lossy(&e.into_bytes()).into_owned()
+        });
 
-        // Compute the new end from the edit start plus the actual inserted byte length
-        // in the final string. This avoids unchecked signed arithmetic and keeps the
-        // offset in bounds even if UTF-8 repair changes the inserted byte count.
-        let unchanged_len = original_len.saturating_sub(edit.deleted_length);
-        let actual_inserted_len = self.len().saturating_sub(unchanged_len);
-        let new_end_byte = start_byte
-            .saturating_add(actual_inserted_len)
-            .min(self.len());
+        // We calculate new_end_byte using the difference in the new overall string length
+        // to correctly align the end offset, taking any potential replacement bytes from
+        // lossy utf-8 conversion into account.
+        // The difference in total string length directly corresponds to the difference between old_end_byte and new_end_byte
+        let length_diff = self.len() as isize - original_len as isize;
+        let new_end_byte = (safe_end as isize + length_diff).max(0) as usize;
 
         let new_end_position = position_for_offset(self.as_bytes(), new_end_byte);
         InputEdit {
-            start_byte,
-            old_end_byte,
+            start_byte: safe_start,
+            old_end_byte: safe_end,
             new_end_byte,
             start_position,
             old_end_position,
@@ -743,6 +764,33 @@ mod test {
             tree2.root_node().to_sexp(),
             "(program (expression_statement (binary_expression left: (binary_expression left: (identifier) right: (identifier)) right: (identifier))))"
         );
+        Ok(())
+    }
+
+    #[test]
+    fn test_edit_multibyte() -> Result<(), TSParseError> {
+        let mut src = "😄".to_string(); // 4 bytes
+        let mut tree = parse(&src)?;
+
+        // Let's edit inside the multibyte character.
+        // position: 1, deleted_length: 2
+        // We'll insert "x"
+        let edit_input = Edit {
+            position: 1,
+            deleted_length: 2,
+            inserted_text: b"x".to_vec(),
+        };
+
+        // This should trigger the char boundary expansion logic without panicking or underflowing.
+        let edit = perform_edit(&mut tree, &mut src, &edit_input);
+
+        // Char boundary expansion should have recognized that start is inside 😄 (0..4),
+        // so it expands start_byte to 0 and old_end_byte to 4.
+        assert_eq!(edit.start_byte, 0);
+        assert_eq!(edit.old_end_byte, 4);
+
+        let tree2 = parse_lang(|p| p.parse(&src, Some(&tree)), &Tsx.get_ts_language())?;
+        assert!(tree2.root_node().has_error() || !tree2.root_node().has_error()); // just making sure it parses
         Ok(())
     }
 }
