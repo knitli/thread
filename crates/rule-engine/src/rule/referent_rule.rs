@@ -27,14 +27,17 @@ impl<R> Clone for Registration<R> {
 
 impl<R> Registration<R> {
     fn read(&self) -> Arc<RapidMap<String, R>> {
-        self.0.read().expect("RwLock should not be poisoned").clone()
+        self.0
+            .read()
+            .unwrap_or_else(|poison| poison.into_inner())
+            .clone()
     }
     fn update<F, T>(&self, f: F) -> T
     where
         F: FnOnce(&mut RapidMap<String, R>) -> T,
         R: Clone,
     {
-        let mut lock = self.0.write().expect("RwLock should not be poisoned");
+        let mut lock = self.0.write().unwrap_or_else(|poison| poison.into_inner());
         let map = Arc::make_mut(&mut lock);
         f(map)
     }
@@ -109,7 +112,12 @@ impl RuleRegistration {
     }
 
     pub(crate) fn insert_rewriter(&self, id: &str, rewriter: RuleCore) {
-        self.rewriters.insert(id, rewriter).expect("should work");
+        self.rewriters.update(|map| {
+            if map.contains_key(id) {
+                panic!("should work");
+            }
+            map.insert(id.to_string(), rewriter);
+        });
     }
 
     pub(crate) fn get_local_util_vars(&self) -> RapidSet<String> {
