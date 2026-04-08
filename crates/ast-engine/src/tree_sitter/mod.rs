@@ -530,7 +530,7 @@ impl ContentExt for String {
 
         let mut bytes = std::mem::take(self).into_bytes();
         let original_len = bytes.len();
-        bytes.splice(start_byte..old_end_byte, edit.inserted_text.clone());
+        bytes.splice(start_byte..old_end_byte, edit.inserted_text.iter().copied());
         *self = String::from_utf8(bytes)
             .unwrap_or_else(|e| String::from_utf8_lossy(&e.into_bytes()).into_owned());
 
