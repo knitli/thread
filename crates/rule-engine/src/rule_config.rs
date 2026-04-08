@@ -168,7 +168,7 @@ impl<L: Language> SerializableRuleConfig<L> {
                 .map_err(|e| RuleConfigError::Rewriter(e, val.id.clone()))?;
             reg.insert_rewriter(&val.id, rewriter);
         }
-        check_rewriters_in_transform(rule, reg.get_rewriters())?;
+        check_rewriters_in_transform(rule, &reg.get_rewriters())?;
         Ok(())
     }
 }

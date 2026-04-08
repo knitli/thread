@@ -236,7 +236,7 @@ impl NthChild {
             .iter()
             .position(|child| child.node_id() == node.node_id())
     }
-    pub fn defined_vars(&self) -> RapidSet<&str> {
+    pub fn defined_vars(&self) -> RapidSet<String> {
         if let Some(rule) = &self.of_rule {
             rule.defined_vars()
         } else {
@@ -419,7 +419,10 @@ mod test {
     #[test]
     fn test_defined_vars() {
         let rule = deser(r"nthChild: { position: 2, ofRule: {pattern: '$A'} }");
-        assert_eq!(rule.defined_vars(), vec!["A"].into_iter().collect());
+        assert_eq!(
+            rule.defined_vars(),
+            vec!["A"].into_iter().map(String::from).collect()
+        );
     }
 
     #[test]

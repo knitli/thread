@@ -13,11 +13,11 @@ use bit_set::BitSet;
 use thiserror::Error;
 
 use std::borrow::Cow;
-use std::sync::{Arc, Weak};
+use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard, Weak};
 use thread_utilities::{RapidMap, RapidSet, set_with_capacity};
 
 #[derive(Debug)]
-pub struct Registration<R>(Arc<RapidMap<String, R>>);
+pub struct Registration<R>(Arc<RwLock<RapidMap<String, R>>>);
 
 impl<R> Clone for Registration<R> {
     fn clone(&self) -> Self {
@@ -26,11 +26,11 @@ impl<R> Clone for Registration<R> {
 }
 
 impl<R> Registration<R> {
-    #[allow(clippy::mut_from_ref)]
-    fn write(&self) -> &mut RapidMap<String, R> {
-        // SAFETY: `write` will only be called during initialization and
-        // it only insert new item to the RapidMap. It is safe to cast the raw ptr.
-        unsafe { &mut *(Arc::as_ptr(&self.0) as *mut RapidMap<String, R>) }
+    fn read(&self) -> RwLockReadGuard<RapidMap<String, R>> {
+        self.0.read().expect("RwLock should not be poisoned")
+    }
+    fn write(&self) -> RwLockWriteGuard<RapidMap<String, R>> {
+        self.0.write().expect("RwLock should not be poisoned")
     }
 }
 pub type GlobalRules = Registration<RuleCore>;
@@ -49,7 +49,13 @@ impl GlobalRules {
 
 impl<R> Default for Registration<R> {
     fn default() -> Self {
-        Self(Default::default())
+        Self(Arc::new(RwLock::new(RapidMap::default())))
+    }
+}
+
+impl<R> From<Arc<RwLock<RapidMap<String, R>>>> for Registration<R> {
+    fn from(inner: Arc<RwLock<RapidMap<String, R>>>) -> Self {
+        Self(inner)
     }
 }
 
@@ -65,8 +71,8 @@ pub struct RuleRegistration {
 
 // these are shit code
 impl RuleRegistration {
-    pub fn get_rewriters(&self) -> &RapidMap<String, RuleCore> {
-        &self.rewriters.0
+    pub fn get_rewriters(&self) -> RwLockReadGuard<RapidMap<String, RuleCore>> {
+        self.rewriters.read()
     }
 
     pub fn from_globals(global: &GlobalRules) -> Self {
@@ -96,12 +102,12 @@ impl RuleRegistration {
     }
 
     pub(crate) fn insert_rewriter(&self, id: &str, rewriter: RuleCore) {
-        self.rewriters.insert(id, rewriter).expect("should work");
+        self.rewriters.write().insert(id.to_string(), rewriter);
     }
 
-    pub(crate) fn get_local_util_vars(&self) -> RapidSet<&str> {
-        let utils = &self.local.0;
-        let size = size_of_val(utils);
+    pub(crate) fn get_local_util_vars(&self) -> RapidSet<String> {
+        let utils = self.local.read();
+        let size = utils.len();
         if size == 0 {
             return RapidSet::default();
         }
@@ -109,7 +115,7 @@ impl RuleRegistration {
         let mut ret = set_with_capacity(size);
         for rule in utils.values() {
             for v in rule.defined_vars() {
-                ret.insert(v);
+                ret.insert(v.to_string());
             }
         }
         ret
@@ -120,16 +126,16 @@ impl RuleRegistration {
 /// cyclic reference in RuleRegistration
 #[derive(Clone, Debug)]
 struct RegistrationRef {
-    local: Weak<RapidMap<String, Rule>>,
-    global: Weak<RapidMap<String, RuleCore>>,
+    local: Weak<RwLock<RapidMap<String, Rule>>>,
+    global: Weak<RwLock<RapidMap<String, RuleCore>>>,
 }
 impl RegistrationRef {
-    fn get_local(&self) -> Arc<RapidMap<String, Rule>> {
+    fn get_local(&self) -> Arc<RwLock<RapidMap<String, Rule>>> {
         self.local
             .upgrade()
             .expect("Rule Registration must be kept alive")
     }
-    fn get_global(&self) -> Arc<RapidMap<String, RuleCore>> {
+    fn get_global(&self) -> Arc<RwLock<RapidMap<String, RuleCore>>> {
         self.global
             .upgrade()
             .expect("Rule Registration must be kept alive")
@@ -168,6 +174,7 @@ impl ReferentRule {
         F: FnOnce(&Rule) -> T,
     {
         let rules = self.reg_ref.get_local();
+        let rules = rules.read().expect("RwLock should not be poisoned");
         let rule = rules.get(&self.rule_id)?;
         Some(func(rule))
     }
@@ -177,16 +184,19 @@ impl ReferentRule {
         F: FnOnce(&RuleCore) -> T,
     {
         let rules = self.reg_ref.get_global();
+        let rules = rules.read().expect("RwLock should not be poisoned");
         let rule = rules.get(&self.rule_id)?;
         Some(func(rule))
     }
 
     pub(super) fn verify_util(&self) -> Result<(), ReferentRuleError> {
         let rules = self.reg_ref.get_local();
+        let rules = rules.read().expect("RwLock should not be poisoned");
         if rules.contains_key(&self.rule_id) {
             return Ok(());
         }
         let rules = self.reg_ref.get_global();
+        let rules = rules.read().expect("RwLock should not be poisoned");
         if rules.contains_key(&self.rule_id) {
             return Ok(());
         }

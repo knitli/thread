@@ -19,7 +19,7 @@ type RResult<T> = std::result::Result<T, RuleCoreError>;
 pub enum CheckHint<'r> {
     Global,
     Normal,
-    Rewriter(&'r RapidSet<&'r str>),
+    Rewriter(&'r RapidSet<String>),
 }
 
 /// Different rule sections have different variable scopes/check procedure.
@@ -59,13 +59,13 @@ fn check_vars_in_rewriter<'r>(
     constraints: &'r RapidMap<thread_ast_engine::meta_var::MetaVariableID, Rule>,
     transform: &'r Option<Transform>,
     fixer: &Vec<Fixer>,
-    upper_var: &RapidSet<&str>,
+    upper_var: &RapidSet<String>,
 ) -> RResult<()> {
     let vars = get_vars_from_rules(rule, utils);
     let vars = check_var_in_constraints(vars, constraints)?;
     let mut vars = check_var_in_transform(vars, transform)?;
     for v in upper_var {
-        vars.insert(v);
+        vars.insert(v.clone());
     }
     check_var_in_fix(vars, fixer)?;
     Ok(())
@@ -96,7 +96,7 @@ fn check_vars<'r>(
     Ok(())
 }
 
-fn get_vars_from_rules<'r>(rule: &'r Rule, utils: &'r RuleRegistration) -> RapidSet<&'r str> {
+fn get_vars_from_rules<'r>(rule: &'r Rule, utils: &'r RuleRegistration) -> RapidSet<String> {
     let mut vars = rule.defined_vars();
     for var in utils.get_local_util_vars() {
         vars.insert(var);
@@ -105,9 +105,9 @@ fn get_vars_from_rules<'r>(rule: &'r Rule, utils: &'r RuleRegistration) -> Rapid
 }
 
 fn check_var_in_constraints<'r>(
-    mut vars: RapidSet<&'r str>,
+    mut vars: RapidSet<String>,
     constraints: &'r RapidMap<thread_ast_engine::meta_var::MetaVariableID, Rule>,
-) -> RResult<RapidSet<&'r str>> {
+) -> RResult<RapidSet<String>> {
     for rule in constraints.values() {
         for var in rule.defined_vars() {
             vars.insert(var);
@@ -126,15 +126,15 @@ fn check_var_in_constraints<'r>(
 }
 
 fn check_var_in_transform<'r>(
-    mut vars: RapidSet<&'r str>,
+    mut vars: RapidSet<String>,
     transform: &'r Option<Transform>,
-) -> RResult<RapidSet<&'r str>> {
+) -> RResult<RapidSet<String>> {
     let Some(transform) = transform else {
         return Ok(vars);
     };
     for var in transform.keys() {
         // vars already has the transform value. Report error!
-        if !vars.insert(var) {
+        if !vars.insert(var.clone()) {
             return Err(RuleCoreError::Transform(TransformError::AlreadyDefined(
                 var.to_string(),
             )));
@@ -152,7 +152,7 @@ fn check_var_in_transform<'r>(
     Ok(vars)
 }
 
-fn check_var_in_fix(vars: RapidSet<&str>, fixers: &Vec<Fixer>) -> RResult<()> {
+fn check_var_in_fix(vars: RapidSet<String>, fixers: &Vec<Fixer>) -> RResult<()> {
     for fixer in fixers {
         for var in fixer.used_vars() {
             if !vars.contains(&var) {
@@ -217,7 +217,10 @@ transform:
         let matcher = ser_rule.get_matcher(env).expect("should parse");
         assert_eq!(
             matcher.defined_vars(),
-            ["A", "B", "C", "D", "E"].into_iter().collect()
+            ["A", "B", "C", "D", "E"]
+                .into_iter()
+                .map(String::from)
+                .collect()
         );
     }
 
@@ -284,7 +287,10 @@ utils:
         )
         .expect("should deser");
         let matcher = ser_rule.get_matcher(env).expect("should parse");
-        assert_eq!(matcher.defined_vars(), ["B"].into_iter().collect());
+        assert_eq!(
+            matcher.defined_vars(),
+            ["B"].into_iter().map(String::from).collect()
+        );
     }
 
     #[test]
@@ -299,7 +305,10 @@ fix: $B = 123",
         )
         .expect("should deser");
         let matcher = ser_rule.get_matcher(env).expect("should parse");
-        assert_eq!(matcher.defined_vars(), ["B"].into_iter().collect());
+        assert_eq!(
+            matcher.defined_vars(),
+            ["B"].into_iter().map(String::from).collect()
+        );
     }
 
     #[test]
@@ -314,7 +323,10 @@ utils:
         )
         .expect("should deser");
         let matcher = ser_rule.get_matcher(env).expect("should parse");
-        assert_eq!(matcher.defined_vars(), ["A", "B"].into_iter().collect());
+        assert_eq!(
+            matcher.defined_vars(),
+            ["A", "B"].into_iter().map(String::from).collect()
+        );
     }
 
     #[test]

@@ -57,11 +57,11 @@ impl Inside {
         })
     }
 
-    pub fn defined_vars(&self) -> RapidSet<&str> {
+    pub fn defined_vars(&self) -> RapidSet<String> {
         self.outer
             .defined_vars()
             .union(&self.stop_by.defined_vars())
-            .copied()
+            .cloned()
             .collect()
     }
 
@@ -117,11 +117,11 @@ impl Has {
         })
     }
 
-    pub fn defined_vars(&self) -> RapidSet<&str> {
+    pub fn defined_vars(&self) -> RapidSet<String> {
         self.inner
             .defined_vars()
             .union(&self.stop_by.defined_vars())
-            .copied()
+            .cloned()
             .collect()
     }
 
@@ -203,11 +203,11 @@ impl Precedes {
         })
     }
 
-    pub fn defined_vars(&self) -> RapidSet<&str> {
+    pub fn defined_vars(&self) -> RapidSet<String> {
         self.later
             .defined_vars()
             .union(&self.stop_by.defined_vars())
-            .copied()
+            .cloned()
             .collect()
     }
 
@@ -247,11 +247,11 @@ impl Follows {
             former: env.deserialize_rule(relation.rule)?,
         })
     }
-    pub fn defined_vars(&self) -> RapidSet<&str> {
+    pub fn defined_vars(&self) -> RapidSet<String> {
         self.former
             .defined_vars()
             .union(&self.stop_by.defined_vars())
-            .copied()
+            .cloned()
             .collect()
     }
 
@@ -689,23 +689,35 @@ mod test {
             later: Rule::Pattern(Pattern::new("var a = $A", &TS::Tsx)),
             stop_by: StopBy::Rule(Rule::Pattern(Pattern::new("var b = $B", &TS::Tsx))),
         };
-        assert_eq!(precedes.defined_vars(), ["A", "B"].into_iter().collect());
+        assert_eq!(
+            precedes.defined_vars(),
+            ["A", "B"].into_iter().map(String::from).collect()
+        );
         let follows = Follows {
             former: Rule::Pattern(Pattern::new("var a = 123", &TS::Tsx)),
             stop_by: StopBy::Rule(Rule::Pattern(Pattern::new("var b = $B", &TS::Tsx))),
         };
-        assert_eq!(follows.defined_vars(), ["B"].into_iter().collect());
+        assert_eq!(
+            follows.defined_vars(),
+            ["B"].into_iter().map(String::from).collect()
+        );
         let inside = Inside {
             stop_by: StopBy::Rule(Rule::Pattern(Pattern::new("var $C", &TS::Tsx))),
             outer: Rule::Pattern(Pattern::new("var a = $A", &TS::Tsx)),
             field: TS::Tsx.field_to_id("condition"),
         };
-        assert_eq!(inside.defined_vars(), ["A", "C"].into_iter().collect());
+        assert_eq!(
+            inside.defined_vars(),
+            ["A", "C"].into_iter().map(String::from).collect()
+        );
         let has = Has {
             stop_by: StopBy::Rule(Rule::Kind(KindMatcher::new("for_statement", &TS::Tsx))),
             inner: Rule::Pattern(Pattern::new("var a = $A", &TS::Tsx)),
             field: TS::Tsx.field_to_id("condition"),
         };
-        assert_eq!(has.defined_vars(), ["A"].into_iter().collect());
+        assert_eq!(
+            has.defined_vars(),
+            ["A"].into_iter().map(String::from).collect()
+        );
     }
 }
