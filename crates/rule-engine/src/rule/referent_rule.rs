@@ -29,6 +29,9 @@ impl<R> Registration<R> {
     fn read(&self) -> Arc<RapidMap<String, R>> {
         self.0.read().expect("RwLock should not be poisoned").clone()
     }
+    pub(crate) fn contains_key(&self, key: &str) -> bool {
+        self.read().contains_key(key)
+    }
     fn update<F, T>(&self, f: F) -> T
     where
         F: FnOnce(&mut RapidMap<String, R>) -> T,
@@ -80,6 +83,10 @@ pub struct RuleRegistration {
 impl RuleRegistration {
     pub fn get_rewriters(&self) -> Arc<RapidMap<String, RuleCore>> {
         self.rewriters.read()
+    }
+
+    pub fn has_global(&self, id: &str) -> bool {
+        self.global.contains_key(id)
     }
 
     pub fn from_globals(global: &GlobalRules) -> Self {
