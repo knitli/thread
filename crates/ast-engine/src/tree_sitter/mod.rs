@@ -524,12 +524,22 @@ impl ContentExt for String {
     fn accept_edit(&mut self, edit: &Edit<Self>) -> InputEdit {
         let start_byte = edit.position;
         let old_end_byte = edit.position + edit.deleted_length;
-        let new_end_byte = edit.position + edit.inserted_text.len();
-        let input = unsafe { self.as_mut_vec() };
-        let start_position = position_for_offset(input, start_byte);
-        let old_end_position = position_for_offset(input, old_end_byte);
-        input.splice(start_byte..old_end_byte, edit.inserted_text.clone());
-        let new_end_position = position_for_offset(input, new_end_byte);
+
+        let start_position = position_for_offset(self.as_bytes(), start_byte);
+        let old_end_position = position_for_offset(self.as_bytes(), old_end_byte);
+
+        let mut bytes = std::mem::take(self).into_bytes();
+        let original_len = bytes.len();
+        bytes.splice(start_byte..old_end_byte, edit.inserted_text.clone());
+        *self = String::from_utf8(bytes)
+            .unwrap_or_else(|e| String::from_utf8_lossy(&e.into_bytes()).into_owned());
+
+        // We compute new_end_byte based on the newly formed string's length difference
+        // The inserted text length might be altered if utf8_lossy replaces invalid bytes.
+        let length_diff = self.len() as isize - original_len as isize;
+        let new_end_byte = (old_end_byte as isize + length_diff) as usize;
+
+        let new_end_position = position_for_offset(self.as_bytes(), new_end_byte);
         InputEdit {
             start_byte,
             old_end_byte,
