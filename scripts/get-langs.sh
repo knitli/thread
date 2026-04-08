@@ -190,7 +190,7 @@ main() {
             continue
         fi
         repo_url=$(get_repo "$lang")
-        branch=${BRANCH[lang]:-main}
+        branch=${BRANCH[$lang]:-main}
         run_cmd "$lang" "$repo_url" "$ARG" "$branch"
     done
     for grammar in "${GRAMMAR_REPOS[@]}"; do
