@@ -350,4 +350,11 @@ mod tests {
             panic!("Expected ServiceError::Execution, got: {err:?}");
         }
     }
+
+    #[test]
+    fn test_memory_context_write_content() {
+        let ctx = MemoryContext::new();
+        let result = ctx.write_content("test.rs", "fn main() {}");
+        assert!(result.is_ok());
+    }
 }
