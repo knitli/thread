@@ -220,7 +220,7 @@ impl RuleCore {
         let mut ret = self.defined_node_vars();
         if let Some(trans) = &self.transform {
             for key in trans.keys() {
-                ret.insert(key.clone());
+                ret.insert(key.to_string());
             }
         }
         ret

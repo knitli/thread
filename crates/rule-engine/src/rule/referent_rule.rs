@@ -13,7 +13,7 @@ use bit_set::BitSet;
 use thiserror::Error;
 
 use std::borrow::Cow;
-use std::sync::{Arc, RwLock, Weak};
+use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard, Weak};
 use thread_utilities::{RapidMap, RapidSet, set_with_capacity};
 
 #[derive(Debug)]
@@ -27,19 +27,17 @@ impl<R> Clone for Registration<R> {
 
 impl<R> Registration<R> {
     fn read(&self) -> Arc<RapidMap<String, R>> {
-        self.0
-            .read()
-            .unwrap_or_else(|poison| poison.into_inner())
-            .clone()
+        self.0.read().expect("RwLock should not be poisoned").clone()
     }
     fn update<F, T>(&self, f: F) -> T
     where
         F: FnOnce(&mut RapidMap<String, R>) -> T,
-        R: Clone,
     {
-        let mut lock = self.0.write().unwrap_or_else(|poison| poison.into_inner());
-        let map = Arc::make_mut(&mut lock);
-        f(map)
+        let mut lock = self.0.write().expect("RwLock should not be poisoned");
+        let mut new_map = (**lock).clone();
+        let ret = f(&mut new_map);
+        *lock = Arc::new(new_map);
+        ret
     }
 }
 pub type GlobalRules = Registration<RuleCore>;
@@ -112,12 +110,7 @@ impl RuleRegistration {
     }
 
     pub(crate) fn insert_rewriter(&self, id: &str, rewriter: RuleCore) {
-        self.rewriters.update(|map| {
-            if map.contains_key(id) {
-                panic!("should work");
-            }
-            map.insert(id.to_string(), rewriter);
-        });
+        self.rewriters.insert(id, rewriter).expect("should work");
     }
 
     pub(crate) fn get_local_util_vars(&self) -> RapidSet<String> {
@@ -130,7 +123,7 @@ impl RuleRegistration {
         let mut ret = set_with_capacity(size);
         for rule in utils.values() {
             for v in rule.defined_vars() {
-                ret.insert(v);
+                ret.insert(v.to_string());
             }
         }
         ret

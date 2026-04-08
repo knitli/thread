@@ -155,7 +155,7 @@ fn check_var_in_transform<'r>(
 fn check_var_in_fix(vars: RapidSet<String>, fixers: &Vec<Fixer>) -> RResult<()> {
     for fixer in fixers {
         for var in fixer.used_vars() {
-            if !vars.contains(&var) {
+            if !vars.contains(var) {
                 return Err(RuleCoreError::UndefinedMetaVar(var.to_string(), "fix"));
             }
         }
