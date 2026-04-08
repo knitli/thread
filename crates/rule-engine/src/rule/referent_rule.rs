@@ -17,7 +17,7 @@ use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard, Weak};
 use thread_utilities::{RapidMap, RapidSet, set_with_capacity};
 
 #[derive(Debug)]
-pub struct Registration<R>(Arc<RwLock<RapidMap<String, R>>>);
+pub struct Registration<R>(Arc<RwLock<Arc<RapidMap<String, R>>>>);
 
 impl<R> Clone for Registration<R> {
     fn clone(&self) -> Self {
@@ -26,35 +26,42 @@ impl<R> Clone for Registration<R> {
 }
 
 impl<R> Registration<R> {
-    fn read(&self) -> RwLockReadGuard<RapidMap<String, R>> {
-        self.0.read().expect("RwLock should not be poisoned")
+    fn read(&self) -> Arc<RapidMap<String, R>> {
+        self.0.read().expect("RwLock should not be poisoned").clone()
     }
-    fn write(&self) -> RwLockWriteGuard<RapidMap<String, R>> {
-        self.0.write().expect("RwLock should not be poisoned")
+    fn update<F, T>(&self, f: F) -> T
+    where
+        F: FnOnce(&mut RapidMap<String, R>) -> T,
+    {
+        let mut lock = self.0.write().expect("RwLock should not be poisoned");
+        let mut new_map = (**lock).clone();
+        let ret = f(&mut new_map);
+        *lock = Arc::new(new_map);
+        ret
     }
 }
 pub type GlobalRules = Registration<RuleCore>;
 
 impl GlobalRules {
     pub fn insert(&self, id: &str, rule: RuleCore) -> Result<(), ReferentRuleError> {
-        let map = self.write();
-        if map.contains_key(id) {
-            return Err(ReferentRuleError::DuplicateRule(id.into()));
-        }
-        map.insert(id.to_string(), rule);
-        let _rule = map.get(id).unwrap();
-        Ok(())
+        self.update(|map| {
+            if map.contains_key(id) {
+                return Err(ReferentRuleError::DuplicateRule(id.into()));
+            }
+            map.insert(id.to_string(), rule);
+            Ok(())
+        })
     }
 }
 
 impl<R> Default for Registration<R> {
     fn default() -> Self {
-        Self(Arc::new(RwLock::new(RapidMap::default())))
+        Self(Arc::new(RwLock::new(Arc::new(RapidMap::default()))))
     }
 }
 
-impl<R> From<Arc<RwLock<RapidMap<String, R>>>> for Registration<R> {
-    fn from(inner: Arc<RwLock<RapidMap<String, R>>>) -> Self {
+impl<R> From<Arc<RwLock<Arc<RapidMap<String, R>>>>> for Registration<R> {
+    fn from(inner: Arc<RwLock<Arc<RapidMap<String, R>>>>) -> Self {
         Self(inner)
     }
 }
@@ -71,7 +78,7 @@ pub struct RuleRegistration {
 
 // these are shit code
 impl RuleRegistration {
-    pub fn get_rewriters(&self) -> RwLockReadGuard<RapidMap<String, RuleCore>> {
+    pub fn get_rewriters(&self) -> Arc<RapidMap<String, RuleCore>> {
         self.rewriters.read()
     }
 
@@ -93,16 +100,17 @@ impl RuleRegistration {
         if rule.check_cyclic(id) {
             return Err(ReferentRuleError::CyclicRule(id.into()));
         }
-        let map = self.local.write();
-        if map.contains_key(id) {
-            return Err(ReferentRuleError::DuplicateRule(id.into()));
-        }
-        map.insert(id.to_string(), rule);
-        Ok(())
+        self.local.update(|map| {
+            if map.contains_key(id) {
+                return Err(ReferentRuleError::DuplicateRule(id.into()));
+            }
+            map.insert(id.to_string(), rule);
+            Ok(())
+        })
     }
 
     pub(crate) fn insert_rewriter(&self, id: &str, rewriter: RuleCore) {
-        self.rewriters.write().insert(id.to_string(), rewriter);
+        self.rewriters.insert(id, rewriter).expect("should work");
     }
 
     pub(crate) fn get_local_util_vars(&self) -> RapidSet<String> {
@@ -126,19 +134,23 @@ impl RuleRegistration {
 /// cyclic reference in RuleRegistration
 #[derive(Clone, Debug)]
 struct RegistrationRef {
-    local: Weak<RwLock<RapidMap<String, Rule>>>,
-    global: Weak<RwLock<RapidMap<String, RuleCore>>>,
+    local: Weak<RwLock<Arc<RapidMap<String, Rule>>>>,
+    global: Weak<RwLock<Arc<RapidMap<String, RuleCore>>>>,
 }
 impl RegistrationRef {
-    fn get_local(&self) -> Arc<RwLock<RapidMap<String, Rule>>> {
-        self.local
+    fn get_local(&self) -> Arc<RapidMap<String, Rule>> {
+        let lock = self
+            .local
             .upgrade()
-            .expect("Rule Registration must be kept alive")
+            .expect("Rule Registration must be kept alive");
+        lock.read().expect("RwLock should not be poisoned").clone()
     }
-    fn get_global(&self) -> Arc<RwLock<RapidMap<String, RuleCore>>> {
-        self.global
+    fn get_global(&self) -> Arc<RapidMap<String, RuleCore>> {
+        let lock = self
+            .global
             .upgrade()
-            .expect("Rule Registration must be kept alive")
+            .expect("Rule Registration must be kept alive");
+        lock.read().expect("RwLock should not be poisoned").clone()
     }
 }
 
@@ -174,7 +186,6 @@ impl ReferentRule {
         F: FnOnce(&Rule) -> T,
     {
         let rules = self.reg_ref.get_local();
-        let rules = rules.read().expect("RwLock should not be poisoned");
         let rule = rules.get(&self.rule_id)?;
         Some(func(rule))
     }
@@ -184,19 +195,16 @@ impl ReferentRule {
         F: FnOnce(&RuleCore) -> T,
     {
         let rules = self.reg_ref.get_global();
-        let rules = rules.read().expect("RwLock should not be poisoned");
         let rule = rules.get(&self.rule_id)?;
         Some(func(rule))
     }
 
     pub(super) fn verify_util(&self) -> Result<(), ReferentRuleError> {
         let rules = self.reg_ref.get_local();
-        let rules = rules.read().expect("RwLock should not be poisoned");
         if rules.contains_key(&self.rule_id) {
             return Ok(());
         }
         let rules = self.reg_ref.get_global();
-        let rules = rules.read().expect("RwLock should not be poisoned");
         if rules.contains_key(&self.rule_id) {
             return Ok(());
         }
