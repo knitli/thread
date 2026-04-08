@@ -534,10 +534,14 @@ impl ContentExt for String {
         *self = String::from_utf8(bytes)
             .unwrap_or_else(|e| String::from_utf8_lossy(&e.into_bytes()).into_owned());
 
-        // We compute new_end_byte based on the newly formed string's length difference
-        // The inserted text length might be altered if utf8_lossy replaces invalid bytes.
-        let length_diff = self.len() as isize - original_len as isize;
-        let new_end_byte = (old_end_byte as isize + length_diff) as usize;
+        // Compute the new end from the edit start plus the actual inserted byte length
+        // in the final string. This avoids unchecked signed arithmetic and keeps the
+        // offset in bounds even if UTF-8 repair changes the inserted byte count.
+        let unchanged_len = original_len.saturating_sub(edit.deleted_length);
+        let actual_inserted_len = self.len().saturating_sub(unchanged_len);
+        let new_end_byte = start_byte
+            .saturating_add(actual_inserted_len)
+            .min(self.len());
 
         let new_end_position = position_for_offset(self.as_bytes(), new_end_byte);
         InputEdit {
