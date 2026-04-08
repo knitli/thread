@@ -13,7 +13,7 @@ use bit_set::BitSet;
 use thiserror::Error;
 
 use std::borrow::Cow;
-use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard, Weak};
+use std::sync::{Arc, RwLock, Weak};
 use thread_utilities::{RapidMap, RapidSet, set_with_capacity};
 
 #[derive(Debug)]
@@ -32,12 +32,11 @@ impl<R> Registration<R> {
     fn update<F, T>(&self, f: F) -> T
     where
         F: FnOnce(&mut RapidMap<String, R>) -> T,
+        R: Clone,
     {
         let mut lock = self.0.write().expect("RwLock should not be poisoned");
-        let mut new_map = (**lock).clone();
-        let ret = f(&mut new_map);
-        *lock = Arc::new(new_map);
-        ret
+        let map = Arc::make_mut(&mut lock);
+        f(map)
     }
 }
 pub type GlobalRules = Registration<RuleCore>;
@@ -123,7 +122,7 @@ impl RuleRegistration {
         let mut ret = set_with_capacity(size);
         for rule in utils.values() {
             for v in rule.defined_vars() {
-                ret.insert(v.to_string());
+                ret.insert(v);
             }
         }
         ret
