@@ -414,16 +414,15 @@ impl DependencyGraph {
         temp_mark: &mut RapidSet<PathBuf>,
         sorted: &mut Vec<PathBuf>,
     ) -> Result<(), GraphError> {
-        let file_buf = file.to_path_buf();
-
-        if temp_mark.contains(&file_buf) {
-            return Err(GraphError::CyclicDependency(file_buf));
+        if temp_mark.contains(file) {
+            return Err(GraphError::CyclicDependency(file.to_path_buf()));
         }
 
-        if visited.contains(&file_buf) {
+        if visited.contains(file) {
             return Ok(());
         }
 
+        let file_buf = file.to_path_buf();
         temp_mark.insert(file_buf.clone());
 
         // Visit dependencies (forward edges) that are in our subset
@@ -433,7 +432,7 @@ impl DependencyGraph {
             }
         }
 
-        temp_mark.remove(&file_buf);
+        temp_mark.remove(file);
         visited.insert(file_buf.clone());
         sorted.push(file_buf);
 
