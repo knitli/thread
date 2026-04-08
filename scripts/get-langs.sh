@@ -144,6 +144,7 @@ run_cmd() {
     local url="$2"
     local action="$3"
     local branch="$4"
+    local label="${5:-language}"
     local word
     if [[ "$action" == "pull" ]]; then
         word="updating"
@@ -152,10 +153,10 @@ run_cmd() {
     else
         error_exit "Invalid action: $action. Use 'pull' or 'add'."
     fi
-    echo "[$word] $lang from $url branch: $branch"
+    echo "[$word] $label: $lang from $url branch: $branch"
     echo "executing command: git subtree --squash $PREFIX/$lang $action $url $branch"
-    git subtree --squash "$PREFIX/$lang" "$action" "$url" "$branch" 2>/dev/null || {
-        error_exit "Failed to process language: $lang"
+    git subtree --squash "$PREFIX/$lang" "$action" "$url" "$branch" || {
+        error_exit "Failed to process $label: $lang"
     }
 }
 
@@ -190,7 +191,7 @@ main() {
             continue
         fi
         repo_url=$(get_repo "$lang")
-        branch=${BRANCH[$lang]:-main}
+        branch=${BRANCH[lang]:-main}
         run_cmd "$lang" "$repo_url" "$ARG" "$branch"
     done
     for grammar in "${GRAMMAR_REPOS[@]}"; do
@@ -200,7 +201,7 @@ main() {
             continue
         fi
         repo_url=$(get_grammar_repo "$lang")
-        run_cmd "$lang" "$repo_url" "$ARG" "$branch"
+        run_cmd "$lang" "$repo_url" "$ARG" "$branch" "grammar"
     done
 }
 
