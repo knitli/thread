@@ -298,4 +298,16 @@ mod test {
         assert!(rule.potential_kinds().is_some());
         Ok(())
     }
+
+    #[test]
+    fn test_has_global() -> Result {
+        let globals = GlobalRules::default();
+        let pattern = Rule::Pattern(Pattern::new("some", &TS::Tsx));
+        let rule_core = crate::RuleCore::new(pattern);
+        globals.insert("global_rule", rule_core)?;
+        let registration = RuleRegistration::from_globals(&globals);
+        assert!(registration.has_global("global_rule"));
+        assert!(!registration.has_global("not_present"));
+        Ok(())
+    }
 }
