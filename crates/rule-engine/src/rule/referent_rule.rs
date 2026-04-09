@@ -13,11 +13,11 @@ use bit_set::BitSet;
 use thiserror::Error;
 
 use std::borrow::Cow;
-use std::sync::{Arc, Weak};
+use std::sync::{Arc, RwLock, Weak};
 use thread_utilities::{RapidMap, RapidSet, set_with_capacity};
 
 #[derive(Debug)]
-pub struct Registration<R>(Arc<RapidMap<String, R>>);
+pub struct Registration<R>(Arc<RwLock<Arc<RapidMap<String, R>>>>);
 
 impl<R> Clone for Registration<R> {
     fn clone(&self) -> Self {
@@ -26,30 +26,50 @@ impl<R> Clone for Registration<R> {
 }
 
 impl<R> Registration<R> {
-    #[allow(clippy::mut_from_ref)]
-    fn write(&self) -> &mut RapidMap<String, R> {
-        // SAFETY: `write` will only be called during initialization and
-        // it only insert new item to the RapidMap. It is safe to cast the raw ptr.
-        unsafe { &mut *(Arc::as_ptr(&self.0) as *mut RapidMap<String, R>) }
+    fn read(&self) -> Arc<RapidMap<String, R>> {
+        self.0
+            .read()
+            .unwrap_or_else(|e| e.into_inner())
+            .clone()
+    }
+    pub(crate) fn contains_key(&self, key: &str) -> bool {
+        self.read().contains_key(key)
+    }
+    fn update<F, T>(&self, f: F) -> T
+    where
+        F: FnOnce(&mut RapidMap<String, R>) -> T,
+        R: Clone,
+    {
+        let mut lock = self.0.write().unwrap_or_else(|e| e.into_inner());
+        let mut new_map = (**lock).clone();
+        let ret = f(&mut new_map);
+        *lock = Arc::new(new_map);
+        ret
     }
 }
 pub type GlobalRules = Registration<RuleCore>;
 
 impl GlobalRules {
     pub fn insert(&self, id: &str, rule: RuleCore) -> Result<(), ReferentRuleError> {
-        let map = self.write();
-        if map.contains_key(id) {
-            return Err(ReferentRuleError::DuplicateRule(id.into()));
-        }
-        map.insert(id.to_string(), rule);
-        let _rule = map.get(id).unwrap();
-        Ok(())
+        self.update(|map| {
+            if map.contains_key(id) {
+                return Err(ReferentRuleError::DuplicateRule(id.into()));
+            }
+            map.insert(id.to_string(), rule);
+            Ok(())
+        })
     }
 }
 
 impl<R> Default for Registration<R> {
     fn default() -> Self {
-        Self(Default::default())
+        Self(Arc::new(RwLock::new(Arc::new(RapidMap::default()))))
+    }
+}
+
+impl<R> From<Arc<RwLock<Arc<RapidMap<String, R>>>>> for Registration<R> {
+    fn from(inner: Arc<RwLock<Arc<RapidMap<String, R>>>>) -> Self {
+        Self(inner)
     }
 }
 
@@ -65,8 +85,12 @@ pub struct RuleRegistration {
 
 // these are shit code
 impl RuleRegistration {
-    pub fn get_rewriters(&self) -> &RapidMap<String, RuleCore> {
-        &self.rewriters.0
+    pub fn get_rewriters(&self) -> Arc<RapidMap<String, RuleCore>> {
+        self.rewriters.read()
+    }
+
+    pub fn has_global(&self, id: &str) -> bool {
+        self.global.contains_key(id)
     }
 
     pub fn from_globals(global: &GlobalRules) -> Self {
@@ -87,21 +111,22 @@ impl RuleRegistration {
         if rule.check_cyclic(id) {
             return Err(ReferentRuleError::CyclicRule(id.into()));
         }
-        let map = self.local.write();
-        if map.contains_key(id) {
-            return Err(ReferentRuleError::DuplicateRule(id.into()));
-        }
-        map.insert(id.to_string(), rule);
-        Ok(())
+        self.local.update(|map| {
+            if map.contains_key(id) {
+                return Err(ReferentRuleError::DuplicateRule(id.into()));
+            }
+            map.insert(id.to_string(), rule);
+            Ok(())
+        })
     }
 
     pub(crate) fn insert_rewriter(&self, id: &str, rewriter: RuleCore) {
         self.rewriters.insert(id, rewriter).expect("should work");
     }
 
-    pub(crate) fn get_local_util_vars(&self) -> RapidSet<&str> {
-        let utils = &self.local.0;
-        let size = size_of_val(utils);
+    pub(crate) fn get_local_util_vars(&self) -> RapidSet<String> {
+        let utils = self.local.read();
+        let size = utils.len();
         if size == 0 {
             return RapidSet::default();
         }
@@ -120,19 +145,23 @@ impl RuleRegistration {
 /// cyclic reference in RuleRegistration
 #[derive(Clone, Debug)]
 struct RegistrationRef {
-    local: Weak<RapidMap<String, Rule>>,
-    global: Weak<RapidMap<String, RuleCore>>,
+    local: Weak<RwLock<Arc<RapidMap<String, Rule>>>>,
+    global: Weak<RwLock<Arc<RapidMap<String, RuleCore>>>>,
 }
 impl RegistrationRef {
     fn get_local(&self) -> Arc<RapidMap<String, Rule>> {
-        self.local
+        let lock = self
+            .local
             .upgrade()
-            .expect("Rule Registration must be kept alive")
+            .expect("Rule Registration must be kept alive");
+        lock.read().unwrap_or_else(|e| e.into_inner()).clone()
     }
     fn get_global(&self) -> Arc<RapidMap<String, RuleCore>> {
-        self.global
+        let lock = self
+            .global
             .upgrade()
-            .expect("Rule Registration must be kept alive")
+            .expect("Rule Registration must be kept alive");
+        lock.read().unwrap_or_else(|e| e.into_inner()).clone()
     }
 }
 
@@ -267,6 +296,18 @@ mod test {
         let ret = registration.insert_local("test", pattern);
         assert!(ret.is_ok());
         assert!(rule.potential_kinds().is_some());
+        Ok(())
+    }
+
+    #[test]
+    fn test_has_global() -> Result {
+        let globals = GlobalRules::default();
+        let pattern = Rule::Pattern(Pattern::new("some", &TS::Tsx));
+        let rule_core = crate::RuleCore::new(pattern);
+        globals.insert("global_rule", rule_core)?;
+        let registration = RuleRegistration::from_globals(&globals);
+        assert!(registration.has_global("global_rule"));
+        assert!(!registration.has_global("not_present"));
         Ok(())
     }
 }

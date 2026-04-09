@@ -203,7 +203,7 @@ impl RuleCore {
     }
     /// Get the meta variables that have real ast node matches
     /// that is, meta vars defined in the rules and constraints
-    pub(crate) fn defined_node_vars(&self) -> RapidSet<&str> {
+    pub(crate) fn defined_node_vars(&self) -> RapidSet<String> {
         let mut ret = self.rule.defined_vars();
         for v in self.registration.get_local_util_vars() {
             ret.insert(v);
@@ -216,11 +216,11 @@ impl RuleCore {
         ret
     }
 
-    pub fn defined_vars(&self) -> RapidSet<&str> {
+    pub fn defined_vars(&self) -> RapidSet<String> {
         let mut ret = self.defined_node_vars();
         if let Some(trans) = &self.transform {
             for key in trans.keys() {
-                ret.insert(key);
+                ret.insert(key.to_string());
             }
         }
         ret
@@ -245,10 +245,10 @@ impl RuleCore {
             let rewriters = self.registration.get_rewriters();
             let env = env.to_mut();
             if let Some(enclosing) = enclosing_env {
-                trans.apply_transform(env, rewriters, enclosing);
+                trans.apply_transform(env, &rewriters, enclosing);
             } else {
                 let enclosing = env.clone();
-                trans.apply_transform(env, rewriters, &enclosing);
+                trans.apply_transform(env, &rewriters, &enclosing);
             };
         }
         Some(ret)

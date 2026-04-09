@@ -244,9 +244,9 @@ impl Rule {
         }
     }
 
-    pub fn defined_vars(&self) -> RapidSet<&str> {
+    pub fn defined_vars(&self) -> RapidSet<String> {
         match self {
-            Rule::Pattern(p) => p.defined_vars(),
+            Rule::Pattern(p) => p.defined_vars().into_iter().map(|s| s.to_string()).collect(),
             Rule::Kind(_) => RapidSet::default(),
             Rule::Regex(_) => RapidSet::default(),
             Rule::NthChild(n) => n.defined_vars(),
@@ -627,7 +627,10 @@ inside:
         let rule: SerializableRule = from_str(src).expect("cannot parse rule");
         let env = DeserializeEnv::new(TypeScript::Tsx);
         let rule = deserialize_rule(rule, &env).expect("should deserialize");
-        assert_eq!(rule.defined_vars(), ["A", "B"].into_iter().collect());
+        assert_eq!(
+            rule.defined_vars(),
+            ["A", "B"].into_iter().map(String::from).collect()
+        );
     }
 
     #[test]

@@ -181,7 +181,7 @@ mod test {
         make_rewriter_reg(pairs, Default::default())
     }
 
-    fn make_rewriter_reg(pairs: &[(&str, &str)], vars: RapidSet<&str>) -> RuleRegistration {
+    fn make_rewriter_reg(pairs: &[(&str, &str)], vars: RapidSet<String>) -> RuleRegistration {
         let env = DeserializeEnv::new(TypeScript::Tsx);
         for (key, ser) in pairs {
             let serialized: SerializableRuleCore = from_str(ser).unwrap();
@@ -337,7 +337,7 @@ fix: $D
             join_by: None,
         };
         let mut vars = RapidSet::default();
-        vars.insert("C");
+        vars.insert("C".to_string());
         let reg = make_rewriter_reg(&[("re", "{rule: {pattern: $B}, fix: '$B == $C'}")], vars);
         let ret = apply_transformation(rewrite, "[1, 2]", "[$A, $C]", reg);
         assert_eq!(ret, "1 == 2");
@@ -359,7 +359,7 @@ fix: $D
         let rewriters = reg.get_rewriters();
         let mut ctx = Ctx {
             env,
-            rewriters,
+            rewriters: &rewriters,
             enclosing_env: &enclosing,
         };
         let after_vars: Vec<_> = ctx.env.get_matched_variables().collect();

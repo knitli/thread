@@ -110,7 +110,7 @@ impl StopBy {
         })
     }
 
-    pub fn defined_vars(&self) -> RapidSet<&str> {
+    pub fn defined_vars(&self) -> RapidSet<String> {
         match self {
             StopBy::Rule(rule) => rule.defined_vars(),
             StopBy::End => RapidSet::default(),
@@ -249,7 +249,10 @@ inside:
         let stop_by = parse_stop_by("kind: class");
         assert_eq!(stop_by.defined_vars(), RapidSet::default());
         let stop_by = parse_stop_by("pattern: $A");
-        assert_eq!(stop_by.defined_vars(), ["A"].into_iter().collect());
+        assert_eq!(
+            stop_by.defined_vars(),
+            ["A"].into_iter().map(String::from).collect()
+        );
     }
 
     #[test]
