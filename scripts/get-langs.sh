@@ -139,11 +139,12 @@ get_grammar_repo() {
     }
 }
 
-get_cmd() {
+run_cmd() {
     local lang="$1"
     local url="$2"
     local action="$3"
     local branch="$4"
+    local label="${5:-language}"
     local word
     if [[ "$action" == "pull" ]]; then
         word="updating"
@@ -152,9 +153,10 @@ get_cmd() {
     else
         error_exit "Invalid action: $action. Use 'pull' or 'add'."
     fi
-    echo "[$word] $lang from $url branch: $branch"
-    echo "git subtree --squash $PREFIX/$lang $action $url $branch" 2>/dev/null || {
-        error_exit "Failed to construct command for language: $lang"
+    echo "[$word] $label: $lang from $url branch: $branch"
+    echo "executing command: git subtree --squash $PREFIX/$lang $action $url $branch"
+    git subtree --squash "$PREFIX/$lang" "$action" "$url" "$branch" || {
+        error_exit "Failed to process $label: $lang"
     }
 }
 
@@ -174,31 +176,23 @@ main() {
     echo "Running command: $ARG"
 
     for lang in "${LANGS[@]}"; do
-        local repo_url cmd
+        local repo_url
         if ! is_match "$lang"; then
             echo "Skipping language: $lang"
             continue
         fi
         repo_url=$(get_main_repo "$lang")
-        cmd=$(get_cmd "$lang" "$repo_url" "$ARG" "master")
-        echo "executing command: $cmd"
-        eval "$cmd" || {
-            error_exit "Failed to process language: $lang"
-        }
+        run_cmd "$lang" "$repo_url" "$ARG" "master"
     done
     for lang in "${REPO_LANGS[@]}"; do
-        local repo_url branch cmd
+        local repo_url branch
         if ! is_match "$lang"; then
             echo "Skipping language: $lang"
             continue
         fi
         repo_url=$(get_repo "$lang")
         branch=${BRANCH[lang]:-main}
-        cmd=$(get_cmd "$lang" "$repo_url" "$ARG" "$branch")
-        echo "executing command: $cmd"
-        eval "$cmd" || {
-            error_exit "Failed to process language: $lang"
-        }
+        run_cmd "$lang" "$repo_url" "$ARG" "$branch"
     done
     for grammar in "${GRAMMAR_REPOS[@]}"; do
         IFS=',' read -r lang branch <<<"$grammar"
@@ -207,11 +201,7 @@ main() {
             continue
         fi
         repo_url=$(get_grammar_repo "$lang")
-        cmd="$(get_cmd "$lang" "$repo_url" "$ARG" "$branch")"
-        echo "executing command: $cmd"
-        eval "$cmd" || {
-            error_exit "Failed to process grammar: $grammar"
-        }
+        run_cmd "$lang" "$repo_url" "$ARG" "$branch" "grammar"
     done
 }
 
