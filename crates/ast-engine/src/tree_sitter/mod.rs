@@ -790,7 +790,8 @@ mod test {
         assert_eq!(edit.old_end_byte, 4);
 
         let tree2 = parse_lang(|p| p.parse(&src, Some(&tree)), &Tsx.get_ts_language())?;
-        assert!(tree2.root_node().has_error() || !tree2.root_node().has_error()); // just making sure it parses
+        let fresh_tree = parse(&src)?;
+        assert_eq!(tree2.root_node().to_sexp(), fresh_tree.root_node().to_sexp());
         Ok(())
     }
 }
