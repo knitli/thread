@@ -267,26 +267,28 @@ impl DependencyGraph {
     /// assert!(affected.contains(&PathBuf::from("C")));
     /// ```
     pub fn find_affected_files(&self, changed_files: &RapidSet<PathBuf>) -> RapidSet<PathBuf> {
-        let mut affected = thread_utilities::get_set();
-        let mut queue: VecDeque<&PathBuf> = changed_files.iter().collect();
+        // Optimization: Use `&Path` during graph traversal to avoid `PathBuf` cloning.
+        // Allocations (`to_path_buf()`) only occur at the end for the affected paths.
+        let mut affected_refs = thread_utilities::get_set();
+        let mut queue: VecDeque<&Path> = changed_files.iter().map(|p| p.as_path()).collect();
 
         while let Some(file) = queue.pop_front() {
-            if affected.contains(file) {
+            if affected_refs.contains(file) {
                 continue;
             }
-            affected.insert(file.clone());
+            affected_refs.insert(file);
 
             // Follow reverse edges (files that depend on this file)
             for edge in self.get_dependents(file) {
                 if edge.effective_strength() == DependencyStrength::Strong
-                    && !affected.contains(&edge.from)
+                    && !affected_refs.contains(edge.from.as_path())
                 {
                     queue.push_back(&edge.from);
                 }
             }
         }
 
-        affected
+        affected_refs.into_iter().map(|p| p.to_path_buf()).collect()
     }
 
     /// Performs topological sort on the given subset of files.
@@ -336,14 +338,16 @@ impl DependencyGraph {
     /// assert!(pos_c < pos_b);
     /// assert!(pos_b < pos_a);
     /// ```
-    pub fn topological_sort(&self, files: &RapidSet<PathBuf>) -> Result<Vec<PathBuf>, GraphError> {
-        let mut sorted = Vec::new();
-        let mut visited = thread_utilities::get_set();
-        let mut temp_mark = thread_utilities::get_set();
+    pub fn topological_sort<'a>(&'a self, files: &'a RapidSet<PathBuf>) -> Result<Vec<PathBuf>, GraphError> {
+        // Optimization: Pre-allocate `sorted` capacity and use `&Path` sets
+        // for `visited` and `temp_mark` to avoid intermediate `PathBuf` allocations.
+        let mut sorted = Vec::with_capacity(files.len());
+        let mut visited: RapidSet<&'a Path> = thread_utilities::get_set();
+        let mut temp_mark: RapidSet<&'a Path> = thread_utilities::get_set();
 
         for file in files {
-            if !visited.contains(file) {
-                self.visit_node(file, files, &mut visited, &mut temp_mark, &mut sorted)?;
+            if !visited.contains(file.as_path()) {
+                self.visit_node(file.as_path(), files, &mut visited, &mut temp_mark, &mut sorted)?;
             }
         }
 
@@ -406,12 +410,12 @@ impl DependencyGraph {
     }
 
     /// DFS visit for topological sort with cycle detection.
-    fn visit_node(
-        &self,
-        file: &Path,
-        subset: &RapidSet<PathBuf>,
-        visited: &mut RapidSet<PathBuf>,
-        temp_mark: &mut RapidSet<PathBuf>,
+    fn visit_node<'a>(
+        &'a self,
+        file: &'a Path,
+        subset: &'a RapidSet<PathBuf>,
+        visited: &mut RapidSet<&'a Path>,
+        temp_mark: &mut RapidSet<&'a Path>,
         sorted: &mut Vec<PathBuf>,
     ) -> Result<(), GraphError> {
         if temp_mark.contains(file) {
@@ -422,19 +426,18 @@ impl DependencyGraph {
             return Ok(());
         }
 
-        let file_buf = file.to_path_buf();
-        temp_mark.insert(file_buf.clone());
+        temp_mark.insert(file);
 
         // Visit dependencies (forward edges) that are in our subset
         for edge in self.get_dependencies(file) {
             if subset.contains(&edge.to) {
-                self.visit_node(&edge.to, subset, visited, temp_mark, sorted)?;
+                self.visit_node(edge.to.as_path(), subset, visited, temp_mark, sorted)?;
             }
         }
 
         temp_mark.remove(file);
-        visited.insert(file_buf.clone());
-        sorted.push(file_buf);
+        visited.insert(file);
+        sorted.push(file.to_path_buf());
 
         Ok(())
     }
