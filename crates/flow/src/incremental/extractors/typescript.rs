@@ -808,7 +808,18 @@ impl TypeScriptDependencyExtractor {
                 for component in resolved.components() {
                     match component {
                         std::path::Component::ParentDir => {
-                            components.pop();
+                            let is_empty = components.is_empty();
+                            let last_is_parent = matches!(components.last(), Some(std::path::Component::ParentDir));
+                            let last_is_root_or_prefix = matches!(
+                                components.last(),
+                                Some(std::path::Component::RootDir) | Some(std::path::Component::Prefix(_))
+                            );
+
+                            if is_empty || last_is_parent {
+                                components.push(component);
+                            } else if !last_is_root_or_prefix {
+                                components.pop();
+                            }
                         }
                         std::path::Component::CurDir => {}
                         _ => components.push(component),
