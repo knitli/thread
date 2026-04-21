@@ -29,7 +29,7 @@ pub fn check_rule_with_hint<'r>(
     utils: &'r RuleRegistration,
     constraints: &RapidMap<thread_ast_engine::meta_var::MetaVariableID, Rule>,
     transform: &Option<Transform>,
-    fixer: &Vec<Fixer>,
+    fixer: &[Fixer],
     hint: CheckHint<'r>,
 ) -> RResult<()> {
     match hint {
@@ -58,7 +58,7 @@ fn check_vars_in_rewriter<'r>(
     utils: &'r RuleRegistration,
     constraints: &RapidMap<thread_ast_engine::meta_var::MetaVariableID, Rule>,
     transform: &Option<Transform>,
-    fixer: &Vec<Fixer>,
+    fixer: &[Fixer],
     upper_var: &RapidSet<String>,
 ) -> RResult<()> {
     let vars = get_vars_from_rules(rule, utils);
@@ -87,7 +87,7 @@ fn check_vars<'r>(
     utils: &'r RuleRegistration,
     constraints: &RapidMap<thread_ast_engine::meta_var::MetaVariableID, Rule>,
     transform: &Option<Transform>,
-    fixer: &Vec<Fixer>,
+    fixer: &[Fixer],
 ) -> RResult<()> {
     let vars = get_vars_from_rules(rule, utils);
     let vars = check_var_in_constraints(vars, constraints)?;
@@ -152,7 +152,7 @@ fn check_var_in_transform(
     Ok(vars)
 }
 
-fn check_var_in_fix(vars: RapidSet<String>, fixers: &Vec<Fixer>) -> RResult<()> {
+fn check_var_in_fix(vars: RapidSet<String>, fixers: &[Fixer]) -> RResult<()> {
     for fixer in fixers {
         for var in fixer.used_vars() {
             if !vars.contains(var) {

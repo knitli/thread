@@ -804,27 +804,7 @@ impl TypeScriptDependencyExtractor {
                 resolved = canonical;
             } else {
                 // If canonicalize fails (file doesn't exist), manually resolve
-                let mut components = Vec::new();
-                for component in resolved.components() {
-                    match component {
-                        std::path::Component::ParentDir => {
-                            match components.last() {
-                                Some(std::path::Component::RootDir) | Some(std::path::Component::Prefix(_)) => {
-                                    // Do not pop RootDir or Prefix to prevent path traversal outside root
-                                }
-                                Some(std::path::Component::ParentDir) | None => {
-                                    components.push(component);
-                                }
-                                _ => {
-                                    components.pop();
-                                }
-                            }
-                        }
-                        std::path::Component::CurDir => {}
-                        _ => components.push(component),
-                    }
-                }
-                resolved = components.iter().collect();
+                resolved = normalize_components(&resolved);
             }
 
             // Try adding extensions if no extension present
@@ -890,4 +870,29 @@ impl Default for TypeScriptDependencyExtractor {
     fn default() -> Self {
         Self::new()
     }
+}
+
+/// Helper function to safely normalize path components and prevent path traversal
+fn normalize_components(path: &Path) -> PathBuf {
+    let mut components = Vec::new();
+    for component in path.components() {
+        match component {
+            std::path::Component::ParentDir => {
+                match components.last() {
+                    Some(std::path::Component::RootDir) | Some(std::path::Component::Prefix(_)) => {
+                        // Do not pop RootDir or Prefix to prevent path traversal outside root
+                    }
+                    Some(std::path::Component::ParentDir) | None => {
+                        components.push(component);
+                    }
+                    _ => {
+                        components.pop();
+                    }
+                }
+            }
+            std::path::Component::CurDir => {}
+            _ => components.push(component),
+        }
+    }
+    components.into_iter().collect()
 }
