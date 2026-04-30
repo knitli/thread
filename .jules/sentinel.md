@@ -1,0 +1,4 @@
+## 2024-04-30 - Fix Path Traversal in TS Extractor Manual Path Resolution
+**Vulnerability:** Path traversal possible via `../` sequences during manual resolution of TypeScript import specifiers in `crates/flow/src/incremental/extractors/typescript.rs` due to blindly popping the component stack.
+**Learning:** `std::path::Component::ParentDir` must be handled explicitly depending on the state of the stack. Blindly calling `.pop()` on the component vector allows maliciously crafted import paths like `../../../../sensitive_file` to escape the source tree or prefix directories if `canonicalize` falls back to manual parsing.
+**Prevention:** Always use safe path normalization. When manually popping components on `ParentDir`, check `components.last()`. Ignore if `RootDir` or `Prefix`. If `None` or already a `ParentDir`, push it. Only pop if it's a `Normal` component.
