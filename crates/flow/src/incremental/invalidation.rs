@@ -342,11 +342,15 @@ impl InvalidationDetector {
     fn tarjan_dfs(&self, v: &Path, state: &mut TarjanState, sccs: &mut Vec<Vec<PathBuf>>) {
         // Initialize node
         let index = state.index_counter;
-        state.indices.insert(v.to_path_buf(), index);
-        state.lowlinks.insert(v.to_path_buf(), index);
+
+        // OPTIMIZATION: Defer to_path_buf allocation to avoid unnecessary memory churn in hot loops.
+        // Also reuse allocated paths via clone rather than multiple `to_path_buf()` calls.
+        let v_buf = v.to_path_buf();
+        state.indices.insert(v_buf.clone(), index);
+        state.lowlinks.insert(v_buf.clone(), index);
         state.index_counter += 1;
-        state.stack.push(v.to_path_buf());
-        state.on_stack.insert(v.to_path_buf());
+        state.stack.push(v_buf.clone());
+        state.on_stack.insert(v_buf);
 
         // Visit all successors (dependencies)
         let dependencies = self.graph.get_dependencies(v);
@@ -357,20 +361,21 @@ impl InvalidationDetector {
                 self.tarjan_dfs(dep, state, sccs);
 
                 // Update lowlink
+                // Use borrowed references for get/get_mut checks instead of to_path_buf
                 let w_lowlink = *state.lowlinks.get(dep).unwrap();
-                let v_lowlink = state.lowlinks.get_mut(&v.to_path_buf()).unwrap();
+                let v_lowlink = state.lowlinks.get_mut(v).unwrap();
                 *v_lowlink = (*v_lowlink).min(w_lowlink);
             } else if state.on_stack.contains(dep) {
                 // Successor is on stack (part of current SCC)
                 let w_index = *state.indices.get(dep).unwrap();
-                let v_lowlink = state.lowlinks.get_mut(&v.to_path_buf()).unwrap();
+                let v_lowlink = state.lowlinks.get_mut(v).unwrap();
                 *v_lowlink = (*v_lowlink).min(w_index);
             }
         }
 
         // If v is a root node, pop the stack to create an SCC
-        let v_index = *state.indices.get(&v.to_path_buf()).unwrap();
-        let v_lowlink = *state.lowlinks.get(&v.to_path_buf()).unwrap();
+        let v_index = *state.indices.get(v).unwrap();
+        let v_lowlink = *state.lowlinks.get(v).unwrap();
 
         if v_lowlink == v_index {
             let mut scc = Vec::new();

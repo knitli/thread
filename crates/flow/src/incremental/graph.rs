@@ -418,6 +418,7 @@ impl DependencyGraph {
             return Err(GraphError::CyclicDependency(file.to_path_buf()));
         }
 
+        // OPTIMIZATION: Check with a borrowed reference before creating `file_buf`
         if visited.contains(file) {
             return Ok(());
         }
