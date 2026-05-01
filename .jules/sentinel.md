@@ -1,0 +1,4 @@
+## 2025-02-18 - Prevent Path Traversal by blocking parent popping of prefix/root in path component manipulation
+**Vulnerability:** In `crates/flow/src/incremental/extractors/typescript.rs` and potentially elsewhere, path normalization popped standard components blindly when encountering `Component::ParentDir`. This could allow relative paths to evaluate to dangerous arbitrary paths.
+**Learning:** Path normalization routines built on top of `std::path::Component` iterations must verify the previous component before popping it for a parent directory escape. `Component::ParentDir` should push to the component stack if the stack is empty, only has another `ParentDir`, or if the last element is `Prefix` or `RootDir` it should be ignored.
+**Prevention:** In loops managing components, match on `components.last()` during a `ParentDir` to ensure we do not `pop` root directories or prefixes.
