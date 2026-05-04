@@ -300,40 +300,64 @@ impl D1ExportContext {
         key: &KeyValue,
         values: &FieldValues,
     ) -> Result<(String, Vec<serde_json::Value>), RecocoError> {
-        let mut columns = vec![];
-        let mut placeholders = vec![];
-        let mut params = vec![];
-        let mut update_clauses = vec![];
+        // Optimize SQL generation by minimizing string allocations and avoiding intermediate vecs.
+        use std::fmt::Write;
+
+        let total_fields = self.key_fields_schema.len() + self.value_fields_schema.len();
+        let mut params = Vec::with_capacity(total_fields);
+        // Estimate 25 bytes per field for formatting: "col_name = excluded.col_name, "
+        let mut sql = String::with_capacity(128 + total_fields * 25);
+
+        write!(sql, "INSERT INTO {} (", self.table_name).unwrap();
+
+        let mut first = true;
 
         // Extract key parts - KeyValue is a wrapper around Box<[KeyPart]>
-        for (idx, _key_field) in self.key_fields_schema.iter().enumerate() {
+        for (idx, key_field) in self.key_fields_schema.iter().enumerate() {
             if let Some(key_part) = key.0.get(idx) {
-                columns.push(self.key_fields_schema[idx].name.clone());
-                placeholders.push("?".to_string());
+                if !first {
+                    sql.push_str(", ");
+                }
+                sql.push_str(&key_field.name);
                 params.push(key_part_to_json(key_part)?);
+                first = false;
             }
         }
 
         // Add value fields
         for (idx, value) in values.fields.iter().enumerate() {
             if let Some(value_field) = self.value_fields_schema.get(idx) {
-                columns.push(value_field.name.clone());
-                placeholders.push("?".to_string());
+                if !first {
+                    sql.push_str(", ");
+                }
+                sql.push_str(&value_field.name);
                 params.push(value_to_json(value)?);
-                update_clauses.push(format!(
-                    "{} = excluded.{}",
-                    value_field.name, value_field.name
-                ));
+                first = false;
             }
         }
 
-        let sql = format!(
-            "INSERT INTO {} ({}) VALUES ({}) ON CONFLICT DO UPDATE SET {}",
-            self.table_name,
-            columns.join(", "),
-            placeholders.join(", "),
-            update_clauses.join(", ")
-        );
+        sql.push_str(") VALUES (");
+
+        for i in 0..params.len() {
+            if i > 0 {
+                sql.push_str(", ?");
+            } else {
+                sql.push('?');
+            }
+        }
+
+        sql.push_str(") ON CONFLICT DO UPDATE SET ");
+
+        let mut first_update = true;
+        for (idx, _value) in values.fields.iter().enumerate() {
+            if let Some(value_field) = self.value_fields_schema.get(idx) {
+                if !first_update {
+                    sql.push_str(", ");
+                }
+                write!(sql, "{} = excluded.{}", value_field.name, value_field.name).unwrap();
+                first_update = false;
+            }
+        }
 
         Ok((sql, params))
     }
@@ -342,21 +366,27 @@ impl D1ExportContext {
         &self,
         key: &KeyValue,
     ) -> Result<(String, Vec<serde_json::Value>), RecocoError> {
-        let mut where_clauses = vec![];
-        let mut params = vec![];
+        // Optimize SQL generation by minimizing string allocations and avoiding intermediate vecs.
+        use std::fmt::Write;
+
+        let mut params = Vec::with_capacity(self.key_fields_schema.len());
+        // Estimate 20 bytes per condition formatting: "col_name = ? AND "
+        let mut sql = String::with_capacity(64 + self.key_fields_schema.len() * 20);
+
+        write!(sql, "DELETE FROM {} WHERE ", self.table_name).unwrap();
+
+        let mut first = true;
 
         for (idx, _key_field) in self.key_fields_schema.iter().enumerate() {
             if let Some(key_part) = key.0.get(idx) {
-                where_clauses.push(format!("{} = ?", self.key_fields_schema[idx].name));
+                if !first {
+                    sql.push_str(" AND ");
+                }
+                write!(sql, "{} = ?", self.key_fields_schema[idx].name).unwrap();
                 params.push(key_part_to_json(key_part)?);
+                first = false;
             }
         }
-
-        let sql = format!(
-            "DELETE FROM {} WHERE {}",
-            self.table_name,
-            where_clauses.join(" AND ")
-        );
 
         Ok((sql, params))
     }
@@ -536,47 +566,77 @@ impl D1SetupState {
     }
 
     pub fn create_table_sql(&self) -> String {
-        let mut columns = vec![];
+        use std::fmt::Write;
+
+        let mut sql =
+            String::with_capacity(128 + (self.key_columns.len() + self.value_columns.len()) * 32);
+
+        write!(
+            sql,
+            "CREATE TABLE IF NOT EXISTS {} (",
+            self.table_id.table_name
+        )
+        .unwrap();
+
+        let mut first = true;
 
         for col in self.key_columns.iter().chain(self.value_columns.iter()) {
-            let mut col_def = format!("{} {}", col.name, col.sql_type);
-            if !col.nullable {
-                col_def.push_str(" NOT NULL");
+            if !first {
+                sql.push_str(", ");
             }
-            columns.push(col_def);
+            write!(sql, "{} {}", col.name, col.sql_type).unwrap();
+            if !col.nullable {
+                sql.push_str(" NOT NULL");
+            }
+            first = false;
         }
 
         if !self.key_columns.is_empty() {
-            let pk_cols: Vec<_> = self.key_columns.iter().map(|c| &c.name).collect();
-            columns.push(format!(
-                "PRIMARY KEY ({})",
-                pk_cols
-                    .iter()
-                    .map(|s| s.as_str())
-                    .collect::<Vec<_>>()
-                    .join(", ")
-            ));
+            if !first {
+                sql.push_str(", ");
+            }
+            sql.push_str("PRIMARY KEY (");
+
+            let mut first_pk = true;
+            for col in self.key_columns.iter() {
+                if !first_pk {
+                    sql.push_str(", ");
+                }
+                sql.push_str(&col.name);
+                first_pk = false;
+            }
+            sql.push(')');
         }
 
-        format!(
-            "CREATE TABLE IF NOT EXISTS {} ({})",
-            self.table_id.table_name,
-            columns.join(", ")
-        )
+        sql.push(')');
+        sql
     }
 
     pub fn create_indexes_sql(&self) -> Vec<String> {
         self.indexes
             .iter()
             .map(|idx| {
+                use std::fmt::Write;
+                let mut sql = String::with_capacity(128 + idx.columns.len() * 16);
                 let unique = if idx.unique { "UNIQUE " } else { "" };
-                format!(
-                    "CREATE {}INDEX IF NOT EXISTS {} ON {} ({})",
-                    unique,
-                    idx.name,
-                    self.table_id.table_name,
-                    idx.columns.join(", ")
+
+                write!(
+                    sql,
+                    "CREATE {}INDEX IF NOT EXISTS {} ON {} (",
+                    unique, idx.name, self.table_id.table_name
                 )
+                .unwrap();
+
+                let mut first = true;
+                for col in &idx.columns {
+                    if !first {
+                        sql.push_str(", ");
+                    }
+                    sql.push_str(col);
+                    first = false;
+                }
+                sql.push(')');
+                sql
             })
             .collect()
     }
