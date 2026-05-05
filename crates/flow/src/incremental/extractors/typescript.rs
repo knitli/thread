@@ -807,9 +807,16 @@ impl TypeScriptDependencyExtractor {
                 let mut components = Vec::new();
                 for component in resolved.components() {
                     match component {
-                        std::path::Component::ParentDir => {
-                            components.pop();
-                        }
+                        std::path::Component::ParentDir => match components.last() {
+                            Some(std::path::Component::ParentDir) | None => {
+                                components.push(component)
+                            }
+                            Some(std::path::Component::RootDir)
+                            | Some(std::path::Component::Prefix(_)) => {}
+                            _ => {
+                                components.pop();
+                            }
+                        },
                         std::path::Component::CurDir => {}
                         _ => components.push(component),
                     }
