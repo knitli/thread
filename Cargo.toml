@@ -76,7 +76,7 @@ async-trait = { version = "0.1.89" }
 futures = { version = "0.3.31" }
 pin-project = { version = "1.1.10" }
 mimalloc = { version = "0.1.48", features = ["v3"] }
-tokio = { version = "1.49", features = ["full"] }
+tokio = { version = "1.50", features = ["full"] }
 # zero-cost macros
 cfg-if = { version = "1.0.4" }
 macro_rules_attribute = { version = "0.2.2" }
