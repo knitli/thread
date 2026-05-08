@@ -2707,7 +2707,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "27c6023962132f4b30eb4c172c91ce92d933da334c59c23cddee82358ddafb0b"
 dependencies = [
  "anyhow",
- "itertools 0.13.0",
+ "itertools 0.14.0",
  "proc-macro2",
  "quote",
  "syn",
@@ -2983,9 +2983,9 @@ dependencies = [
 
 [[package]]
 name = "recoco-utils"
-version = "0.2.1"
+version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "93e984a6f6cbb023a586bb6d8b3f63445a7de287d391c198cd311f810a61afa0"
+checksum = "a884a2606d9dc59c9ca428dbb5f1b73b5c021b91d1d485148d6ed35174de37cf"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -5232,7 +5232,7 @@ version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c2a7b1c03c876122aa43f3020e6c3c3ee5c05081c9a00739faf7503aeba10d22"
 dependencies = [
- "windows-sys 0.48.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
