@@ -64,7 +64,7 @@ moka = { version = "0.12", features = ["future"], optional = true }
 rayon = { workspace = true, optional = true }
 # ReCoco dataflow engine - using minimal features for reduced dependencies
 # See RECOCO_INTEGRATION.md for feature flag strategy
-recoco = { version = "0.2.1", default-features = false, features = [
+recoco = { version = "0.2.3", default-features = false, features = [
   "source-local-file",
 ] }
 reqwest = { version = "0.12", features = ["json"] }
