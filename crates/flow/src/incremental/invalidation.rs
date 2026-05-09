@@ -358,19 +358,22 @@ impl InvalidationDetector {
 
                 // Update lowlink
                 let w_lowlink = *state.lowlinks.get(dep).unwrap();
-                let v_lowlink = state.lowlinks.get_mut(&v.to_path_buf()).unwrap();
+                // Bolt: Use borrowed `&Path` instead of `&v.to_path_buf()` to avoid O(E) heap allocations during traversal
+                let v_lowlink = state.lowlinks.get_mut(v).unwrap();
                 *v_lowlink = (*v_lowlink).min(w_lowlink);
             } else if state.on_stack.contains(dep) {
                 // Successor is on stack (part of current SCC)
                 let w_index = *state.indices.get(dep).unwrap();
-                let v_lowlink = state.lowlinks.get_mut(&v.to_path_buf()).unwrap();
+                // Bolt: Use borrowed `&Path` instead of `&v.to_path_buf()` to avoid O(E) heap allocations during traversal
+                let v_lowlink = state.lowlinks.get_mut(v).unwrap();
                 *v_lowlink = (*v_lowlink).min(w_index);
             }
         }
 
         // If v is a root node, pop the stack to create an SCC
-        let v_index = *state.indices.get(&v.to_path_buf()).unwrap();
-        let v_lowlink = *state.lowlinks.get(&v.to_path_buf()).unwrap();
+        // Bolt: Use borrowed `&Path` instead of `&v.to_path_buf()` to avoid heap allocations
+        let v_index = *state.indices.get(v).unwrap();
+        let v_lowlink = *state.lowlinks.get(v).unwrap();
 
         if v_lowlink == v_index {
             let mut scc = Vec::new();
