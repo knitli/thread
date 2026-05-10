@@ -342,21 +342,27 @@ impl D1ExportContext {
         &self,
         key: &KeyValue,
     ) -> Result<(String, Vec<serde_json::Value>), RecocoError> {
-        let mut where_clauses = vec![];
-        let mut params = vec![];
+        use std::fmt::Write;
 
+        let mut params = Vec::with_capacity(self.key_fields_schema.len());
+
+        // ⚡ Bolt: Optimize SQL generation by avoiding intermediate Vec allocations
+        // and format! macros, writing directly to a pre-allocated string instead.
+        let mut sql =
+            String::with_capacity(32 + self.table_name.len() + self.key_fields_schema.len() * 20);
+        let _ = write!(sql, "DELETE FROM {} WHERE ", self.table_name);
+
+        let mut first = true;
         for (idx, _key_field) in self.key_fields_schema.iter().enumerate() {
             if let Some(key_part) = key.0.get(idx) {
-                where_clauses.push(format!("{} = ?", self.key_fields_schema[idx].name));
+                if !first {
+                    sql.push_str(" AND ");
+                }
+                let _ = write!(sql, "{} = ?", self.key_fields_schema[idx].name);
                 params.push(key_part_to_json(key_part)?);
+                first = false;
             }
         }
-
-        let sql = format!(
-            "DELETE FROM {} WHERE {}",
-            self.table_name,
-            where_clauses.join(" AND ")
-        );
 
         Ok((sql, params))
     }
