@@ -11,7 +11,7 @@ SPDX-License-Identifier: MIT OR Apache-2.0
 
 > A safe, fast, flexible code analysis and parsing engine built in Rust. Production-ready service-library dual architecture with content-addressed caching and incremental intelligence.
 
-**Thread** is a high-performance code analysis platform that operates as both a reusable library ecosystem and a persistent service. Built on tree-sitter parsers and enhanced with the ReCoco dataflow framework, Thread delivers 50x+ performance gains through content-addressed caching while supporting dual deployment: CLI with Rayon parallelism and Edge on Cloudflare Workers.
+**Thread** is a high-performance code analysis platform that operates as both a reusable library ecosystem and a persistent service. Built on tree-sitter parsers and enhanced with the Recoco dataflow framework, Thread delivers 50x+ performance gains through content-addressed caching while supporting dual deployment: CLI with Rayon parallelism and Edge on Cloudflare Workers.
 
 ## Key Features
 
@@ -109,7 +109,7 @@ Thread follows a **service-library dual architecture** with six main crates plus
 ### Service Layer (Orchestration & Persistence)
 
 - **`thread-flow`** - High-level dataflow pipelines with ThreadFlowBuilder API
-- **`thread-services`** - Service interfaces, API abstractions, and ReCoco integration
+- **`thread-services`** - Service interfaces, API abstractions, and Recoco integration
 - **Storage Backends**:
   - **Postgres** (CLI deployment) - Persistent caching with <10ms p95 latency
   - **D1** (Cloudflare Edge) - Distributed caching across CDN nodes with <50ms p95 latency
@@ -320,10 +320,9 @@ cargo bench -p thread-flow
 
 ### Technical Documentation
 
-- [Integration Tests](claudedocs/INTEGRATION_TESTS.md) - E2E test design and coverage
-- [Error Recovery](claudedocs/ERROR_RECOVERY.md) - Error handling strategies
-- [Observability](claudedocs/OBSERVABILITY.md) - Metrics and monitoring
-- [Performance Benchmarks](claudedocs/PERFORMANCE_BENCHMARKS.md) - Benchmark suite design
+- [Phase 5 Completion Summary](claudedocs/PHASE5_COMPLETE.md) - Production validation results and benchmarks
+- [Recoco Integration](claudedocs/RECOCO_INTEGRATION.md) - Dataflow integration design and patterns
+- [Incremental Update System](claudedocs/INCREMENTAL_UPDATE_SYSTEM_DESIGN.md) - Change detection and invalidation design
 
 ## Constitutional Compliance
 
@@ -419,7 +418,7 @@ Thread is built on the shoulders of giants:
 
 - **[ast-grep](https://github.com/ast-grep/ast-grep)**: Core pattern matching engine (MIT license)
 - **[tree-sitter](https://tree-sitter.github.io/)**: Universal parsing framework
-- **[ReCoco](https://github.com/recoco-framework/recoco)**: Dataflow orchestration framework
+- **[Recoco](https://github.com/recoco-framework/recoco)**: Dataflow orchestration framework
 - **[BLAKE3](https://github.com/BLAKE3-team/BLAKE3)**: Fast cryptographic hashing
 
 Special thanks to all contributors and the open source community.

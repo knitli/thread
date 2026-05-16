@@ -234,10 +234,10 @@ pub fn create_symbol_info(name: String, kind: SymbolKind, position: Position) ->
 
 /// Compute content fingerprint for deduplication using blake3
 ///
-/// This uses ReCoco's Fingerprinter which provides:
+/// This uses Recoco's Fingerprinter which provides:
 /// - 10-100x faster hashing than SHA256 via blake3
 /// - 16-byte compact fingerprint (vs 32-byte SHA256)
-/// - Automatic integration with ReCoco's memoization system
+/// - Automatic integration with Recoco's memoization system
 /// - Type-safe content-addressed caching
 pub fn compute_content_fingerprint(content: &str) -> recoco_utils::fingerprint::Fingerprint {
     let mut fp = recoco_utils::fingerprint::Fingerprinter::default();

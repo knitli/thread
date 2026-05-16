@@ -30,7 +30,7 @@ Implemented complete `TargetFactoryBase` for D1 with all 7 required methods:
 - Content-addressed deduplication via primary key
 - SQLite UPSERT pattern (`INSERT ... ON CONFLICT DO UPDATE SET`)
 - Batch operations for efficiency (100-500 statements per batch)
-- Comprehensive type conversions (ReCoco Value → JSON)
+- Comprehensive type conversions (Recoco Value → JSON)
 - Base64 encoding for binary data
 - Exhaustive KeyPart variant handling
 
@@ -60,13 +60,13 @@ ThreadFlowBuilder::new("code_analysis")
 - Added `D1` variant to `Target` enum
 - Implemented `target_d1()` method with all required parameters
 - Added D1 export logic to all collector steps (symbols, imports, calls)
-- Proper JSON spec construction for ReCoco integration
+- Proper JSON spec construction for Recoco integration
 
 ### 3. Operator Registry Updates
 
 **File**: `crates/flow/src/registry.rs`
 
-Registered D1 target with ReCoco's ExecutorFactoryRegistry:
+Registered D1 target with Recoco's ExecutorFactoryRegistry:
 
 - Added `D1TargetFactory.register(registry)?`
 - Added `TARGETS` constant array for target tracking
@@ -110,7 +110,7 @@ examples/d1_integration_test/
 ### 5. Documentation
 
 **Pattern Documentation** (`crates/flow/docs/RECOCO_TARGET_PATTERN.md`)
-- Complete ReCoco TargetFactoryBase pattern guide
+- Complete Recoco TargetFactoryBase pattern guide
 - D1-specific implementation checklist
 - Comparison with SimpleFunctionFactory
 - Production deployment considerations
@@ -127,7 +127,7 @@ examples/d1_integration_test/
 
 ### Type System Integration ✅
 
-Properly integrated ReCoco's type system:
+Properly integrated Recoco's type system:
 
 ```rust
 // FieldSchema with EnrichedValueType
@@ -202,12 +202,12 @@ for mutation in &db_mutations {
 ### Testing ✅
 - [x] D1 local test runs and shows expected output
 - [x] D1 integration test demonstrates API correctly
-- [x] Type conversions validated (ReCoco Value → JSON)
+- [x] Type conversions validated (Recoco Value → JSON)
 - [x] SQL generation patterns confirmed
 - [x] Schema definition complete with indexes
 
 ### Documentation ✅
-- [x] ReCoco target pattern documented
+- [x] Recoco target pattern documented
 - [x] D1 target factory implementation complete
 - [x] ThreadFlowBuilder API documented
 - [x] Test examples with comprehensive READMEs
@@ -254,9 +254,9 @@ wrangler dev --local
 cargo run --example d1_local_test
 ```
 
-### 3. ReCoco Runtime
+### 3. Recoco Runtime
 
-Full flow execution requires ReCoco runtime initialization. ThreadFlowBuilder validates API correctness but full execution needs:
+Full flow execution requires Recoco runtime initialization. ThreadFlowBuilder validates API correctness but full execution needs:
 
 - ExecutorFactoryRegistry setup
 - FlowInstanceContext creation
@@ -371,7 +371,7 @@ Full flow execution requires ReCoco runtime initialization. ThreadFlowBuilder va
 - AST-based semantic analysis
 - Language-agnostic patterns
 
-### 2. ReCoco Dataflow
+### 2. Recoco Dataflow
 - Incremental ETL pipelines
 - Content-addressed caching
 - Dependency tracking
@@ -404,7 +404,7 @@ Full flow execution requires ReCoco runtime initialization. ThreadFlowBuilder va
 
 ### Functionality Metrics ✅
 - 7/7 TargetFactoryBase methods implemented
-- All ReCoco type conversions working
+- All Recoco type conversions working
 - SQL generation validated
 - ThreadFlowBuilder integration complete
 
@@ -426,7 +426,7 @@ Full flow execution requires ReCoco runtime initialization. ThreadFlowBuilder va
 
 ### Short Term (Weeks 5-6)
 
-3. **ReCoco Runtime Integration**
+3. **Recoco Runtime Integration**
    - Initialize ExecutorFactoryRegistry properly
    - Create FlowInstanceContext
    - Execute full pipeline
@@ -455,7 +455,7 @@ Full flow execution requires ReCoco runtime initialization. ThreadFlowBuilder va
 D1 integration is **production-ready** for data operations (UPSERT/DELETE). The implementation is:
 
 - ✅ **Complete**: All required methods implemented
-- ✅ **Correct**: Type-safe, following ReCoco patterns
+- ✅ **Correct**: Type-safe, following Recoco patterns
 - ✅ **Tested**: Multiple test examples validate functionality
 - ✅ **Documented**: Comprehensive guides and API docs
 - ✅ **Integrated**: Seamlessly works with ThreadFlowBuilder

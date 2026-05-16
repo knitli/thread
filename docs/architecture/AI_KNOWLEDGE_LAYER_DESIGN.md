@@ -140,7 +140,7 @@ Thread already has foundational pieces for a knowledge layer:
 | Dual deployment | Production | CLI (Rayon) + Edge (tokio/WASM) |
 | Pattern matching | Production | `thread-ast-engine` meta-variables ($VAR, $$$ITEMS) |
 | Storage backends | Production | D1 (edge), Postgres (planned), Qdrant (planned) |
-| Dataflow orchestration | Production | ReCoco integration via `thread-flow` |
+| Dataflow orchestration | Production | Recoco integration via `thread-flow` |
 | Incremental updates | Designed | 001 spec (Blake3 fingerprint → cache lookup → selective reparse) |
 
 ### 001-Realtime-Code-Graph Foundation
@@ -321,7 +321,7 @@ The existing 001 spec provides a direct foundation:
 │                    INGESTION PIPELINE                         │
 │  File watcher → Blake3 diff → tree-sitter parse →           │
 │  definition extraction (tags.scm) → graph construction       │
-│  (ReCoco dataflow, incremental)                              │
+│  (Recoco dataflow, incremental)                              │
 └──────────────────────────────▲───────────────────────────────┘
                                │ watch
 ┌──────────────────────────────────────────────────────────────┐
@@ -597,8 +597,8 @@ crates/
 ├── thread-ast-engine/     # EXISTING: AST parsing (tree-sitter)
 ├── thread-language/       # EXISTING: Language definitions
 ├── thread-rule-engine/    # EXISTING: Rule-based scanning
-├── thread-flow/           # EXISTING: Dataflow orchestration (ReCoco)
-├── thread-utils/          # EXISTING: Shared utilities
+├── thread-flow/           # EXISTING: Dataflow orchestration (Recoco)
+├── thread-utilities/          # EXISTING: Shared utilities
 ├── thread-wasm/           # EXISTING: WASM bindings
 │
 ├── thread-graph/          # FROM 001: Core graph structures + algorithms

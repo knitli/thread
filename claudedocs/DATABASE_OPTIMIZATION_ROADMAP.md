@@ -278,12 +278,12 @@ let http_client = reqwest::Client::builder()
 
 **Questions**:
 1. How are file changes detected and fingerprinted?
-2. How does ReCoco determine which components to re-analyze?
+2. How does Recoco determine which components to re-analyze?
 3. Is there a dependency graph tracking component relationships?
 4. What happens when a shared module is updated?
 
 **Files to Review**:
-- ReCoco dataflow framework integration
+- Recoco dataflow framework integration
 - Fingerprint cache implementation
 - Change detection logic
 
@@ -293,7 +293,7 @@ let http_client = reqwest::Client::builder()
 - [ ] No change → Zero re-analysis (100% cache hit)
 - [ ] Performance: <1% of full analysis time for typical updates
 
-**Estimated Time**: 16-20 hours (requires deep ReCoco understanding)
+**Estimated Time**: 16-20 hours (requires deep Recoco understanding)
 
 ---
 
@@ -390,7 +390,7 @@ let http_client = reqwest::Client::builder()
 **Likelihood**: LOW-MEDIUM
 
 **Mitigation**:
-- Deep dive into ReCoco dataflow framework
+- Deep dive into Recoco dataflow framework
 - Add comprehensive integration tests
 - Implement dependency graph tracking
 - Validate fingerprint-based change detection

@@ -6,7 +6,7 @@
 //! D1 Target Module Tests - Comprehensive coverage for Cloudflare D1 integration
 //!
 //! This test suite validates:
-//! - Value conversion functions (ReCoco types → JSON for D1 API)
+//! - Value conversion functions (Recoco types → JSON for D1 API)
 //! - SQL generation (CREATE TABLE, INSERT, UPDATE, DELETE)
 //! - Setup state management (schema creation, diffing, compatibility)
 //! - TargetFactoryBase trait implementation
@@ -27,7 +27,7 @@
 //! ## Testing Approach
 //!
 //! Tests focus on logic that can be validated without live Cloudflare infrastructure:
-//! 1. **Value Conversion**: All ReCoco type variants → JSON serialization
+//! 1. **Value Conversion**: All Recoco type variants → JSON serialization
 //! 2. **SQL Generation**: Correct SQL syntax for D1 SQLite dialect
 //! 3. **Schema Management**: Table creation, migration, compatibility checking
 //! 4. **Error Handling**: Invalid inputs, edge cases, boundary conditions
@@ -238,7 +238,7 @@ fn test_key_part_to_json_range() {
     assert_eq!(json, json!([10, 20]));
 }
 
-// Note: Uuid and Date tests are skipped because these types come from ReCoco
+// Note: Uuid and Date tests are skipped because these types come from Recoco
 // and are not directly exposed for test construction. The conversion functions
 // are still tested indirectly through the full integration tests.
 
@@ -821,7 +821,7 @@ async fn test_diff_setup_states_create_new_table() {
         legacy_state_key: None,
     };
 
-    // Create a minimal FlowInstanceContext (this would normally come from ReCoco)
+    // Create a minimal FlowInstanceContext (this would normally come from Recoco)
     let flow_context = Arc::new(recoco::ops::interface::FlowInstanceContext {
         flow_instance_name: "test_flow".to_string(),
         auth_registry: Arc::new(recoco::setup::AuthRegistry::new()),

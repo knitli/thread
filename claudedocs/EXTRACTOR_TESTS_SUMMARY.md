@@ -175,7 +175,7 @@ cargo nextest run --test extractor_tests --all-features --no-fail-fast
 
 2. **Production Code Dependencies:** Test execution blocked by pre-existing compilation errors in dependency crates
 
-3. **Schema Validation:** ReCoco schema structure requires careful navigation (Arc<Vec<FieldSchema>>, TableKind, etc.)
+3. **Schema Validation:** Recoco schema structure requires careful navigation (Arc<Vec<FieldSchema>>, TableKind, etc.)
 
 4. **Test Coverage Estimation:** Actual coverage can only be measured after production code compiles
 

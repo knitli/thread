@@ -10,11 +10,11 @@ SPDX-License-Identifier: MIT OR Apache-2.0
 [![Documentation](https://docs.rs/thread-flow/badge.svg)](https://docs.rs/thread-flow)
 [![License](https://img.shields.io/badge/license-AGPL--3.0--or--later-blue.svg)](../../LICENSE)
 
-Thread's dataflow integration for incremental code analysis, using [CocoIndex](https://github.com/cocoindex/cocoindex) for content-addressed caching and dependency tracking.
+Thread's dataflow integration for incremental code analysis, using [Recoco](https://crates.io/crates/recoco) (a Rust-only fork of [CocoIndex](https://github.com/cocoindex-io/cocoindex)) for content-addressed caching and dependency tracking.
 
 ## Overview
 
-`thread-flow` bridges Thread's imperative AST analysis engine with CocoIndex's declarative dataflow framework, enabling persistent incremental updates and multi-backend storage. It provides:
+`thread-flow` bridges Thread's imperative AST analysis engine with Recoco's declarative dataflow framework, enabling persistent incremental updates and multi-backend storage. It provides:
 
 - ✅ **Content-Addressed Caching**: 50x+ performance gains via automatic incremental updates
 - ✅ **Dependency Tracking**: File-level and symbol-level dependency graph management
@@ -41,8 +41,8 @@ Thread's dataflow integration for incremental code analysis, using [CocoIndex](h
 │     ├─ D1: Cloudflare REST API, HTTP client                 │
 │     └─ InMemory: Testing and development                    │
 ├─────────────────────────────────────────────────────────────┤
-│  CocoIndex Integration                                       │
-│  ├─ Bridge: Adapts Thread → CocoIndex operators            │
+│  Recoco Integration                                          │
+│  ├─ Bridge: Adapts Thread → Recoco operators               │
 │  ├─ Flows: Declarative analysis pipeline builder           │
 │  └─ Runtime: CLI (Rayon) vs Edge (tokio) strategies        │
 └─────────────────────────────────────────────────────────────┘
@@ -155,8 +155,8 @@ async fn handle_file_change(
 | `d1-backend` | Cloudflare D1 backend for edge deployment | ❌ |
 | `parallel` | Rayon-based parallelism (CLI only) | ✅ |
 | `caching` | Query result caching with Moka | ❌ |
-| `recoco-minimal` | Local file source for CocoIndex | ✅ |
-| `recoco-postgres` | PostgreSQL target for CocoIndex | ✅ |
+| `recoco-minimal` | Local file source for Recoco | ✅ |
+| `recoco-postgres` | PostgreSQL target for Recoco | ✅ |
 | `worker` | Edge deployment optimizations | ❌ |
 
 ### Feature Combinations
@@ -237,7 +237,7 @@ Comprehensive API docs and integration guides:
 
 - **Incremental System**: See [incremental module docs](https://docs.rs/thread-flow/latest/thread_flow/incremental/)
 - **D1 Integration**: See [`docs/api/D1_INTEGRATION_API.md`](../../docs/api/D1_INTEGRATION_API.md)
-- **CocoIndex Bridge**: See [bridge module docs](https://docs.rs/thread-flow/latest/thread_flow/bridge/)
+- **Recoco Bridge**: See [bridge module docs](https://docs.rs/thread-flow/latest/thread_flow/bridge/)
 - **Language Extractors**: See [extractors module docs](https://docs.rs/thread-flow/latest/thread_flow/incremental/extractors/)
 
 ## Examples
@@ -346,7 +346,7 @@ AGPL-3.0-or-later
 - [`thread-ast-engine`](../ast-engine): Core AST parsing and pattern matching
 - [`thread-language`](../language): Language definitions and tree-sitter parsers
 - [`thread-services`](../services): High-level service interfaces
-- [`recoco`](https://github.com/cocoindex/cocoindex): CocoIndex dataflow engine
+- [`recoco`](https://crates.io/crates/recoco): Recoco dataflow engine (Rust-only CocoIndex fork)
 
 ---
 

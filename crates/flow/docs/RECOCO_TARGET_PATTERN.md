@@ -4,12 +4,12 @@ SPDX-FileCopyrightText: 2026 Knitli Inc.
 SPDX-License-Identifier: MIT OR Apache-2.0
 -->
 
-# ReCoco Target Factory Pattern Guide
+# Recoco Target Factory Pattern Guide
 
-**Purpose**: Document the correct pattern for implementing D1 target factory following ReCoco conventions
+**Purpose**: Document the correct pattern for implementing D1 target factory following Recoco conventions
 
 **Date**: January 27, 2026
-**Reference**: ReCoco core 0.2.1 - postgres target implementation
+**Reference**: Recoco core 0.2.1 - postgres target implementation
 
 ---
 
@@ -422,7 +422,7 @@ impl D1ExportContext {
 
 ## References
 
-- ReCoco source: `~/.cargo/registry/.../recoco-core-0.2.1/src/ops/`
+- Recoco source: `~/.cargo/registry/.../recoco-core-0.2.1/src/ops/`
 - Trait definition: `ops/factory_bases.rs`
 - Postgres example: `ops/targets/postgres.rs`
 - Registration: `ops/sdk.rs` (ExecutorFactoryRegistry)

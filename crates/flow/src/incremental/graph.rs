@@ -13,7 +13,7 @@
 //!
 //! ## Design Pattern
 //!
-//! Adapted from ReCoco's scope traversal (analyzer.rs:656-668) and
+//! Adapted from Recoco's scope traversal (analyzer.rs:656-668) and
 //! `is_op_scope_descendant` ancestor chain traversal.
 
 use super::types::{AnalysisDefFingerprint, DependencyEdge, DependencyStrength};

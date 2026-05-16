@@ -1,11 +1,11 @@
 // SPDX-FileCopyrightText: 2025 Knitli Inc. <knitli@knit.li>
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-//! Operator registry for Thread's ReCoco integration.
+//! Operator registry for Thread's Recoco integration.
 //!
 //! This module provides registration functions for all Thread-specific operators
-//! using ReCoco's ExecutorFactoryRegistry. Operators follow the SimpleFunctionFactoryBase
-//! pattern for proper integration with the ReCoco dataflow engine.
+//! using Recoco's ExecutorFactoryRegistry. Operators follow the SimpleFunctionFactoryBase
+//! pattern for proper integration with the Recoco dataflow engine.
 
 use recoco::ops::factory_bases::{SimpleFunctionFactoryBase, TargetFactoryBase};
 use recoco::ops::sdk::ExecutorFactoryRegistry;
@@ -17,10 +17,10 @@ use crate::functions::{
 };
 use crate::targets::d1::D1TargetFactory;
 
-/// Thread operators available for ReCoco flows.
+/// Thread operators available for Recoco flows.
 ///
 /// These operators integrate Thread's semantic code analysis capabilities
-/// into ReCoco's dataflow engine for incremental, cached code parsing.
+/// into Recoco's dataflow engine for incremental, cached code parsing.
 ///
 /// # Available Operators
 ///

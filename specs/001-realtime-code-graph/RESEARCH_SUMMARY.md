@@ -5,7 +5,7 @@ SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
 SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
-# Research Summary: ReCoco Provenance for Real-Time Code Graph
+# Research Summary: Recoco Provenance for Real-Time Code Graph
 
 **Date**: January 11, 2026 (revised February 24, 2026)
 **Duration**: Comprehensive research (4+ hours deep analysis)
@@ -17,10 +17,13 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 ## Quick Findings
 
 ### The Question
-**How can ReCoco's native provenance tracking enhance FR-014 ("System MUST track analysis provenance...") compared to T079's current "repository_id only" approach?**
+
+**How can Recoco's native provenance tracking enhance FR-014 ("System MUST track analysis provenance...") compared to T079's current "repository_id only" approach?**
 
 ### The Answer
-**ReCoco (Thread's Rust-only CocoIndex fork) provides sophisticated automatic lineage tracking that captures:**
+
+**Recoco (Thread's Rust-only CocoIndex fork) provides sophisticated automatic lineage tracking that captures:**
+
 1. ✓ Source versions (Git commits, S3 ETags, timestamps)
 2. ✓ Transformation pipeline (which analysis stages ran)
 3. ✓ Cache status (hit/miss for each operation)
@@ -28,10 +31,11 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 5. ✓ Upstream dependencies (what data was used)
 
 **T079 Current Scope**: Only `repository_id`
-**T079 Enhanced Scope**: Full provenance leveraging ReCoco
+**T079 Enhanced Scope**: Full provenance leveraging Recoco
 
 ### The Opportunity
-**Current T079 misses 80% of valuable provenance data** that ReCoco provides automatically
+
+**Current T079 misses 80% of valuable provenance data** that Recoco provides automatically
 **Note**: Basic content addressing (Blake3 fingerprinting) IS already implemented in thread-flow via `AnalysisDefFingerprint`. The gap is the *rich* provenance (source version, pipeline lineage, cache metadata, upstream hashes).
 
 **Better approach**: Implement comprehensive provenance once (slightly more effort) vs. repository_id now + rework later
@@ -56,7 +60,8 @@ Provenance = Understanding the complete "history" of data:
 **Current T079**: Only tracks "data source" (repository_id)
 **Missing**: Version and timestamp (incomplete FR-014 implementation)
 
-**ReCoco Provides**:
+**Recoco Provides**:
+
 - Data source ✓
 - Version (Git commit, S3 ETag) ✓
 - Timestamp (when accessed) ✓
@@ -66,7 +71,7 @@ Provenance = Understanding the complete "history" of data:
 
 ## Key Findings
 
-### 1. ReCoco Architecture Supports Provenance
+### 1. Recoco Architecture Supports Provenance
 
 **Dataflow Structure**:
 ```
@@ -88,7 +93,7 @@ version  output   output     output      output     time
 ```rust
 // crates/flow/src/incremental/types.rs
 pub struct AnalysisDefFingerprint {
-    pub fingerprint: Fingerprint, // Blake3 16-byte hash from ReCoco
+    pub fingerprint: Fingerprint, // Blake3 16-byte hash from Recoco
     pub source_file: PathBuf,
 }
 ```
@@ -140,9 +145,9 @@ pub upstream_hashes: Vec<String>,          // ✗ Upstream data
 
 ## Technical Details
 
-### ReCoco ExecutionRecords
+### Recoco ExecutionRecords
 
-ReCoco automatically generates `ExecutionRecord` for each operation. Thread's ThreadFlowBuilder composes these operations (see crates/flow/src/flows/builder.rs):
+Recoco automatically generates `ExecutionRecord` for each operation. Thread's ThreadFlowBuilder composes these operations (see crates/flow/src/flows/builder.rs):
 
 ```rust
 ExecutionRecord {
@@ -160,11 +165,11 @@ ExecutionRecord {
 ```rust
 // Tier 1 AST diff
 thread_parse operator executes (crates/flow/src/functions/parse.rs)
-  → ReCoco records: input_hash, output_hash, execution_time
+  → Recoco records: input_hash, output_hash, execution_time
 
 // Tier 2 Semantic analysis
 thread_symbols operator executes (crates/flow/src/functions/symbols.rs)
-  → ReCoco records transformation stage
+  → Recoco records transformation stage
 
 // Complete lineage emerges
 node_provenance = [parse_record, extract_record, ...]
@@ -193,10 +198,11 @@ pub struct GraphNode {
 ### 1. Expand T079 Scope (RECOMMENDED)
 
 **Current**: "Add repository_id to GraphNode and GraphEdge"
-**Recommended**: "Implement comprehensive provenance tracking leveraging ReCoco"
+**Recommended**: "Implement comprehensive provenance tracking leveraging Recoco"
 
 **Why**:
-- Same implementation effort with ReCoco data
+
+- Same implementation effort with Recoco data
 - Prevents rework and schema changes later
 - Fully complies with FR-014 and FR-018
 - Enables incremental update optimization (SC-INCR-001)
@@ -212,10 +218,11 @@ pub struct GraphNode {
 - Create provenance tables (Postgres/D1)
 - Implement storage abstraction
 
-**Phase 3 (Week 4)**: ReCoco integration
+**Phase 3 (Week 4)**: Recoco integration
+
 - Build `ProvenanceCollector` to extract ExecutionRecords
 - Wire into dataflow execution via ThreadFlowBuilder
-- Note: ThreadFlowBuilder and ReCoco operators already exist in thread-flow; this
+- Note: ThreadFlowBuilder and Recoco operators already exist in thread-flow; this
   extends them to capture and persist ExecutionRecord metadata
 
 **Phase 4 (Week 5)**: APIs and validation
@@ -246,8 +253,8 @@ pub analysis_lineage: Option<Vec<LineageRecord>>, // Optional
 
 ## Missed Opportunities (Current T079)
 
-| Opportunity | ReCoco Provides | T079 Status | Loss |
-|---|---|---|---|
+| Opportunity | Recoco Provides | T079 Status | Loss |
+| --- | --- | --- | --- |
 | Source Version Tracking | Git commit, S3 ETag | ✗ Missing | Can't verify freshness |
 | Timestamp Precision | Per-operation times | ✗ Missing | Can't detect staleness |
 | Conflict Audit Trail | Tier execution records | ✗ Missing | Can't debug conflicts |
@@ -266,12 +273,12 @@ pub analysis_lineage: Option<Vec<LineageRecord>>, // Optional
 
 ### Complexity
 - **Moderate**: Adding new types and database tables
-- **Straightforward**: ReCoco handles data collection
+- **Straightforward**: Recoco handles data collection
 - **No**: Complex algorithms needed
 
 ### Risk
 - **Low**: Backward compatible with optional fields
-- **Low**: ReCoco API is stable (core concept)
+- **Low**: Recoco API is stable (core concept)
 - **Mitigated**: Phased rollout strategy
 
 ---
@@ -380,19 +387,22 @@ Final confidence: 0.95 (Tier 3 validated)
 2. Can't debug why conflicts were detected (FR-018)
 3. Can't verify cache is working (SC-CACHE-001)
 4. Requires rework later when features need provenance
-5. ReCoco provides data automatically (minimal extra effort); ThreadFlowBuilder operators already capture execution metadata
+5. Recoco provides data automatically (minimal extra effort); ThreadFlowBuilder operators already capture execution metadata
 
 ### Q: Isn't this a lot of extra work?
 **A**: No, because:
-1. ReCoco provides data automatically (we don't build it)
+
+1. Recoco provides data automatically (we don't build it)
 2. Effort is organizing/storing/querying existing data
 3. Better to do once comprehensively than piecemeal
 4. Phased approach spreads effort over 1+ weeks
 
-### Q: What if ReCoco changes its API?
+### Q: What if Recoco changes its API?
+
 **A**: Very low risk because:
-1. **Thread controls ReCoco** — it's our own fork (separate public crate maintained by Thread)
-2. Any required API changes can be implemented directly in ReCoco without waiting
+
+1. **Thread controls Recoco** — it's our own fork (separate public crate maintained by Thread)
+2. Any required API changes can be implemented directly in Recoco without waiting
 3. The bridge/adapter layer in thread-flow (bridge.rs) isolates changes
 4. Worst case: lose detailed provenance, keep basic fingerprinting (which already exists)
 
@@ -423,9 +433,9 @@ This data is immediately usable as-is for the `thread-definitions` Rust crate im
 
 ## Conclusion
 
-**ReCoco (Thread's Rust-only fork) provides sophisticated automatic provenance tracking that Thread's code graph can leverage to fully implement FR-014 and enable powerful debugging, auditing, and optimization capabilities.**
+**Recoco (Thread's Rust-only fork) provides sophisticated automatic provenance tracking that Thread's code graph can leverage to fully implement FR-014 and enable powerful debugging, auditing, and optimization capabilities.**
 
-**Current status**: Basic content addressing (Blake3 fingerprinting per file) is IMPLEMENTED in thread-flow. The rich provenance model (source versions, pipeline lineage, cache metadata) remains to be built — but the ReCoco infrastructure and operator framework to collect it already exists.
+**Current status**: Basic content addressing (Blake3 fingerprinting per file) is IMPLEMENTED in thread-flow. The rich provenance model (source versions, pipeline lineage, cache metadata) remains to be built — but the Recoco infrastructure and operator framework to collect it already exists.
 
 **Current T079 scope (repository_id only) significantly undersells what's possible and will require rework later.**
 

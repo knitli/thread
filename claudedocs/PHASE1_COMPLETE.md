@@ -31,7 +31,7 @@ pub struct AnalysisDefFingerprint {
 }
 ```
 - Tracks content fingerprints for files
-- Records source file dependencies (ReCoco pattern)
+- Records source file dependencies (Recoco pattern)
 - Timestamped for cache invalidation
 
 #### DependencyGraph
@@ -113,7 +113,7 @@ pub trait StorageBackend: Send + Sync {
 
 | Requirement | Status | Evidence |
 |-------------|--------|----------|
-| ReCoco's FieldDefFingerprint pattern | ✅ PASS | types.rs:32-44, uses recoco::utils::fingerprint |
+| Recoco's FieldDefFingerprint pattern | ✅ PASS | types.rs:32-44, uses recoco::utils::fingerprint |
 | Blake3 content fingerprinting | ✅ PASS | Integration with existing Fingerprint type |
 | Dependency graph with BFS | ✅ PASS | graph.rs:175-215, affected_files() method |
 | Topological sort | ✅ PASS | graph.rs:264-291, topological_sort() method |
@@ -190,7 +190,7 @@ Phase 2 can proceed with:
 - ✅ Module-level docs on all four files
 - ✅ Rustdoc examples with `/// # Examples` on major public APIs
 - ✅ All struct fields documented with `///` comments
-- ✅ Design pattern references to ReCoco analyzer.rs
+- ✅ Design pattern references to Recoco analyzer.rs
 - ✅ Complete working example in mod.rs
 - ✅ `rust,ignore` correctly used for trait example requiring concrete impl
 

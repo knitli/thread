@@ -9,7 +9,7 @@ use recoco::base::value::{BasicValue, FieldValues, ScopeValue, Value};
 use std::sync::Arc;
 use thread_services::types::{CallInfo, ImportInfo, ParsedDocument, SymbolInfo};
 
-/// Convert a ParsedDocument to a ReCoco Value
+/// Convert a ParsedDocument to a Recoco Value
 pub fn serialize_parsed_doc<D: thread_services::types::Doc>(
     doc: &ParsedDocument<D>,
 ) -> Result<Value, recoco::prelude::Error> {

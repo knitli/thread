@@ -381,7 +381,7 @@ const results = await env.DB.prepare(
 
 **Option 4: Optimize Slow Queries**
 ```sql
--- Use prepared statements (automatic with ReCoco)
+-- Use prepared statements (automatic with Recoco)
 PREPARE get_symbols AS
   SELECT symbols FROM code_symbols WHERE content_hash = $1;
 

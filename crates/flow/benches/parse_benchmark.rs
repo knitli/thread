@@ -3,11 +3,11 @@
 
 //! Performance benchmarks for thread-flow crate
 //!
-//! This benchmark suite measures the overhead of ReCoco integration vs direct Thread usage.
+//! This benchmark suite measures the overhead of Recoco integration vs direct Thread usage.
 //!
 //! ## Benchmark Categories:
-//! 1. **Direct Thread Parsing**: Baseline performance without ReCoco
-//! 2. **ReCoco Integration**: Full pipeline including executor overhead
+//! 1. **Direct Thread Parsing**: Baseline performance without Recoco
+//! 2. **Recoco Integration**: Full pipeline including executor overhead
 //! 3. **Multi-File Batch**: Sequential processing of multiple files
 //! 4. **Language Comparison**: Performance across different languages
 //!
@@ -15,14 +15,14 @@
 //! - Direct parse small (50 lines): <500µs
 //! - Direct parse medium (200 lines): <2ms
 //! - Direct parse large (500+ lines): <10ms
-//! - ReCoco overhead: <20% additional time
+//! - Recoco overhead: <20% additional time
 //! - Multi-file (10 files): <50ms total
 //!
 //! ## Running:
 //! ```bash
 //! cargo bench -p thread-flow
 //! cargo bench -p thread-flow -- direct  # Run direct parsing benchmarks
-//! cargo bench -p thread-flow -- recoco  # Run ReCoco integration benchmarks
+//! cargo bench -p thread-flow -- recoco  # Run Recoco integration benchmarks
 //! ```
 
 use criterion::{Criterion, Throughput, black_box, criterion_group, criterion_main};
@@ -321,7 +321,7 @@ impl Impl{} {{
 // Benchmark Helpers
 // ============================================================================
 
-/// Helper to parse directly with Thread (no ReCoco overhead)
+/// Helper to parse directly with Thread (no Recoco overhead)
 fn parse_direct(code: &str, language_ext: &str) -> usize {
     let lang = thread_language::from_extension_str(language_ext)
         .or_else(|| {
@@ -336,7 +336,7 @@ fn parse_direct(code: &str, language_ext: &str) -> usize {
     root.root().text().len()
 }
 
-/// Helper to run ThreadParseExecutor synchronously (full ReCoco pipeline)
+/// Helper to run ThreadParseExecutor synchronously (full Recoco pipeline)
 /// NOTE: This may fail with pattern matching errors due to buggy extract_basic_metadata
 #[allow(dead_code)]
 fn parse_with_recoco(code: &str, language: &str, path: &str) -> Value {

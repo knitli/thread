@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-This design specifies the incremental update system for Thread, enabling **affected component detection** and **dependency-aware invalidation** to achieve constitutional compliance. The design leverages ReCoco's proven `FieldDefFingerprint` pattern while adapting it to Thread's AST analysis domain.
+This design specifies the incremental update system for Thread, enabling **affected component detection** and **dependency-aware invalidation** to achieve constitutional compliance. The design leverages Recoco's proven `FieldDefFingerprint` pattern while adapting it to Thread's AST analysis domain.
 
 **Key Outcomes**:
 - ✅ Only re-analyze affected components when source files change
@@ -62,11 +62,11 @@ Thread's incremental update system consists of four integrated subsystems:
 
 ### 1.2 Core Data Structures
 
-**Inspired by ReCoco's `FieldDefFingerprint` pattern** (analyzer.rs:69-84):
+**Inspired by Recoco's `FieldDefFingerprint` pattern** (analyzer.rs:69-84):
 
 ```rust
 /// Tracks what affects the value of an analysis result
-/// Pattern adapted from ReCoco's FieldDefFingerprint
+/// Pattern adapted from Recoco's FieldDefFingerprint
 #[derive(Debug, Clone)]
 pub struct AnalysisDefFingerprint {
     /// Source files that contribute to this analysis result
@@ -137,7 +137,7 @@ pub enum DependencyStrength {
 }
 ```
 
-**Design Rationale** (from ReCoco pattern):
+**Design Rationale** (from Recoco pattern):
 - **Source tracking**: Enables precise invalidation scope determination
 - **Fingerprint composition**: Detects both content AND logic changes (analyzer.rs:858-862)
 - **Hierarchical structure**: Supports file-level and symbol-level dependency tracking
@@ -148,14 +148,14 @@ pub enum DependencyStrength {
 
 ### 2.1 Graph Building Strategy
 
-**Pattern**: ReCoco's `analyze_field_path` approach (analyzer.rs:466-516)
+**Pattern**: Recoco's `analyze_field_path` approach (analyzer.rs:466-516)
 
 Thread's dependency graph construction occurs during initial AST analysis:
 
 ```rust
 impl DependencyGraphBuilder {
     /// Build dependency graph during AST traversal
-    /// Pattern: Similar to ReCoco's DataScopeBuilder.analyze_field_path
+    /// Pattern: Similar to Recoco's DataScopeBuilder.analyze_field_path
     pub fn build_from_analysis(
         &mut self,
         file_path: &Path,
@@ -231,14 +231,14 @@ impl DependencyGraphBuilder {
 }
 ```
 
-**Key Principles** (from ReCoco analyzer.rs):
+**Key Principles** (from Recoco analyzer.rs):
 1. **Hierarchical traversal**: Build graph during AST analysis pass (analyzer.rs:466-516)
 2. **Fingerprint composition**: Track dependencies in fingerprint calculation (analyzer.rs:372-389)
 3. **Incremental construction**: Support adding edges for new files without full rebuild
 
 ### 2.2 Storage Schema
 
-**Pattern**: ReCoco's setup state persistence (exec_ctx.rs:38-52)
+**Pattern**: Recoco's setup state persistence (exec_ctx.rs:38-52)
 
 Dependency graph persists across sessions using Postgres (CLI) or D1 (Edge):
 
@@ -282,7 +282,7 @@ CREATE TABLE analysis_fingerprints (
     content_fingerprint BYTEA NOT NULL, -- Blake3 hash (16 bytes)
     analysis_fingerprint BYTEA NOT NULL, -- Combined logic + content hash
 
-    -- Source tracking (ReCoco pattern: source_op_names)
+    -- Source tracking (Recoco pattern: source_op_names)
     dependent_files TEXT[], -- Array of file paths this analysis depends on
 
     -- Timestamps
@@ -297,21 +297,21 @@ CREATE INDEX idx_fingerprint_analyzed ON analysis_fingerprints(last_analyzed);
 ```
 
 **Design Rationale**:
-- **Separate tables**: Dependency graph vs. fingerprint tracking (ReCoco pattern: separate source/target states)
+- **Separate tables**: Dependency graph vs. fingerprint tracking (Recoco pattern: separate source/target states)
 - **Array fields**: D1 supports JSON arrays; Postgres supports native arrays
 - **Timestamps**: Track analysis freshness for invalidation decisions
 - **Indexes**: Optimize graph traversal queries (from_file, to_file lookups)
 
 ### 2.3 Graph Traversal Algorithms
 
-**Pattern**: ReCoco's scope traversal (analyzer.rs:656-668)
+**Pattern**: Recoco's scope traversal (analyzer.rs:656-668)
 
 Thread implements bidirectional graph traversal for invalidation:
 
 ```rust
 impl DependencyGraph {
     /// Find all files affected by changes to source files
-    /// Pattern: Similar to ReCoco's is_op_scope_descendant traversal
+    /// Pattern: Similar to Recoco's is_op_scope_descendant traversal
     pub fn find_affected_files(
         &self,
         changed_files: &HashSet<PathBuf>,
@@ -417,14 +417,14 @@ impl DependencyGraph {
 
 ### 3.1 Fingerprint Composition
 
-**Pattern**: ReCoco's `FieldDefFingerprint` builder (analyzer.rs:359-389)
+**Pattern**: Recoco's `FieldDefFingerprint` builder (analyzer.rs:359-389)
 
 Thread composes fingerprints from multiple sources:
 
 ```rust
 impl AnalysisDefFingerprint {
     /// Create fingerprint for analysis result
-    /// Pattern: ReCoco's FieldDefFingerprintBuilder.add() composition
+    /// Pattern: Recoco's FieldDefFingerprintBuilder.add() composition
     pub fn new(
         file_content: &[u8],
         parser_version: &str,
@@ -459,7 +459,7 @@ impl AnalysisDefFingerprint {
     }
 
     /// Check if analysis is still valid
-    /// Pattern: ReCoco's SourceLogicFingerprint.matches (indexing_status.rs:54-57)
+    /// Pattern: Recoco's SourceLogicFingerprint.matches (indexing_status.rs:54-57)
     pub fn matches(&self, current_content: &[u8]) -> bool {
         // Quick check: content fingerprint only
         let content_fp = Fingerprinter::default()
@@ -514,14 +514,14 @@ impl AnalysisDefFingerprint {
 
 ### 3.2 Storage Integration
 
-**Pattern**: ReCoco's database tracking (exec_ctx.rs:55-134)
+**Pattern**: Recoco's database tracking (exec_ctx.rs:55-134)
 
 Fingerprint persistence with transaction support:
 
 ```rust
 impl AnalysisDefFingerprint {
     /// Persist fingerprint to storage backend
-    /// Pattern: ReCoco's build_import_op_exec_ctx persistence
+    /// Pattern: Recoco's build_import_op_exec_ctx persistence
     pub async fn save_to_storage(
         &self,
         file_path: &Path,
@@ -599,7 +599,7 @@ impl AnalysisDefFingerprint {
 
 ### 4.1 Change Detection Algorithm
 
-**Pattern**: ReCoco's refresh options and ordinal tracking (analyzer.rs:90-94, indexing_status.rs:78-119)
+**Pattern**: Recoco's refresh options and ordinal tracking (analyzer.rs:90-94, indexing_status.rs:78-119)
 
 Thread's incremental update algorithm:
 
@@ -612,7 +612,7 @@ pub struct IncrementalAnalyzer {
 
 impl IncrementalAnalyzer {
     /// Perform incremental analysis on changed files
-    /// Pattern: Combines ReCoco's source indexing + invalidation detection
+    /// Pattern: Combines Recoco's source indexing + invalidation detection
     pub async fn analyze_incremental(
         &mut self,
         workspace_root: &Path,
@@ -766,14 +766,14 @@ impl IncrementalAnalyzer {
 
 ### 4.2 Cache Integration
 
-**Pattern**: ReCoco's caching strategy (analyzer.rs:947-965)
+**Pattern**: Recoco's caching strategy (analyzer.rs:947-965)
 
 Incremental updates preserve cache benefits:
 
 ```rust
 impl IncrementalAnalyzer {
     /// Analyze single file with cache integration
-    /// Pattern: ReCoco's enable_cache + behavior_version tracking
+    /// Pattern: Recoco's enable_cache + behavior_version tracking
     fn analyze_single_file(
         &self,
         file: &Path,
@@ -1079,7 +1079,7 @@ impl DependencyGraph {
 
 ### 8.1 Prometheus Metrics
 
-**Pattern**: ReCoco's metrics tracking (exec_ctx.rs, indexing_status.rs)
+**Pattern**: Recoco's metrics tracking (exec_ctx.rs, indexing_status.rs)
 
 ```rust
 use prometheus::{IntCounter, IntGauge, Histogram, register_*};
@@ -1119,7 +1119,7 @@ lazy_static! {
 
 ### 8.2 Logging Strategy
 
-**Pattern**: ReCoco's structured logging with context
+**Pattern**: Recoco's structured logging with context
 
 ```rust
 use tracing::{info, warn, error, debug, span, Level};
@@ -1182,7 +1182,7 @@ thread graph export --format dot      # Export to Graphviz
 
 ### 9.2 Configuration
 
-**Pattern**: ReCoco's execution options
+**Pattern**: Recoco's execution options
 
 ```yaml
 # .thread/config.yml
@@ -1467,7 +1467,7 @@ pub async fn analyze(workspace: &Path) -> Result<AnalysisResult> {
 
 ## 14. References
 
-### 14.1 ReCoco Patterns Referenced
+### 14.1 Recoco Patterns Referenced
 
 - **FieldDefFingerprint** (analyzer.rs:69-84): Fingerprint composition with source tracking
 - **FieldDefFingerprintBuilder** (analyzer.rs:359-389): Incremental fingerprint construction
@@ -1541,7 +1541,7 @@ CREATE TABLE analysis_fingerprints (
     content_fingerprint BYTEA NOT NULL CHECK (length(content_fingerprint) = 16),
     analysis_fingerprint BYTEA NOT NULL CHECK (length(analysis_fingerprint) = 16),
 
-    -- Source tracking (ReCoco pattern: source_op_names)
+    -- Source tracking (Recoco pattern: source_op_names)
     dependent_files TEXT[] NOT NULL DEFAULT '{}',
 
     -- Timestamps

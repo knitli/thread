@@ -12,7 +12,7 @@
 //!
 //! ## Design Pattern
 //!
-//! Adapted from ReCoco's `build_import_op_exec_ctx` persistence
+//! Adapted from Recoco's `build_import_op_exec_ctx` persistence
 //! (exec_ctx.rs:55-134) and setup state management.
 
 use super::graph::{DependencyGraph, GraphError};

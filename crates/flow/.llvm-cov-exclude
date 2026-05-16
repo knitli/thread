@@ -1,5 +1,5 @@
 # Exclude flows/builder.rs from coverage reports
-# Rationale: Complex integration layer requiring extensive ReCoco mocking (11-15 hours estimated)
+# Rationale: Complex integration layer requiring extensive Recoco mocking (11-15 hours estimated)
 # See claudedocs/builder_testing_analysis.md for detailed analysis
 # Decision: Defer until bugs discovered or production usage increases
 src/flows/builder.rs

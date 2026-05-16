@@ -5,12 +5,12 @@
 **Recommendation**: **EXCLUDE from immediate 80% coverage goal**
 
 `flows/builder.rs` (603 lines, 0% coverage) is complex infrastructure for CocoIndex dataflow orchestration requiring extensive setup. Testing it properly would require:
-- Mock implementations of ReCoco FlowBuilder internals
+- Mock implementations of Recoco FlowBuilder internals
 - Async runtime coordination
 - Multiple integration points with vendored CocoIndex
 - Significant time investment (8-12 hours estimated)
 
-**Rationale**: This is a **builder facade** over ReCoco's FlowBuilder. It's better tested through integration tests and examples rather than isolated unit tests. The complexity-to-value ratio for unit testing is unfavorable.
+**Rationale**: This is a **builder facade** over Recoco's FlowBuilder. It's better tested through integration tests and examples rather than isolated unit tests. The complexity-to-value ratio for unit testing is unfavorable.
 
 ---
 
@@ -30,11 +30,11 @@
    - `build()` - Construct final FlowInstanceSpec
 
 2. **Orchestration Logic**
-   - Translates high-level operations into ReCoco operator graphs
+   - Translates high-level operations into Recoco operator graphs
    - Manages field mappings between pipeline stages
    - Configures collectors for multi-row operations
    - Sets up content-addressed deduplication via primary keys
-   - Handles error conversion from ReCoco to ServiceError
+   - Handles error conversion from Recoco to ServiceError
 
 3. **Target Abstraction**
    - Postgres: Local CLI deployment with sqlx
@@ -49,7 +49,7 @@
 1. **Public API**: Exported from `lib.rs` as primary interface
 2. **Examples**: Two examples use it (`d1_local_test`, `d1_integration_test`)
 3. **Documentation**: Referenced in `RECOCO_INTEGRATION.md`
-4. **Production Path**: Examples show intended usage pattern but note "requires ReCoco runtime setup"
+4. **Production Path**: Examples show intended usage pattern but note "requires Recoco runtime setup"
 
 **Current Usage Pattern**:
 ```rust
@@ -66,7 +66,7 @@ let flow = ThreadFlowBuilder::new("d1_integration_test")
 ### Dependencies and Integration Points
 
 **Direct Dependencies**:
-- `recoco::builder::flow_builder::FlowBuilder` - Core ReCoco builder
+- `recoco::builder::flow_builder::FlowBuilder` - Core Recoco builder
 - `recoco::base::spec::*` - Configuration types
 - `thread_services::error::ServiceError` - Error handling
 
@@ -75,10 +75,10 @@ let flow = ThreadFlowBuilder::new("d1_integration_test")
 2. **Schema Management**: Field mappings between operators
 3. **Collector Configuration**: Root scope and collector creation
 4. **Export Setup**: Target-specific configuration
-5. **Error Translation**: ReCoco errors → ServiceError
+5. **Error Translation**: Recoco errors → ServiceError
 
 **External State Requirements**:
-- ReCoco's internal operator registry (initialized by auth_registry)
+- Recoco's internal operator registry (initialized by auth_registry)
 - Storage backend availability (Postgres/D1 credentials)
 - File system for local_file source
 
@@ -87,7 +87,7 @@ let flow = ThreadFlowBuilder::new("d1_integration_test")
 **Root Causes**:
 
 1. **Infrastructure Complexity**
-   - Requires ReCoco runtime initialization (AuthRegistry, operator registry)
+   - Requires Recoco runtime initialization (AuthRegistry, operator registry)
    - Async execution environment with tokio
    - FlowBuilder has internal state machine for graph construction
 
@@ -102,7 +102,7 @@ let flow = ThreadFlowBuilder::new("d1_integration_test")
    - Unit tests deferred due to mocking complexity
 
 4. **Implicit Testing**
-   - Core ReCoco functionality tested in upstream CocoIndex
+   - Core Recoco functionality tested in upstream CocoIndex
    - Thread parse/extract functions tested separately
    - Builder primarily does configuration marshaling
 
@@ -114,12 +114,12 @@ let flow = ThreadFlowBuilder::new("d1_integration_test")
 
 **PRIMARY: Integration Tests with Real Components**
 
-Rather than mocking ReCoco internals, test builder through actual execution:
+Rather than mocking Recoco internals, test builder through actual execution:
 
 ```rust
 #[tokio::test]
 async fn test_builder_basic_pipeline() {
-    // Use actual ReCoco runtime
+    // Use actual Recoco runtime
     let flow = ThreadFlowBuilder::new("test")
         .source_local("tests/test_data", &["*.rs"], &[])
         .parse()
@@ -205,10 +205,10 @@ async fn test_extract_requires_parse() {
 
 **Complexity Factors**:
 1. **Async Testing**: Requires tokio runtime coordination
-2. **ReCoco Mocking**: FlowBuilder has complex internal state
+2. **Recoco Mocking**: FlowBuilder has complex internal state
 3. **Field Mapping Validation**: Ensuring correct operator wiring
 4. **Multi-Target Testing**: Postgres vs D1 configuration differences
-5. **Schema Evolution**: Tests brittle to ReCoco API changes
+5. **Schema Evolution**: Tests brittle to Recoco API changes
 
 ### Required Test Infrastructure
 
@@ -221,7 +221,7 @@ use std::sync::Arc;
 
 #[tokio::test]
 async fn test_basic_flow_construction() {
-    // Initialize ReCoco minimal runtime
+    // Initialize Recoco minimal runtime
     let auth_registry = Arc::new(AuthRegistry::new());
 
     // Test builder configuration
@@ -242,7 +242,7 @@ async fn test_basic_flow_construction() {
 - Postgres test database (Docker container)
 - Test data files with known symbols
 - Mock D1 HTTP server for edge testing
-- ReCoco operator registry initialization
+- Recoco operator registry initialization
 
 ---
 
@@ -254,18 +254,18 @@ async fn test_basic_flow_construction() {
 1. **Low Bug Risk**: Builder is configuration orchestration, not algorithmic logic
 2. **Implicit Coverage**: Examples serve as integration tests
 3. **High Cost**: 11-15 hours for comprehensive unit tests
-4. **Upstream Coverage**: ReCoco tests its FlowBuilder internally
-5. **Brittleness**: Tests tightly coupled to ReCoco API
+4. **Upstream Coverage**: Recoco tests its FlowBuilder internally
+5. **Brittleness**: Tests tightly coupled to Recoco API
 
 **Alternative Coverage Strategy**:
 - ✅ **Integration Tests**: Test via examples (already exist)
-- ✅ **Contract Tests**: Verify ReCoco API compatibility
+- ✅ **Contract Tests**: Verify Recoco API compatibility
 - ✅ **Documentation Tests**: Ensure examples compile and run
 - ⚠️ **Manual Validation**: Use examples for regression testing
 
 ### Alternative Approach: Lightweight Builder Validation
 
-If any testing is desired, focus on **state validation** without ReCoco execution:
+If any testing is desired, focus on **state validation** without Recoco execution:
 
 ```rust
 // Expose builder state for testing via cfg(test)
@@ -300,7 +300,7 @@ fn test_builder_state_accumulation() {
 **Phase 1: State Validation (2-3 hours)**
 - Test builder configuration accumulation
 - Verify validation errors (missing source, etc.)
-- No ReCoco execution required
+- No Recoco execution required
 
 **Phase 2: Integration Tests (4-5 hours)**
 - Set up test Postgres database
@@ -308,7 +308,7 @@ fn test_builder_state_accumulation() {
 - Verify operator wiring produces correct output
 
 **Phase 3: Error Handling (2-3 hours)**
-- Test ReCoco error translation
+- Test Recoco error translation
 - Test invalid configurations
 - Test missing field mappings
 
@@ -351,16 +351,16 @@ Current state:
 1. **Document Current State**: ✅ This analysis
 2. **Exclude from 80% Goal**: Focus on testable modules
 3. **Enhance Examples**: Add more integration scenarios
-4. **Add Contract Tests**: Verify ReCoco API compatibility
+4. **Add Contract Tests**: Verify Recoco API compatibility
 5. **Defer Unit Tests**: Until architectural stability or bug discovery
 
 ### Future Testing Triggers
 
 Consider testing when:
 - 🐛 **Bugs Found**: User-reported configuration errors
-- 🔄 **API Changes**: ReCoco updates break examples
+- 🔄 **API Changes**: Recoco updates break examples
 - 📈 **Production Usage**: Builder used in production deployments
-- 🏗️ **Architecture Stable**: ReCoco integration patterns solidified
+- 🏗️ **Architecture Stable**: Recoco integration patterns solidified
 - 🧪 **Test Infrastructure**: Improved mocking capabilities available
 
 ### Effort Estimate Summary

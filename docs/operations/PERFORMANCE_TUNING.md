@@ -93,7 +93,7 @@ Comprehensive guide for optimizing Thread Flow performance across CLI and Edge d
 DATABASE_URL=postgresql://user:pass@localhost/thread_cache
 
 # Automatic caching - no configuration needed
-# ReCoco handles fingerprinting and cache lookups
+# Recoco handles fingerprinting and cache lookups
 ```
 
 **Edge (D1)**:
@@ -547,7 +547,7 @@ ANALYZE code_symbols;
 **Query Optimization**:
 
 ```sql
--- Use prepared statements (automatic with ReCoco)
+-- Use prepared statements (automatic with Recoco)
 PREPARE get_symbols AS
   SELECT symbols FROM code_symbols WHERE content_hash = $1;
 

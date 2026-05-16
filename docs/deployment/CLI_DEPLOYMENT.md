@@ -149,10 +149,10 @@ GRANT ALL PRIVILEGES ON DATABASE thread_cache TO thread_user;
 
 ### 2. Schema Initialization
 
-Thread Flow uses ReCoco's PostgreSQL target which auto-creates tables. The schema includes:
+Thread Flow uses Recoco's PostgreSQL target which auto-creates tables. The schema includes:
 
 ```sql
--- Content-addressed cache table (auto-created by ReCoco)
+-- Content-addressed cache table (auto-created by Recoco)
 CREATE TABLE IF NOT EXISTS code_symbols (
     content_hash TEXT PRIMARY KEY,      -- Blake3 fingerprint
     file_path TEXT NOT NULL,
@@ -168,7 +168,7 @@ CREATE INDEX idx_symbols_language ON code_symbols(language);
 CREATE INDEX idx_symbols_created ON code_symbols(created_at);
 ```
 
-No manual schema creation needed—ReCoco handles this automatically.
+No manual schema creation needed—Recoco handles this automatically.
 
 ### 3. Connection Configuration
 

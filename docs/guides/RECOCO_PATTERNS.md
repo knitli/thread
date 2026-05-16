@@ -4,7 +4,7 @@ SPDX-FileCopyrightText: 2026 Knitli Inc.
 SPDX-License-Identifier: MIT OR Apache-2.0
 -->
 
-# ReCoco Integration Patterns
+# Recoco Integration Patterns
 
 **Version**: 1.0.0
 **Last Updated**: 2025-01-28
@@ -26,7 +26,7 @@ SPDX-License-Identifier: MIT OR Apache-2.0
 
 ## Overview
 
-Thread Flow integrates with **ReCoco** (Rust Ecosystem Composable Orchestration), a declarative dataflow framework for building ETL pipelines. This guide covers common patterns for building Thread analysis flows using ReCoco.
+Thread Flow integrates with **Recoco** (Rust Ecosystem Composable Orchestration), a declarative dataflow framework for building ETL pipelines. This guide covers common patterns for building Thread analysis flows using Recoco.
 
 ### Integration Architecture
 
@@ -40,7 +40,7 @@ Thread Flow integrates with **ReCoco** (Rust Ecosystem Composable Orchestration)
              │
              ▼
 ┌────────────────────────────────────┐
-│  ReCoco FlowBuilder (Low-Level)    │
+│  Recoco FlowBuilder (Low-Level)    │
 │  - Dataflow graph construction     │
 │  - Dependency tracking             │
 │  - Incremental execution           │
@@ -48,7 +48,7 @@ Thread Flow integrates with **ReCoco** (Rust Ecosystem Composable Orchestration)
              │
              ▼
 ┌────────────────────────────────────┐
-│  ReCoco Runtime                     │
+│  Recoco Runtime                     │
 │  - Operator execution              │
 │  - Content-addressed caching       │
 │  - Storage backend integration     │
@@ -147,7 +147,7 @@ let initial_flow = ThreadFlowBuilder::new("incremental_v1")
 initial_flow.execute().await?;
 
 // Subsequent runs: Only changed files
-// ReCoco automatically uses Blake3 fingerprinting to detect changes
+// Recoco automatically uses Blake3 fingerprinting to detect changes
 let incremental_flow = ThreadFlowBuilder::new("incremental_v2")
     .source_local("src/", &["**/*.rs"], &[])
     .parse()  // Only parses files with different content hashes
@@ -253,7 +253,7 @@ async fn custom_transform(input: Value) -> Result<Value, RecocoError> {
     Ok(input)
 }
 
-// Register with ReCoco
+// Register with Recoco
 pub fn register_custom_operators(registry: &mut FunctionRegistry) {
     registry.register("custom_transform", custom_transform);
 }
@@ -340,7 +340,7 @@ async fn build_flow() -> ServiceResult<FlowInstanceSpec> {
 }
 ```
 
-### ReCoco Errors
+### Recoco Errors
 
 ```rust
 use recoco::utils::prelude::Error as RecocoError;
@@ -386,7 +386,7 @@ match context.upsert(&upserts).await {
 ### Content-Addressed Caching
 
 ```rust
-// ReCoco automatically caches based on content hash
+// Recoco automatically caches based on content hash
 let flow = ThreadFlowBuilder::new("cached")
     .source_local("src/", &["**/*.rs"], &[])
     .parse()  // Cached by file content hash
@@ -602,7 +602,7 @@ let flow = ThreadFlowBuilder::new("simple")
     .build()
     .await?;
 
-// ❌ Avoid: Direct ReCoco FlowBuilder (low-level)
+// ❌ Avoid: Direct Recoco FlowBuilder (low-level)
 // Only use for custom operators or advanced patterns
 ```
 

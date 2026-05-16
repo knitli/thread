@@ -111,7 +111,7 @@ From `.specify/memory/constitution.md` v2.0.0, Principle VI:
 #### Content-Addressed Caching (Blake3)
 
 **Implementation**:
-- Blake3 fingerprinting via ReCoco Fingerprint system
+- Blake3 fingerprinting via Recoco Fingerprint system
 - Automatic deduplication with PRIMARY KEY on fingerprint
 - Zero false positives (collision probability ~2^-256)
 
@@ -121,7 +121,7 @@ From `.specify/memory/constitution.md` v2.0.0, Principle VI:
 | Fingerprint Time | 425 ns | **346x faster** | Small file (700 bytes) |
 | Batch (100 files) | 17.7 µs | 177 ns/file | Sequential processing |
 | Cache Lookup | 16.6 ns | Sub-nanosecond | Hash map in-memory |
-| Cost Reduction | 99.7% | Parse → Fingerprint | **Validated ReCoco claim** |
+| Cost Reduction | 99.7% | Parse → Fingerprint | **Validated Recoco claim** |
 
 **Cache Hit Rate Impact**:
 | Scenario | Cache Hit Rate | Time (100 files) | Speedup |
@@ -179,7 +179,7 @@ From `.specify/memory/constitution.md` v2.0.0, Principle VI:
 - ✅ `crates/flow/src/batch.rs` - Parallel processing (200+ lines)
 - ✅ `examples/query_cache_example.rs` - Integration example
 - ✅ Feature flags: `parallel` (rayon), `caching` (moka)
-- ✅ ReCoco Fingerprint integration
+- ✅ Recoco Fingerprint integration
 
 ### Impact
 - **99.7% cost reduction** through content-addressed caching (validated)
@@ -860,7 +860,7 @@ Hot cache (100% hit): 672 MiB/s (134x)
 The Thread optimization sprint has delivered significant performance improvements across all layers of the stack:
 
 - **346x faster** content-addressed caching via Blake3 fingerprinting
-- **99.7% cost reduction** on repeated analysis (validated ReCoco claim)
+- **99.7% cost reduction** on repeated analysis (validated Recoco claim)
 - **2-4x speedup** through parallel processing on multi-core systems
 - **86-134x throughput improvement** with warm caching (430-672 MiB/s)
 - **99.9% latency reduction** on query cache hits

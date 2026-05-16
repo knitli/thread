@@ -19,7 +19,7 @@ SPDX-License-Identifier: MIT OR Apache-2.0
 3. [Module Structure](#module-structure)
 4. [Dual Deployment Model](#dual-deployment-model)
 5. [Content-Addressed Caching](#content-addressed-caching)
-6. [ReCoco Integration](#recoco-integration)
+6. [Recoco Integration](#recoco-integration)
 7. [Data Flow](#data-flow)
 8. [Feature Flags](#feature-flags)
 9. [Performance Characteristics](#performance-characteristics)
@@ -28,7 +28,7 @@ SPDX-License-Identifier: MIT OR Apache-2.0
 
 ## Overview
 
-**Thread Flow** is a production-ready code analysis and processing pipeline built on Thread's AST engine and ReCoco's dataflow framework. It implements a **service-library dual architecture** that supports both:
+**Thread Flow** is a production-ready code analysis and processing pipeline built on Thread's AST engine and Recoco's dataflow framework. It implements a **service-library dual architecture** that supports both:
 
 1. **Library Mode**: Reusable components for AST parsing, pattern matching, and transformation
 2. **Service Mode**: Long-lived service with incremental intelligence, content-addressed caching, and real-time analysis
@@ -38,14 +38,14 @@ SPDX-License-Identifier: MIT OR Apache-2.0
 - ✅ **Content-Addressed Caching**: 50x+ performance gains via automatic incremental updates (Blake3 fingerprinting)
 - ✅ **Dual Deployment**: Single codebase compiles to both CLI (Rayon parallelism) and Edge (tokio async, Cloudflare Workers)
 - ✅ **Persistent Storage**: Native integration with Postgres (local), D1 (edge), Qdrant (vectors)
-- ✅ **Declarative Pipelines**: ThreadFlowBuilder for ETL and dependency tracking via ReCoco
+- ✅ **Declarative Pipelines**: ThreadFlowBuilder for ETL and dependency tracking via Recoco
 
 ### Design Philosophy
 
 Thread Flow follows the **Thread Constitution v2.0.0** principles:
 
 - **Principle I**: Service-Library Architecture - Features serve both library API and service deployment
-- **Principle IV**: Foundational Framework Dependency - ReCoco dataflow as orchestration layer
+- **Principle IV**: Foundational Framework Dependency - Recoco dataflow as orchestration layer
 - **Principle VI**: Service Requirements - Content-addressed caching >90% hit rate, storage <50ms p95 latency
 
 ---
@@ -58,8 +58,8 @@ Thread Flow operates as both a reusable library and a persistent service.
 
 ```
 thread-flow/src/
-├── bridge.rs          # CocoIndexAnalyzer (Thread ↔ ReCoco integration)
-├── conversion.rs      # Type conversions between Thread and ReCoco
+├── bridge.rs          # CocoIndexAnalyzer (Thread ↔ Recoco integration)
+├── conversion.rs      # Type conversions between Thread and Recoco
 ├── functions/         # Operators: parse(), extract_symbols(), etc.
 ├── registry.rs        # ThreadOperators (operator registration)
 └── flows/
@@ -105,18 +105,18 @@ thread-flow/src/
 ### Core Modules
 
 #### 1. **Bridge Module** (`bridge.rs`)
-- **Purpose**: Integrates Thread AST engine with ReCoco dataflow
-- **Key Type**: `CocoIndexAnalyzer` - Wraps Thread logic in ReCoco operators
+- **Purpose**: Integrates Thread AST engine with Recoco dataflow
+- **Key Type**: `CocoIndexAnalyzer` - Wraps Thread logic in Recoco operators
 - **Responsibilities**:
-  - Convert between Thread and ReCoco data models
-  - Register Thread operators with ReCoco runtime
+  - Convert between Thread and Recoco data models
+  - Register Thread operators with Recoco runtime
   - Handle error translation between frameworks
 
 #### 2. **Conversion Module** (`conversion.rs`)
-- **Purpose**: Type conversions between Thread and ReCoco value systems
+- **Purpose**: Type conversions between Thread and Recoco value systems
 - **Key Functions**:
-  - `thread_value_to_recoco()` - Thread → ReCoco type conversion
-  - `recoco_value_to_thread()` - ReCoco → Thread type conversion
+  - `thread_value_to_recoco()` - Thread → Recoco type conversion
+  - `recoco_value_to_thread()` - Recoco → Thread type conversion
 - **Type Mappings**:
   - `String` ↔ `BasicValue::Str`
   - `Vec<u8>` ↔ `BasicValue::Bytes`
@@ -124,7 +124,7 @@ thread-flow/src/
   - `serde_json::Value` ↔ `BasicValue::Json`
 
 #### 3. **Functions Module** (`functions/`)
-- **Purpose**: Thread-specific operators for ReCoco dataflow
+- **Purpose**: Thread-specific operators for Recoco dataflow
 - **Key Operators**:
   - `parse()` - Parse source code to AST using Thread engine
   - `extract_symbols()` - Extract functions, classes, methods
@@ -132,16 +132,16 @@ thread-flow/src/
   - `extract_calls()` - Extract function call sites
 - **Operator Pattern**:
   ```rust
-  // Each operator implements ReCoco's FunctionInterface
+  // Each operator implements Recoco's FunctionInterface
   pub async fn parse(input: Value) -> Result<Value> {
-      // 1. Convert ReCoco value to Thread input
+      // 1. Convert Recoco value to Thread input
       // 2. Execute Thread AST parsing
-      // 3. Convert Thread output to ReCoco value
+      // 3. Convert Thread output to Recoco value
   }
   ```
 
 #### 4. **Registry Module** (`registry.rs`)
-- **Purpose**: Centralized registration of Thread operators with ReCoco
+- **Purpose**: Centralized registration of Thread operators with Recoco
 - **Key Type**: `ThreadOperators`
 - **Registration Pattern**:
   ```rust
@@ -166,7 +166,7 @@ thread-flow/src/
       .parse()                                 // Transformation steps
       .extract_symbols()
       .target_d1(account, database, token, table, key)  // Export target
-      .build()                                 // Compile to ReCoco FlowInstanceSpec
+      .build()                                 // Compile to Recoco FlowInstanceSpec
   ```
 
 #### 6. **Runtime Module** (`runtime.rs`)
@@ -390,9 +390,9 @@ impl ContentCache {
 
 ---
 
-## ReCoco Integration
+## Recoco Integration
 
-Thread Flow integrates with ReCoco's declarative dataflow framework for pipeline orchestration.
+Thread Flow integrates with Recoco's declarative dataflow framework for pipeline orchestration.
 
 ### Integration Architecture
 
@@ -405,7 +405,7 @@ Thread Flow integrates with ReCoco's declarative dataflow framework for pipeline
                         │
                         ▼
 ┌─────────────────────────────────────────────────────────┐
-│              ReCoco FlowBuilder (Low-Level API)         │
+│              Recoco FlowBuilder (Low-Level API)         │
 │  - add_source()                                         │
 │  - add_function()                                       │
 │  - add_target()                                         │
@@ -415,7 +415,7 @@ Thread Flow integrates with ReCoco's declarative dataflow framework for pipeline
                         │
                         ▼
 ┌─────────────────────────────────────────────────────────┐
-│              ReCoco Runtime Execution                    │
+│              Recoco Runtime Execution                    │
 │  - Source: Read files from local/S3                     │
 │  - Transform: thread_parse, thread_extract_symbols      │
 │  - Target: Export to D1/Postgres/Qdrant                │
@@ -425,7 +425,7 @@ Thread Flow integrates with ReCoco's declarative dataflow framework for pipeline
 
 ### Operator Registration
 
-Thread registers its operators with ReCoco at initialization:
+Thread registers its operators with Recoco at initialization:
 
 ```rust
 use recoco::builder::function_registry::FunctionRegistry;
@@ -444,10 +444,10 @@ pub fn register_thread_operators(registry: &mut FunctionRegistry) {
 }
 ```
 
-### Data Flow Between Thread and ReCoco
+### Data Flow Between Thread and Recoco
 
 ```rust
-// ReCoco → Thread conversion
+// Recoco → Thread conversion
 let recoco_value: recoco::Value = /* from pipeline */;
 let thread_input: ThreadInput = conversion::recoco_to_thread(&recoco_value)?;
 
@@ -455,13 +455,13 @@ let thread_input: ThreadInput = conversion::recoco_to_thread(&recoco_value)?;
 let ast = thread_parse(&thread_input)?;
 let symbols = extract_symbols(&ast)?;
 
-// Thread → ReCoco conversion
+// Thread → Recoco conversion
 let recoco_output: recoco::Value = conversion::thread_to_recoco(&symbols)?;
 ```
 
 ### Value Type Mappings
 
-| Thread Type | ReCoco Type | Notes |
+| Thread Type | Recoco Type | Notes |
 |-------------|-------------|-------|
 | `String` | `BasicValue::Str` | UTF-8 strings |
 | `Vec<u8>` | `BasicValue::Bytes` | Binary data |
@@ -544,7 +544,7 @@ flow.execute().await?;
 3. **Cache Lookup** → `cache.rs` checks for cached results
 4. **Parse** (on miss) → `functions/parse.rs` uses Thread AST engine
 5. **Extract** → `functions/extract_*.rs` extracts code elements
-6. **Convert** → `conversion.rs` converts to ReCoco values
+6. **Convert** → `conversion.rs` converts to Recoco values
 7. **Target** → `targets/d1.rs` exports to storage backend
 
 ---
@@ -637,7 +637,7 @@ pub fn process_batch(files: &[File]) -> Vec<Result> {
 
 - **API Documentation**: See `docs/api/D1_INTEGRATION_API.md` for D1 target API reference
 - **Deployment Guides**: See `docs/deployment/` for CLI and Edge deployment instructions
-- **ReCoco Patterns**: See `docs/guides/RECOCO_PATTERNS.md` for common flow patterns
+- **Recoco Patterns**: See `docs/guides/RECOCO_PATTERNS.md` for common flow patterns
 - **Performance Tuning**: See `docs/operations/PERFORMANCE_TUNING.md` for optimization guides
 
 ---
@@ -645,7 +645,7 @@ pub fn process_batch(files: &[File]) -> Vec<Result> {
 ## References
 
 - **Thread Constitution v2.0.0**: `.specify/memory/constitution.md`
-- **ReCoco Documentation**: [ReCoco GitHub](https://github.com/recoco-framework/recoco)
+- **Recoco Documentation**: [Recoco GitHub](https://github.com/recoco-framework/recoco)
 - **Blake3 Hashing**: [BLAKE3 Project](https://github.com/BLAKE3-team/BLAKE3)
 - **Cloudflare D1**: [D1 Documentation](https://developers.cloudflare.com/d1)
 

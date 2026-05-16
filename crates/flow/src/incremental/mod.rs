@@ -4,7 +4,7 @@
 //! # Incremental Update System
 //!
 //! This module implements Thread's incremental update system for dependency-aware
-//! invalidation and targeted re-analysis. It adapts patterns from ReCoco's
+//! invalidation and targeted re-analysis. It adapts patterns from Recoco's
 //! `FieldDefFingerprint` design to Thread's AST analysis domain.
 //!
 //! ## Architecture
@@ -22,7 +22,7 @@
 //!
 //! ## Design Pattern
 //!
-//! Adapted from ReCoco's `FieldDefFingerprint` (analyzer.rs:69-84):
+//! Adapted from Recoco's `FieldDefFingerprint` (analyzer.rs:69-84):
 //! - **Source tracking**: Identifies which files contribute to each analysis result
 //! - **Fingerprint composition**: Detects content AND logic changes via Blake3 hashing
 //! - **Dependency graph**: Maintains import/export relationships for cascading invalidation

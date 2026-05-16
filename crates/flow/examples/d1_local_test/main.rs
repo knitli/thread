@@ -200,7 +200,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("   ⚠️  Skipping actual HTTP call (test credentials)");
     println!("   In production, this would:");
-    println!("      1. Convert ReCoco values to JSON");
+    println!("      1. Convert Recoco values to JSON");
     println!("      2. Build UPSERT SQL statements");
     println!("      3. Execute batch via D1 HTTP API");
     println!("      4. Handle response and errors\n");

@@ -3,7 +3,7 @@
 
 //! D1 Target Factory - Cloudflare D1 distributed SQLite database target
 //!
-//! Implements ReCoco TargetFactoryBase for exporting code analysis results to
+//! Implements Recoco TargetFactoryBase for exporting code analysis results to
 //! Cloudflare D1 edge databases with content-addressed caching.
 
 use async_trait::async_trait;
@@ -434,7 +434,7 @@ pub fn key_part_to_json(
     })
 }
 
-/// Convert ReCoco Value to JSON for D1 API
+/// Convert Recoco Value to JSON for D1 API
 /// Made public for testing purposes
 pub fn value_to_json(value: &Value) -> Result<serde_json::Value, RecocoError> {
     Ok(match value {

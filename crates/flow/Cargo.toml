@@ -56,7 +56,7 @@ metrics = "0.23"
 moka = { version = "0.12", features = ["future"], optional = true }
 # Optional: parallel processing for CLI (not available in workers)
 rayon = { workspace = true, optional = true }
-# ReCoco dataflow engine - using minimal features for reduced dependencies
+# Recoco dataflow engine - using minimal features for reduced dependencies
 # See RECOCO_INTEGRATION.md for feature flag strategy
 recoco = { version = "0.2.1", default-features = false, features = [
   "source-local-file",
@@ -111,7 +111,7 @@ caching = ["dep:moka"]
 # Cloudflare D1 storage backend (edge deployment)
 d1-backend = []
 # Note: recoco-cloud and recoco-full disabled due to dependency conflicts
-# TODO: Re-enable once ReCoco resolves crc version conflicts between S3 and sqlx
+# TODO: Re-enable once Recoco resolves crc version conflicts between S3 and sqlx
 # recoco-cloud = ["recoco-minimal", "recoco/source-s3"]
 # recoco-full = ["recoco-postgres", "recoco-cloud", "recoco/target-qdrant"]
 # Parallel processing (CLI only, not available in workers)
@@ -122,7 +122,7 @@ postgres-backend = [
   "dep:tokio-postgres",
   "recoco-postgres",
 ]
-# ReCoco integration feature flags
+# Recoco integration feature flags
 # See RECOCO_INTEGRATION.md for details
 recoco-minimal = ["recoco/source-local-file"]  # Just local file source
 recoco-postgres = [

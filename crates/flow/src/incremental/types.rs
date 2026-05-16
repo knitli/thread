@@ -5,7 +5,7 @@
 //!
 //! This module defines the foundational types used for fingerprint tracking,
 //! dependency edges, and symbol-level dependency information. The design is
-//! adapted from ReCoco's `FieldDefFingerprint` pattern (analyzer.rs:69-84).
+//! adapted from Recoco's `FieldDefFingerprint` pattern (analyzer.rs:69-84).
 
 use recoco::utils::fingerprint::{Fingerprint, Fingerprinter};
 use serde::{Deserialize, Serialize};
@@ -14,7 +14,7 @@ use std::path::{Path, PathBuf};
 
 /// Tracks the fingerprint and source files for an analysis result.
 ///
-/// Adapted from ReCoco's `FieldDefFingerprint` pattern. Combines content
+/// Adapted from Recoco's `FieldDefFingerprint` pattern. Combines content
 /// fingerprinting with source file tracking to enable precise invalidation
 /// scope determination.
 ///
@@ -178,7 +178,7 @@ pub enum SymbolKind {
 impl AnalysisDefFingerprint {
     /// Creates a new fingerprint from raw file content bytes.
     ///
-    /// Computes a Blake3-based fingerprint of the content using ReCoco's
+    /// Computes a Blake3-based fingerprint of the content using Recoco's
     /// `Fingerprinter` builder pattern.
     ///
     /// # Arguments

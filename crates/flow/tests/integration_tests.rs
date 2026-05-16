@@ -6,7 +6,7 @@
 //! Integration tests for thread-flow crate
 //!
 //! This test suite validates:
-//! - End-to-end flow execution with ReCoco
+//! - End-to-end flow execution with Recoco
 //! - Multi-language parsing (Rust, Python, TypeScript, Go)
 //! - Value serialization round-trip
 //! - Error handling for edge cases
@@ -43,7 +43,7 @@ fn create_mock_context() -> Arc<FlowInstanceContext> {
     })
 }
 
-/// Helper to create empty spec (ReCoco expects {} not null)
+/// Helper to create empty spec (Recoco expects {} not null)
 fn empty_spec() -> serde_json::Value {
     serde_json::json!({})
 }
@@ -104,7 +104,7 @@ fn extract_calls(output: &Value) -> Vec<ScopeValue> {
 
 // =============================================================================
 // Factory and Schema Tests
-// These tests verify the ReCoco integration works correctly
+// These tests verify the Recoco integration works correctly
 // =============================================================================
 
 #[tokio::test]
@@ -223,7 +223,7 @@ async fn test_executor_timeout() {
         .await
         .expect("Executor build should succeed");
 
-    // NOTE: ReCoco's FunctionExecutorWrapper doesn't delegate timeout()
+    // NOTE: Recoco's FunctionExecutorWrapper doesn't delegate timeout()
     // This is a known limitation - the wrapper only delegates enable_cache()
     // ThreadParseExecutor implements timeout() but it's not accessible through the wrapper
     let timeout = executor.timeout();

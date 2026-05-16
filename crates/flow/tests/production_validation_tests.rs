@@ -5,7 +5,7 @@
 
 //! Production Readiness Validation Tests (Day 22)
 //!
-//! Final validation test suite for Thread ReCoco integration production deployment.
+//! Final validation test suite for Thread Recoco integration production deployment.
 //! Validates deployment configuration, service initialization, health checks, and
 //! rollback procedures across both CLI and Edge deployment targets.
 //!

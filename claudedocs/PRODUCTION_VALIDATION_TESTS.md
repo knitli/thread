@@ -2,7 +2,7 @@
 
 ## Overview
 
-Comprehensive production readiness validation test suite for Thread ReCoco integration. Validates deployment configuration, service initialization, health checks, and rollback procedures across both CLI and Edge deployment targets.
+Comprehensive production readiness validation test suite for Thread Recoco integration. Validates deployment configuration, service initialization, health checks, and rollback procedures across both CLI and Edge deployment targets.
 
 **Test File**: `crates/flow/tests/production_validation_tests.rs`
 

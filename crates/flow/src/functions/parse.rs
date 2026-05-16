@@ -48,7 +48,7 @@ impl SimpleFunctionFactoryBase for ThreadParseFactory {
     }
 }
 
-/// Adapter: Wraps Thread's imperative parsing in a ReCoco executor
+/// Adapter: Wraps Thread's imperative parsing in a Recoco executor
 pub struct ThreadParseExecutor;
 
 #[async_trait]
@@ -91,7 +91,7 @@ impl SimpleFunctionExecutor for ThreadParseExecutor {
         use thread_ast_engine::tree_sitter::LanguageExt;
         let root = lang.ast_grep(content);
 
-        // Compute content fingerprint using ReCoco's blake3-based system
+        // Compute content fingerprint using Recoco's blake3-based system
         let fingerprint = thread_services::conversion::compute_content_fingerprint(content);
 
         // Convert to ParsedDocument

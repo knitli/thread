@@ -18,7 +18,7 @@ This document resolves all "NEEDS CLARIFICATION" and "PENDING RESEARCH" items id
 
 ## Research Tasks
 
-### 1. ReCoco Integration Architecture
+### 1. Recoco Integration Architecture
 
 **Status**: ✅ Complete — **SUPERSEDED AND IMPLEMENTED**
 
@@ -27,18 +27,18 @@ This document resolves all "NEEDS CLARIFICATION" and "PENDING RESEARCH" items id
 
 **Current Reality** (2026-02-24): This is no longer accurate.
 
-**ReCoco** is Thread's own Rust-only public fork of CocoIndex, maintained as a separate
+**Recoco** is Thread's own Rust-only public fork of CocoIndex, maintained as a separate
 open-source crate. It IS the native Rust API. The integration is complete.
 
 **Actual Implementation** (in `crates/flow/`):
 
 1. **Bridge Pattern** (`src/bridge.rs`, 85 lines):
    - `CocoIndexAnalyzer` implements `thread-services::CodeAnalyzer` trait
-   - Adapts Thread's imperative logic to ReCoco's declarative dataflow
+   - Adapts Thread's imperative logic to Recoco's declarative dataflow
 
 2. **ThreadFlowBuilder DSL** (`src/flows/builder.rs`, 150+ lines):
    - Chainable API: `.source_local() → .parse() → .extract_symbols() → .target_postgres()`
-   - Composes ReCoco operators declaratively
+   - Composes Recoco operators declaratively
 
 3. **Custom Operators** (`src/functions/`):
    - `thread_parse`: Source file → AST
@@ -53,11 +53,12 @@ open-source crate. It IS the native Rust API. The integration is complete.
    # Note: recoco/target-qdrant disabled due to CRC dependency conflict
    ```
 
-5. **Development Control**: Since ReCoco is Thread's own fork, any required changes
+5. **Development Control**: Since Recoco is Thread's own fork, any required changes
    can be implemented directly without waiting on external maintainers.
 
 **Validation Criteria** (all met):
-- ✅ Zero ReCoco types in Thread public APIs
+
+- ✅ Zero Recoco types in Thread public APIs
 - ✅ All dataflow operations testable without external Python dependencies
 - ✅ `cargo build --workspace` succeeds
 - ✅ `thread-flow` compiles to WASM for edge deployment
@@ -65,7 +66,7 @@ open-source crate. It IS the native Rust API. The integration is complete.
 **Original alternatives** (still accurately rejected):
 - ❌ Direct Python Subprocess Integration: High overhead
 - ❌ PyO3 Embed Python Interpreter: Massive binary size, edge incompatible
-- ❌ Wait for CocoIndex Rust API: We built our own (ReCoco)
+- ❌ Wait for CocoIndex Rust API: We built our own (Recoco)
 
 ---
 
@@ -207,7 +208,7 @@ For CLI Deployment (No WASM Constraints):
 
 **Decision**: Hybrid Relational Architecture with In-Memory Acceleration
 
-Use Postgres/D1 for persistent graph storage with adjacency list schema, combined with in-memory graph representation for complex queries and content-addressed caching via ReCoco.
+Use Postgres/D1 for persistent graph storage with adjacency list schema, combined with in-memory graph representation for complex queries and content-addressed caching via Recoco.
 
 **Rationale**:
 
@@ -218,9 +219,9 @@ Why NOT Dedicated Graph Databases:
 
 Why Hybrid Relational Works:
 1. **Dual Backend Support**: Single schema works across Postgres (CLI) and D1 (Edge) with no architectural changes.
-2. **Content-Addressed Caching**: Achieves >90% cache hit rate requirement (Constitution Principle VI) through ReCoco integration.
+2. **Content-Addressed Caching**: Achieves >90% cache hit rate requirement (Constitution Principle VI) through Recoco integration.
 3. **Performance Tiering**: Simple queries (1-2 hops) use indexed SQL; complex queries (3+ hops) load subgraphs into in-memory structures for traversal.
-4. **Incremental Updates**: ReCoco dataflow triggers only affected subgraph re-analysis on code changes (Constitution Principle IV).
+4. **Incremental Updates**: Recoco dataflow triggers only affected subgraph re-analysis on code changes (Constitution Principle IV).
 
 **Alternatives Considered**:
 - ❌ **Pure Postgres Recursive CTEs**: Performance degrades exponentially with depth and fan-out, string-based path tracking inefficient, D1's SQLite foundation limits concurrent writes
@@ -267,7 +268,7 @@ CREATE INDEX idx_nodes_type_name ON nodes(type, name);
 
 **Storage Requirements (10M nodes, 50M edges)**:
 - Postgres: Nodes 5GB + Edges 5GB + Indexes 5GB = ~15GB total (fits comfortably)
-- D1: Same schema, distributed across CDN nodes, ReCoco caching reduces query load by >90%
+- D1: Same schema, distributed across CDN nodes, Recoco caching reduces query load by >90%
 
 **Performance Projections**:
 - **Postgres (CLI)**: 1-hop <2ms p95, 2-hop <10ms p95 ✅, 3+ hop <50ms p95 (10ms load + 1ms traversal)
@@ -276,7 +277,7 @@ CREATE INDEX idx_nodes_type_name ON nodes(type, name);
 
 **Implementation Notes**:
 - Custom BFS/topological sort implementation (see `crates/flow/src/incremental/graph.rs`, 1,099 lines) — petgraph evaluated but custom implementation chosen for better integration with incremental update semantics
-- Implement incremental graph updates via ReCoco diff tracking
+- Implement incremental graph updates via Recoco diff tracking
 - Composite indexes on `(source_id, edge_type)` and `(target_id, edge_type)`
 - Materialized views for hot reverse dependency queries
 
@@ -403,7 +404,7 @@ pub async fn connect_realtime(server: &str) -> Result<RealtimeClient> {
 
 2. **Library-Service Boundary Preservation**: New crates clearly split library (reusable graph algorithms) vs service (persistent storage, caching, real-time). Aligns with Constitution Principle I (Service-Library Dual Architecture).
 
-3. **ReCoco Integration Point**: `thread-services` becomes integration point for ReCoco traits (via `thread-flow`). No type leakage into library crates.
+3. **Recoco Integration Point**: `thread-services` becomes integration point for Recoco traits (via `thread-flow`). No type leakage into library crates.
 
 4. **Acyclic Dependency Flow**: Clear dependency hierarchy prevents circular dependencies (Constitution Principle IV requirement).
 
@@ -420,7 +421,8 @@ pub async fn connect_realtime(server: &str) -> Result<RealtimeClient> {
 - `thread-realtime`: Real-time update propagation, WebSocket/SSE handling, Durable Objects integration (depends on: thread-api)
 
 **EXISTING Crates** (extended/reused):
-- `thread-services`: **EXTENDED** - Add ReCoco dataflow traits, registry, YAML spec parser (depends on: all new crates)
+
+- `thread-services`: **EXTENDED** - Add Recoco dataflow traits, registry, YAML spec parser (depends on: all new crates)
 - `thread-ast-engine`: **REUSED** - AST parsing foundation (no changes)
 - `thread-language`: **REUSED** - Language support (no changes)
 - `thread-rule-engine`: **EXTENDED** - Add pattern-based conflict detection rules (depends on: thread-conflict)
@@ -430,7 +432,7 @@ pub async fn connect_realtime(server: &str) -> Result<RealtimeClient> {
 **Dependency Graph**:
 ```
                     ┌──────────────────┐
-                    │ thread-services  │ (Service orchestration, ReCoco)
+                    │ thread-services  │ (Service orchestration, Recoco)
                     └────────┬─────────┘
                              │
         ┌────────────────────┼────────────────────┐
@@ -652,7 +654,7 @@ pub fn should_run_tier3(tier2_result: &[SemanticConflict]) -> bool {
 
 **Performance Optimization**:
 - Parallel tier execution where possible (Tier 2 and 3 can start before Tier 1 completes if working on different symbols)
-- Cache intermediate results in ReCoco (content-addressed AST nodes reused across tiers)
+- Cache intermediate results in Recoco (content-addressed AST nodes reused across tiers)
 - Early termination if high-confidence result achieved before final tier
 
 ---
@@ -1037,7 +1039,7 @@ impl CircuitBreaker {
 - What content-addressing schemes (SHA-256, blake3) balance speed and collision resistance?
 - How to handle cache warmup and cold-start scenarios?
 
-**Research Output**: Decisions documented in plan.md (ReCoco/thread-flow integration) and spec.md FR-004. Blake3 fingerprinting via ReCoco; PostgresIncrementalBackend and D1IncrementalBackend implemented.
+**Research Output**: Decisions documented in plan.md (Recoco/thread-flow integration) and spec.md FR-004. Blake3 fingerprinting via Recoco; PostgresIncrementalBackend and D1IncrementalBackend implemented.
 
 ---
 

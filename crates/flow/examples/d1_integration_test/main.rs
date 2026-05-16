@@ -38,7 +38,7 @@ use thread_services::error::ServiceResult;
 /// # What This Tests
 ///
 /// - ThreadFlowBuilder::target_d1() integration
-/// - ReCoco FlowBuilder with D1 target
+/// - Recoco FlowBuilder with D1 target
 /// - Thread parse → extract_symbols pipeline
 /// - D1 UPSERT operations via HTTP API
 /// - Content-addressed deduplication
@@ -67,7 +67,7 @@ async fn main() -> ServiceResult<()> {
     println!("   Target: D1 edge database");
     println!();
 
-    // Note: Actually building requires ReCoco runtime initialization
+    // Note: Actually building requires Recoco runtime initialization
     // For API demonstration, we show the builder pattern:
     println!("   let flow = ThreadFlowBuilder::new(\"d1_integration_test\")");
     println!("       .source_local(\"sample_code\", &[\"*.rs\", \"*.ts\"], &[])");
@@ -90,9 +90,9 @@ async fn main() -> ServiceResult<()> {
     println!("   Type-safe configuration: ✓");
     println!();
 
-    // 3. Execute the flow (would require ReCoco runtime)
+    // 3. Execute the flow (would require Recoco runtime)
     println!("📊 Flow Execution:");
-    println!("   ⚠️  Full execution requires ReCoco runtime setup");
+    println!("   ⚠️  Full execution requires Recoco runtime setup");
     println!("   In production, this would:");
     println!("      1. Scan sample_code/ for *.rs and *.ts files");
     println!("      2. Parse each file with Thread AST engine");
@@ -124,7 +124,7 @@ async fn main() -> ServiceResult<()> {
         "   1. Set up local D1: wrangler d1 execute thread-integration --local --file=schema.sql"
     );
     println!("   2. Configure real credentials in environment variables");
-    println!("   3. Implement ReCoco runtime integration");
+    println!("   3. Implement Recoco runtime integration");
     println!("   4. Test with actual D1 HTTP API");
     println!("   5. Deploy to Cloudflare Workers for edge execution");
 

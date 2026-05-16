@@ -16,7 +16,7 @@ This is a **direct test of the D1 target factory** without a full dataflow pipel
 - ✅ D1Spec configuration
 - ✅ D1ExportContext creation with schema definitions
 - ✅ ExportTargetUpsertEntry and ExportTargetDeleteEntry construction
-- ✅ ReCoco Value → JSON type conversions
+- ✅ Recoco Value → JSON type conversions
 - ✅ UPSERT and DELETE SQL statement generation patterns
 
 ## Prerequisites
@@ -64,7 +64,7 @@ cargo run --example d1_local_test
 🔄 Testing UPSERT operation...
    ⚠️  Skipping actual HTTP call (test credentials)
    In production, this would:
-      1. Convert ReCoco values to JSON
+      1. Convert Recoco values to JSON
       2. Build UPSERT SQL statements
       3. Execute batch via D1 HTTP API
       4. Handle response and errors
@@ -129,7 +129,7 @@ The example creates a realistic schema with:
 
 ### 2. **Type Conversions**
 
-Tests ReCoco type system integration:
+Tests Recoco type system integration:
 ```rust
 // String values
 Value::Basic(BasicValue::Str("example".to_string()))
@@ -167,7 +167,7 @@ This example validates the **D1 target factory in isolation**. In production:
        .target_d1(d1_spec);  // <-- D1 target integration point
    ```
 
-2. **ReCoco FlowBuilder** would:
+2. **Recoco FlowBuilder** would:
    - Call `D1TargetFactory::build()` to create export contexts
    - Execute the flow and collect mutations
    - Call `D1TargetFactory::apply_mutation()` with batched data
@@ -254,7 +254,7 @@ pub async fn main(req: Request, env: Env) -> Result<Response> {
 ## Validation Checklist
 
 - ✅ D1TargetFactory compiles without errors
-- ✅ Type conversions (ReCoco Value → JSON) tested
+- ✅ Type conversions (Recoco Value → JSON) tested
 - ✅ UPSERT and DELETE SQL patterns validated
 - ✅ Schema definition complete with indexes
 - ✅ Example runs and shows expected output
@@ -298,12 +298,12 @@ Check the D1 target factory implementation at:
 Key methods:
 - `build_upsert_stmt()` - Generates INSERT ... ON CONFLICT SQL
 - `build_delete_stmt()` - Generates DELETE WHERE key = ? SQL
-- `key_part_to_json()` - Converts ReCoco KeyPart to JSON
-- `value_to_json()` - Converts ReCoco Value to JSON
+- `key_part_to_json()` - Converts Recoco KeyPart to JSON
+- `value_to_json()` - Converts Recoco Value to JSON
 
 ## References
 
 - **D1 Documentation**: https://developers.cloudflare.com/d1/
-- **ReCoco Target Pattern**: `/home/knitli/thread/crates/flow/docs/RECOCO_TARGET_PATTERN.md`
+- **Recoco Target Pattern**: `/home/knitli/thread/crates/flow/docs/RECOCO_TARGET_PATTERN.md`
 - **D1 Target Factory**: `/home/knitli/thread/crates/flow/src/targets/d1.rs`
 - **Wrangler CLI**: https://developers.cloudflare.com/workers/wrangler/

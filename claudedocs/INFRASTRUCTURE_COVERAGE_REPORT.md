@@ -13,18 +13,18 @@ Successfully created comprehensive test suite for service infrastructure modules
 - ⏳ **14 tests ignored** with detailed documentation for future implementation
 - 🎯 **Coverage Impact**:
   - `runtime.rs`: **100% of implemented functionality**
-  - `bridge.rs`: **Structural validation only** (generic API prevents full testing without ReCoco integration)
+  - `bridge.rs`: **Structural validation only** (generic API prevents full testing without Recoco integration)
 
 ## Module Analysis
 
 ### bridge.rs - CocoIndexAnalyzer
 
-**Purpose**: Service trait implementation bridging thread-services to CocoIndex/ReCoco
+**Purpose**: Service trait implementation bridging thread-services to CocoIndex/Recoco
 
 **Current State**:
 - Zero-sized struct with no runtime overhead
 - Implements `CodeAnalyzer<D: Doc>` trait with all required async methods
-- All analysis methods return empty/stub results (marked TODO for ReCoco integration)
+- All analysis methods return empty/stub results (marked TODO for Recoco integration)
 - Generic over `Doc` type - prevents instantiation without concrete document types
 
 **Testing Limitations**:
@@ -34,7 +34,7 @@ The `CodeAnalyzer<D>` trait is generic over document types, requiring:
    - `Root<D>` from AST parsing
    - Content fingerprint calculation
    - File path and language metadata
-3. Integration with ReCoco dataflow for actual analysis
+3. Integration with Recoco dataflow for actual analysis
 
 **Tests Created**:
 - ✅ `test_analyzer_instantiation`: Validates zero-sized type construction
@@ -47,7 +47,7 @@ The `CodeAnalyzer<D>` trait is generic over document types, requiring:
 **Coverage**: ~8% (structural only)
 - Constructor: ✅ Tested
 - Trait implementation: ✅ Compiles correctly
-- Method behavior: ⏳ Requires ReCoco integration
+- Method behavior: ⏳ Requires Recoco integration
 
 ### runtime.rs - RuntimeStrategy Pattern
 
@@ -93,7 +93,7 @@ All future tests are marked `#[ignore]` with detailed comments explaining:
 3. Expected behavior when enabled
 
 ### Bridge Future Tests (8 tests)
-- `test_analyzer_actual_pattern_matching` - Real pattern matching with ReCoco
+- `test_analyzer_actual_pattern_matching` - Real pattern matching with Recoco
 - `test_analyzer_actual_replacement` - Code replacement functionality
 - `test_analyzer_cross_file_import_relationships` - Graph-based relationship discovery
 - `test_analyzer_respects_max_concurrent_patterns` - Capability enforcement (50 pattern limit)
@@ -138,11 +138,11 @@ tests/infrastructure_tests.rs (601 lines)
 The `CocoIndexAnalyzer` is a clean abstraction layer that:
 - Implements standard service traits from thread-services
 - Maintains zero runtime overhead (zero-sized type)
-- Prepares for ReCoco integration without coupling
+- Prepares for Recoco integration without coupling
 - Defines clear capability boundaries (50 concurrent patterns, 1000 matches per pattern)
 
 **Next Steps**:
-1. Implement ReCoco dataflow integration
+1. Implement Recoco dataflow integration
 2. Add helper methods for ParsedDocument creation
 3. Enable capability enforcement
 4. Implement cross-file relationship graph querying
@@ -186,7 +186,7 @@ All runtime tests validate production-readiness:
 - `bridge.rs`: **~30%** of lines, but **100%** of testable code
   - Constructor: Fully tested
   - Trait implementation: Compile-time validated
-  - Method bodies: Stub implementations (awaiting ReCoco integration)
+  - Method bodies: Stub implementations (awaiting Recoco integration)
 
 ### Functional Coverage
 - ✅ Module instantiation: 100%
@@ -223,7 +223,7 @@ All runtime tests validate production-readiness:
 ### Immediate Actions
 1. ✅ **No immediate action required** - tests are comprehensive for current implementation
 
-### Short-Term (When ReCoco Integration Begins)
+### Short-Term (When Recoco Integration Begins)
 1. Enable `test_analyzer_find_pattern_stub` and related tests
 2. Add helper methods for ParsedDocument creation in test utils
 3. Create integration fixtures with common document types
@@ -244,13 +244,13 @@ All runtime tests validate production-readiness:
 ## Coverage Improvement Path
 
 To reach 80%+ coverage on `bridge.rs`:
-1. **Complete ReCoco Integration** - Implement actual analysis logic
+1. **Complete Recoco Integration** - Implement actual analysis logic
 2. **Add Document Helpers** - Create test utilities for ParsedDocument instantiation
 3. **Enable Stub Tests** - Validate current placeholder behavior
 4. **Add Capability Tests** - Test max pattern/match limits
-5. **Integration Tests** - Test through ReCoco pipeline end-to-end
+5. **Integration Tests** - Test through Recoco pipeline end-to-end
 
-**Estimated effort**: 2-3 days once ReCoco integration is in place
+**Estimated effort**: 2-3 days once Recoco integration is in place
 
 ## Conclusion
 

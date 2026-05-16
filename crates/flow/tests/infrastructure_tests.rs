@@ -18,7 +18,7 @@
 //! ### bridge.rs
 //! - ✅ Compiles and instantiates successfully
 //! - ✅ Implements CodeAnalyzer trait with all required methods
-//! - ⏳ All analysis methods return empty results (TODO: integrate with ReCoco)
+//! - ⏳ All analysis methods return empty results (TODO: integrate with Recoco)
 //! - ⏳ Generic over Doc type - full testing requires concrete document types
 //!
 //! ### runtime.rs
@@ -39,7 +39,7 @@
 //! - **Bridge API Testing**: CodeAnalyzer<D> is generic, full testing requires:
 //!   * Concrete Doc type instantiation
 //!   * ParsedDocument creation with Root<D>, fingerprint, etc.
-//!   * Integration with ReCoco dataflow
+//!   * Integration with Recoco dataflow
 //! - **Current Focus**: Test what's implementable now (runtime strategies)
 //! - **Future Work**: Enable ignored tests when bridge integration is complete
 
@@ -89,7 +89,7 @@ async fn test_analyzer_find_pattern_stub() {
     // - Creating ParsedDocument with proper parameters
     //
     // Enable when bridge integration provides helper methods or
-    // when testing through the full ReCoco pipeline.
+    // when testing through the full Recoco pipeline.
 }
 
 #[tokio::test]
@@ -397,10 +397,10 @@ fn test_strategy_selection_pattern() {
 // Future Tests - Currently Ignored
 // ============================================================================
 
-#[ignore = "TODO: Enable when ReCoco integration is complete"]
+#[ignore = "TODO: Enable when Recoco integration is complete"]
 #[tokio::test]
 async fn test_analyzer_actual_pattern_matching() {
-    // This test should be enabled once find_pattern integrates with ReCoco
+    // This test should be enabled once find_pattern integrates with Recoco
     // and proper document creation helpers are available
     //
     // Expected behavior:
@@ -410,7 +410,7 @@ async fn test_analyzer_actual_pattern_matching() {
     // - Test pattern capture variables ($NAME, $$$PARAMS, etc.)
 }
 
-#[ignore = "TODO: Enable when ReCoco integration is complete"]
+#[ignore = "TODO: Enable when Recoco integration is complete"]
 #[tokio::test]
 async fn test_analyzer_actual_replacement() {
     // This test validates actual code replacement functionality
@@ -422,7 +422,7 @@ async fn test_analyzer_actual_replacement() {
     // - Test replacement templates with captured variables
 }
 
-#[ignore = "TODO: Enable when ReCoco graph querying is implemented"]
+#[ignore = "TODO: Enable when Recoco graph querying is implemented"]
 #[tokio::test]
 async fn test_analyzer_cross_file_import_relationships() {
     // This test validates cross-file relationship discovery
@@ -500,7 +500,7 @@ async fn test_analyzer_respects_max_matches_per_pattern() {
 async fn test_end_to_end_analysis_pipeline() {
     // Complete integration test simulating real-world usage:
     //
-    // 1. Initialize analyzer with ReCoco backend
+    // 1. Initialize analyzer with Recoco backend
     // 2. Select runtime strategy based on environment
     // 3. Perform analysis across multiple files
     // 4. Store results in appropriate backend (Postgres/D1)

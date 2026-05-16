@@ -25,9 +25,9 @@ members = [
 [workspace.package]
 version = "0.0.1"
 edition = "2024"
-rust-version = "1.85"
-description = "A safe, fast, flexible code analysis and code parsing library and tool. Built with tree-sitter, ast-grep, and difftastic in Rust."
-documentation = "https://thread.knitli.com"
+rust-version = "1.89"
+description = "A safe, fast, flexible code analysis engine built in Rust. Service-library dual architecture with AST pattern matching, 26-language support, content-addressed caching, and incremental intelligence via Recoco dataflow."
+documentation = "https://docs.rs/thread"
 readme = "README.md"
 homepage = "https://knitli.com"
 repository = "https://github.com/knitli/thread"

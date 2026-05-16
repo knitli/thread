@@ -17,7 +17,7 @@
 - Module structure and responsibilities (9 core modules)
 - Dual deployment model (CLI vs Edge)
 - Content-addressed caching system (Blake3 fingerprinting)
-- ReCoco integration points and data flow
+- Recoco integration points and data flow
 - Feature flags and build configurations
 - Performance characteristics and scalability
 
@@ -27,7 +27,7 @@
 - Module Structure (batch, bridge, cache, conversion, flows, functions, registry, runtime, sources, targets)
 - Dual Deployment Model (LocalStrategy vs EdgeStrategy)
 - Content-Addressed Caching (99.7% cost reduction)
-- ReCoco Integration (operator registration, value mappings)
+- Recoco Integration (operator registration, value mappings)
 - Data Flow (source → fingerprint → parse → extract → target)
 - Feature Flags (recoco-minimal, parallel, caching, worker)
 - Performance Characteristics (latency targets, throughput, cache metrics)
@@ -57,14 +57,14 @@
 - Usage Examples (3 complete examples)
 - Best Practices (7 recommendations)
 
-### 3. ReCoco Integration Patterns Guide
+### 3. Recoco Integration Patterns Guide
 **File**: `docs/guides/RECOCO_PATTERNS.md`
 **Status**: ✅ Complete
 
 **Coverage**:
 - ThreadFlowBuilder patterns (basic, multi-language, incremental, complex, resilient)
 - Operator patterns (custom registration, composition, error handling)
-- Error handling strategies (service-level, ReCoco, D1 API)
+- Error handling strategies (service-level, Recoco, D1 API)
 - Performance patterns (caching, parallel processing, batching, query caching)
 - Advanced patterns (multi-target, custom sources, dynamic flows)
 - Best practices (7 production-ready recommendations)
@@ -166,7 +166,7 @@ claudedocs/
 - All documentation follows markdown best practices
 - ASCII diagrams used for terminal readability
 - Code examples reference actual test cases (d1_target_tests.rs)
-- Type mappings validated against ReCoco types
+- Type mappings validated against Recoco types
 - Performance metrics from actual benchmarks (Day 15)
 - Constitution compliance verified (Principle I, IV, VI)
 

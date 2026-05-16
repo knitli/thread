@@ -32,7 +32,7 @@ The **D1 Integration** enables Thread Flow to export code analysis results to **
 
 - ✅ **Content-Addressed Storage**: Automatic deduplication via content hashing
 - ✅ **Schema Management**: Automatic table creation and migration
-- ✅ **Type System Integration**: Seamless conversion between ReCoco and D1 types
+- ✅ **Type System Integration**: Seamless conversion between Recoco and D1 types
 - ✅ **UPSERT Operations**: Efficient incremental updates
 - ✅ **Edge-Native**: <50ms p95 latency worldwide
 
@@ -185,7 +185,7 @@ pub struct ColumnSchema {
 ```
 
 **SQL Type Mappings:**
-| ReCoco Type | D1 SQL Type | Notes |
+| Recoco Type | D1 SQL Type | Notes |
 |-------------|-------------|-------|
 | `BasicValueType::Str` | `TEXT` | UTF-8 strings |
 | `BasicValueType::Bytes` | `BLOB` | Binary data (base64 encoded) |
@@ -312,7 +312,7 @@ let url = context.api_url();
 
 ## Setup State Management
 
-D1 integration uses ReCoco's setup state system for automatic schema management.
+D1 integration uses Recoco's setup state system for automatic schema management.
 
 ### Setup State Lifecycle
 
@@ -409,7 +409,7 @@ let setup_state = D1SetupState {
 
 ### Schema Compatibility
 
-ReCoco's `SetupStateCompatibility` enum indicates compatibility status:
+Recoco's `SetupStateCompatibility` enum indicates compatibility status:
 
 ```rust
 pub enum SetupStateCompatibility {

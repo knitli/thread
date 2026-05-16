@@ -4,22 +4,22 @@ SPDX-FileCopyrightText: 2026 Knitli Inc.
 SPDX-License-Identifier: MIT OR Apache-2.0
 -->
 
-# ReCoco Content Hashing Integration
+# Recoco Content Hashing Integration
 
 **Analysis Date**: January 27, 2026
-**Finding**: ReCoco already implements blake3-based content hashing for deduplication
+**Finding**: Recoco already implements blake3-based content hashing for deduplication
 
 ---
 
 ## Executive Summary
 
-ReCoco has a comprehensive content-addressed caching system using blake3 hashing. We can leverage this existing infrastructure instead of implementing our own content hashing for D1 deduplication.
+Recoco has a comprehensive content-addressed caching system using blake3 hashing. We can leverage this existing infrastructure instead of implementing our own content hashing for D1 deduplication.
 
-**Key Insight**: ReCoco's `Fingerprint` type (16-byte blake3 hash) can be used directly as D1 primary keys via `KeyPart::Bytes`.
+**Key Insight**: Recoco's `Fingerprint` type (16-byte blake3 hash) can be used directly as D1 primary keys via `KeyPart::Bytes`.
 
 ---
 
-## ReCoco's Fingerprinting System
+## Recoco's Fingerprinting System
 
 ### Core Components
 
@@ -164,25 +164,25 @@ FieldValues {
 
 ---
 
-## Benefits of Using ReCoco Fingerprints
+## Benefits of Using Recoco Fingerprints
 
 ### 1. **Consistency**
-- Same hashing algorithm across entire ReCoco pipeline
+- Same hashing algorithm across entire Recoco pipeline
 - Deterministic hashing ensures reproducibility
 - Type-aware hashing prevents collisions
 
 ### 2. **Performance**
 - blake3 is extremely fast (multi-threaded, SIMD optimized)
 - 16-byte fingerprints are compact (vs 32-byte SHA256 or 64-byte SHA512)
-- Already integrated into ReCoco's execution engine
+- Already integrated into Recoco's execution engine
 
 ### 3. **Deduplication**
-- Automatic deduplication at ReCoco level
+- Automatic deduplication at Recoco level
 - Cache hits for identical content
 - Incremental updates only for changed content
 
 ### 4. **Integration**
-- No additional dependencies (blake3 already in ReCoco)
+- No additional dependencies (blake3 already in Recoco)
 - Works seamlessly with memoization system
 - Compatible with D1 primary keys via `KeyPart::Bytes`
 
@@ -328,18 +328,18 @@ With content-addressed caching:
 
 ---
 
-## Comparison: Custom Hash vs ReCoco Fingerprint
+## Comparison: Custom Hash vs Recoco Fingerprint
 
-| Aspect | Custom Hash (md5/sha256) | ReCoco Fingerprint (blake3) |
+| Aspect | Custom Hash (md5/sha256) | Recoco Fingerprint (blake3) |
 |--------|-------------------------|----------------------------|
 | **Performance** | Slower (SHA256: ~500 MB/s) | Faster (blake3: ~10 GB/s) |
 | **Size** | 32 bytes (SHA256) | 16 bytes (compact) |
-| **Integration** | New dependency | Already in ReCoco |
-| **Consistency** | Independent system | Matches ReCoco memoization |
+| **Integration** | New dependency | Already in Recoco |
+| **Consistency** | Independent system | Matches Recoco memoization |
 | **Type Safety** | String/bytes only | Serde-aware (all types) |
 | **Deduplication** | Manual | Automatic via memoization |
 
-**Recommendation**: Use ReCoco's Fingerprint system exclusively.
+**Recommendation**: Use Recoco's Fingerprint system exclusively.
 
 ---
 
@@ -370,7 +370,7 @@ ALTER TABLE code_symbols RENAME COLUMN content_fp TO content_hash;
 ## Next Steps
 
 ### Immediate
-1. ✅ Analyze ReCoco fingerprinting system (this document)
+1. ✅ Analyze Recoco fingerprinting system (this document)
 2. ⏳ Update `thread_parse` to expose `content_fingerprint`
 3. ⏳ Modify D1 target to use fingerprints as primary keys
 4. ⏳ Add incremental update logic with fingerprint comparison
@@ -381,7 +381,7 @@ ALTER TABLE code_symbols RENAME COLUMN content_fp TO content_hash;
 7. ⏳ Document fingerprint usage in ThreadFlowBuilder
 
 ### Long-Term
-8. ⏳ Integrate with ReCoco memoization for cross-session caching
+8. ⏳ Integrate with Recoco memoization for cross-session caching
 9. ⏳ Add fingerprint-based query APIs
 10. ⏳ Optimize for large-scale incremental updates
 
@@ -397,7 +397,7 @@ let code = r#"
     }
 "#;
 
-// 2. Compute fingerprint (ReCoco)
+// 2. Compute fingerprint (Recoco)
 let mut fp = Fingerprinter::default();
 fp.write(code)?;
 let fingerprint = fp.into_fingerprint();
@@ -436,13 +436,13 @@ if needs_analysis {
 
 ## Conclusion
 
-ReCoco's existing blake3-based fingerprinting system provides:
+Recoco's existing blake3-based fingerprinting system provides:
 - ✅ **Better performance** than custom hashing
-- ✅ **Seamless integration** with ReCoco memoization
+- ✅ **Seamless integration** with Recoco memoization
 - ✅ **Type-safe content hashing** via Serde
 - ✅ **Compact 16-byte fingerprints**
 - ✅ **Automatic deduplication**
 
-**Recommendation**: Use ReCoco's `Fingerprint` type exclusively for all content-addressed caching in D1 and edge deployment.
+**Recommendation**: Use Recoco's `Fingerprint` type exclusively for all content-addressed caching in D1 and edge deployment.
 
 No need to implement custom hashing - leverage what's already there! 🎯

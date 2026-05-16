@@ -32,7 +32,7 @@ cargo bench -p thread-flow -- --baseline main
 ## Benchmark Categories
 
 ### 1. Direct Parse Benchmarks
-Measures baseline Thread AST parsing performance without ReCoco overhead.
+Measures baseline Thread AST parsing performance without Recoco overhead.
 
 - **rust_small_50_lines**: ~140µs (7 Kfiles/s)
 - **rust_medium_200_lines**: ~730µs (1.4 Kfiles/s)
@@ -89,10 +89,10 @@ Current performance targets (all met):
 
 ## Future Benchmark Plans
 
-### ReCoco Integration Benchmarks (TODO)
+### Recoco Integration Benchmarks (TODO)
 Currently disabled due to metadata extraction bugs. Will add:
 
-- Full pipeline with ReCoco executor
+- Full pipeline with Recoco executor
 - Content-addressed caching performance
 - Cache hit/miss scenarios
 - Memory usage comparison

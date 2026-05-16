@@ -27,9 +27,10 @@ Real-Time Code Graph Intelligence transforms Thread from a code analysis library
 - Enable incremental updates affecting <10% of full analysis time
 
 **Technical Approach**:
-- Service-library dual architecture with ReCoco dataflow orchestration
+
+- Service-library dual architecture with Recoco dataflow orchestration
 - Multi-backend storage (Postgres for CLI, D1 for edge, Vectorize for edge vector search)
-- Trait-based abstraction for ReCoco integration (prevent type leakage)
+- Trait-based abstraction for Recoco integration (prevent type leakage)
 - **API Protocol**: prost + plain HTTP POST for external API (no Connect-RPC/gRPC framing); postcard for internal Rust-to-Rust (Worker→Container, CLI); JSON-RPC 2.0 for MCP server (future, separate adapter). All proto files use `package thread.v1;` namespace. Directory: `crates/thread-api/proto/v1/`. Add `buf.gen.yaml` for TypeScript codegen targeting `@bufbuild/protobuf` (protobuf-es v2). Version bump policy: field additions are backward-compatible; breaking changes require `v2/` directory.
 - Conflict detection deferred to commercial `thread-conflict` crate (Phase 4)
 - Rayon parallelism (CLI) + tokio async (edge) concurrency models
@@ -38,7 +39,8 @@ Real-Time Code Graph Intelligence transforms Thread from a code analysis library
 
 **Language/Version**: Rust (edition 2024, aligning with Thread's existing codebase)
 **Primary Dependencies**:
-- ReCoco framework v0.2.1 (content-addressed caching, dataflow orchestration) - **INTEGRATED** in thread-flow crate via bridge pattern + ThreadFlowBuilder DSL
+
+- Recoco framework v0.2.1 (content-addressed caching, dataflow orchestration) - **INTEGRATED** in thread-flow crate via bridge pattern + ThreadFlowBuilder DSL
 - tree-sitter (AST parsing foundation, existing Thread dependency)
 - workers-rs (Cloudflare Workers runtime for edge deployment)
 - prost (Protobuf encoding for external API, no_std/WASM-compatible); prost-build (host-only code gen, never in WASM binary)
@@ -51,17 +53,18 @@ Real-Time Code Graph Intelligence transforms Thread from a code analysis library
 - ~~petgraph~~ - NOT USED: thread-flow implements custom BFS/topological sort in incremental/graph.rs (1,099 lines)
 
 **Edge Deployment Architecture**:
-- **Cloudflare Containers (ReCoco/thread-flow)**: Heavy computation — indexing, graph construction, incremental analysis — runs in Cloudflare Containers (beta). Full tokio/async support; no WASM constraints. Resolves WASM incompatibility with ReCoco (D2).
+
+- **Cloudflare Containers (Recoco/thread-flow)**: Heavy computation — indexing, graph construction, incremental analysis — runs in Cloudflare Containers (beta). Full tokio/async support; no WASM constraints. Resolves WASM incompatibility with Recoco (D2).
 - **Workers (thin WASM layer)**: Handles request routing, D1 native queries, Vectorize semantic search, and result serialization. OSS: single Worker (Rust/Python/TypeScript). Commercial: Router Worker + per-language Language Workers via service bindings.
 - **Memory Wall (Workers only)**: Strict 128MB limit. **NO** loading full graph into Worker memory. Use streaming/iterator patterns (`D1GraphIterator`).
 - **Database-First**: Primary graph state lives in D1. In-memory structs are ephemeral (batch processing only).
 - **Reachability Index**: k-hop bounded (k=3 default) — NOT a full transitive closure (full closure for 10M nodes ≈ 800GB, exceeds D1 10GB limit). Tracks live session state (Container/DO memory) + committed baseline (D1). On-demand BFS beyond k hops.
-- **Throughput Governance**: Use ReCoco adaptive controls (max_inflight_bytes) (<80MB) and `Adaptive Batching` to manage resource pressure.
+- **Throughput Governance**: Use Recoco adaptive controls (max_inflight_bytes) (<80MB) and `Adaptive Batching` to manage resource pressure.
 
 **Storage**: Multi-backend architecture with deployment-specific primaries:
 - Postgres (CLI deployment primary - full graph with ACID guarantees)
 - D1 (edge deployment primary - distributed graph storage + **Reachability Index**). Two implementations: `D1IncrementalBackend` (existing, REST API — for external tooling/CI); `D1NativeBackend` (planned, `worker::D1Database` native binding for in-Worker use — zero extra HTTP hop, enables SC-STORE-001 <50ms p95 target). Both implement `StorageBackend` trait.
-- Vectorize (edge vector search), Qdrant (CLI-only, optional — currently blocked by ReCoco dependency conflict)
+- Vectorize (edge vector search), Qdrant (CLI-only, optional — currently blocked by Recoco dependency conflict)
 
 **Testing**: cargo nextest (constitutional requirement, all tests executed via nextest)
 
@@ -97,7 +100,7 @@ Real-Time Code Graph Intelligence transforms Thread from a code analysis library
 ### I. Service-Library Architecture ✅
 
 - [x] **Library Core**: Feature includes reusable library crates for graph analysis, indexing, conflict detection
-- [x] **Service Layer**: Feature includes persistent service with ReCoco orchestration, caching, and real-time updates
+- [x] **Service Layer**: Feature includes persistent service with Recoco orchestration, caching, and real-time updates
 - [x] **Dual Consideration**: Design explicitly addresses both library API (for embedding) and service deployment (CLI + edge)
 
 **Justification if violated**: N/A - Feature is fundamentally a service-library dual architecture system. Graph analysis logic is library-reusable, persistence/caching/real-time are service-specific.
@@ -124,7 +127,7 @@ Real-Time Code Graph Intelligence transforms Thread from a code analysis library
   - Library crates: thread-graph (core algorithms), thread-indexer (multi-source), thread-conflict (detection)
   - Service crates: thread-storage (persistence), thread-api (RPC), thread-realtime (WebSocket)
 - [x] **No Circular Dependencies**: Acyclic dependency graph (see Project Structure for flow diagram)
-- [x] **ReCoco Integration**: Follows declarative dataflow patterns with trait-based abstraction in thread-services (research complete)
+- [x] **Recoco Integration**: Follows declarative dataflow patterns with trait-based abstraction in thread-services (research complete)
 
 **Justification if violated**: N/A - Fully compliant. Research Task 6 defined clear crate organization with library-service split and acyclic dependencies
 
@@ -132,7 +135,7 @@ Real-Time Code Graph Intelligence transforms Thread from a code analysis library
 
 - [x] **AGPL-3.0**: All new code properly licensed under AGPL-3.0-or-later (Thread standard)
 - [x] **REUSE Spec**: License headers or .license files present (enforced via `mise run lint`)
-- [x] **Attribution**: ReCoco integration properly attributed, any vendored code documented
+- [x] **Attribution**: Recoco integration properly attributed, any vendored code documented
 
 **Justification if violated**: N/A - Standard Thread licensing applies. Commercial features use feature flags, not separate licensing.
 
@@ -142,7 +145,7 @@ Real-Time Code Graph Intelligence transforms Thread from a code analysis library
 
 - [x] **Deployment Target**: Both CLI and Edge (dual deployment architecture)
 - [x] **Storage Backend**: Postgres (CLI primary), D1 (Edge primary), Vectorize (edge vectors), Qdrant (CLI optional)
-- [x] **Caching Strategy**: Content-addressed caching via ReCoco framework (IMPLEMENTED in thread-flow) (>90% hit rate target)
+- [x] **Caching Strategy**: Content-addressed caching via Recoco framework (IMPLEMENTED in thread-flow) (>90% hit rate target)
 - [x] **Concurrency Model**: Rayon (CLI parallel processing), tokio (Edge async I/O)
 
 **Deployment Target**: Both (CLI + Edge with single codebase, conditional compilation)
@@ -191,7 +194,7 @@ several planned crates. New crates should build on — not duplicate — this fo
 | `incremental/graph.rs` (1,099 lines) | Core of `thread-graph` — BFS, topological sort, cycle detection |
 | `incremental/analyzer.rs` (636 lines) | Core of `thread-indexer` — incremental analysis coordinator |
 | `incremental/storage.rs` + backends | Core of `thread-storage` — StorageBackend trait, Postgres, D1 |
-| `bridge.rs` + `flows/builder.rs` | ReCoco integration (thread-services extension) |
+| `bridge.rs` + `flows/builder.rs` | Recoco integration (thread-services extension) |
 | Language extractors (Rust/TS/Python/Go) | Dependency extraction for `thread-indexer` |
 
 **Implication**: Phase 1 crate creation should wrap/extend thread-flow rather than reimplementing this infrastructure.
@@ -282,16 +285,16 @@ crates/
 │   ├── src/
 │   │   └── lib.rs
 │   └── tests/
-├── thread-services/       # EXISTING → EXTENDED: ReCoco integration
+├── thread-services/       # EXISTING → EXTENDED: Recoco integration
 │   ├── src/
 │   │   ├── lib.rs
-│   │   ├── dataflow/      # NEW: ReCoco trait abstractions
+│   │   ├── dataflow/      # NEW: Recoco trait abstractions
 │   │   │   ├── traits.rs  # DataSource, DataFunction, DataTarget
 │   │   │   ├── registry.rs # Factory registry pattern
 │   │   │   └── spec.rs    # YAML dataflow specification parser
 │   │   └── existing...    # Previous service interfaces
 │   └── tests/
-├── thread-flow/           # EXISTING: ReCoco integration layer (FOUNDATIONAL - already implemented)
+├── thread-flow/           # EXISTING: Recoco integration layer (FOUNDATIONAL - already implemented)
 │   │                       Also provides the semantic query transform — the adapter
 │   │                       that bridges thread-ast-engine AST traversal with
 │   │                       thread-definitions classification to enable
@@ -347,14 +350,14 @@ tests/
 **Dependency Graph** (acyclic, library-service separated):
 ```
 Service Layer (orchestration, persistence):
-    thread-services (ReCoco traits)
+    thread-services (Recoco traits)
        ├─> thread-storage (Postgres/D1/Vectorize)
        ├─> thread-realtime (WebSocket/SSE)
        └─> thread-api (Custom RPC over HTTP)
               # NOTE: thread-conflict (commercial) → thread-api (not the reverse)
               # Commercial crate imports conflict protocol types from thread-api; thread-api never depends on thread-conflict
 
-    thread-flow (ReCoco integration layer - FOUNDATIONAL)
+    thread-flow (Recoco integration layer - FOUNDATIONAL)
        ├─> recoco v0.2.1 (public crate)
        ├─> thread-ast-engine
        ├─> thread-definitions (for classify_node_types operator)
@@ -388,13 +391,14 @@ Edge Deployment:
 **Structure Decision**:
 - **Single Workspace Extension**: New graph-focused crates added to existing Thread workspace
 - **Library-Service Boundary**: Clear separation (graph/indexer are library-reusable; storage/api/realtime are service-specific; thread-conflict is commercial/deferred)
-- **ReCoco Integration**: SCAFFOLDED via bridge.rs + ThreadFlowBuilder DSL in thread-flow (bridge.rs = stubs only, must be implemented before T-C10)
+- **Recoco Integration**: SCAFFOLDED via bridge.rs + ThreadFlowBuilder DSL in thread-flow (bridge.rs = stubs only, must be implemented before T-C10)
 - **Acyclic Dependencies**: Top-down flow from services → libraries, no circular references
 - **Component Selection**: Existing ast-grep components (ast-engine, language) reused, CodeWeaver evaluation deferred to Phase 2 (Research Task 2)
 
 **Crate Ownership Boundary (D3)**:
-- `thread-services` = engine-agnostic orchestration traits ONLY (`DataSource`, `DataFunction`, `DataTarget`). ReCoco types NEVER appear in `thread-services` public API.
-- `thread-flow` = the ReCoco implementation. Owns `bridge.rs`, `ThreadFlowBuilder`, storage backends, and the semantic query transform (bridge between `thread-ast-engine` and `thread-definitions`).
+
+- `thread-services` = engine-agnostic orchestration traits ONLY (`DataSource`, `DataFunction`, `DataTarget`). Recoco types NEVER appear in `thread-services` public API.
+- `thread-flow` = the Recoco implementation. Owns `bridge.rs`, `ThreadFlowBuilder`, storage backends, and the semantic query transform (bridge between `thread-ast-engine` and `thread-definitions`).
 - All new crates (`thread-graph`, `thread-indexer`, etc.) depend on `thread-services` traits, NOT `thread-flow` directly. This prevents circular dependencies (thread-flow depends on these crates while also being their implementation) and preserves engine swappability.
 - `thread-conflict` is Commercial/Deferred — Phase 4 tasks are out of OSS scope (see D4 decision).
 - `thread-api/types.rs` owns shared conflict protocol types (`ConflictPrediction`, `ConflictType`, `Severity`, `DetectionTier`, `ConflictStatus`, `ResolutionStrategy`). `thread-conflict` (commercial) imports these from `thread-api` — it does not define them.
@@ -447,7 +451,7 @@ Tasks:
 ✓ Comprehensive integration tests
 
 Success Criteria:
-⏳ All Thread capabilities functional through ReCoco (blocked: ThreadRuleMatchFunction, ThreadExtractRelationshipsFunction, ThreadBuildGraphFunction not yet built)
+⏳ All Thread capabilities functional through Recoco (blocked: ThreadRuleMatchFunction, ThreadExtractRelationshipsFunction, ThreadBuildGraphFunction not yet built)
 ⏳ Service trait API stable and tested (partial — bridge.rs complete, remaining operators pending)
 ⏳ Performance targets met (<1s query, <100ms Tier 1 conflict)
 ⏳ >90% cache hit rate on real-world codebases

@@ -5,7 +5,7 @@
 
 //! Type system round-trip validation tests
 //!
-//! Ensures no metadata loss in Rust → ReCoco → verification cycles.
+//! Ensures no metadata loss in Rust → Recoco → verification cycles.
 //! Validates that Document → Value serialization preserves all data integrity.
 
 use recoco::base::value::{BasicValue, FieldValues, ScopeValue, Value};
@@ -61,7 +61,7 @@ fn create_typescript_document(
     )
 }
 
-/// Extract symbol count from ReCoco Value
+/// Extract symbol count from Recoco Value
 fn extract_symbol_count(value: &Value) -> usize {
     match value {
         Value::Struct(FieldValues { fields }) => match &fields[0] {
@@ -72,7 +72,7 @@ fn extract_symbol_count(value: &Value) -> usize {
     }
 }
 
-/// Extract import count from ReCoco Value
+/// Extract import count from Recoco Value
 fn extract_import_count(value: &Value) -> usize {
     match value {
         Value::Struct(FieldValues { fields }) => match &fields[1] {
@@ -83,7 +83,7 @@ fn extract_import_count(value: &Value) -> usize {
     }
 }
 
-/// Extract call count from ReCoco Value
+/// Extract call count from Recoco Value
 fn extract_call_count(value: &Value) -> usize {
     match value {
         Value::Struct(FieldValues { fields }) => match &fields[2] {
@@ -94,7 +94,7 @@ fn extract_call_count(value: &Value) -> usize {
     }
 }
 
-/// Extract fingerprint from ReCoco Value
+/// Extract fingerprint from Recoco Value
 fn extract_fingerprint(value: &Value) -> Vec<u8> {
     match value {
         Value::Struct(FieldValues { fields }) => match &fields[3] {
@@ -105,7 +105,7 @@ fn extract_fingerprint(value: &Value) -> Vec<u8> {
     }
 }
 
-/// Validate symbol structure in ReCoco Value
+/// Validate symbol structure in Recoco Value
 fn validate_symbol_structure(symbol: &ScopeValue) {
     let ScopeValue(FieldValues { fields }) = symbol;
     assert_eq!(
@@ -129,7 +129,7 @@ fn validate_symbol_structure(symbol: &ScopeValue) {
     );
 }
 
-/// Validate import structure in ReCoco Value
+/// Validate import structure in Recoco Value
 fn validate_import_structure(import: &ScopeValue) {
     let ScopeValue(FieldValues { fields }) = import;
     assert_eq!(
@@ -152,7 +152,7 @@ fn validate_import_structure(import: &ScopeValue) {
     );
 }
 
-/// Validate call structure in ReCoco Value
+/// Validate call structure in Recoco Value
 fn validate_call_structure(call: &ScopeValue) {
     let ScopeValue(FieldValues { fields }) = call;
     assert_eq!(

@@ -1,10 +1,10 @@
-# ReCoco Integration for Thread
+# Recoco Integration for Thread
 
-This document describes the ReCoco transform functions implemented for Thread's semantic extraction capabilities.
+This document describes the Recoco transform functions implemented for Thread's semantic extraction capabilities.
 
 ## Overview
 
-The Thread-ReCoco integration provides dataflow-based code analysis through transform functions that extract semantic information from source code. These functions follow the ReCoco SimpleFunctionFactory/SimpleFunctionExecutor pattern.
+The Thread-Recoco integration provides dataflow-based code analysis through transform functions that extract semantic information from source code. These functions follow the Recoco SimpleFunctionFactory/SimpleFunctionExecutor pattern.
 
 ## Implemented Transform Functions
 
@@ -88,7 +88,7 @@ pub fn import_type() -> ValueType { /* ... */ }
 pub fn call_type() -> ValueType { /* ... */ }
 ```
 
-These schemas use ReCoco's type system (`ValueType`, `StructSchema`, `FieldSchema`) to define the structure of extracted data.
+These schemas use Recoco's type system (`ValueType`, `StructSchema`, `FieldSchema`) to define the structure of extracted data.
 
 ## Module Organization
 
@@ -153,7 +153,7 @@ These transform functions integrate with CocoIndex's dataflow framework to provi
 
 ## Error Handling
 
-All functions use ReCoco's error system:
+All functions use Recoco's error system:
 - `Error::client()`: Invalid input or unsupported language
 - `Error::internal_msg()`: Internal processing errors
 

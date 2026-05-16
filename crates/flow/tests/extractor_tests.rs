@@ -41,7 +41,7 @@ fn create_mock_context() -> Arc<FlowInstanceContext> {
     })
 }
 
-/// Helper to create empty spec (ReCoco expects {} not null)
+/// Helper to create empty spec (Recoco expects {} not null)
 fn empty_spec() -> serde_json::Value {
     serde_json::json!({})
 }
@@ -311,7 +311,7 @@ async fn test_extract_symbols_timeout() {
         .expect("Build should succeed");
     let executor = build_output.executor.await.expect("Executor should build");
 
-    // NOTE: ReCoco's SimpleFunctionFactoryBase wrapper doesn't delegate timeout()
+    // NOTE: Recoco's SimpleFunctionFactoryBase wrapper doesn't delegate timeout()
     // This is a known limitation in recoco v0.2.1 - the wrapper only delegates enable_cache()
     // The executor implements timeout() but it's not accessible through the wrapper
     let timeout = executor.timeout();
@@ -537,7 +537,7 @@ async fn test_extract_imports_timeout() {
         .expect("Build should succeed");
     let executor = build_output.executor.await.expect("Executor should build");
 
-    // NOTE: ReCoco's SimpleFunctionFactoryBase wrapper doesn't delegate timeout()
+    // NOTE: Recoco's SimpleFunctionFactoryBase wrapper doesn't delegate timeout()
     // This is a known limitation in recoco v0.2.1 - the wrapper only delegates enable_cache()
     // The executor implements timeout() but it's not accessible through the wrapper
     let timeout = executor.timeout();
@@ -777,7 +777,7 @@ async fn test_extract_calls_timeout() {
         .expect("Build should succeed");
     let executor = build_output.executor.await.expect("Executor should build");
 
-    // NOTE: ReCoco's SimpleFunctionFactoryBase wrapper doesn't delegate timeout()
+    // NOTE: Recoco's SimpleFunctionFactoryBase wrapper doesn't delegate timeout()
     // This is a known limitation in recoco v0.2.1 - the wrapper only delegates enable_cache()
     // The executor implements timeout() but it's not accessible through the wrapper
     let timeout = executor.timeout();

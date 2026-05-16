@@ -7,7 +7,7 @@ SPDX-License-Identifier: MIT OR Apache-2.0
 
 # Thread-Flow Integration Tests
 
-Comprehensive integration test suite for the thread-flow crate, validating ReCoco dataflow integration and multi-language code parsing capabilities.
+Comprehensive integration test suite for the thread-flow crate, validating Recoco dataflow integration and multi-language code parsing capabilities.
 
 ## Test Structure
 
@@ -23,7 +23,7 @@ Comprehensive integration test suite for the thread-flow crate, validating ReCoc
 ### Test Categories
 
 #### 1. Factory and Schema Tests (✅ Passing)
-Tests verifying ReCoco integration works correctly:
+Tests verifying Recoco integration works correctly:
 - `test_factory_build_succeeds` - Factory creation
 - `test_executor_creation` - Executor instantiation
 - `test_schema_output_type` - Output schema validation
@@ -147,7 +147,7 @@ Once the pattern matching bug is resolved:
 ## Test Coverage
 
 ### Current Coverage
-- ✅ ReCoco integration (factory, executor, schema)
+- ✅ Recoco integration (factory, executor, schema)
 - ✅ Error handling (invalid inputs, unsupported languages)
 - ⏸️ Value serialization (structure, types)
 - ⏸️ Multi-language parsing (Rust, Python, TypeScript, Go)
@@ -182,4 +182,4 @@ Once the pattern matching bug is resolved:
 
 - [Thread Flow Integration Guide](../RECOCO_INTEGRATION.md)
 - [Thread Constitution](../../.specify/memory/constitution.md)
-- [ReCoco Documentation](https://github.com/knitli/recoco)
+- [Recoco Documentation](https://github.com/knitli/recoco)

@@ -116,7 +116,7 @@ See `crates/flow/` for the existing foundation.
 
 - [ ] **T-C10**: Add `classify_node_types` operator to thread-flow pipeline
   - ⚠️ **PREREQUISITE**: Before modifying bridge.rs, all existing stub methods MUST be updated to return `Err(ThreadFlowError::NotImplemented { method: "<name>" })` instead of silent empty results. Silent empty stubs mask missing data as successful empty queries. This change MUST be committed and reviewed before any T-C10 work begins. (See T-C09b.)
-  - New ReCoco operator: takes parsed AST nodes → emits classification metadata
+  - New Recoco operator: takes parsed AST nodes → emits classification metadata
   - Call `classifier.classify(node.kind(), lang, kind, purpose, is_root, categories)`
   - Positioned between parse and extract_symbols steps in ThreadFlowBuilder
   - Identifies definition boundaries (Rank 1-2 nodes) for L1 content addressing
@@ -177,7 +177,7 @@ See `crates/flow/` for the existing foundation.
 - [ ] **T016b**: Implement `D1NativeBackend` using `worker::D1Database` native binding in `crates/thread-storage/src/d1_native.rs` — required to meet SC-STORE-001 <50ms p95 target. Both `D1IncrementalBackend` and `D1NativeBackend` implement `StorageBackend` trait. `[CF: OSS]`
   - **Test strategy**: Use `miniflare` (local Cloudflare Workers runtime emulator) for unit and integration tests. CI integration tests require a Cloudflare staging environment via `wrangler dev`. Do not attempt to test `worker::D1Database` native bindings outside a Worker runtime context — they will not compile for the native target.
 - [ ] T017 Define Protobuf message types (.proto) in `crates/thread-api/proto/v1/` and configure `prost` code generation. All `.proto` files use `package thread.v1;` namespace. Add `buf.yaml` and `buf.gen.yaml` for TypeScript client codegen targeting `@bufbuild/protobuf` (protobuf-es v2). Transport: plain HTTP POST — no Connect-RPC/gRPC framing. Document version bump policy in `crates/thread-api/proto/README.md`: field additions are backward-compatible; removing/renumbering fields or changing field types incompatibly requires a new `v2/` directory. Define conflict protocol types (`ConflictPrediction`, `ConflictType`, `Severity`, `DetectionTier`, `ConflictStatus`, `ResolutionStrategy`) in `crates/thread-api/src/types.rs` as Rust structs. These are shared between OSS `thread-api` and commercial `thread-conflict`.
-- [x] T018 ~~Implement CocoIndex dataflow traits~~ — DONE: ReCoco integration implemented via bridge pattern:
+- [x] T018 ~~Implement CocoIndex dataflow traits~~ — DONE: Recoco integration implemented via bridge pattern:
   - `crates/flow/src/bridge.rs`: `CocoIndexAnalyzer` adapter
   - `crates/flow/src/flows/builder.rs`: `ThreadFlowBuilder` DSL
   - `crates/flow/src/functions/`: parse, symbols, imports, calls operators
@@ -274,7 +274,7 @@ See `crates/flow/` for the existing foundation.
 - US4 depends on US2 (Conflict detection)
 
 ## Implementation Foundation
-- thread-flow provides: StorageBackend (T013-T015 ✅), DependencyGraph (T012 partial ✅), IncrementalAnalyzer (T021 partial ✅), ReCoco integration (T018 ✅), Language extractors (T021 partial ✅)
+- thread-flow provides: StorageBackend (T013-T015 ✅), DependencyGraph (T012 partial ✅), IncrementalAnalyzer (T021 partial ✅), Recoco integration (T018 ✅), Language extractors (T021 partial ✅)
 - Remaining: Semantic graph model (T011, T012), conflict detection (T029-T038), API layer (T017, T026), real-time (T035, T038), multi-source (T039-T043), Vectorize (T016)
 
 ## Parallel Execution Examples

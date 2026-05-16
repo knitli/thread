@@ -13,7 +13,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 ## Overview
 
-This document defines the core entities, relationships, and data structures for the Real-Time Code Graph Intelligence system. The data model supports both persistent storage (Postgres/D1) and in-memory operations, with content-addressed caching via ReCoco.
+This document defines the core entities, relationships, and data structures for the Real-Time Code Graph Intelligence system. The data model supports both persistent storage (Postgres/D1) and in-memory operations, with content-addressed caching via Recoco.
 
 ## Implementation Status (as of 2026-02-24)
 
@@ -145,7 +145,7 @@ pub type ContentHash = [u8; 32];    // Blake3 hash
 
 **Storage**:
 - Metadata: Postgres/D1 table `files`
-- AST: Content-addressed cache (ReCoco) with file hash as key
+- AST: Content-addressed cache (Recoco) with file hash as key
 - Content: Not stored (re-fetched from source on demand)
 
 ---
@@ -253,7 +253,7 @@ pub struct SemanticMetadata {
 - Metadata: Postgres/D1 table `nodes`
 - In-memory: Custom DependencyGraph (crates/flow/src/incremental/graph.rs) for complex queries (CLI only) — petgraph was evaluated but custom implementation was chosen
 - Edge Strategy: **Streaming/Iterator access only**. NEVER load full graph into memory. Use `D1GraphIterator` pattern.
-- Cache: ReCoco with node ID as key
+- Cache: Recoco with node ID as key
 - Vector Embeddings: Cloudflare Vectorize (edge deployment), Qdrant (CLI-only, optional — currently blocked)
 
 ---
@@ -611,7 +611,8 @@ AnalysisSession ───> ConflictPrediction    GraphEdge ────┘
 
 ## Content-Addressed Storage Strategy
 
-**ReCoco Integration**:
+**Recoco Integration**:
+
 - All entities use content-addressed IDs (Blake3 hashes)
 - Content changes → new ID → automatic cache invalidation
 - Incremental updates: diff old vs new IDs, update only changed nodes/edges
@@ -629,7 +630,7 @@ content hashes is the target state for `thread-graph`/`thread-storage`.
 let old_id = NodeId::from_content("fn process(x: i32)");  // "node:abc123..."
 let new_id = NodeId::from_content("fn process(x: String)"); // "node:def456..." (different!)
 
-// ReCoco detects change, invalidates cache for old_id
+// Recoco detects change, invalidates cache for old_id
 recoco.invalidate(&old_id)?;
 
 // Only new_id node and affected edges need re-analysis
@@ -667,6 +668,6 @@ db.update_edges_referencing(&old_id, &new_id)?;
 Based on this data model:
 1. Implement Rust struct definitions in appropriate crates
 2. Generate database migration SQL for Postgres and D1
-3. Implement ReCoco content-addressing for all entities (foundation exists in thread-flow via Blake3 fingerprinting)
+3. Implement Recoco content-addressing for all entities (foundation exists in thread-flow via Blake3 fingerprinting)
 4. Write contract tests for entity invariants
 5. Create database indexes for performance targets (SC-STORE-001)

@@ -16,13 +16,13 @@ Thread is a **service-library dual architecture** for safe, fast, flexible code 
 1. **Reusable Library Ecosystem** - Modular crates (ast-engine, language, rule-engine) for AST-based pattern matching and transformation using tree-sitter parsers
 2. **Persistent Service Platform** - Long-lived service with incremental intelligence, content-addressed caching, and real-time code analysis
 
-The project is forked from ast-grep and enhanced with ReCoco (Rust-only fork of CocoIndex) dataflow framework for production use as a code analysis engine for AI context generation. Thread's `thread-flow` crate serves as the implementation layer for ReCoco capabilities.
+The project is forked from ast-grep and enhanced with Recoco (Rust-only fork of CocoIndex) dataflow framework for production use as a code analysis engine for AI context generation. Thread's `thread-flow` crate serves as the implementation layer for Recoco capabilities.
 
 **Key Differentiators**:
 - ✅ **Content-Addressed Caching**: 50x+ performance gains on repeated analysis via automatic incremental updates
 - ✅ **Dual Deployment**: Single codebase compiles to both CLI (Rayon parallelism) and Edge (tokio async, Cloudflare Workers)
 - ✅ **Persistent Storage**: Native integration with Postgres (local), D1 (edge), Qdrant (vectors)
-- ✅ **Dataflow Orchestration**: Declarative pipelines for ETL and dependency tracking via ReCoco (implemented in `thread-flow`)
+- ✅ **Dataflow Orchestration**: Declarative pipelines for ETL and dependency tracking via Recoco (implemented in `thread-flow`)
 
 ## Architecture
 
@@ -33,14 +33,14 @@ Thread follows a **service-library dual architecture** (Constitution v2.0.0, Pri
 - **`thread-ast-engine`** - Core AST parsing, pattern matching, and transformation engine (forked from ast-grep-core)
 - **`thread-language`** - Language definitions and tree-sitter parser integrations (supports 20+ languages)
 - **`thread-rule-engine`** - Rule-based scanning and transformation system with YAML configuration support
-- **`thread-flow`** - Dataflow orchestration layer implementing ReCoco (Rust-only fork of CocoIndex) with heavy feature-gating for modular builds
-- **`thread-utils`** - Shared utilities including SIMD optimizations and hash functions
+- **`thread-flow`** - Dataflow orchestration layer implementing Recoco (Rust-only fork of CocoIndex) with heavy feature-gating for modular builds
+- **`thread-utilities`** - Shared utilities including SIMD optimizations and hash functions
 - **`thread-wasm`** - WebAssembly bindings for browser and edge deployment
 
 ### Service Layer (Orchestration & Persistence)
 
-- **`thread-services`** - High-level service interfaces, API abstractions, and ReCoco integration
-- **ReCoco Dataflow** - Content-addressed caching, incremental ETL, and dependency tracking via `thread-flow` crate (public Rust-only dependency with heavy feature-gating per Constitution v2.0.0, Principle IV)
+- **`thread-services`** - High-level service interfaces, API abstractions, and Recoco integration
+- **Recoco Dataflow** - Content-addressed caching, incremental ETL, and dependency tracking via `thread-flow` crate (public Rust-only dependency with heavy feature-gating per Constitution v2.0.0, Principle IV)
 - **Storage Backends**:
   - **Postgres** (local CLI) - Persistent caching and analysis results
   - **D1** (Cloudflare Edge) - Distributed caching across CDN nodes
@@ -53,23 +53,24 @@ Thread follows a **service-library dual architecture** (Constitution v2.0.0, Pri
 
 - **`xtask`** - Custom build tasks, primarily for WASM compilation with optimization
 
-## ReCoco Integration
+## Recoco Integration
 
-**ReCoco** is a public Rust-only fork of the CocoIndex dataflow framework, maintained as a separate open-source crate with heavy feature-gating for modular builds.
+**Recoco** is a public Rust-only fork of the CocoIndex dataflow framework, maintained as a separate open-source crate with heavy feature-gating for modular builds.
 
-**Development Control**: While ReCoco lives in a separate repository, Thread maintainers have full control over ReCoco development. If Thread requires changes, new features, or bug fixes in ReCoco, these can be implemented directly without waiting on external maintainers.
+**Development Control**: While Recoco lives in a separate repository, Thread maintainers have full control over Recoco development. If Thread requires changes, new features, or bug fixes in Recoco, these can be implemented directly without waiting on external maintainers.
 
 ### Architectural Relationship
 
-- **ReCoco** (external dependency) - Public Rust crate providing dataflow abstractions, content-addressed caching primitives, and incremental computation framework
-- **`thread-flow`** (Thread crate) - Thread's implementation layer for ReCoco, providing:
+- **Recoco** (external dependency) - Public Rust crate providing dataflow abstractions, content-addressed caching primitives, and incremental computation framework
+- **`thread-flow`** (Thread crate) - Thread's implementation layer for Recoco, providing:
   - Storage backend integrations (Postgres, D1, Qdrant)
   - Thread-specific dataflow pipelines and ETL operations
   - Incremental analysis orchestration for code graph updates
 
 ### Feature Gating
 
-ReCoco uses Cargo feature flags to enable modular builds:
+Recoco uses Cargo feature flags to enable modular builds:
+
 - Core dataflow primitives available without features
 - Storage backends gated behind `postgres`, `d1`, `qdrant` features
 - Thread selectively enables only required features via `thread-flow`
@@ -316,7 +317,7 @@ cargo run -p xtask build-wasm --release
 
 1. **Service-Library Architecture** (Principle I)
    - Features MUST consider both library API design AND service deployment
-   - Libraries remain self-contained; services leverage ReCoco (via `thread-flow`) for orchestration
+   - Libraries remain self-contained; services leverage Recoco (via `thread-flow`) for orchestration
    - Dual architecture is non-negotiable—both aspects are first-class citizens
 
 2. **Test-First Development** (Principle III - NON-NEGOTIABLE)

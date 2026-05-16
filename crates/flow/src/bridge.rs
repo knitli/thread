@@ -48,7 +48,7 @@ impl<D: thread_ast_engine::source::Doc + Send + Sync> CodeAnalyzer<D> for CocoIn
         _pattern: &str,
         _context: &AnalysisContext,
     ) -> ServiceResult<Vec<thread_services::types::CodeMatch<'_, D>>> {
-        // TODO: Bridge to ReCoco
+        // TODO: Bridge to Recoco
         Ok(vec![])
     }
 
@@ -58,7 +58,7 @@ impl<D: thread_ast_engine::source::Doc + Send + Sync> CodeAnalyzer<D> for CocoIn
         _patterns: &[&str],
         _context: &AnalysisContext,
     ) -> ServiceResult<Vec<thread_services::types::CodeMatch<'_, D>>> {
-        // TODO: Bridge to ReCoco
+        // TODO: Bridge to Recoco
         Ok(vec![])
     }
 
@@ -69,7 +69,7 @@ impl<D: thread_ast_engine::source::Doc + Send + Sync> CodeAnalyzer<D> for CocoIn
         _replacement: &str,
         _context: &AnalysisContext,
     ) -> ServiceResult<usize> {
-        // TODO: Bridge to ReCoco
+        // TODO: Bridge to Recoco
         Ok(0)
     }
 
@@ -78,7 +78,7 @@ impl<D: thread_ast_engine::source::Doc + Send + Sync> CodeAnalyzer<D> for CocoIn
         _documents: &[ParsedDocument<D>],
         _context: &AnalysisContext,
     ) -> ServiceResult<Vec<CrossFileRelationship>> {
-        // Bridge: Query  ReCoco graph for relationships
+        // Bridge: Query  Recoco graph for relationships
         Ok(vec![])
     }
 }

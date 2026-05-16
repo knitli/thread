@@ -23,7 +23,7 @@ cfg-if = { workspace = true }
 futures = { workspace = true, optional = true }
 ignore = { workspace = true }
 pin-project = { workspace = true, optional = true }
-# ReCoco utilities for content fingerprinting (blake3 hashing)
+# Recoco utilities for content fingerprinting (blake3 hashing)
 recoco-utils = { version = "0.2.1", default-features = false, features = [
   "fingerprint"
 ] }
