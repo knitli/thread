@@ -400,9 +400,10 @@ impl DependencyGraph {
     /// Ensures a node exists in the graph for the given file path.
     /// Creates a default fingerprint entry if the node does not exist.
     fn ensure_node(&mut self, file: &Path) {
-        self.nodes
-            .entry(file.to_path_buf())
-            .or_insert_with(|| AnalysisDefFingerprint::new(b""));
+        if !self.nodes.contains_key(file) {
+            self.nodes
+                .insert(file.to_path_buf(), AnalysisDefFingerprint::new(b""));
+        }
     }
 
     /// DFS visit for topological sort with cycle detection.
