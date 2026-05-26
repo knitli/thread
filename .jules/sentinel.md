@@ -1,0 +1,4 @@
+## 2024-05-24 - [Path Traversal Vulnerability in Manual Path Resolution]
+**Vulnerability:** Path traversal vulnerability during manual path normalization.
+**Learning:** `Component::ParentDir` was handled by blindly popping the last path component when canonicalization failed. This could cause it to mistakenly pop root (`/`) or prefix components, allowing traversal out of safe boundaries or stripping absolute path roots incorrectly. It also failed to correctly preserve `..` elements when traversing up from `..`.
+**Prevention:** Always explicitly match against previous components during manual path normalization. Prevent `Component::ParentDir` from popping `Component::RootDir` or `Component::Prefix`. If the components list is empty or ends in `Component::ParentDir`, the new `Component::ParentDir` must be pushed to properly handle paths that traverse beyond the starting directory.
