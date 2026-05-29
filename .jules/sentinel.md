@@ -1,0 +1,4 @@
+## 2024-05-30 - Path Traversal in Manual Path Normalization
+**Vulnerability:** Path traversal vulnerability in TypeScript module resolution where manual `../` (ParentDir) handling in `typescript.rs` popped components indiscriminately, even after exhausting the base path.
+**Learning:** When falling back to manual path normalisation via `.components()` because a file doesn't exist yet (canonicalize fails), naively popping components on `Component::ParentDir` allows malicious inputs like `../../` to escape the root directory context or resolve to arbitrary files, completely bypassing intended base path restrictions.
+**Prevention:** Always preserve `ParentDir` components when the component list is empty or already ends in `ParentDir`. Never pop `RootDir` or `Prefix` components, effectively treating the root as an absolute boundary that `..` cannot traverse above.
