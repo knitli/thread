@@ -1,0 +1,4 @@
+## 2024-05-15 - Path Traversal in TypeScript Module Resolution
+**Vulnerability:** The manual path normalization logic for unresolved TypeScript modules blindly called `components.pop()` when encountering `..` (ParentDir), which would swallow components when the list was empty, allowing path traversal outside of intended boundaries.
+**Learning:** Rust's `Path::components()` does not automatically normalize `.` and `..` away. Manual normalization must explicitly track when components is empty or ends in `..` and push `ParentDir` in those cases instead of ignoring/popping it, otherwise `../../../file` resolves as `file`.
+**Prevention:** Whenever manually resolving paths with `std::path::Component`, block `ParentDir` from popping `RootDir` or `Prefix`, and explicitly push `ParentDir` if the current component list is empty or its last element is `ParentDir`.
