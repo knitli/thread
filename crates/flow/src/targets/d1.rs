@@ -300,40 +300,63 @@ impl D1ExportContext {
         key: &KeyValue,
         values: &FieldValues,
     ) -> Result<(String, Vec<serde_json::Value>), RecocoError> {
-        let mut columns = vec![];
-        let mut placeholders = vec![];
-        let mut params = vec![];
-        let mut update_clauses = vec![];
+        use std::fmt::Write;
 
-        // Extract key parts - KeyValue is a wrapper around Box<[KeyPart]>
+        let mut params =
+            Vec::with_capacity(self.key_fields_schema.len() + self.value_fields_schema.len());
+        // ⚡ Bolt: Pre-allocate capacity and write directly to minimize allocations
+        let mut sql = String::with_capacity(
+            128 + (self.key_fields_schema.len() + self.value_fields_schema.len()) * 20,
+        );
+        let mut update_clauses = String::with_capacity(self.value_fields_schema.len() * 30);
+
+        write!(&mut sql, "INSERT INTO {} (", self.table_name).unwrap();
+
+        let mut first = true;
         for (idx, _key_field) in self.key_fields_schema.iter().enumerate() {
             if let Some(key_part) = key.0.get(idx) {
-                columns.push(self.key_fields_schema[idx].name.clone());
-                placeholders.push("?".to_string());
+                if !first {
+                    write!(&mut sql, ", ").unwrap();
+                }
+                write!(&mut sql, "{}", self.key_fields_schema[idx].name).unwrap();
                 params.push(key_part_to_json(key_part)?);
+                first = false;
             }
         }
 
-        // Add value fields
+        let mut first_update = true;
         for (idx, value) in values.fields.iter().enumerate() {
             if let Some(value_field) = self.value_fields_schema.get(idx) {
-                columns.push(value_field.name.clone());
-                placeholders.push("?".to_string());
+                if !first {
+                    write!(&mut sql, ", ").unwrap();
+                }
+                write!(&mut sql, "{}", value_field.name).unwrap();
                 params.push(value_to_json(value)?);
-                update_clauses.push(format!(
+                first = false;
+
+                if !first_update {
+                    write!(&mut update_clauses, ", ").unwrap();
+                }
+                write!(
+                    &mut update_clauses,
                     "{} = excluded.{}",
                     value_field.name, value_field.name
-                ));
+                )
+                .unwrap();
+                first_update = false;
             }
         }
 
-        let sql = format!(
-            "INSERT INTO {} ({}) VALUES ({}) ON CONFLICT DO UPDATE SET {}",
-            self.table_name,
-            columns.join(", "),
-            placeholders.join(", "),
-            update_clauses.join(", ")
-        );
+        write!(&mut sql, ") VALUES (").unwrap();
+
+        for i in 0..params.len() {
+            if i > 0 {
+                write!(&mut sql, ", ").unwrap();
+            }
+            write!(&mut sql, "?").unwrap();
+        }
+
+        write!(&mut sql, ") ON CONFLICT DO UPDATE SET {}", update_clauses).unwrap();
 
         Ok((sql, params))
     }
@@ -342,21 +365,25 @@ impl D1ExportContext {
         &self,
         key: &KeyValue,
     ) -> Result<(String, Vec<serde_json::Value>), RecocoError> {
-        let mut where_clauses = vec![];
-        let mut params = vec![];
+        use std::fmt::Write;
 
+        let mut params = Vec::with_capacity(self.key_fields_schema.len());
+        // ⚡ Bolt: Build directly into pre-allocated string
+        let mut sql = String::with_capacity(64 + self.key_fields_schema.len() * 20);
+
+        write!(&mut sql, "DELETE FROM {} WHERE ", self.table_name).unwrap();
+
+        let mut first = true;
         for (idx, _key_field) in self.key_fields_schema.iter().enumerate() {
             if let Some(key_part) = key.0.get(idx) {
-                where_clauses.push(format!("{} = ?", self.key_fields_schema[idx].name));
+                if !first {
+                    write!(&mut sql, " AND ").unwrap();
+                }
+                write!(&mut sql, "{} = ?", self.key_fields_schema[idx].name).unwrap();
                 params.push(key_part_to_json(key_part)?);
+                first = false;
             }
         }
-
-        let sql = format!(
-            "DELETE FROM {} WHERE {}",
-            self.table_name,
-            where_clauses.join(" AND ")
-        );
 
         Ok((sql, params))
     }
