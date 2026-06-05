@@ -1,0 +1,4 @@
+## 2026-06-05 - [Path Traversal in Manual Path Normalization]
+**Vulnerability:** Path traversal vulnerability during manual path normalization in `thread-flow`'s TypeScript module resolution.
+**Learning:** The manual fallback for path resolution incorrectly popped path components when encountering `ParentDir` (`../`) without checking if the previous component was a `RootDir` (`/`), `Prefix` (e.g., `C:`), or if the components list was empty, allowing path traversal outside the intended base directory.
+**Prevention:** When manually normalizing paths with `std::path::Component`, explicitly block `Component::ParentDir` from popping `Component::RootDir` or `Component::Prefix`. If the components list is empty or its last element is `Component::ParentDir`, the new `Component::ParentDir` must be pushed rather than ignored to correctly preserve relative paths like `../../a`.
