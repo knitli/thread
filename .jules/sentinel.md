@@ -1,0 +1,4 @@
+## 2025-02-14 - Fix Path Traversal Normalization Bug in File System Resolution
+**Vulnerability:** In `crates/flow/src/incremental/extractors/typescript.rs` and potentially elsewhere, path normalization logic used `components.pop()` when encountering `Component::ParentDir`. When `components` was empty or ended with another `Component::ParentDir`, this ignored `../` components rather than accumulating them, leading to incorrect path resolution or potential path traversal issues outside expected bounds.
+**Learning:** `Vec::pop()` silently returns `None` on an empty vector. Using it without checking the preceding components in a path navigation allows relative paths like `../../` to be collapsed incorrectly.
+**Prevention:** Explicitly check the last component. If it's empty or also a `ParentDir`, append the `ParentDir` to accurately represent `../` navigation, or return an error if such paths are not allowed in the context.
