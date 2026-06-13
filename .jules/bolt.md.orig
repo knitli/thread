@@ -1,0 +1,3 @@
+## 2024-06-13 - String Formatting Replacements in D1 Targeting
+**Learning:** In the `build_upsert_stmt` and `build_delete_stmt` generation paths of the `thread-flow` D1 target, repeated intermediate allocations via `format!` and `vec![]` string joins significantly harm statement generation performance.
+**Action:** Replace `format!` with `std::fmt::Write` directly on pre-allocated `String` buffers (`String::with_capacity`), tracking parameter indexes correctly to eliminate intermediate Vec collections completely. This pattern has a huge impact on statement generation benchmarks.
