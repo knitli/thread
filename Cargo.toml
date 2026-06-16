@@ -66,7 +66,7 @@ bit-set = { version = "0.8.0" }
 memchr = { version = "2.7.6", features = ["std"] }
 rapidhash = { version = "4.2.1" }
 regex = { version = "1.12.2" }
-simdeez = { version = "2.0.0" }
+simdeez = { version = "3.0.1" }
 # speed, but parallelism for local deployment
 rayon = { version = "1.11.0" }
 # ast
