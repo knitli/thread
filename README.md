@@ -5,6 +5,19 @@ SPDX-FileContributor: Adam Poulemanos <adam@knit.li>
 SPDX-License-Identifier: MIT OR Apache-2.0
 -->
 
+> [!WARNING]
+> 
+> ## Thread is no longer maintained
+>
+> We're really proud of Thread and think it's pretty awesome, but we can't maintain it anymore.
+>
+> We're focused on [something else](https://marque.tools).
+> 
+> Thread is an incomplete realtime codebase intelligence platform. The core architecture *is* complete. It has good bones.
+> Still licensed under AGPL 3.0, but if you have a good use for it, we're willing to reconsder. [Just ask](mailto:inquiries@knitli.com).
+> 
+> So please, **fork it and build something great!**
+
 # Thread
 
 [![REUSE status](https://api.reuse.software/badge/git.fsfe.org/reuse/api)](https://api.reuse.software/info/git.fsfe.org/reuse/api)
