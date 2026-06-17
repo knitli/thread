@@ -142,10 +142,13 @@ pub struct FileSystemContext {
 }
 
 impl FileSystemContext {
-    pub fn new<P: AsRef<Path>>(base_path: P) -> Self {
-        Self {
-            base_path: base_path.as_ref().to_path_buf(),
-        }
+    pub fn new<P: AsRef<Path>>(base_path: P) -> ServiceResult<Self> {
+        let canonical_base = base_path.as_ref().canonicalize().map_err(|e| {
+            ServiceError::execution_dynamic(format!("Failed to canonicalize base path: {}", e))
+        })?;
+        Ok(Self {
+            base_path: canonical_base,
+        })
     }
 
     /// Lexically validate path to prevent traversal attacks and symlink escapes
@@ -196,24 +199,22 @@ impl FileSystemContext {
         // 2. Physical security check: verify symlinks don't escape base_path
         // We catch escapes by checking the longest existing prefix of the path.
         // This is robust even for new files (write_content).
-        if let Ok(canonical_base) = self.base_path.canonicalize() {
-            let mut current = final_path.as_path();
-            while !current.exists() {
-                if let Some(parent) = current.parent() {
-                    current = parent;
-                } else {
-                    break;
-                }
+        let mut current = final_path.as_path();
+        while !current.exists() {
+            if let Some(parent) = current.parent() {
+                current = parent;
+            } else {
+                break;
             }
+        }
 
-            if current.exists()
-                && let Ok(canonical_prefix) = current.canonicalize()
-                && !canonical_prefix.starts_with(&canonical_base)
-            {
-                return Err(ServiceError::execution_dynamic(format!(
-                    "Path validation failed: {source} resolves outside base path via symlinks"
-                )));
-            }
+        if current.exists()
+            && let Ok(canonical_prefix) = current.canonicalize()
+            && !canonical_prefix.starts_with(&self.base_path)
+        {
+            return Err(ServiceError::execution_dynamic(format!(
+                "Path validation failed: {source} resolves outside base path via symlinks"
+            )));
         }
 
         Ok(final_path)
@@ -310,7 +311,7 @@ mod tests {
     #[test]
     fn test_file_system_context_security() {
         let temp = std::env::temp_dir();
-        let ctx = FileSystemContext::new(&temp);
+        let ctx = FileSystemContext::new(&temp).unwrap();
 
         // Valid paths
         assert!(ctx.secure_path("test.txt").is_ok());
