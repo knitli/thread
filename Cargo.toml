@@ -68,7 +68,7 @@ rapidhash = { version = "4.2.1" }
 regex = { version = "1.12.2" }
 simdeez = { version = "2.0.0" }
 # speed, but parallelism for local deployment
-rayon = { version = "1.11.0" }
+rayon = { version = "1.12.0" }
 # ast
 tree-sitter = { version = ">=0.25.0" }
 # async -- primarily for edge deployment
