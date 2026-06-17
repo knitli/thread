@@ -300,40 +300,51 @@ impl D1ExportContext {
         key: &KeyValue,
         values: &FieldValues,
     ) -> Result<(String, Vec<serde_json::Value>), RecocoError> {
-        let mut columns = vec![];
-        let mut placeholders = vec![];
-        let mut params = vec![];
-        let mut update_clauses = vec![];
+        use std::fmt::Write;
+        let mut params = Vec::with_capacity(self.key_fields_schema.len() + values.fields.len());
+        // ⚡ Bolt: Direct SQL construction to avoid intermediate String and Vec allocations
+        let mut sql = String::with_capacity(256);
+        let _ = write!(sql, "INSERT INTO {} (", self.table_name);
 
-        // Extract key parts - KeyValue is a wrapper around Box<[KeyPart]>
+        let mut first = true;
+        let mut update_clauses = String::with_capacity(128);
+        let mut first_upd = true;
+
         for (idx, _key_field) in self.key_fields_schema.iter().enumerate() {
             if let Some(key_part) = key.0.get(idx) {
-                columns.push(self.key_fields_schema[idx].name.clone());
-                placeholders.push("?".to_string());
+                if !first {
+                    sql.push_str(", ");
+                }
+                sql.push_str(&self.key_fields_schema[idx].name);
                 params.push(key_part_to_json(key_part)?);
+                first = false;
             }
         }
-
-        // Add value fields
         for (idx, value) in values.fields.iter().enumerate() {
-            if let Some(value_field) = self.value_fields_schema.get(idx) {
-                columns.push(value_field.name.clone());
-                placeholders.push("?".to_string());
+            if let Some(field) = self.value_fields_schema.get(idx) {
+                if !first {
+                    sql.push_str(", ");
+                }
+                sql.push_str(&field.name);
                 params.push(value_to_json(value)?);
-                update_clauses.push(format!(
-                    "{} = excluded.{}",
-                    value_field.name, value_field.name
-                ));
+                first = false;
+
+                if !first_upd {
+                    update_clauses.push_str(", ");
+                }
+                let _ = write!(update_clauses, "{0} = excluded.{0}", field.name);
+                first_upd = false;
             }
         }
 
-        let sql = format!(
-            "INSERT INTO {} ({}) VALUES ({}) ON CONFLICT DO UPDATE SET {}",
-            self.table_name,
-            columns.join(", "),
-            placeholders.join(", "),
-            update_clauses.join(", ")
-        );
+        sql.push_str(") VALUES (");
+        for i in 0..params.len() {
+            if i > 0 {
+                sql.push_str(", ");
+            }
+            sql.push('?');
+        }
+        let _ = write!(sql, ") ON CONFLICT DO UPDATE SET {}", update_clauses);
 
         Ok((sql, params))
     }
