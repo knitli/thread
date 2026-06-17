@@ -1,0 +1,4 @@
+## 2025-05-12 - Path Traversal Vulnerability in TypeScript Module Resolution
+**Vulnerability:** The manual path resolution for `../` module specifiers in `TypeScriptExtractor::resolve_module_path` was popping `components` unconditionally on `Component::ParentDir`. This means `../../a` might consume `Component::RootDir` or `Component::Prefix`, causing a path traversal vulnerability and incorrect normalization when there are no more components to pop.
+**Learning:** `std::path::Component::ParentDir` must explicitly block popping `Component::RootDir` or `Component::Prefix`. Furthermore, if the components list is empty or the last element is already `Component::ParentDir`, we must push the `Component::ParentDir` instead of doing nothing or attempting to pop.
+**Prevention:** When doing manual path normalization with `std::path::Component`, always use pattern matching on the last component before popping to ensure root boundaries and relative navigation are preserved.
