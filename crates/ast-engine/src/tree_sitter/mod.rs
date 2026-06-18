@@ -553,9 +553,8 @@ impl ContentExt for String {
         let mut bytes = std::mem::take(self).into_bytes();
         let original_len = bytes.len();
         bytes.splice(safe_start..safe_end, full_inserted);
-        *self = Self::from_utf8(bytes).unwrap_or_else(|e| {
-            Self::from_utf8_lossy(&e.into_bytes()).into_owned()
-        });
+        *self = Self::from_utf8(bytes)
+            .unwrap_or_else(|e| Self::from_utf8_lossy(&e.into_bytes()).into_owned());
 
         // We calculate new_end_byte using the difference in the new overall string length
         // to correctly align the end offset, taking any potential replacement bytes from
@@ -791,7 +790,10 @@ mod test {
 
         let tree2 = parse_lang(|p| p.parse(&src, Some(&tree)), &Tsx.get_ts_language())?;
         let fresh_tree = parse(&src)?;
-        assert_eq!(tree2.root_node().to_sexp(), fresh_tree.root_node().to_sexp());
+        assert_eq!(
+            tree2.root_node().to_sexp(),
+            fresh_tree.root_node().to_sexp()
+        );
         Ok(())
     }
 }
