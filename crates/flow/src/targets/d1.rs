@@ -300,40 +300,73 @@ impl D1ExportContext {
         key: &KeyValue,
         values: &FieldValues,
     ) -> Result<(String, Vec<serde_json::Value>), RecocoError> {
-        let mut columns = vec![];
-        let mut placeholders = vec![];
-        let mut params = vec![];
-        let mut update_clauses = vec![];
+        use std::fmt::Write;
 
+        let num_keys = key.0.len().min(self.key_fields_schema.len());
+        let num_values = values.fields.len().min(self.value_fields_schema.len());
+        let num_total = num_keys + num_values;
+
+        let mut params = Vec::with_capacity(num_total);
+
+        // Optimize SQL string construction using String::with_capacity and write!
+        // to avoid multiple intermediate Vec allocations and format! calls
+        let mut sql = String::with_capacity(128 + num_total * 16 + num_values * 32);
+
+        write!(sql, "INSERT INTO {} (", self.table_name)
+            .map_err(|e| RecocoError::internal_msg(format!("Failed to format SQL: {}", e)))?;
+
+        let mut first = true;
         // Extract key parts - KeyValue is a wrapper around Box<[KeyPart]>
         for (idx, _key_field) in self.key_fields_schema.iter().enumerate() {
             if let Some(key_part) = key.0.get(idx) {
-                columns.push(self.key_fields_schema[idx].name.clone());
-                placeholders.push("?".to_string());
+                if !first {
+                    sql.push_str(", ");
+                }
+                sql.push_str(&self.key_fields_schema[idx].name);
                 params.push(key_part_to_json(key_part)?);
+                first = false;
             }
         }
 
         // Add value fields
         for (idx, value) in values.fields.iter().enumerate() {
             if let Some(value_field) = self.value_fields_schema.get(idx) {
-                columns.push(value_field.name.clone());
-                placeholders.push("?".to_string());
+                if !first {
+                    sql.push_str(", ");
+                }
+                sql.push_str(&value_field.name);
                 params.push(value_to_json(value)?);
-                update_clauses.push(format!(
-                    "{} = excluded.{}",
-                    value_field.name, value_field.name
-                ));
+                first = false;
             }
         }
 
-        let sql = format!(
-            "INSERT INTO {} ({}) VALUES ({}) ON CONFLICT DO UPDATE SET {}",
-            self.table_name,
-            columns.join(", "),
-            placeholders.join(", "),
-            update_clauses.join(", ")
-        );
+        sql.push_str(") VALUES (");
+
+        for i in 0..params.len() {
+            if i > 0 {
+                sql.push_str(", ?");
+            } else {
+                sql.push('?');
+            }
+        }
+
+        if num_values > 0 {
+            sql.push_str(") ON CONFLICT DO UPDATE SET ");
+            first = true;
+            for (idx, _) in values.fields.iter().enumerate() {
+                if let Some(value_field) = self.value_fields_schema.get(idx) {
+                    if !first {
+                        sql.push_str(", ");
+                    }
+                    write!(sql, "{} = excluded.{}", value_field.name, value_field.name).map_err(
+                        |e| RecocoError::internal_msg(format!("Failed to format SQL: {}", e)),
+                    )?;
+                    first = false;
+                }
+            }
+        } else {
+            sql.push(')');
+        }
 
         Ok((sql, params))
     }
@@ -342,21 +375,29 @@ impl D1ExportContext {
         &self,
         key: &KeyValue,
     ) -> Result<(String, Vec<serde_json::Value>), RecocoError> {
-        let mut where_clauses = vec![];
-        let mut params = vec![];
+        use std::fmt::Write;
 
+        let num_keys = key.0.len().min(self.key_fields_schema.len());
+        let mut params = Vec::with_capacity(num_keys);
+
+        // Optimize SQL string construction
+        let mut sql = String::with_capacity(64 + num_keys * 16);
+        write!(sql, "DELETE FROM {} WHERE ", self.table_name)
+            .map_err(|e| RecocoError::internal_msg(format!("Failed to format SQL: {}", e)))?;
+
+        let mut first = true;
         for (idx, _key_field) in self.key_fields_schema.iter().enumerate() {
             if let Some(key_part) = key.0.get(idx) {
-                where_clauses.push(format!("{} = ?", self.key_fields_schema[idx].name));
+                if !first {
+                    sql.push_str(" AND ");
+                }
+                write!(sql, "{} = ?", self.key_fields_schema[idx].name).map_err(|e| {
+                    RecocoError::internal_msg(format!("Failed to format SQL: {}", e))
+                })?;
                 params.push(key_part_to_json(key_part)?);
+                first = false;
             }
         }
-
-        let sql = format!(
-            "DELETE FROM {} WHERE {}",
-            self.table_name,
-            where_clauses.join(" AND ")
-        );
 
         Ok((sql, params))
     }
