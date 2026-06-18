@@ -246,7 +246,11 @@ impl Rule {
 
     pub fn defined_vars(&self) -> RapidSet<String> {
         match self {
-            Rule::Pattern(p) => p.defined_vars().into_iter().map(|s| s.to_string()).collect(),
+            Rule::Pattern(p) => p
+                .defined_vars()
+                .into_iter()
+                .map(|s| s.to_string())
+                .collect(),
             Rule::Kind(_) => RapidSet::default(),
             Rule::Regex(_) => RapidSet::default(),
             Rule::NthChild(n) => n.defined_vars(),
