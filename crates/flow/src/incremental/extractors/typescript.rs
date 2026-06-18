@@ -808,7 +808,15 @@ impl TypeScriptDependencyExtractor {
                 for component in resolved.components() {
                     match component {
                         std::path::Component::ParentDir => {
-                            components.pop();
+                            // Security fix: properly handle path normalization to prevent path traversal.
+                            // Only pop if there's a normal component, otherwise push the ParentDir.
+                            // This ensures paths like "../../foo" are handled correctly when canonicalize fails.
+                            match components.last() {
+                                Some(std::path::Component::Normal(_)) => {
+                                    components.pop();
+                                }
+                                _ => components.push(std::path::Component::ParentDir),
+                            }
                         }
                         std::path::Component::CurDir => {}
                         _ => components.push(component),
