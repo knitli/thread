@@ -67,7 +67,7 @@ rayon = { workspace = true, optional = true }
 recoco = { version = "0.2.1", default-features = false, features = [
   "source-local-file",
 ] }
-reqwest = { version = "0.12", features = ["json"] }
+reqwest = { version = "0.13", features = ["json"] }
 serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }
