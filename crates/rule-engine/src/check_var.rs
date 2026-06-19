@@ -27,9 +27,9 @@ pub enum CheckHint<'r> {
 pub fn check_rule_with_hint<'r>(
     rule: &'r Rule,
     utils: &'r RuleRegistration,
-    constraints: &'r RapidMap<thread_ast_engine::meta_var::MetaVariableID, Rule>,
-    transform: &'r Option<Transform>,
-    fixer: &Vec<Fixer>,
+    constraints: &RapidMap<thread_ast_engine::meta_var::MetaVariableID, Rule>,
+    transform: &Option<Transform>,
+    fixer: &[Fixer],
     hint: CheckHint<'r>,
 ) -> RResult<()> {
     match hint {
@@ -56,9 +56,9 @@ pub fn check_rule_with_hint<'r>(
 fn check_vars_in_rewriter<'r>(
     rule: &'r Rule,
     utils: &'r RuleRegistration,
-    constraints: &'r RapidMap<thread_ast_engine::meta_var::MetaVariableID, Rule>,
-    transform: &'r Option<Transform>,
-    fixer: &Vec<Fixer>,
+    constraints: &RapidMap<thread_ast_engine::meta_var::MetaVariableID, Rule>,
+    transform: &Option<Transform>,
+    fixer: &[Fixer],
     upper_var: &RapidSet<String>,
 ) -> RResult<()> {
     let vars = get_vars_from_rules(rule, utils);
@@ -85,9 +85,9 @@ fn check_utils_defined(
 fn check_vars<'r>(
     rule: &'r Rule,
     utils: &'r RuleRegistration,
-    constraints: &'r RapidMap<thread_ast_engine::meta_var::MetaVariableID, Rule>,
-    transform: &'r Option<Transform>,
-    fixer: &Vec<Fixer>,
+    constraints: &RapidMap<thread_ast_engine::meta_var::MetaVariableID, Rule>,
+    transform: &Option<Transform>,
+    fixer: &[Fixer],
 ) -> RResult<()> {
     let vars = get_vars_from_rules(rule, utils);
     let vars = check_var_in_constraints(vars, constraints)?;
@@ -104,9 +104,9 @@ fn get_vars_from_rules<'r>(rule: &'r Rule, utils: &'r RuleRegistration) -> Rapid
     vars
 }
 
-fn check_var_in_constraints<'r>(
+fn check_var_in_constraints(
     mut vars: RapidSet<String>,
-    constraints: &'r RapidMap<thread_ast_engine::meta_var::MetaVariableID, Rule>,
+    constraints: &RapidMap<thread_ast_engine::meta_var::MetaVariableID, Rule>,
 ) -> RResult<RapidSet<String>> {
     for rule in constraints.values() {
         for var in rule.defined_vars() {
@@ -125,9 +125,9 @@ fn check_var_in_constraints<'r>(
     Ok(vars)
 }
 
-fn check_var_in_transform<'r>(
+fn check_var_in_transform(
     mut vars: RapidSet<String>,
-    transform: &'r Option<Transform>,
+    transform: &Option<Transform>,
 ) -> RResult<RapidSet<String>> {
     let Some(transform) = transform else {
         return Ok(vars);
@@ -152,7 +152,7 @@ fn check_var_in_transform<'r>(
     Ok(vars)
 }
 
-fn check_var_in_fix(vars: RapidSet<String>, fixers: &Vec<Fixer>) -> RResult<()> {
+fn check_var_in_fix(vars: RapidSet<String>, fixers: &[Fixer]) -> RResult<()> {
     for fixer in fixers {
         for var in fixer.used_vars() {
             if !vars.contains(var) {
