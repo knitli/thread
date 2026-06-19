@@ -27,10 +27,7 @@ impl<R> Clone for Registration<R> {
 
 impl<R> Registration<R> {
     fn read(&self) -> Arc<RapidMap<String, R>> {
-        self.0
-            .read()
-            .unwrap_or_else(|e| e.into_inner())
-            .clone()
+        self.0.read().unwrap_or_else(|e| e.into_inner()).clone()
     }
     pub(crate) fn contains_key(&self, key: &str) -> bool {
         self.read().contains_key(key)
