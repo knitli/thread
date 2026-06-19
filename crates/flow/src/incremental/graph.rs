@@ -177,14 +177,17 @@ impl DependencyGraph {
         self.ensure_node(&edge.to);
 
         // Update adjacency lists
-        self.forward_adj
-            .entry(edge.from.clone())
-            .or_default()
-            .push(idx);
-        self.reverse_adj
-            .entry(edge.to.clone())
-            .or_default()
-            .push(idx);
+        if let Some(vec) = self.forward_adj.get_mut(&edge.from) {
+            vec.push(idx);
+        } else {
+            self.forward_adj.insert(edge.from.clone(), vec![idx]);
+        }
+
+        if let Some(vec) = self.reverse_adj.get_mut(&edge.to) {
+            vec.push(idx);
+        } else {
+            self.reverse_adj.insert(edge.to.clone(), vec![idx]);
+        }
 
         self.edges.push(edge);
 
@@ -400,9 +403,10 @@ impl DependencyGraph {
     /// Ensures a node exists in the graph for the given file path.
     /// Creates a default fingerprint entry if the node does not exist.
     fn ensure_node(&mut self, file: &Path) {
-        self.nodes
-            .entry(file.to_path_buf())
-            .or_insert_with(|| AnalysisDefFingerprint::new(b""));
+        if !self.nodes.contains_key(file) {
+            self.nodes
+                .insert(file.to_path_buf(), AnalysisDefFingerprint::new(b""));
+        }
     }
 
     /// DFS visit for topological sort with cycle detection.

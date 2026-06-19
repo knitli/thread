@@ -104,9 +104,9 @@ fn get_vars_from_rules<'r>(rule: &'r Rule, utils: &'r RuleRegistration) -> Rapid
     vars
 }
 
-fn check_var_in_constraints<'r>(
+fn check_var_in_constraints(
     mut vars: RapidSet<String>,
-    constraints: &'r RapidMap<thread_ast_engine::meta_var::MetaVariableID, Rule>,
+    constraints: &RapidMap<thread_ast_engine::meta_var::MetaVariableID, Rule>,
 ) -> RResult<RapidSet<String>> {
     for rule in constraints.values() {
         for var in rule.defined_vars() {
@@ -125,9 +125,9 @@ fn check_var_in_constraints<'r>(
     Ok(vars)
 }
 
-fn check_var_in_transform<'r>(
+fn check_var_in_transform(
     mut vars: RapidSet<String>,
-    transform: &'r Option<Transform>,
+    transform: &Option<Transform>,
 ) -> RResult<RapidSet<String>> {
     let Some(transform) = transform else {
         return Ok(vars);
