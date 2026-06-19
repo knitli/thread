@@ -1,0 +1,4 @@
+## 2024-05-15 - Path Traversal in Manual Path Component Normalization
+**Vulnerability:** Path traversal risk during manual path normalization (when `std::fs::canonicalize` fails). In `typescript.rs`, handling `Component::ParentDir` by only calling `components.pop()` allows excessive `../` to resolve up to the root, bypassing intended base path constraints.
+**Learning:** `std::path::Component::ParentDir` shouldn't blindly pop the last component. If the component stack is empty or its last element is also `ParentDir`, popping ignores the traversal intent.
+**Prevention:** Explicitly match against the last element of the component stack before handling `ParentDir`. If it's a `RootDir` or `Prefix`, ignore. If it's a `ParentDir` or `None`, push the `ParentDir`. Only pop when the last element is `Normal`.
