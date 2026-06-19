@@ -168,9 +168,5 @@ mod d1_no_cache_tests {
         .expect("Failed to create context without caching");
 
         // Should compile and work without cache field
-        assert!(
-            true,
-            "D1ExportContext created successfully without caching feature"
-        );
     }
 }
