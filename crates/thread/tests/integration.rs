@@ -18,5 +18,5 @@ fn test_service_reexports_work() {
     use thread::services::FileSystemContext;
 
     // Just check if we can use the types
-    let _ctx = FileSystemContext::new(".");
+    let _ctx = FileSystemContext::new(".").unwrap();
 }
