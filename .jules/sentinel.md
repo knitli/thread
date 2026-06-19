@@ -1,0 +1,4 @@
+## 2024-06-06 - Path Traversal in TS Extractor
+**Vulnerability:** A path traversal vulnerability in `crates/flow/src/incremental/extractors/typescript.rs` during manual module path resolution where popping `std::path::Component::ParentDir` could allow an attacker to traverse to restricted directories or files when canonicalize fails.
+**Learning:** During manual canonicalization of path components, ignoring `..` entirely when popping isn't sufficient. If the path navigates up from the root or prefix, popping an empty stack leads to bypassing of security boundaries. Moreover, relative paths like `../../a` get wrongly reduced.
+**Prevention:** Explicitly block `Component::ParentDir` from popping `Component::RootDir` or `Component::Prefix`. If the components list is empty or its last element is `Component::ParentDir`, the new `Component::ParentDir` must be pushed instead of ignored, to correctly preserve valid relative paths.
