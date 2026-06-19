@@ -808,7 +808,18 @@ impl TypeScriptDependencyExtractor {
                 for component in resolved.components() {
                     match component {
                         std::path::Component::ParentDir => {
-                            components.pop();
+                            // SECURITY: Prevent path traversal by correctly handling ParentDir.
+                            // Do not pop RootDir or Prefix. Push ParentDir if empty or last is ParentDir
+                            // to preserve relative paths like `../../a`.
+                            match components.last() {
+                                Some(std::path::Component::RootDir) | Some(std::path::Component::Prefix(_)) => {}
+                                Some(std::path::Component::ParentDir) | None => {
+                                    components.push(component);
+                                }
+                                _ => {
+                                    components.pop();
+                                }
+                            }
                         }
                         std::path::Component::CurDir => {}
                         _ => components.push(component),
