@@ -1,0 +1,5 @@
+## 2025-04-14 - Fix path traversal vulnerability in manual path normalization
+
+**Vulnerability:** Unsafe `.pop()` operations on `Vec<std::path::Component>` during manual path normalization (`crates/flow/src/incremental/extractors/typescript.rs`).
+**Learning:** When using `.pop()` to evaluate `std::path::Component::ParentDir` (`../`), we must be careful not to blindly pop elements. If the vector is empty or ends in a `RootDir` (`/`) or `Prefix` (`C:\`), popping has no effect and ignores the limit, or ignores bounds check later. It must only pop `Component::Normal(_)` elements. If the parent limit is reached at relative roots, we must push the `ParentDir` component.
+**Prevention:** Always verify what component is being popped. Use `components.last()` to check if it is `Some(Component::Normal(_))` before calling `.pop()`. For `RootDir` or `Prefix`, do nothing. For others (like empty, or existing `ParentDir`), push the `ParentDir` component to retain it.
