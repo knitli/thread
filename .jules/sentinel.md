@@ -1,0 +1,4 @@
+## 2024-05-18 - [Path Traversal in Manual Path Resolution]
+**Vulnerability:** In `resolve_module_path`, manual path normalization for unresolved paths incorrectly popped `std::path::Component::ParentDir` from the components list regardless of the previous component. This could pop `RootDir` or `Prefix` components, leading to potential path traversal vulnerabilities or generating entirely wrong absolute paths when given multiple `..` segments.
+**Learning:** `std::path::Component` does not inherently block you from popping structural elements like `RootDir`. When manually normalizing paths by collecting components, you must handle `..` explicitly by checking the last element before popping.
+**Prevention:** Always verify the type of the last component before popping it for a `ParentDir`. Explicitly ignore `ParentDir` if the last component is `RootDir` or `Prefix`, and push it if the list is empty or the last component is also `ParentDir`.
