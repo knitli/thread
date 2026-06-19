@@ -535,48 +535,65 @@ impl D1SetupState {
         })
     }
 
+    // ⚡ Bolt optimization: Use String::with_capacity and write! macro to avoid intermediate Vec allocations and string copies during SQL generation
     pub fn create_table_sql(&self) -> String {
-        let mut columns = vec![];
+        use std::fmt::Write;
+        let mut sql = String::with_capacity(128);
+        let _ = write!(sql, "CREATE TABLE IF NOT EXISTS {} (", self.table_id.table_name);
 
+        let mut first = true;
         for col in self.key_columns.iter().chain(self.value_columns.iter()) {
-            let mut col_def = format!("{} {}", col.name, col.sql_type);
-            if !col.nullable {
-                col_def.push_str(" NOT NULL");
+            if !first {
+                sql.push_str(", ");
             }
-            columns.push(col_def);
+            first = false;
+            let _ = write!(sql, "{} {}", col.name, col.sql_type);
+            if !col.nullable {
+                sql.push_str(" NOT NULL");
+            }
         }
 
         if !self.key_columns.is_empty() {
-            let pk_cols: Vec<_> = self.key_columns.iter().map(|c| &c.name).collect();
-            columns.push(format!(
-                "PRIMARY KEY ({})",
-                pk_cols
-                    .iter()
-                    .map(|s| s.as_str())
-                    .collect::<Vec<_>>()
-                    .join(", ")
-            ));
+            sql.push_str(", PRIMARY KEY (");
+            let mut first_pk = true;
+            for col in &self.key_columns {
+                if !first_pk {
+                    sql.push_str(", ");
+                }
+                first_pk = false;
+                sql.push_str(&col.name);
+            }
+            sql.push(')');
         }
 
-        format!(
-            "CREATE TABLE IF NOT EXISTS {} ({})",
-            self.table_id.table_name,
-            columns.join(", ")
-        )
+        sql.push(')');
+        sql
     }
 
+    // ⚡ Bolt optimization: Use String::with_capacity to avoid intermediate Vec allocations and string copies
     pub fn create_indexes_sql(&self) -> Vec<String> {
+        use std::fmt::Write;
         self.indexes
             .iter()
             .map(|idx| {
+                let mut sql = String::with_capacity(128);
                 let unique = if idx.unique { "UNIQUE " } else { "" };
-                format!(
-                    "CREATE {}INDEX IF NOT EXISTS {} ON {} ({})",
-                    unique,
-                    idx.name,
-                    self.table_id.table_name,
-                    idx.columns.join(", ")
-                )
+                let _ = write!(
+                    sql,
+                    "CREATE {}INDEX IF NOT EXISTS {} ON {} (",
+                    unique, idx.name, self.table_id.table_name
+                );
+
+                let mut first = true;
+                for col in &idx.columns {
+                    if !first {
+                        sql.push_str(", ");
+                    }
+                    first = false;
+                    sql.push_str(col);
+                }
+                sql.push(')');
+                sql
             })
             .collect()
     }
