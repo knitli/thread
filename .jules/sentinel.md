@@ -1,0 +1,4 @@
+## 2025-05-15 - [Path Traversal in Manual Path Normalization]
+**Vulnerability:** Manual path resolution using `components.pop()` on `std::path::Component::ParentDir` allowed path traversal. If a path like `../../a` was parsed, `components.pop()` on an empty `Vec` did nothing, turning the path into `a` instead of preserving the parent traversal. It could also pop `RootDir` or `Prefix` components, changing absolute paths to relative ones or traversing beyond intended roots.
+**Learning:** `std::path::Component` normalization must handle empty lists and consecutive `ParentDir` components by pushing them instead of ignoring them. It must also explicitly avoid popping `RootDir` or `Prefix` components to prevent escaping virtual file systems or simulated root directories.
+**Prevention:** Explicitly check if the `components` list is empty, if the last component is `ParentDir`, or if the last component is `RootDir` / `Prefix` before calling `pop()`.
