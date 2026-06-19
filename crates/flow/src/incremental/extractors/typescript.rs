@@ -804,11 +804,28 @@ impl TypeScriptDependencyExtractor {
                 resolved = canonical;
             } else {
                 // If canonicalize fails (file doesn't exist), manually resolve
-                let mut components = Vec::new();
+                let mut components: Vec<std::path::Component> = Vec::new();
                 for component in resolved.components() {
                     match component {
                         std::path::Component::ParentDir => {
-                            components.pop();
+                            // Security fix: prevent path traversal attacks by explicitly blocking Component::ParentDir
+                            // from popping Component::RootDir or Component::Prefix.
+                            // If empty or already ends in ParentDir, push to preserve relative paths like ../../a
+                            if let Some(last) = components.last() {
+                                match last {
+                                    std::path::Component::RootDir | std::path::Component::Prefix(_) => {
+                                        // Cannot go above root/prefix, ignore ParentDir
+                                    }
+                                    std::path::Component::ParentDir => {
+                                        components.push(component);
+                                    }
+                                    _ => {
+                                        components.pop();
+                                    }
+                                }
+                            } else {
+                                components.push(component);
+                            }
                         }
                         std::path::Component::CurDir => {}
                         _ => components.push(component),
