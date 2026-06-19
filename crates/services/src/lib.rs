@@ -142,10 +142,11 @@ pub struct FileSystemContext {
 }
 
 impl FileSystemContext {
-    pub fn new<P: AsRef<Path>>(base_path: P) -> Self {
-        Self {
-            base_path: base_path.as_ref().to_path_buf(),
-        }
+    pub fn new<P: AsRef<Path>>(base_path: P) -> ServiceResult<Self> {
+        let canonical_base = base_path.as_ref().canonicalize()?;
+        Ok(Self {
+            base_path: canonical_base,
+        })
     }
 
     /// Lexically validate path to prevent traversal attacks and symlink escapes
@@ -310,7 +311,7 @@ mod tests {
     #[test]
     fn test_file_system_context_security() {
         let temp = std::env::temp_dir();
-        let ctx = FileSystemContext::new(&temp);
+        let ctx = FileSystemContext::new(&temp).unwrap();
 
         // Valid paths
         assert!(ctx.secure_path("test.txt").is_ok());
